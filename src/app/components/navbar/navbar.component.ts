@@ -4,8 +4,6 @@ import { PostService } from '../../posts/services/post.service';
 import { Institution } from '../../posts/models/institution';
 import { CommentService } from '../../comments/services/comment.service';
 import { Modal } from 'bootstrap';
-import { environment } from '../../../environments/environment';
-import { UserDetail } from '../../posts/models/user-detail';
 
 @Component({
   selector: 'app-navbar',
@@ -29,39 +27,6 @@ export class NavbarComponent {
   }
 
   ngOnInit() {
-    /*
-    const uuid = "93j203b4-f63b-4c4a-be05-eae84cef0c0c";
-    this.postService.getInstitution(uuid).subscribe({
-
-  user!: UserDetail;
-
-  constructor(private authService: AuthService,
-    private postService: PostService
-  ){}
-  
-  ngOnInit(){
-    this.authenticated = this.authService.isAuthenticated();
-    const intitutionUUID = `${environment.INSTITUTION_ID}`;
-    this.postService.getInstitution(intitutionUUID).subscribe({
-      next:(institutionData)=>{
-        this.institution = institutionData
-      },
-      error: (error)=>{
-        console.log(error)
-      }
-    });
-    if(this.authenticated){
-      this.postService.getUser().subscribe({
-        next: (infoUser: UserDetail) => {
-          this.user = infoUser;
-        },
-        error: (error) => {
-          console.log('Error al obtener al user',error)
-        }
-      })
-    }
-    */
-
     this.getInstitution();
     this.getUser();
     this.totalModeratedComments();

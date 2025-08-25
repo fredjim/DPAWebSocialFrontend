@@ -1,22 +1,25 @@
 import { Component, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
-import { LoginComponent } from './authentication/components/login/login.component';
 import { ViewAllPostsComponent } from './posts/components/view-all-posts/view-all-posts.component';
 import { PhotosGalleryComponent } from './posts/components/photos-gallery/photos-gallery.component';
 import { VideosGalleryComponent } from './posts/components/videos-gallery/videos-gallery.component';
-import { PagesComponent } from './pages/pages.component';
-import { AboutUsComponent } from './pages/about-us/about-us.component';
-import { AgreementsComponent } from './pages/agreements/agreements.component';
-import { ProjectsComponent } from './pages/projects/projects.component';
-import { ScholarshipsMobilityComponent } from './pages/scholarships-mobility/scholarships-mobility.component';
-import { MembershipsComponent } from './pages/memberships/memberships.component';
-import { ReportsComponent } from './pages/reports/reports.component';
-import { authGuard } from './authentication/services/auth.guard';
 import { ViewAllPostsConveniosComponent } from './posts/components/view-all-posts-convenios/view-all-posts-convenios.component';
 import { ViewAllPostsProyectosComponent } from './posts/components/view-all-posts-proyectos/view-all-posts-proyectos.component';
 import { ViewAllPostsBecasComponent } from './posts/components/view-all-posts-becas/view-all-posts-becas.component';
 import { ViewAllPostsCudieComponent } from './posts/components/view-all-posts-cudie/view-all-posts-cudie.component';
+import { PresentationComponent } from './pages/pages-information/presentation/presentation.component';
+import { AcademicCoordinationComponent } from './pages/pages-information/academic-coordination/academic-coordination.component';
+import { CurriculumDevelopmentComponent } from './pages/pages-information/curriculum-development/curriculum-development.component';
+import { AcademicPersonnelComponent } from './pages/pages-information/academic-personnel/academic-personnel.component';
+import { AlternativeGraduationComponent } from './pages/pages-information/alternative-graduation/alternative-graduation.component';
+import { AcademicMonitoringComponent } from './pages/pages-information/academic-monitoring/academic-monitoring.component';
+import { RecordRegistrationComponent } from './pages/pages-information/record-registration/record-registration.component';
+import { PagesGuideProcedureComponent } from './pages/pages-guide-procedure/pages-guide-procedure.component';
+import { AcademicCoordintationGuideComponent } from './pages/pages-guide-procedure/academic-coordintation-guide/academic-coordintation-guide.component';
+import { AcademicMonitoringGuideComponent } from './pages/pages-guide-procedure/academic-monitoring-guide/academic-monitoring-guide.component';
+import { PagesInformationComponent } from './pages/pages-information/pages-information.component';
+import { PagesLinksComponent } from './pages/pages-links/pages-links.component';
 
 const routes: Routes = [
   {
@@ -26,33 +29,28 @@ const routes: Routes = [
       {
         path: 'posts',
         component: ViewAllPostsComponent,
-        //canActivate: [authGuard]  
       },
       { path: 'informacion',
-        component: PagesComponent,
-        //canActivate: [authGuard],
+        component: PagesInformationComponent,
         children: [
           { path: '', redirectTo: 'presentacion', pathMatch: 'full' },
-          { path: 'presentacion', component: AboutUsComponent },
-          { path: 'convenios', component: AgreementsComponent },
-          { path: 'proyectos', component: ProjectsComponent },
-          { path: 'becas-movilidad', component: ScholarshipsMobilityComponent },
-          { path: 'membresias', component: MembershipsComponent },
-          { path: 'informes-gestion', component: ReportsComponent },
+          { path: 'presentacion', component: PresentationComponent },
+          { path: 'coordinacion-academica', component: AcademicCoordinationComponent },
+          { path: 'desarrollo-curricular', component: CurriculumDevelopmentComponent },
+          { path: 'personal-academico', component: AcademicPersonnelComponent },
+          { path: 'titulacion-alternativa', component: AlternativeGraduationComponent },
+          { path: 'seguimiento-academico', component: AcademicMonitoringComponent },
+          { path: 'registro-inscripciones', component: RecordRegistrationComponent },
           { path: '**', redirectTo: 'presentacion', pathMatch: 'full' }
         ]
       },
-      { path: 'informacion',
-        component: PagesComponent,
+      { path: 'guia-tramites',
+        component: PagesGuideProcedureComponent,
         children: [
-          { path: '', redirectTo: 'presentacion', pathMatch: 'full' },
-          { path: 'presentacion', component: AboutUsComponent },
-          { path: 'convenios', component: AgreementsComponent },
-          { path: 'proyectos', component: ProjectsComponent },
-          { path: 'becas-movilidad', component: ScholarshipsMobilityComponent },
-          { path: 'membresias', component: MembershipsComponent },
-          { path: 'informes-gestion', component: ReportsComponent },
-          { path: '**', redirectTo: 'presentacion', pathMatch: 'full' }
+          { path: '', redirectTo: 'tramite-coordinacion-academica', pathMatch: 'full' },
+          { path: 'tramite-coordinacion-academica', component: AcademicCoordintationGuideComponent },
+          { path: 'tramite-seguimiento-evaluacion', component: AcademicMonitoringGuideComponent },
+          { path: '**', redirectTo: 'tramite-coordinacion-academica', pathMatch: 'full' }
         ]
       },
       { path: 'fotos', 
