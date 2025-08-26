@@ -39,6 +39,7 @@ import { AcademicCoordintationGuideComponent } from './pages/pages-guide-procedu
 import { AcademicMonitoringGuideComponent } from './pages/pages-guide-procedure/academic-monitoring-guide/academic-monitoring-guide.component';
 import { PagesLinksComponent } from './pages/pages-links/pages-links.component';
 import { NavbarLinksComponent } from './components/navbar/child/navbar-links/navbar-links.component';
+import { LinksComponent } from './pages/pages-links/links/links.component';
 
 @NgModule({
   declarations: [
@@ -62,7 +63,8 @@ import { NavbarLinksComponent } from './components/navbar/child/navbar-links/nav
     AcademicCoordintationGuideComponent,
     AcademicMonitoringGuideComponent,
     PagesLinksComponent,
-    NavbarLinksComponent
+    NavbarLinksComponent,
+    LinksComponent
   ],
   imports: [
     BrowserModule,

@@ -20,6 +20,7 @@ import { AcademicCoordintationGuideComponent } from './pages/pages-guide-procedu
 import { AcademicMonitoringGuideComponent } from './pages/pages-guide-procedure/academic-monitoring-guide/academic-monitoring-guide.component';
 import { PagesInformationComponent } from './pages/pages-information/pages-information.component';
 import { PagesLinksComponent } from './pages/pages-links/pages-links.component';
+import { LinksComponent } from './pages/pages-links/links/links.component';
 
 const routes: Routes = [
   {
@@ -51,6 +52,14 @@ const routes: Routes = [
           { path: 'tramite-coordinacion-academica', component: AcademicCoordintationGuideComponent },
           { path: 'tramite-seguimiento-evaluacion', component: AcademicMonitoringGuideComponent },
           { path: '**', redirectTo: 'tramite-coordinacion-academica', pathMatch: 'full' }
+        ]
+      },
+      { path: 'enlaces',
+        component: PagesLinksComponent,
+        children: [
+          { path: '', redirectTo: 'enlaces', pathMatch: 'full' },
+          { path: 'enlaces', component: LinksComponent },
+          { path: '**', redirectTo: 'enlaces', pathMatch: 'full' }
         ]
       },
       { path: 'fotos', 
