@@ -9,8 +9,8 @@ export const environment = {
   //Backend data
   production: false,
   BACK_END_HOST_PROD: 'https://devpws.cs.umss.edu.bo/api/v1',
-  BACK_END_HOST_DEV: 'http://localhost:9090/api/v1',
-  BACK_END_HOST_DEV_AUTH: 'http://localhost:9090/api/auth',
+  BACK_END_HOST_DEV: 'http://dpa.umss.net/api/v1',
+  BACK_END_HOST_DEV_AUTH: 'http://dpa.umss.net/api/auth',
 
   //Facebook data
   GRAPH_FACEBOOK_API_URL: 'https://graph.facebook.com',
