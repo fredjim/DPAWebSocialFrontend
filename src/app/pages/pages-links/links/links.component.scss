@@ -54,10 +54,6 @@
 			font-weight: 700;
 		}
 
-		p {
-			/*text-align: justify;*/
-		}
-
 		.section-content {
 			width: 100%;
 
@@ -67,15 +63,23 @@
 				justify-content: flex-end;
 				height: 30px;
 
-				img {
-					height: 25px;
-					transition-property: height;
+				a {
+					padding: 5px 10px 30px;
+					text-decoration: none;
+					color: var(--blue-color);
+					transition-property: background-color;
 					transition-duration: 0.5s; 
 				}
-
-				img:hover {
-					height: 27px;
+				
+				a:hover {
+					border-radius: 7px;
+					background-color: rgb(245, 245, 245);
 				}
+
+				img {
+					height: 25px;
+				}
+
 			}
 
 			.media-container {
