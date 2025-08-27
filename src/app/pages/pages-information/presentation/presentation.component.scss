@@ -19,6 +19,7 @@
 				width: 40px;
 				height: 40px;
 				border-radius: 50%;
+				border: 1px solid var(--blue-color);
 			}
 
 			.info-user {
@@ -43,7 +44,7 @@
 		}
 	}
 
-	.page-section-1 {
+	.page-section {
 		display: flex;
 		flex-direction: column;
 		margin-bottom: 40px;
@@ -56,11 +57,6 @@
 		}
 
 		.section-content {
-
-			p,
-			ul > li {
-				/*text-align: justify;*/
-			}
 
 			.media-container {
 				padding-bottom: 20px;
