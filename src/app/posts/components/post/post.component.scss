@@ -59,9 +59,19 @@
 			gap: 10px;
 
 			.img-profile {
+				position: relative;
 				width: 40px;
 				height: 40px;
 				border-radius: 50%;
+				border: 1px solid var(--blue-color);
+
+				img {
+					position: absolute;
+					top: 4px;
+					left: 50%;
+					height: 30px;
+					transform: translate(-50%);
+				}
 			}
 
 			.info-user {
