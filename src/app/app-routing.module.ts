@@ -21,6 +21,9 @@ import { AcademicMonitoringGuideComponent } from './pages/pages-guide-procedure/
 import { PagesInformationComponent } from './pages/pages-information/pages-information.component';
 import { PagesLinksComponent } from './pages/pages-links/pages-links.component';
 import { LinksComponent } from './pages/pages-links/links/links.component';
+import { AcademicProcedureGuideComponent } from './pages/pages-guide-procedure/academic-procedure-guide/academic-procedure-guide.component';
+import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
+import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.component';
 
 const routes: Routes = [
   {
@@ -45,22 +48,20 @@ const routes: Routes = [
           { path: '**', redirectTo: 'presentacion', pathMatch: 'full' }
         ]
       },
-      { path: 'guia-tramites',
+      { path: 'gaia',
+        component: PagesGaiaComponent
+      },
+      { path: 'guia-seguimiento-tramites',
         component: PagesGuideProcedureComponent,
         children: [
-          { path: '', redirectTo: 'tramite-coordinacion-academica', pathMatch: 'full' },
-          { path: 'tramite-coordinacion-academica', component: AcademicCoordintationGuideComponent },
-          { path: 'tramite-seguimiento-evaluacion', component: AcademicMonitoringGuideComponent },
-          { path: '**', redirectTo: 'tramite-coordinacion-academica', pathMatch: 'full' }
+          { path: '', redirectTo: 'guia-tramites', pathMatch: 'full' },
+          { path: 'guia-tramites', component: AcademicProcedureGuideComponent },
+          { path: 'seguimiento-tramites', component: AcademicMonitoringGuideComponent },
+          { path: '**', redirectTo: 'guia-tramites', pathMatch: 'full' }
         ]
       },
-      { path: 'enlaces',
-        component: PagesLinksComponent,
-        children: [
-          { path: '', redirectTo: 'enlaces', pathMatch: 'full' },
-          { path: 'enlaces', component: LinksComponent },
-          { path: '**', redirectTo: 'enlaces', pathMatch: 'full' }
-        ]
+      { path: 'contactos',
+        component: PagesContactsComponent
       },
       { path: 'fotos', 
         component: PhotosGalleryComponent

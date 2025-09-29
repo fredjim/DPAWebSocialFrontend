@@ -59,16 +59,20 @@
 		.section-content {
 
 			.media-container {
-				padding-bottom: 20px;
+				margin-bottom: 20px;
 				width: 100%;
+				height: 436px;
+				border-radius: 10px;
+				background-color: black;
+				
+				img {
+					width: 100%;
+					height: 100%;
+					object-fit: contain;
+					-o-object-fit: contain;
+				}
 			}
 			
-			.media-container img {
-				width: 100%;
-				object-fit: cover;
-				-o-object-fit: cover;
-				border-radius: 10px;
-			}
 
 			.button-go-link {
 				display: block;
