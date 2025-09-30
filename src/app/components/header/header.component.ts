@@ -16,7 +16,7 @@ export class HeaderComponent {
   
   institution!: Institution
   totalFollowers!: number;
-
+  isMenuOpen = false;
   constructor(private postService: PostService){
   }
 
@@ -46,6 +46,15 @@ export class HeaderComponent {
         console.log(error);
       }
     });
+  }
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+    console.log(this.isMenuOpen);
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
   }
 
 }

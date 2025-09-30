@@ -14,7 +14,7 @@
     </div>
 </div>
 
-<nav>
+<!-- <nav>
     <ul>
         <li><a routerLink="/posts" routerLinkActive="active">Publicaciones</a></li>
         <li><a routerLink="/informacion" routerLinkActive="active">Información</a></li>
@@ -22,4 +22,34 @@
         <li><a routerLink="/gaia" routerLinkActive="active">GAIA</a></li>
         <li><a routerLink="/contactos" routerLinkActive="active">Contactos</a></li>
     </ul>
-</nav>  
+</nav>   -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+    <!-- Botón hamburguesa -->
+    <button class="navbar-toggler" type="button"  [attr.aria-expanded]="isMenuOpen"
+            aria-controls="navbarNav"  aria-label="Toggle navigation" (click)="toggleMenu()">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <!-- Contenido del menú -->
+    <div class="collapse navbar-collapse" id="navbarNav" [class.show]="isMenuOpen">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/posts" routerLinkActive="active" (click)="closeMenu()">Publicaciones</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/informacion" routerLinkActive="active" (click)="closeMenu()">Información</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/guia-seguimiento-tramites" routerLinkActive="active" (click)="closeMenu()">Guía y seguimiento de trámites</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/gaia" routerLinkActive="active" (click)="closeMenu()">GAIA</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/contactos" routerLinkActive="active" (click)="closeMenu()">Contactos</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
