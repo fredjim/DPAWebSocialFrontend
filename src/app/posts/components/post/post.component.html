@@ -3,7 +3,10 @@
 	<div class="header-post">
 		@if (institution) {
 		<div class="data-user">
-			<img [src]="institution.logo_url" [alt]="'Foto de perfil'" class="img-profile" />
+
+			<div class="img-profile">
+				<img [src]="institution.logo_url" [alt]="'Foto de perfil'" />
+			</div>
 			<div class="info-user">
 				<h2>{{ institution.name }}</h2>
 				<p>{{ calculateTimePost() }}</p>
@@ -78,7 +81,7 @@
 		</ng-container>
 	</ng-container>
 	<!--}-->
-	<hr>
+	<!--<hr>-->
 	<!-- Cantidad de reacciones y comentarios -->
 	<div class="interactions-quantity " *ngIf="amountReactions() > 0 || amountComments() > 0">
 		<div *ngIf="amountReactions() > 0" [attr.data-bs-target]="'#reactions-'+post.uuid" data-bs-toggle="modal">

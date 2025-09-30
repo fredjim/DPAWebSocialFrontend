@@ -1,14 +1,14 @@
 <div class="header-container">
     <div class="header-image">
         <div class="banner-container">
-            <img *ngIf="institution" [src]="institution.background_url" alt="Banner Informática y Sistemas" class="banner-image">
+            <img *ngIf="institution" [src]="institution.background_url" alt="Banner de la DPA" class="banner-image">
         </div>
-
+        
         <div class="logo-overlay">
-            <img *ngIf="institution" [src]="institution.logo_url" alt="Logo Carrera" class="career-logo">
+            <img *ngIf="institution" [src]="institution.logo_url" alt="Logo de la DPA" class="career-logo">
         </div>
     </div>
-
+    
     <div class="header-details">
         <h3 style="padding-bottom: 5px;">{{ institution ? institution.name : '' }}</h3>
     </div>
@@ -18,12 +18,8 @@
     <ul>
         <li><a routerLink="/posts" routerLinkActive="active">Publicaciones</a></li>
         <li><a routerLink="/informacion" routerLinkActive="active">Información</a></li>
-        <li><a routerLink="/convenios" routerLinkActive="active">Convenios</a></li>
-        <li><a routerLink="/proyectos" routerLinkActive="active">Proyectos</a></li>
-        <li><a routerLink="/becas" routerLinkActive="active">Becas</a></li>
-        <li><a routerLink="/cudie" routerLinkActive="active">CUDIE</a></li>
-        <!-- <li><a routerLink="/fotos" routerLinkActive="active">Fotos</a></li>
-        <li><a routerLink="/videos" routerLinkActive="active">Vídeos</a></li>
-        <li><a href="#">Documentos</a></li> -->
+        <li><a routerLink="/guia-seguimiento-tramites" routerLinkActive="active">Guía y seguimiento de trámites</a></li>
+        <li><a routerLink="/gaia" routerLinkActive="active">GAIA</a></li>
+        <li><a routerLink="/contactos" routerLinkActive="active">Contactos</a></li>
     </ul>
-</nav>
+</nav>  

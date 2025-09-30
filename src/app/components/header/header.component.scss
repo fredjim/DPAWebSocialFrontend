@@ -30,13 +30,19 @@
 			bottom: -75px;
 			left: 50%;
 			transform: translateX(-50%);
-
+			width: 150px;
+			height: 150px;
+			border-radius: 50%;
+			background-color: #ffffff;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+			
 			.career-logo {
-				width: 150px;
-				height: 150px;
-				border-radius: 50%;
-				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-			}
+				position: absolute;
+				top: 20px;
+				left: 50%;
+				transform: translateX(-50%);
+				height: 110px;
+			}			
 		}
 	}
 
