@@ -1,20 +1,31 @@
 .create-post-container {
+	display: flex;
+	gap: 10px;
 	margin-bottom: 40px;
 	padding-bottom: 20px;
 	width: 100%;
 	border-bottom: 1px solid var(--red-color);
 
 	.img-profile {
+		position: relative;
 		width: 40px;
 		height: 40px;
 		border-radius: 50%;
-		border: 1px solid #ccc;
+		border: 1px solid var(--blue-color);
+
+		img {
+			position: absolute;
+			top: 4px;
+			left: 50%;
+			height: 30px;
+			transform: translate(-50%);
+		}
 	}
 
 	.new-post {
 		padding-top: 10px;
 		padding-left: 30px;
-		width: 100%;
+		width: calc(100% - 40px);
 		height: 40px;
 		color: var(--blue-color);
 		border-radius: 30px;
@@ -26,11 +37,11 @@
 			font-size: 14px;
 			font-weight: normal;
 		}
-	}
 
-	.new-post:hover {
-		color: white;
-		background-color: var(--blue-color);
+		&:hover {
+			color: white;
+			background-color: var(--blue-color);
+		}
 	}
 
 }

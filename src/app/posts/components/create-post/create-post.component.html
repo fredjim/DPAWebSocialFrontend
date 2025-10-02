@@ -1,15 +1,15 @@
 <!-- Seccion posts  ¿Qué estás pensando?-->
+@if (institution) {
 <div class="create-post-container">
-	<div class="d-flex gap-3 align-items-center">
-		<ng-container *ngIf="institution">
-			<img [src]="institution.logo_url" [alt]="'Foto de perfil'" class="img-profile" />
-		</ng-container>
-		<div class="new-post fw-semibold ml-3" (click)="openModalCreatePost()">
-			<!--<p>¿Qué estás pensando?</p>-->
-			<p>Crea una publicación</p>
-		</div>
+	<div class="img-profile">
+		<img [src]="institution.logo_url" [alt]="'Foto de perfil'" />
+	</div>
+	<div class="new-post fw-semibold ml-3" (click)="openModalCreatePost()">
+		<p>Crea una publicación</p>
 	</div>
 </div>
+}
+
 <!-- Modal crear un post -->
 <div class="modal fade" id="modalCreatePost" tabindex="-1" aria-labelledby="modalNewPost" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered">

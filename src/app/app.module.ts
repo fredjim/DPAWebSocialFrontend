@@ -40,6 +40,10 @@ import { AcademicMonitoringGuideComponent } from './pages/pages-guide-procedure/
 import { PagesLinksComponent } from './pages/pages-links/pages-links.component';
 import { NavbarLinksComponent } from './components/navbar/child/navbar-links/navbar-links.component';
 import { LinksComponent } from './pages/pages-links/links/links.component';
+import { AcademicProcedureGuideComponent } from './pages/pages-guide-procedure/academic-procedure-guide/academic-procedure-guide.component';
+import { PagesAppsComponent } from './pages/pages-apps/pages-apps.component';
+import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
+import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.component';
 
 @NgModule({
   declarations: [
@@ -64,7 +68,11 @@ import { LinksComponent } from './pages/pages-links/links/links.component';
     AcademicMonitoringGuideComponent,
     PagesLinksComponent,
     NavbarLinksComponent,
-    LinksComponent
+    LinksComponent,
+    AcademicProcedureGuideComponent,
+    PagesAppsComponent,
+    PagesGaiaComponent,
+    PagesContactsComponent
   ],
   imports: [
     BrowserModule,
