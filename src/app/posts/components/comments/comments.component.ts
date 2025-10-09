@@ -3,8 +3,6 @@ import {
   ViewChild,
   ElementRef,
   Input,
-  Output,
-  EventEmitter,
   OnInit,
 } from '@angular/core';
 import { PostService } from '../../services/post.service';
@@ -24,6 +22,7 @@ import moment from 'moment-timezone';
   styleUrls: ['./comments.component.scss'],
 })
 export class CommentsComponent implements OnInit {
+  @Input() initialImageIndex: number = 0;
   @ViewChild('commentInput') commentInput!: ElementRef;
   @Input() institution!: Institution;
   @Input() post!: Post;
@@ -32,7 +31,6 @@ export class CommentsComponent implements OnInit {
   @Input() postAuthor!: string;
   @Input() postTime!: string;
   @Input() postDescription!: string;
-  @Output() close = new EventEmitter<void>();
 
   newComment: string = '';
   comments: Comment[] = [];
@@ -40,9 +38,9 @@ export class CommentsComponent implements OnInit {
   currentUser: UserDetail | null = null;
 
   constructor(
-    private postService: PostService,
+    private readonly postService: PostService,
     public modal: NgbModal,
-    private authService: AuthService
+    private readonly authService: AuthService
   ) {
     this.authenticated = authService.isAuthenticated();
   }
