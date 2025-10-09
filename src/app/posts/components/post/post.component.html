@@ -15,7 +15,7 @@
 		}
 		@if(authenticated === true && currentUser && currentUser.role === 'ADMIN'){
 			<div class="options-post d-flex justify-content-center align-items-center"
-				(onClick)="showOptions.set(!showOptions())">
+				(click)="showOptions.set(!showOptions())">
 				<i class="bi bi-three-dots"></i>
 			</div>
 		}
@@ -36,7 +36,7 @@
 		[innerHTML]="post.content.text"> </p>
 	<ng-template #reduceText>
 		<p id="{{'text-post-'+post.uuid}}" *ngIf="post.content.text != ''" class="text-post">
-			{{adjustedTextLength()}}<span class="see-more fw-bold" (onClick)="showAllText(post.uuid)">Ver más</span></p>
+			{{adjustedTextLength()}}<span class="see-more fw-bold" (click)="showAllText(post.uuid)">Ver más</span></p>
 	</ng-template>
 
 	<!-- Si hay contenido multi media (imagenes/videos, documento) -->
