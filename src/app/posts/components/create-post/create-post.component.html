@@ -1,9 +1,11 @@
 <!-- Seccion posts  ¿Qué estás pensando?-->
 @if (institution) {
 <div class="create-post-container">
-	<div class="d-flex gap-3 align-items-center">
+	<div class="d-flex gap-3 align-items-center w-100">
 		<ng-container *ngIf="institution">
-			<img [src]="institution.logo_url" [alt]="'Foto de perfil'" class="img-profile" />
+			<div class="img-profile">
+				<img [src]="institution.logo_url" [alt]="'Foto de perfil'"/>
+			</div>
 		</ng-container>
 		<div class="new-post fw-semibold ml-3" (click)="openModalCreatePost()" (keypress)="openModalCreatePost()">
 			<p>Crea una publicación</p>
