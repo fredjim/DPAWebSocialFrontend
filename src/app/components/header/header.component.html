@@ -1,3 +1,4 @@
+<!--
 <div class="header-container">
     <div class="header-image">
         <div class="banner-container">
@@ -23,3 +24,64 @@
         <li><a routerLink="/contactos" routerLinkActive="active">Contactos</a></li>
     </ul>
 </nav>  
+-->
+<header>
+    <div class="logo-brands">
+        <img src="assets/logo-umss.png" alt="Logo UMSS">
+
+        @if (institution) {
+        <img src="{{ institution.logo_url }}" alt="Logo">
+        }
+    </div>
+
+    <img src="assets/logo-umss-horizontal.jpg" alt="Logo UMSS" class="main-logo">
+
+    <div class="user-profile">
+        <!--
+    @if (counterModeratedComments > 0) {
+    <div class="icon-up-number" (click)="showModeratedComments()">
+      <img src="assets/moderate-messages.png" alt="Ícono mensajes para moderar" class="logo-small">
+      <span class="number-up">{{ counterModeratedComments }}</span>
+    </div>
+    }
+    -->
+        @if (authenticated && user) {
+        @if (user.photo_profile_path){
+        <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="toggleMenu()" class="logo user-image">
+        } @else {
+        <img src="assets/user-icon.png" alt="" (click)="toggleMenu()" class="logo user-image">
+        }
+        } @else {
+        <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" class="logo user-image">
+        }
+        <!--
+		<div class="burger-menu" (click)="toggleMenuNavbar()">
+			<i class="material-icons">{{ isMenuNavbarOpen ? "close" : "menu" }}</i>
+		</div>
+        -->
+    </div>
+
+    @if (isMenuOpen) {
+    <div class="dropdown-menu">
+        <ng-container *ngIf="authenticated">
+            <a class="dropdown-item">Ver perfil</a>
+            <a class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
+        </ng-container>
+        <ng-container *ngIf="!authenticated">
+            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar Sesión</a>
+            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#registerModal">Registrarse</a>
+        </ng-container>
+    </div>
+    }
+</header>
+
+<app-hero-profile></app-hero-profile>
+
+<app-login></app-login>
+
+<app-register></app-register>
+
+<app-moderate-comments *ngIf="authenticated && canModerate"
+    (counterUpdated)="onCounterUpdated($event)"></app-moderate-comments>
+
+<app-navbar></app-navbar>
