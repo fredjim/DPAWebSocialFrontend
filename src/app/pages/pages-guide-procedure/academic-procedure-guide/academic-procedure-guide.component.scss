@@ -75,14 +75,19 @@
 				a {
 					padding: 5px 10px 30px;
 					text-decoration: none;
-					color: var(--blue-color);
+					/*color: var(--blue-color);*/
+					color: white;
 					transition-property: background-color;
 					transition-duration: 0.5s; 
+
+					border-radius: 7px;
+					background-color: var(--red-color);
 				}
 				
 				a:hover {
 					border-radius: 7px;
-					background-color: rgb(245, 245, 245);
+					/*background-color: rgb(245, 245, 245);*/
+					background-color: var(--blue-color);
 				}
 
 				img {
@@ -101,35 +106,6 @@
 				object-fit: cover;
 				-o-object-fit: cover;
 				border-radius: 10px;
-			}
-
-			.button-go-link {
-				display: block;
-				padding: 5px 0;
-				font-weight: 700;
-				color: var(--red-color);
-				text-decoration: none;
-				transition: 0.5s;
-			}
-
-			.button-go-link::after {
-				content: '   \1F806';
-			}
-
-			.button-go-link:hover {
-				transform: translateX(5px);
-			}
-
-			.button-go-link:hover::before {
-				content: '\1F806   ';
-				display: inline;
-				color: var(--red-color);
-			}
-
-			.button-go-link:hover::after {
-				content: '';
-				display: inline;
-				color: var(--red-color);
 			}
 		}
 	}
