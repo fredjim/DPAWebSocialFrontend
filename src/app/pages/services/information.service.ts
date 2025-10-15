@@ -5,7 +5,6 @@ import { AuthService } from '../../authentication/services/auth.service';
 import { Observable } from 'rxjs';
 import { Section } from '../models/section';
 import { Article } from '../models/article';
-import { MediaArticle } from '../models/media-article';
 
 @Injectable({
   providedIn: 'root'
@@ -14,14 +13,14 @@ export class InformationService {
 
   private readonly ROOT_URL = `${environment.BACK_END_HOST_DEV}`;
 
-  private reqHeader = { headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }) };
+  private readonly reqHeader = { headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }) };
 
   private readonly sectionsUrl: string = 'sections';
   private readonly articlesUrl: string = 'articles';
 
   constructor(
-    private http: HttpClient, 
-    private authService: AuthService
+    private readonly http: HttpClient, 
+    private readonly authService: AuthService
   ) {}
 
   // Sections
