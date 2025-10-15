@@ -1,142 +1,104 @@
-.header-container {
-	margin: 0 auto;
+header {
+	position: relative;
 	display: flex;
-	flex-direction: column;
-	align-items: center;
-	background-color: #f8f9fa;
+	justify-content: space-between;
+	margin: 0 15px;
+	padding: 15px 100px;
+	width: inherit;
+	height: 80px;
+	border-bottom: 2px solid var(--blue-color);
+	background-color: white;
 
-	.header-image {
-		position: relative;
-		width: 100%;
-
-		.banner-container {
-			width: 100%;
-			height: 312px;
-			overflow: hidden;
-			position: relative;
-
-			.banner-image {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-				-o-object-fit: cover;
-				object-position: center;
-				-o-object-position: center;
-			}
-		}
-
-		.logo-overlay {
-			position: absolute;
-			bottom: -75px;
-			left: 50%;
-			transform: translateX(-50%);
-			width: 150px;
-			height: 150px;
-			border-radius: 50%;
-			background-color: #ffffff;
-			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-			
-			.career-logo {
-				position: absolute;
-				top: 20px;
-				left: 50%;
-				transform: translateX(-50%);
-				height: 110px;
-			}			
-		}
+	img {
+		height: 50px;
 	}
 
-	.header-details {
-		padding: 75px 0 20px;
-		width: 100%;
-		color: var(--blue-color);
-		text-align: center;
-
-		h3 {
-			margin: 0;
-			padding: 20px 0;
-			font-family: var(--secondary-font-family);
-			font-optical-sizing: auto;
-			font-weight: bold;
-			font-size: 24px;
-		}
-
-		p {
-			margin: 0;
-			font-family: var(--primary-font-family);
-			font-optical-sizing: auto;
-			font-weight: normal;
-			font-size: 20px;
-		}
-	}
-}
-
-nav {
-	margin: 0 auto;
-	width: 100%;
-	height: 60px;
-	border-top: 1px solid var(--blue-color);
-	border-bottom: 1px solid var(--blue-color);
-
-	ul {
+	.logo-brands {
 		display: flex;
-		justify-content: space-between;
-		margin: 0 auto;
-		padding: 15px 0 0;
-		width: var(--nav-width);
-		list-style: none;
+		gap: 30px;
+	}
 
-		li a {
-			padding: 0 30px;
-			font-family: var(--primary-font-family);
-			font-size: 16px;
-			color: var(--blue-color);
-			text-decoration: none;
+	.main-logo {
+		display: block;
+	}
+
+	.user-profile {
+		display: flex;
+
+		.user-image {
+			transition: transform 0.3s ease;
+			border-radius: 50%;
 
 			&:hover {
-				padding-bottom: 11px;
-				color: var(--blue-color);
-				border-bottom: 10px solid var(--blue-color);
+				cursor: pointer;
+				transform: scale(1.05);
 			}
 		}
 
-		li a.active {
-			padding-bottom: 11px;
-			color: var(--red-color);
-			border-bottom: 10px solid var(--red-color);
-		}
-	}
-}
-
-@media screen and (max-width: 1020px) {
-
-	nav {
-		overflow-y: hidden;
-		overflow-x: scroll;
-
-		ul {
-			width: 100%;
-		}
-
-		.scroll::-webkit-scrollbar {
+		.burger-menu {
 			display: none;
-		}
 
-		.scroll {
-			white-space: nowrap;
-			overflow-x: auto;
-			-webkit-overflow-scrolling: touch;
-			-ms-overflow-style: -ms-autohiding-scrollbar;
+			.material-icons {
+				padding-top: 5px;
+				font-size: 40px;
+				font-weight: 100;
+				color: var(--blue-color);
+			}
+
+			&:hover {
+				cursor: pointer;
+			}
+
 		}
 	}
+
+	.dropdown-menu {
+		position: absolute;
+		top: 80px;
+		right: 2%;
+		display: flex;
+		flex-direction: column;
+		border: none;
+
+		.dropdown-item {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0 40px;
+			height: 40px;
+			font-size: 1rem;
+			text-decoration: none;
+			color: var(--blue-color);
+			cursor: pointer;
+		}
+	}
+
 }
 
 @media screen and (max-width: 768px) {
 
-	nav {
+	header {
+		margin: 0;
+		padding-left: 15px;
+		padding-right: 15px;
+		width: 100%;
 
-		ul {
-			justify-content: left;
+		.logo-brands {
+			gap: 20px;
 		}
+
+		.main-logo {
+			display: none;
+		}
+
+		.user-profile {
+			gap: 15px;
+
+			.burger-menu {
+				display: block;
+			}
+		}
+
 	}
+
 }

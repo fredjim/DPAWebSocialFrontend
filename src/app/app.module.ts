@@ -49,6 +49,7 @@ import { AcademicProcedureGuideComponent } from './pages/pages-guide-procedure/a
 import { PagesAppsComponent } from './pages/pages-apps/pages-apps.component';
 import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
 import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.component';
+import { HeroProfileComponent } from './components/hero-profile/hero-profile.component';
 
 @NgModule({
   declarations: [
@@ -77,7 +78,8 @@ import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.co
     AcademicProcedureGuideComponent,
     PagesAppsComponent,
     PagesGaiaComponent,
-    PagesContactsComponent
+    PagesContactsComponent,
+    HeroProfileComponent
   ],
   imports: [
     BrowserModule,
