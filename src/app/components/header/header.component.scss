@@ -217,10 +217,13 @@ nav {
 }
 
 @media screen and (max-width: 768px) {
+  .header-container {
+    display: none;
+  }
   nav {
     .navbar-nav {
       justify-content: left;
-      text-align: left;
+      text-align: center;
     }
     
     /* Ocultar scroll horizontal en móviles ya que usamos menú hamburguesa */
@@ -238,7 +241,7 @@ nav {
     
     .nav-item {
       width: 100%;
-      text-align: center;
+      text-align: left;
       margin: 5px 0;
     }
     
