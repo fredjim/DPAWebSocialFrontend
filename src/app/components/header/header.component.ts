@@ -19,10 +19,10 @@ export class HeaderComponent {
 
   institution!: Institution
   totalFollowers!: number;
+  isMenuOpen = false;
 
   authenticated: boolean = false;
   canModerate: boolean = false; // Nueva propiedad
-  isMenuOpen = false;
   user: any
   counterModeratedComments: number = 0;
 
@@ -122,6 +122,10 @@ export class HeaderComponent {
 
   onCounterUpdated(newCount: number) {
     this.counterModeratedComments = newCount;
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
   }
 
 }
