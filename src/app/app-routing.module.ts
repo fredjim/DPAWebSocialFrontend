@@ -1,4 +1,4 @@
-import { Component, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { ViewAllPostsComponent } from './posts/components/view-all-posts/view-all-posts.component';
@@ -16,14 +16,12 @@ import { AlternativeGraduationComponent } from './pages/pages-information/altern
 import { AcademicMonitoringComponent } from './pages/pages-information/academic-monitoring/academic-monitoring.component';
 import { RecordRegistrationComponent } from './pages/pages-information/record-registration/record-registration.component';
 import { PagesGuideProcedureComponent } from './pages/pages-guide-procedure/pages-guide-procedure.component';
-import { AcademicCoordintationGuideComponent } from './pages/pages-guide-procedure/academic-coordintation-guide/academic-coordintation-guide.component';
 import { AcademicMonitoringGuideComponent } from './pages/pages-guide-procedure/academic-monitoring-guide/academic-monitoring-guide.component';
 import { PagesInformationComponent } from './pages/pages-information/pages-information.component';
-import { PagesLinksComponent } from './pages/pages-links/pages-links.component';
-import { LinksComponent } from './pages/pages-links/links/links.component';
 import { AcademicProcedureGuideComponent } from './pages/pages-guide-procedure/academic-procedure-guide/academic-procedure-guide.component';
 import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
 import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.component';
+import { PageComponent } from './posts/components/post-page/page/page.component';
 
 const routes: Routes = [
   {
@@ -80,8 +78,12 @@ const routes: Routes = [
       },
       { path: 'cudie', 
         component: ViewAllPostsCudieComponent
-      }
-    ]
+      },
+    ],
+  },
+  {
+    path: 'posts/:id',
+    component: PageComponent
   }
 ];
 

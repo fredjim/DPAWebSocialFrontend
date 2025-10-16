@@ -4,6 +4,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './authentication/http-interceptors/auth-interceptor';
+import { APP_INITIALIZER } from '@angular/core';
+import { AuthService } from './authentication/services/auth.service';
+export function refreshTokenFactory(authService: AuthService) {
+  return () => authService.tryRefreshOnStartup();
+}
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './components/header/header.component';
@@ -44,6 +49,7 @@ import { AcademicProcedureGuideComponent } from './pages/pages-guide-procedure/a
 import { PagesAppsComponent } from './pages/pages-apps/pages-apps.component';
 import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
 import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.component';
+import { HeroProfileComponent } from './components/hero-profile/hero-profile.component';
 
 @NgModule({
   declarations: [
@@ -72,7 +78,8 @@ import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.co
     AcademicProcedureGuideComponent,
     PagesAppsComponent,
     PagesGaiaComponent,
-    PagesContactsComponent
+    PagesContactsComponent,
+    HeroProfileComponent
   ],
   imports: [
     BrowserModule,
@@ -93,11 +100,17 @@ import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.co
     ToastModule
 ],
   providers: [
-    // {
-    //   provide: HTTP_INTERCEPTORS,
-    //   useClass: AuthInterceptor,
-    //   multi: true
-    // }
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: refreshTokenFactory,
+      deps: [AuthService],
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

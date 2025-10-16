@@ -1,0 +1,11 @@
+<div class="hero-profile">
+	<div class="hero-images">
+		<div class="hero-photo">
+			<img *ngIf="institution" [src]="institution.background_url" alt="">
+		</div>
+		<div class="profile-photo">
+			<img *ngIf="institution" [src]="institution.logo_url" alt="">
+		</div>
+	</div>
+	<h3 class="profile-information">{{ institution ? institution.name : '' }}</h3>
+</div>

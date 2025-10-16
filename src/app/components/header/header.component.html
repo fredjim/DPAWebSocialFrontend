@@ -1,55 +1,60 @@
-<div class="header-container">
-    <div class="header-image">
-        <div class="banner-container">
-            <img *ngIf="institution" [src]="institution.background_url" alt="Banner de la DPA" class="banner-image">
-        </div>
-        
-        <div class="logo-overlay">
-            <img *ngIf="institution" [src]="institution.logo_url" alt="Logo de la DPA" class="career-logo">
-        </div>
-    </div>
-    
-    <div class="header-details">
-        <h3 style="padding-bottom: 5px;">{{ institution ? institution.name : '' }}</h3>
-    </div>
-</div>
+<header>
+    <div class="logo-brands">
+        <img src="assets/logo-umss.png" alt="Logo UMSS">
 
-<!-- <nav>
-    <ul>
-        <li><a routerLink="/posts" routerLinkActive="active">Publicaciones</a></li>
-        <li><a routerLink="/informacion" routerLinkActive="active">Información</a></li>
-        <li><a routerLink="/guia-seguimiento-tramites" routerLinkActive="active">Guía y seguimiento de trámites</a></li>
-        <li><a routerLink="/gaia" routerLinkActive="active">GAIA</a></li>
-        <li><a routerLink="/contactos" routerLinkActive="active">Contactos</a></li>
-    </ul>
-</nav>   -->
-<nav class="navbar navbar-expand-lg">
-  <div class="container-fluid">
-    <!-- Botón hamburguesa -->
-    <button class="navbar-toggler" type="button"  [attr.aria-expanded]="isMenuOpen"
-            aria-controls="navbarNav"  aria-label="Toggle navigation" (click)="toggleMenu()">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    
-    <!-- Contenido del menú -->
-    <div class="collapse navbar-collapse" id="navbarNav" [class.show]="isMenuOpen">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/posts" routerLinkActive="active" (click)="closeMenu()">Publicaciones</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/informacion" routerLinkActive="active" (click)="closeMenu()">Información</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/guia-seguimiento-tramites" routerLinkActive="active" (click)="closeMenu()">Guía y seguimiento de trámites</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/gaia" routerLinkActive="active" (click)="closeMenu()">GAIA</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/contactos" routerLinkActive="active" (click)="closeMenu()">Contactos</a>
-        </li>
-      </ul>
+        @if (institution) {
+        <img src="{{ institution.logo_url }}" alt="Logo">
+        }
     </div>
-  </div>
-</nav>
+
+    <img src="assets/logo-umss-horizontal.jpg" alt="Logo UMSS" class="main-logo">
+
+    <div class="user-profile">
+        <!--
+    @if (counterModeratedComments > 0) {
+    <div class="icon-up-number" (click)="showModeratedComments()">
+      <img src="assets/moderate-messages.png" alt="Ícono mensajes para moderar" class="logo-small">
+      <span class="number-up">{{ counterModeratedComments }}</span>
+    </div>
+    }
+    -->
+        @if (authenticated && user) {
+        @if (user.photo_profile_path){
+          <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="toggleMenu()" class="logo user-image">
+        } @else {
+        <img src="assets/user-icon.png" alt="" (click)="toggleMenu()" class="logo user-image">
+        }
+        } @else {
+        <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" class="logo user-image">
+        }
+        <!--
+		<div class="burger-menu" (click)="toggleMenuNavbar()">
+			<i class="material-icons">{{ isMenuNavbarOpen ? "close" : "menu" }}</i>
+		</div>
+        -->
+    </div>
+
+    @if (isMenuOpen) {
+    <div class="dropdown-menu">
+        <ng-container *ngIf="authenticated">
+            <a class="dropdown-item">Ver perfil</a>
+            <a class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
+        </ng-container>
+        <ng-container *ngIf="!authenticated">
+            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar Sesión</a>
+            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#registerModal">Registrarse</a>
+        </ng-container>
+    </div>
+    }
+</header>
+
+<app-hero-profile></app-hero-profile>
+
+<app-login></app-login>
+
+<app-register></app-register>
+
+<app-moderate-comments *ngIf="authenticated && canModerate"
+    (counterUpdated)="onCounterUpdated($event)"></app-moderate-comments>
+
+<app-navbar></app-navbar>

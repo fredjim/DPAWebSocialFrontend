@@ -1,260 +1,104 @@
-.header-container {
-	margin: 0 auto;
+header {
+	position: relative;
 	display: flex;
-	flex-direction: column;
-	align-items: center;
-	background-color: #f8f9fa;
+	justify-content: space-between;
+	margin: 0 15px;
+	padding: 15px 100px;
+	width: inherit;
+	height: 80px;
+	border-bottom: 2px solid var(--blue-color);
+	background-color: white;
 
-	.header-image {
-		position: relative;
-		width: 100%;
+	img {
+		height: 50px;
+	}
 
-		.banner-container {
-			width: 100%;
-			height: 312px;
-			overflow: hidden;
-			position: relative;
+	.logo-brands {
+		display: flex;
+		gap: 30px;
+	}
 
-			.banner-image {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-				-o-object-fit: cover;
-				object-position: center;
-				-o-object-position: center;
+	.main-logo {
+		display: block;
+	}
+
+	.user-profile {
+		display: flex;
+
+		.user-image {
+			transition: transform 0.3s ease;
+			border-radius: 50%;
+
+			&:hover {
+				cursor: pointer;
+				transform: scale(1.05);
 			}
 		}
 
-		.logo-overlay {
-			position: absolute;
-			bottom: -75px;
-			left: 50%;
-			transform: translateX(-50%);
-			width: 150px;
-			height: 150px;
-			border-radius: 50%;
-			background-color: #ffffff;
-			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-			
-			.career-logo {
-				position: absolute;
-				top: 20px;
-				left: 50%;
-				transform: translateX(-50%);
-				height: 110px;
-			}			
+		.burger-menu {
+			display: none;
+
+			.material-icons {
+				padding-top: 5px;
+				font-size: 40px;
+				font-weight: 100;
+				color: var(--blue-color);
+			}
+
+			&:hover {
+				cursor: pointer;
+			}
+
 		}
 	}
 
-	.header-details {
-		padding: 75px 0 20px;
-		width: 100%;
-		color: var(--blue-color);
-		text-align: center;
+	.dropdown-menu {
+		position: absolute;
+		top: 80px;
+		right: 2%;
+		display: flex;
+		flex-direction: column;
+		border: none;
 
-		h3 {
-			margin: 0;
-			padding: 20px 0;
-			font-family: var(--secondary-font-family);
-			font-optical-sizing: auto;
-			font-weight: bold;
-			font-size: 24px;
-		}
-
-		p {
-			margin: 0;
-			font-family: var(--primary-font-family);
-			font-optical-sizing: auto;
-			font-weight: normal;
-			font-size: 20px;
+		.dropdown-item {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0 40px;
+			height: 40px;
+			font-size: 1rem;
+			text-decoration: none;
+			color: var(--blue-color);
+			cursor: pointer;
 		}
 	}
-}
 
-// nav {
-// 	margin: 0 auto;
-// 	width: 100%;
-// 	height: 60px;
-// 	border-top: 1px solid var(--blue-color);
-// 	border-bottom: 1px solid var(--blue-color);
-
-// 	ul {
-// 		display: flex;
-// 		justify-content: space-between;
-// 		margin: 0 auto;
-// 		padding: 15px 0 0;
-// 		width: var(--nav-width);
-// 		list-style: none;
-
-// 		li a {
-// 			padding: 0 30px;
-// 			font-family: var(--primary-font-family);
-// 			font-size: 16px;
-// 			color: var(--blue-color);
-// 			text-decoration: none;
-
-// 			&:hover {
-// 				padding-bottom: 11px;
-// 				color: var(--blue-color);
-// 				border-bottom: 10px solid var(--blue-color);
-// 			}
-// 		}
-
-// 		li a.active {
-// 			padding-bottom: 11px;
-// 			color: var(--red-color);
-// 			border-bottom: 10px solid var(--red-color);
-// 		}
-// 	}
-// }
-
-// @media screen and (max-width: 1020px) {
-
-// 	nav {
-// 		overflow-y: hidden;
-// 		overflow-x: scroll;
-
-// 		ul {
-// 			width: 100%;
-// 		}
-
-// 		.scroll::-webkit-scrollbar {
-// 			display: none;
-// 		}
-
-// 		.scroll {
-// 			white-space: nowrap;
-// 			overflow-x: auto;
-// 			-webkit-overflow-scrolling: touch;
-// 			-ms-overflow-style: -ms-autohiding-scrollbar;
-// 		}
-// 	}
-// }
-
-// @media screen and (max-width: 768px) {
-
-// 	nav {
-
-// 		ul {
-// 			justify-content: left;
-// 		}
-// 	}
-// }
-
-nav {
-  margin: 0 auto;
-  width: 100%;
-  border-top: 1px solid var(--blue-color);
-  border-bottom: 1px solid var(--blue-color);
-  padding: 0;
-  
-  .navbar-nav {
-    display: flex;
-    justify-content: space-between;
-    margin: 0 auto;
-    padding: 15px 0 0;
-    width: var(--nav-width);
-    list-style: none;
-
-    .nav-link {
-      padding: 0 30px;
-      font-family: var(--primary-font-family);
-      font-size: 16px;
-      color: var(--blue-color);
-      text-decoration: none;
-
-      &:hover {
-        padding-bottom: 11px;
-        color: var(--blue-color);
-        border-bottom: 10px solid var(--blue-color);
-      }
-    }
-
-    .nav-link.active {
-      padding-bottom: 11px;
-      color: var(--red-color);
-      border-bottom: 10px solid var(--red-color);
-    }
-  }
-}
-
-/* Estilos para el botón hamburguesa */
-.navbar-toggler {
-  border: 1px solid var(--blue-color);
-  padding: 0.25rem 0.5rem;
-  
-  &:focus {
-    box-shadow: none;
-  }
-}
-
-.navbar-toggler-icon {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0, 123, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-}
-
-/* Media Queries */
-@media screen and (max-width: 1020px) {
-  nav {
-    overflow-y: hidden;
-    overflow-x: scroll;
-	padding: 10px;
-
-    .navbar-nav {
-      width: 100%;
-    }
-
-    .scroll::-webkit-scrollbar {
-      display: none;
-    }
-
-    .scroll {
-      white-space: nowrap;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      -ms-overflow-style: -ms-autohiding-scrollbar;
-    }
-  }
 }
 
 @media screen and (max-width: 768px) {
-  .header-container {
-    display: none;
-  }
-  nav {
-    .navbar-nav {
-      justify-content: left;
-      text-align: center;
-    }
-    
-    /* Ocultar scroll horizontal en móviles ya que usamos menú hamburguesa */
-    overflow-x: visible;
-    overflow-y: visible;
-  }
-}
 
-/* Breakpoint de Bootstrap para menú hamburguesa */
-@media (max-width: 991.98px) {
-  .navbar-nav {
-    flex-direction: column;
-    width: 100% !important;
-    padding: 10px 0 !important;
-    
-    .nav-item {
-      width: 100%;
-      text-align: left;
-      margin: 5px 0;
-    }
-    
-    .nav-link {
-      padding: 10px 15px !important;
-      display: block;
-      
-      &:hover,
-      &.active {
-        padding-bottom: 10px !important;
-        border-bottom: none !important;
-        background-color: rgba(0, 123, 255, 0.1);
-      }
-    }
-  }
+	header {
+		margin: 0;
+		padding-left: 15px;
+		padding-right: 15px;
+		width: 100%;
+
+		.logo-brands {
+			gap: 20px;
+		}
+
+		.main-logo {
+			display: none;
+		}
+
+		.user-profile {
+			gap: 15px;
+
+			.burger-menu {
+				display: block;
+			}
+		}
+
+	}
+
 }

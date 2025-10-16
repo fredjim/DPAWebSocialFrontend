@@ -3,7 +3,6 @@
   padding: 0 0 20px;
   padding-right: 56px;
   width: 396px;
-  border-bottom: 1px solid var(--red-color);
 
   .section-title {
     display: flex;
@@ -59,4 +58,12 @@
   font-size: 14px;
   text-align: center;
   color: var(--blue-color);
+}
+
+@media screen and (max-width: 768px) {
+
+	.photos-container {
+    display: none;
+	}
+
 }

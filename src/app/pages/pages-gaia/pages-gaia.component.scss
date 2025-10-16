@@ -7,6 +7,7 @@
 	width: 1020px;
 
 	.navbar-pages {
+		padding-top: 8px;
 
 		.navbar-title h2 {
 			padding-bottom: 0.5rem;
@@ -97,14 +98,19 @@
 						a {
 							padding: 5px 10px 30px;
 							text-decoration: none;
-							color: var(--blue-color);
+							/*color: var(--blue-color);*/
+							color: white;
 							transition-property: background-color;
 							transition-duration: 0.5s;
+
+							border-radius: 7px;
+							background-color: var(--red-color);
 						}
 
 						a:hover {
 							border-radius: 7px;
-							background-color: rgb(245, 245, 245);
+							/*background-color: rgb(245, 245, 245);*/
+							background-color: var(--blue-color);
 						}
 
 						img {

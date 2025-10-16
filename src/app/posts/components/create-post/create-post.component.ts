@@ -1,9 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, signal, ViewChild } from '@angular/core';
 import { PostService } from '../../services/post.service';
 import { Modal } from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Media } from '../../models/media';
-import { concatMap, of, forkJoin, map, catchError, Observable, mergeMap, from, reduce, tap, concat } from 'rxjs';
+import { concatMap, of, map, catchError, reduce, tap, concat } from 'rxjs';
 import { UploadedMedia } from '../../models/uploaded-media';
 import { CreatePost } from '../../models/create-post';
 import { Institution } from '../../models/institution';
@@ -19,7 +19,7 @@ import { UserDetail } from '../../models/user-detail';
   templateUrl: './create-post.component.html',
   styleUrl: './create-post.component.scss'
 })
-export class CreatePostComponent {
+export class CreatePostComponent implements OnInit, AfterViewInit {
   institution!: Institution;
   commentConfig!: CommentConfig[];
   selectedCommentConfig!: string;
@@ -36,10 +36,12 @@ export class CreatePostComponent {
   isFbSwitchOn: boolean = false;
   currentUser!: UserDetail;
   currentPostType!: string;
+  @ViewChild('modalCreatePost') modal!: ElementRef;
+  public visibleModalCreate: boolean = false;
 
   constructor(
-    private postService: PostService,
-    private formBuilder: FormBuilder
+    private readonly postService: PostService,
+    private readonly formBuilder: FormBuilder
   ) { }
 
   ngOnInit() {
@@ -67,6 +69,14 @@ export class CreatePostComponent {
     this.buildForm()
   }
 
+  ngAfterViewInit(): void {
+    this.modal.nativeElement.addEventListener('hidden.bs.modal', () => {
+      this.visibleModalCreate = false;
+      this.selectedCommentConfig = this.commentConfig[0].uuid;
+      this.postForm.get('switchControl')?.setValue(false);
+    });
+  }
+
   private buildForm() {
     this.postForm = this.formBuilder.group({
       contentPost: ['', [Validators.maxLength(1000)]],
@@ -76,7 +86,6 @@ export class CreatePostComponent {
     });
     // Optional: Listen to value changes
     this.postForm.get('switchControl')?.valueChanges.subscribe(value => {
-      console.log('Switch value changed:', value);
       this.onSwitchChange(value);
     });
   }
@@ -90,6 +99,7 @@ export class CreatePostComponent {
     if (modalElement) {
       const modal = new Modal(modalElement);
       modal.show();
+      this.visibleModalCreate = true;
     }
   }
 
@@ -102,20 +112,29 @@ export class CreatePostComponent {
   //Mostrar area de imagenes y deshabilitar el boton de cargar documentos
   showAreaMedia() {
     this.visibleAreaMedia.set(true);
+    
+    // Siempre deshabilitar la opción de documentos cuando se está trabajando con imágenes
     this.disableLoadDoc.set(true);
   }
 
   //Ocultar area de imagenes
   closeAreaMedia(option: boolean) {
     this.disableLoadDoc.set(option); //Habilitar el boton de cargar documentos
-    this.disabledPublishButton.set(true);//Deshabilitar el boton de publicar
-    this.listFile = [];//Limpiar la lista de imagenes
+    
+    // Actualizar estado del botón de publicar basado en el texto y la lista de archivos
+    const contentPost = this.postForm.get('contentPost')?.value;
+    const hasMedia = this.listFile && this.listFile.length > 0;
+    this.disabledPublishButton.set(!(contentPost != '' || hasMedia));
+    
+    // Ya no limpiamos la lista de archivos para permitir acumular medios
   }
 
-  //Deshabilitar el boton de publicar si no hay imagenes
+  //Actualizar la lista de archivos y habilitar/deshabilitar el botón de publicar
   getFilesImagesPost(fileMedia: File[]) {
     this.listFile = fileMedia;
-    this.listFile ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
+    const contentPost = this.postForm.get('contentPost')?.value;
+    // Habilitar el botón de publicar si hay texto o si hay archivos seleccionados
+    this.disabledPublishButton.set(!(contentPost != '' || (this.listFile && this.listFile.length > 0)));
   }
 
   //Mostrar area de documentos y deshabilitar el boton de cargar imagenes
@@ -127,14 +146,16 @@ export class CreatePostComponent {
   //Ocultar area de documentos
   closeAreaDoc(option: boolean) {
     this.disableLoadImage.set(option);
-    this.disabledPublishButton.set(true);
+    const contentPost = this.postForm.get('contentPost')?.value;
+    contentPost != '' ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
     this.fileDoc = new File([''], '');//Limpiar el archivo
   }
 
   //Deshabilitar el boton de publicar si no hay archivo
   getFileDocPost(doc: File) {
     this.fileDoc = doc;
-    this.fileDoc ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
+    const contentPost = this.postForm.get('contentPost')?.value;
+    contentPost != '' || this.fileDoc ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
   }
 
   showLoading() {
@@ -168,6 +189,8 @@ export class CreatePostComponent {
         return 'CONVENIOS';
       case 'ADMIN_PROYECTOS':
         return 'PROYECTOS';
+      case 'ADMIN_CUDIE':
+        return 'CUDIE'
       default:
         return 'GENERAL';
     }
@@ -197,7 +220,6 @@ export class CreatePostComponent {
 
       this.showLoading();
       if (this.listFile && this.listFile.length > 0) { //Si hay imagenes-videos se los procesa
-        console.log("Publicando texto en opcion 1: " + (this.listFile && this.listFile.length > 0) )
         //Convertir las imagenes y videos en Form Data con su key correspondiente
         Array.from(this.listFile).forEach((file) => {
           if (file.type.includes('image')) {
@@ -206,8 +228,7 @@ export class CreatePostComponent {
             formData.append('videos', file);
           }
         });
-
-        var isVideo = false;
+        let isVideo = false;
         this.postService.uploadMedia(formData).pipe(
           concatMap((uploadResponse: UploadedMedia[]) => {
             // Only process Facebook uploads if switch is on
@@ -262,9 +283,8 @@ export class CreatePostComponent {
                   responseMedia.some(media => (media.fb_media_id != ''));
               }),
               concatMap(responseMedia => {
-                this.currentPostType,
                 post.content.media = responseMedia;
-                post.is_fb_posted = isVideo ? true : false;
+                post.is_fb_posted = isVideo;
                 post.fb_post_enable =  this.isFbSwitchOn;
                 return this.postService.createPost(post);
               })
@@ -288,8 +308,6 @@ export class CreatePostComponent {
 
         if (this.isFbSwitchOn) {
           //call uploadDocument
-        } else {
-          //build response
         }
         this.postService.uploadDocument(formData).pipe(
           concatMap((uploadResponse: UploadedDocument) => {
