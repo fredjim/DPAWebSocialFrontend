@@ -42,9 +42,6 @@ import { PagesGuideProcedureComponent } from './pages/pages-guide-procedure/page
 import { PagesInformationComponent } from './pages/pages-information/pages-information.component';
 import { AcademicCoordintationGuideComponent } from './pages/pages-guide-procedure/academic-coordintation-guide/academic-coordintation-guide.component';
 import { AcademicMonitoringGuideComponent } from './pages/pages-guide-procedure/academic-monitoring-guide/academic-monitoring-guide.component';
-import { PagesLinksComponent } from './pages/pages-links/pages-links.component';
-import { NavbarLinksComponent } from './components/navbar/child/navbar-links/navbar-links.component';
-import { LinksComponent } from './pages/pages-links/links/links.component';
 import { AcademicProcedureGuideComponent } from './pages/pages-guide-procedure/academic-procedure-guide/academic-procedure-guide.component';
 import { PagesAppsComponent } from './pages/pages-apps/pages-apps.component';
 import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
@@ -72,9 +69,6 @@ import { HeroProfileComponent } from './components/hero-profile/hero-profile.com
     PagesInformationComponent,
     AcademicCoordintationGuideComponent,
     AcademicMonitoringGuideComponent,
-    PagesLinksComponent,
-    NavbarLinksComponent,
-    LinksComponent,
     AcademicProcedureGuideComponent,
     PagesAppsComponent,
     PagesGaiaComponent,

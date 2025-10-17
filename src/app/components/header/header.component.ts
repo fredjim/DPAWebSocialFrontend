@@ -23,6 +23,9 @@ export class HeaderComponent {
   authenticated: boolean = false;
   canModerate: boolean = false; // Nueva propiedad
   isMenuOpen = false;
+  
+  isMobileMenuOpen = false;
+  
   user: any
   counterModeratedComments: number = 0;
 
@@ -89,6 +92,16 @@ export class HeaderComponent {
   logout() {
     this.authService.logout();
     //window.location.reload();
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    if (window.innerWidth <= 768) {
+      this.isMobileMenuOpen = false;
+    }
   }
 
   totalModeratedComments() {

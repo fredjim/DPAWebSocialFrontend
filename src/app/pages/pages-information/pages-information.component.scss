@@ -6,6 +6,19 @@
 	padding: 50px 0 0;
 	width: 1020px;
 
+	.submenu-pages {
+		padding-top: 8px;
+
+		.submenu-title h2 {
+			padding-bottom: 0.5rem;
+			font-family: var(--secondary-font-family);
+			font-optical-sizing: auto;
+			font-size: 20px;
+			font-style: bold;
+			color: var(--blue-color);
+		}
+	}
+
 	.main-container {
 		display: flex;
 		flex-direction: column;
@@ -25,10 +38,15 @@
 		margin: 0 auto;
 		width: 100%;
 
+		.submenu-pages {
+			display: none;
+		}
+
 		.main-container {
 			padding: unset;
 			padding: 0 15px;
 			border-left: none;
 		}
 	}
+
 }

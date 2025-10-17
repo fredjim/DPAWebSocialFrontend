@@ -6,10 +6,9 @@
 	padding: 50px 0 0;
 	width: 1020px;
 
-	.navbar-pages {
-		padding-top: 8px;
+	.submenu-pages {
 
-		.navbar-title h2 {
+		.submenu-title h2 {
 			padding-bottom: 0.5rem;
 			font-family: var(--secondary-font-family);
 			font-optical-sizing: auto;
@@ -100,11 +99,11 @@
 							color: var(--blue-color);
 							transition-property: background-color;
 							transition-duration: 0.5s;
-						}
 
-						a:hover {
-							border-radius: 7px;
-							background-color: rgb(245, 245, 245);
+							&:hover {
+								border-radius: 7px;
+								background-color: rgb(245, 245, 245)
+							}
 						}
 
 						img {
@@ -123,35 +122,6 @@
 						object-fit: cover;
 						-o-object-fit: cover;
 						border-radius: 10px;
-					}
-
-					.button-go-link {
-						display: block;
-						padding: 5px 0;
-						font-weight: 700;
-						color: var(--red-color);
-						text-decoration: none;
-						transition: 0.5s;
-					}
-
-					.button-go-link::after {
-						content: '   \1F806';
-					}
-
-					.button-go-link:hover {
-						transform: translateX(5px);
-					}
-
-					.button-go-link:hover::before {
-						content: '\1F806   ';
-						display: inline;
-						color: var(--red-color);
-					}
-
-					.button-go-link:hover::after {
-						content: '';
-						display: inline;
-						color: var(--red-color);
 					}
 				}
 			}
@@ -174,7 +144,7 @@
 		margin: 0 auto;
 		width: 100%;
 
-		.navbar-pages {
+		.submenu-pages {
 			padding: unset;
 			padding: 0 15px;
 		}
