@@ -7,4 +7,16 @@ import { Component } from '@angular/core';
 })
 export class NavbarInformationComponent {
 
+  isMobileMenuOpen = false;
+  
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu() {
+    if (window.innerWidth <= 768) {
+      this.isMobileMenuOpen = false;
+    }
+  }
+
 }

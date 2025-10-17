@@ -1,14 +1,4 @@
-.navbar-pages {
-	padding-top: 8px;
-
-	.navbar-title h2 {
-		padding-bottom: 0.5rem;
-		font-family: var(--secondary-font-family);
-		font-optical-sizing: auto;
-		font-size: 20px;
-		font-style: bold;
-		color: var(--blue-color);
-	}
+nav {
 
 	ul {
 		padding: 0;
@@ -20,10 +10,10 @@
 			a {
 				text-decoration: none;
 				color: var(--blue-color);
-			}
 
-			a:hover {
-				text-decoration: underline;
+				&.hover {
+					text-decoration: underline;
+				}
 			}
 
 			a.active {
@@ -35,8 +25,9 @@
 
 @media screen and (max-width: 768px) {
 
-	.navbar-pages {
-		padding: unset;
-		padding: 0 15px;
+	nav {
+		padding-top: 15px;
+		padding-left: 50px;
 	}
+
 }

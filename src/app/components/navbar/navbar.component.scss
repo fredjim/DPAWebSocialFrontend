@@ -13,24 +13,31 @@ nav {
 		width: var(--nav-width);
 		list-style: none;
 
-		li a {
-			padding: 0 30px;
-			font-family: var(--primary-font-family);
-			font-size: 16px;
-			color: var(--blue-color);
-			text-decoration: none;
+		li {
 
-			&:hover {
-				padding-bottom: 11px;
-				color: var(--blue-color);
-				border-bottom: 10px solid var(--blue-color);
+			#submenu {
+				display: none;
 			}
-		}
 
-		li a.active {
-			padding-bottom: 11px;
-			color: var(--red-color);
-			border-bottom: 10px solid var(--red-color);
+			a {
+				padding: 0 30px;
+				font-family: var(--primary-font-family);
+				font-size: 16px;
+				color: var(--blue-color);
+				text-decoration: none;
+
+				&:hover {
+					padding-bottom: 11px;
+					color: var(--blue-color);
+					border-bottom: 10px solid var(--blue-color);
+				}
+			}
+
+			a.active {
+				padding-bottom: 11px;
+				color: var(--red-color);
+				border-bottom: 10px solid var(--red-color);
+			}
 		}
 	}
 }
@@ -38,7 +45,8 @@ nav {
 @media screen and (max-width: 768px) {
 
 	nav {
-		display: none;
+		/*display: block;*/
+		/*display: none;*/
 		position: fixed;
 		top: 80px;
 		height: calc(100vh - 80px);
@@ -52,16 +60,23 @@ nav {
 			padding-top: 50px;
 			width: 100%;
 
-			li a {
+			li {
 
-				&:hover {
+				#submenu {
+					display: block;
+				}
+
+				a {
+					
+					&:hover {
+						border: none;
+					}
+				}
+				
+				a.active {
 					border: none;
 				}
-			}
-
-			li a.active {
-				border: none;
-			}
+			} 
 		}
 	}
 

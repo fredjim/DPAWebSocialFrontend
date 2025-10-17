@@ -37,6 +37,9 @@ header {
 
 		.burger-menu {
 			display: none;
+			display: block;
+			width: 50px;
+			height: 50px;
 
 			.material-icons {
 				padding-top: 5px;
@@ -48,7 +51,6 @@ header {
 			&:hover {
 				cursor: pointer;
 			}
-
 		}
 	}
 
@@ -95,6 +97,13 @@ header {
 			gap: 15px;
 
 			.burger-menu {
+				display: block;
+			}
+		}
+
+		.submenu {
+
+			&:open {
 				display: block;
 			}
 		}

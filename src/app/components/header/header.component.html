@@ -19,19 +19,23 @@
     }
     -->
         @if (authenticated && user) {
-        @if (user.photo_profile_path){
-          <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="toggleMenu()" class="logo user-image">
+            @if (user.photo_profile_path){
+                <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="toggleMenu()" class="logo user-image">
+            } @else {
+                <img src="assets/user-icon.png" alt="" (click)="toggleMenu()" class="logo user-image">
+            }
         } @else {
-        <img src="assets/user-icon.png" alt="" (click)="toggleMenu()" class="logo user-image">
+            <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" class="logo user-image">
         }
-        } @else {
-        <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" class="logo user-image">
-        }
-        <!--
-		<div class="burger-menu" (click)="toggleMenuNavbar()">
-			<i class="material-icons">{{ isMenuNavbarOpen ? "close" : "menu" }}</i>
+		
+        <div class="burger-menu" (click)="toggleMobileMenu()">
+			<i class="material-icons">{{ isMobileMenuOpen ? "close" : "menu" }}</i>
 		</div>
-        -->
+
+        <!--<button class="burguer-menu" (click)="toggleMobileMenu()">
+			{{ isMobileMenuOpen ? '✖' : '☰' }}
+		</button>-->
+
     </div>
 
     @if (isMenuOpen) {
@@ -57,4 +61,4 @@
 <app-moderate-comments *ngIf="authenticated && canModerate"
     (counterUpdated)="onCounterUpdated($event)"></app-moderate-comments>
 
-<app-navbar></app-navbar>
+<app-navbar class="submenu" [class.open]="isMobileMenuOpen"></app-navbar>
