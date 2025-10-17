@@ -19,6 +19,7 @@ export class HeaderComponent {
 
   institution!: Institution
   totalFollowers!: number;
+  isMenuOpen = false;
 
   authenticated: boolean = false;
   canModerate: boolean = false; // Nueva propiedad
@@ -135,6 +136,10 @@ export class HeaderComponent {
 
   onCounterUpdated(newCount: number) {
     this.counterModeratedComments = newCount;
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
   }
 
 }

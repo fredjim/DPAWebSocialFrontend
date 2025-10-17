@@ -1,5 +1,7 @@
 <div class="container">
-  <app-department-details></app-department-details>
+  <div class="detail-photos">
+    <app-department-details></app-department-details>
+  </div>
   <div *ngIf="posts" class="main-container">
     @if (authenticated && currentUser) {
       <app-create-post *ngIf="currentUser.role === 'ADMIN'"></app-create-post>
