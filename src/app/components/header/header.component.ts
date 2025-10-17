@@ -23,14 +23,13 @@ export class HeaderComponent {
 
   authenticated: boolean = false;
   canModerate: boolean = false; // Nueva propiedad
-  isMenuOpen = false;
   
   isMobileMenuOpen = false;
   
   user: any
   counterModeratedComments: number = 0;
 
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
   private modalInstance?: Modal; // Para gestionar el modal
 
   @ViewChild('moderateCommentModal') modalElement!: ElementRef;
