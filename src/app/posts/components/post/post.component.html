@@ -83,7 +83,6 @@
 	<!-- Cantidad de reacciones y comentarios -->
 	<!-- Mostrar solo si hay reacciones o comentarios -->
 	<ng-container *ngIf="amountReactions() > 0 || amountComments() > 0">
-		<hr>
 		<div class="interactions-quantity">
 			<div *ngIf="amountReactions() > 0" [attr.data-bs-target]="'#reactions-'+post.uuid" data-bs-toggle="modal">
 				<span class="quantity">{{ totalReactions() }}</span>
