@@ -10,80 +10,59 @@
 	</div>
 
 	<div class="page-section no-border-bottom">
-		<div class="section-content">
-			<div class="media-container">
-				<img src="assets/personal/personal-ds.jpg" alt="Equipo del DS">
-			</div>
-		</div>
-
-		<div class="section-content">
-			<h3>Objetivo de la Unidad</h3>
-			<ul>
-				<li>Realizar seguimiento, control y análisis de procesos de administración académica desarrollados en el sistema de información San Simón, recopilando, sistematizando y publicando datos académicos verificados en el sistema estadístico San Simón, gestionando la integración de información académica.</li>
-			</ul>
-		</div>
-
-		<div class="section-content">
-			<h3>Funciones Principales de la Unidad</h3>
-			<ul>
-				<li>Registrar planes de estudio de las Carreras y/o Programas en la estructura académica del sistema de información
-					San Simón, previo informe del Departamento de Desarrollo Curricular y la aprobación del Comité Académico del
-					Honorable Consejo Universitario.</li>
-				<li>Mejorar la administración de información académica, así como actualización e implementación de nuevas opciones
-					en el sistema de información San Simón.</li>
-				<li>Dar seguimiento de los procesos académicos regulares implementados, con las Direcciones Académicas y las UTI’s
-					de cada Unidad Facultativa.</li>
-				<li>Informar sobre las actividades de control, seguimiento, actualización e implementación de nuevas opciones en el
-					sistema de información San Simón.</li>
-				<li>Publicar información académica a través del Sistema Estadístico San Simón.</li>
-				<li>Recopilar, analizar y publicar datos estadísticos institucionales en el sistema Estadístico San Simón en
-					coordinación con el DTIC.</li>
-				<li>Realizar control y seguimiento al cumplimiento de los calendarios académicas de unidades facultativas o
-					escuelas. </li>
-				<li>Informar sobre el cumplimiento de calendarios académicos aprobados por cada unidad académica, en relación al
-					calendario académico Universitario.</li>
-				<li>Revisar el cumplimiento de normas y reglamentos establecidos en el proceso de admisión de estudiantes nuevos de
-					cada unidad académica. </li>
-				<li>Elaborar y registrar a través de los SISPOA el plan Operativo Anual del Departamento, según normativa
-					Universitaria Vigente.</li>
-			</ul>
-		</div>
-
-		<div class="section-content">
-			<h3>Jefe Departamento de Seguimiento y Administración de Información Académica</h3>
-			<ul>
-				<li>Realizar procesos de seguimiento y administración de información académica, supervisando la administración del sistema de información San Simón, del sistema estadístico San Simón y del sistema de control de calendarios de unidades académicas, buscando que los sistemas de información académica se encuentren integrados, en coordinación con los diferentes Departamentos de la DPA, las Unidades Facultativas y DTIC.</li>
-			</ul>
-		</div>
-		
-		<div class="section-content">
-			<h3>Administrador del Sistema de Información San Simón (SISS)</h3>
-			<ul>
-				<li>Administrar el Sistema de Información San Simón (SISS) en relación a los procesos de administración académica, de docentes y estudiantes de la UMSS, coordinando el control y seguimiento de estos procesos con los Departamentos de la DPA, Unidades Facultativas y UTI’s Facultativas.</li>
-			</ul>
-		</div>
-
-		<div class="section-content">
-			<h3>Analista Estadístico</h3>
-			<ul>
-				<li>Administrar técnica y operativamente del Sistema Estadístico San Simón, así como preparar, revisar y analizar la información estadística de la actividad académica, docente, estudiantil y administrativa de las diferentes Unidades Académicas.</li>
-			</ul>
-		</div>
-		
-		<div class="section-content">
-			<h3>Informático</h3>
-			<ul>
-				<li>Analizar, diseñar, implementar y mantener sistemas informáticos en apoyo a las actividades y procesos de administración de información académica.</li>
-			</ul>
-		</div>
-
-		<div class="section-content">
-			<h3>Asistente Técnico</h3>
-			<ul>
-				<li>Brindar apoyo administrativo, soporte técnico y mantenimiento preventivo y correctivo en equipos informáticos en general de todas las unidades de la DPA.</li>
-			</ul>
-		</div>
-
+		@for(article of articles; track article.uuid;  let i = $index){
+			@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+				<!-- Mostrar form de edicion del articulo -->
+				@if(idArticleToEdit === article.uuid){
+					<app-edit-info
+						[currentArticle]="article"
+						typeForm="edit"
+						(onCloseEdit)="closeEdit()"
+						(onEditedArticle)="onUpdateArticle($event)"
+						(onDeletedArticle)="onDeleteArticle($event)"
+						(onComponentReady)="onEditComponentReady()"
+					></app-edit-info>
+				}@else {
+					<div class="edit-section-content">
+						<div class="section-content">
+							<h3>{{ article.title }}</h3>
+							<div class="text" *ngIf="article" [innerHTML]="safeText(article.text)"></div>
+							<div class="media-container" *ngIf="article.medias.length > 0">
+								@for(media of article.medias; track media.uuid){
+									<img [src]="media.path" [alt]="media.name">
+								}
+							</div>
+						</div>
+						<div class="edit-info" (click)="editInfo(article.text, article.uuid)" (keypress)="editInfo(article.text, article.uuid)">
+							<i class="bi bi-pencil-fill"></i>
+						</div>
+					</div>
+				}
+			}@else {
+				<div class="section-content">
+					<h3>{{ article.title }}</h3>
+					<p [innerHTML]="article.text"></p>
+					<div class="media-container" *ngIf="article.medias.length > 0">
+						@for(media of article.medias; track media.uuid){
+							<img [src]="media.path" [alt]="media.name">
+						}
+					</div>
+				</div>
+			}
+		}
+		@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+			@if(showButtonNewArticle){
+				<button class="btn btn-primary save" (click)="hideButtonNewArticle()" (keypress)="hideButtonNewArticle()"><i class="bi bi-plus-lg"></i> Agregar artículo</button>
+			}@else{
+				<app-edit-info
+					typeForm="create"
+					[currentSectionUuid]="UUID_SECTION"
+					(onCloseNew)="showButtonNewArticle = $event"
+					(onCreateArticle)="onCreateArticle($event)"
+					(onComponentReady)="onEditComponentReady()"
+				></app-edit-info>
+			} 
+		}
 	</div>
 
 </div>
