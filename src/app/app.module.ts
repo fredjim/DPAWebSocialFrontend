@@ -1,10 +1,9 @@
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './authentication/http-interceptors/auth-interceptor';
-import { APP_INITIALIZER } from '@angular/core';
 import { AuthService } from './authentication/services/auth.service';
 export function refreshTokenFactory(authService: AuthService) {
   return () => authService.tryRefreshOnStartup();
@@ -16,7 +15,6 @@ import { HomeComponent } from './components/home/home.component';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { PostsModule } from './posts/posts.module';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FontAwesomeModule, FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
@@ -25,7 +23,7 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { PagesComponent } from './pages/pages.component';
 import { CommentsModule } from "./comments/comments.module";
 import { EditorModule } from 'primeng/editor';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { EditInfoComponent } from './pages/edit-info/edit-info.component';
 import { ToastModule } from 'primeng/toast';
@@ -47,6 +45,7 @@ import { PagesAppsComponent } from './pages/pages-apps/pages-apps.component';
 import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
 import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.component';
 import { HeroProfileComponent } from './components/hero-profile/hero-profile.component';
+import { MessageService } from 'primeng/api';
 
 @NgModule({
   declarations: [
@@ -91,7 +90,8 @@ import { HeroProfileComponent } from './components/hero-profile/hero-profile.com
     EditorModule,
     FormsModule,
     InputTextModule,
-    ToastModule
+    ToastModule,
+    ReactiveFormsModule
 ],
   providers: [
     {
@@ -104,7 +104,8 @@ import { HeroProfileComponent } from './components/hero-profile/hero-profile.com
       useFactory: refreshTokenFactory,
       deps: [AuthService],
       multi: true
-    }
+    },
+    [MessageService]
   ],
   bootstrap: [AppComponent]
 })

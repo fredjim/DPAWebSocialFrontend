@@ -10,109 +10,59 @@
 	</div>
 
 	<div class="page-section no-border-bottom">
-		<div class="section-content">
-			<div class="media-container">
-				<img src="assets/personal/personal-dca.jpg" alt="Equipo del DCA">
-			</div>
-		</div>
-
-		<div class="section-content">
-			<h3>Objetivo de la Unidad</h3>
-			<ul>
-				<li>Coordinar las actividades de planificación académica universitaria y de régimen docente con las Direcciones
-					Universitarias y las Unidades Académicas.</li>
-				<li>Revisar y dar cumplimiento a la carga horaria del personal académico de las Unidades Facultativas en base a la
-					normativa en vigencia.</li>
-				<li>Preparar modelos, sistemas y directrices para la planificación académica de la UMSS.</li>
-				<li>Coordinar las gestiones relacionadas a la designación de personal académico de las Facultades con las Unidades
-					Académicas y el Departamento de Personal Académico.</li>
-				<li>Apoyar en la gestión de los trámites relacionados a la actividad académica de la UMSS.</li>
-			</ul>
-		</div>
-
-		<div class="section-content">
-			<h3>Funciones Principales de la Unidad</h3>
-			<ul>
-				<li>Coordinación en la definición de métodos, sistemas, directrices y los marcos normativos para la formulación del
-					Plan de Desarrollo Académico en coordinación con los departamentos de las diferentes Unidades Académicas y la
-					Dirección de Planificación, Proyectos y Sistemas (DPPyS).</li>
-				<li>Participación en la actualización y elaboración de la Guía Pedagógica Universitaria con el Departamento de
-					Desarrollo Curricular y otros Departamentos de la DPA y el CEUB.</li>
-				<li>Elaboración del Plan Operativo Anual del Departamento de Coordinación Académica, según normativas vigentes.</li>
-				<li>Elaboración de la propuesta del Calendario Académico de la UMSS, para su aprobación en el Comité Académico y
-					Honorable Consejo Universitario</li>
-				<li>Revisión de la carga horaria docente y de auxiliares universitarios de las Unidades Académicas.</li>
-				<li>Administración del Sistema de Gestión de Información Académica – GAIA relativo a la carga horaria docente y
-					auxiliares.</li>
-				<li>Verificación y elaboración de informes sobre los requisitos para el nombramiento de docentes y auxiliares
-					universitarios por convocatoria, suplencia, designación por cambio de materia, etc.</li>
-				<li>Coordinación de todo proceso de titularización y admisión docente a requerimiento de las Unidades Académicas,
-					según la normativa universitaria vigente.</li>
-			</ul>
-		</div>
-
-		<div class="section-content">
-			<h3>Jefe Departamento de Coordinación Académica</h3>
-			<ul>
-				<li>Coordinar las actividades académicas y administrativas de planificación y de Régimen Docente con las
-					Direcciones
-					Universitarias y las Unidades Académicas.</li>
-				<li>Proponer las directrices para la planificación y la formulación de la carga horaria del personal académico.
-				</li>
-			</ul>
-		</div>
-		
-		<div class="section-content">
-			<h3>Secretaria Departamento de Coordinación Académica</h3>
-			<ul>
-				<li>Apoyar al Departamento de Coordinación Académica con trabajos de secretariado y el manejo de correspondencia
-					tanto interna como externa, así como su resguardo y archivo.</li>
-			</ul>
-		</div>
-		
-		<div class="section-content">
-			<h3>Técnico en Procesamiento de Información Académica</h3>
-			<ul>
-				<li>Apoyar en la gestión y administración de información académica de los procesos de formación profesional de
-					grado, a través del uso de las nuevas tecnologías de información y comunicación.</li>
-				<li>Apoyar de forma técnica y operativa en la gestión de coordinación académica del Departamento y las Unidades
-					Académicas de la Universidad.</li>
-				<li>Coordinar con los Departamentos de Personal Académico, Departamento de Seguimiento y Administración del SISS y
-					la UPSI el manejo de la información académica estandarizada.</li>
-			</ul>
-		</div>
-		
-		<div class="section-content">
-			<h3>Técnico I en Gestión Académica</h3>
-			<ul>
-				<li>Apoyar en el proceso de gestión académica con las Direcciones Universitarias y las Unidades Académicas.</li>
-				<li>Procesar los trámites de designación de Docentes y Auxiliares en coordinación con las Direcciones
-					Universitarias, Unidades Académicas y Departamentos de la DPA.</li>
-			</ul>
-		</div>
-		
-		<div class="section-content">
-			<h3>Técnico II en Gestión Académica</h3>
-			<ul>
-				<li>Apoyar en el proceso de gestión académica con las Direcciones Universitarias y las Unidades Académicas.</li>
-				<li>Procesar los trámites de designación de Docentes a Dedicación Exclusiva y Docentes Investigadores en
-					coordinación con las Direcciones Universitarias, Unidades Académicas y Departamentos de la DPA.</li>
-			</ul>
-		</div>
-		
-		<div class="section-content">
-			<h3>Técnico en Planificación Académica</h3>
-			<ul>
-				<li>Evaluar el desarrollo de las actividades académicas universitarias y proponer metodologías y directrices para
-					mejorar los procesos de formación profesional de grado.</li>
-				<li>Apoyar en la definición y actualización de lineamientos, procedimientos, políticas y normativas orientadas a
-					mejorar los procesos de planificación académica universitaria.</li>
-				<li>Coordinar el proceso de planificación académica y su implementación con los Departamentos, Direcciones
-					Universitarias y las Unidades Académicas.</li>
-				<li>Apoyar en la formulación del Plan Operativo Anual y la autoevaluación del Departamento.</li>
-			</ul>
-		</div>
-
+		@for(article of articles; track article.uuid;  let i = $index){
+			@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+				<!-- Mostrar form de edicion del articulo -->
+				@if(idArticleToEdit === article.uuid){
+					<app-edit-info
+						[currentArticle]="article"
+						typeForm="edit"
+						(onCloseEdit)="closeEdit()"
+						(onEditedArticle)="onUpdateArticle($event)"
+						(onDeletedArticle)="onDeleteArticle($event)"
+						(onComponentReady)="onEditComponentReady()"
+					></app-edit-info>
+				}@else {
+					<div class="edit-section-content">
+						<div class="section-content">
+							<h3>{{ article.title }}</h3>
+							<div class="text" *ngIf="article" [innerHTML]="safeText(article.text)"></div>
+							<div class="media-container" *ngIf="article.medias.length > 0">
+								@for(media of article.medias; track media.uuid){
+									<img [src]="media.path" [alt]="media.name">
+								}
+							</div>
+						</div>
+						<div class="edit-info" (click)="editInfo(article.text, article.uuid)" (keypress)="editInfo(article.text, article.uuid)">
+							<i class="bi bi-pencil-fill"></i>
+						</div>
+					</div>
+				}
+			}@else {
+				<div class="section-content">
+					<h3>{{ article.title }}</h3>
+					<p [innerHTML]="article.text"></p>
+					<div class="media-container" *ngIf="article.medias.length > 0">
+						@for(media of article.medias; track media.uuid){
+							<img [src]="media.path" [alt]="media.name">
+						}
+					</div>
+				</div>
+			}
+		}
+		@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+			@if(showButtonNewArticle){
+				<button class="btn btn-primary save" (click)="hideButtonNewArticle()" (keypress)="hideButtonNewArticle()"><i class="bi bi-plus-lg"></i> Agregar artículo</button>
+			}@else{
+				<app-edit-info
+					typeForm="create"
+					[currentSectionUuid]="UUID_SECTION"
+					(onCloseNew)="showButtonNewArticle = $event"
+					(onCreateArticle)="onCreateArticle($event)"
+					(onComponentReady)="onEditComponentReady()"
+				></app-edit-info>
+			} 
+		}
 	</div>
 
 </div>

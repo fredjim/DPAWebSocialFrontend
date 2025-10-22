@@ -10,68 +10,59 @@
 	</div>
 
 	<div class="page-section no-border-bottom">
-		<div class="section-content">
-			<div class="media-container">
-				<img src="assets/personal/personal-ddc.jpg" alt="Equipo del DDC">
-			</div>
-		</div>
-
-		<div class="section-content">
-			<h3>Objetivo de la Unidad</h3>
-			<ul>
-				<li>Proponer la política curricular universitaria, normar, asesorar y evaluar los procesos de transformación en
-					innovación curricular de las carreras y programas de formación profesional, de grado con criterios de calidad
-					académica y pertinencia social, en el marco del Modelo Académico de la UMSS.</li>
-				<li>Proponer políticas y normativas de desarrollo curricular de carreras y programas de formación profesional de
-					grado, en coordinación con las Direcciones Universitarias, Departamentos y Unidades Académicas, en el marco del
-					Estatuto Orgánico y el Modelo Educativo de la UMSS.</li>
-				<li>Promover la transformación, actualización e innovación curricular de las Unidades Académicas de acuerdo al
-					Modelo Educativo de la UMSS.</li>
-			</ul>
-		</div>
-
-		<div class="section-content">
-			<h3>Funciones Principales de la Unidad</h3>
-			<ul>
-				<li>Proponer y actualizar políticas y normativa curricular para elaborar el diseño, rediseño curricular y ajustes
-					parciales a los Planes de Estudio y otras innovaciones curriculares de las Carreras y/o Programas de la UMSS.
-				</li>
-				<li>Proponer políticas referidas al Régimen Estudiantil (a las Modalidades de Admisión y de Graduación).</li>
-				<li>Proponer la política académica de integración curricular de las Tecnologías de Información y Comunicación (TIC),
-					en coordinación con las Unidades Académicas de la UMSS.</li>
-				<li>Proponer políticas de Evaluación Curricular, en coordinación con la DUEA.</li>
-				<li>Desarrollar procesos de capacitación sobre diseño, rediseño curricular y ajustes parciales al Plan de Estudios
-					de las Carreras o Programas de formación profesional de grado.</li>
-				<li>Asesorar a las Unidades Académicas en la elaboración de diseños, rediseños curriculares y ajustes parciales en
-					los Planes de Estudio y otros aspectos relacionados con el ámbito curricular.</li>
-				<li>Verificar que los diseños, rediseños curriculares y ajustes parciales de las Carreras y Programas cumplan con
-					los requisitos académicos, en el marco de la política y normativa de la UMSS y del Sistema Universitario
-					Boliviano.</li>
-				<li>Elaborar el Plan Operativo Anual del Departamento, según normativa universitaria vigente.</li>
-			</ul>
-		</div>
-
-		<div class="section-content">
-			<h3>Jefe Departamento de Desarrollo Curricular</h3>
-			<ul>
-				<li>Proponer la definición y actualización de la política curricular universitaria y avalar los procesos de elaboración de diseños y rediseños curriculares resultado de la transformación e innovación curricular, con criterios de calidad académica y pertinencia social y en el marco del Modelo Educativo de la UMSS.</li>
-			</ul>
-		</div>
-		
-		<div class="section-content">
-			<h3>Secretaria Departamento de Desarrollo Curricular</h3>
-			<ul>
-				<li>Apoyar al departamento con trabajos de secretariado relacionado con la actividad administrativo-académica y manejo de correspondencia tanto interna  como externa y su resguardo y archivo de la documentación generada.</li>
-			</ul>
-		</div>
-		
-		<div class="section-content">
-			<h3>Analista (4)</h3>
-			<ul>
-				<li>Contribuir en la actualización de la política curricular universitaria para la elaboración de diseños, rediseños curriculares, ajustes parciales de los Planes de Estudio y otras innovaciones de las carreras y/o programas de formación profesional de grado, en el marco de la normativa universitaria vigente.</li>
-			</ul>
-		</div>
-
+		@for(article of articles; track article.uuid;  let i = $index){
+			@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+				<!-- Mostrar form de edicion del articulo -->
+				@if(idArticleToEdit === article.uuid){
+					<app-edit-info
+						[currentArticle]="article"
+						typeForm="edit"
+						(onCloseEdit)="closeEdit()"
+						(onEditedArticle)="onUpdateArticle($event)"
+						(onDeletedArticle)="onDeleteArticle($event)"
+						(onComponentReady)="onEditComponentReady()"
+					></app-edit-info>
+				}@else {
+					<div class="edit-section-content">
+						<div class="section-content">
+							<h3>{{ article.title }}</h3>
+							<div class="text" *ngIf="article" [innerHTML]="safeText(article.text)"></div>
+							<div class="media-container" *ngIf="article.medias.length > 0">
+								@for(media of article.medias; track media.uuid){
+									<img [src]="media.path" [alt]="media.name">
+								}
+							</div>
+						</div>
+						<div class="edit-info" (click)="editInfo(article.text, article.uuid)" (keypress)="editInfo(article.text, article.uuid)">
+							<i class="bi bi-pencil-fill"></i>
+						</div>
+					</div>
+				}
+			}@else {
+				<div class="section-content">
+					<h3>{{ article.title }}</h3>
+					<p [innerHTML]="article.text"></p>
+					<div class="media-container" *ngIf="article.medias.length > 0">
+						@for(media of article.medias; track media.uuid){
+							<img [src]="media.path" [alt]="media.name">
+						}
+					</div>
+				</div>
+			}
+		}
+		@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+			@if(showButtonNewArticle){
+				<button class="btn btn-primary save" (click)="hideButtonNewArticle()" (keypress)="hideButtonNewArticle()"><i class="bi bi-plus-lg"></i> Agregar artículo</button>
+			}@else{
+				<app-edit-info
+					typeForm="create"
+					[currentSectionUuid]="UUID_SECTION"
+					(onCloseNew)="showButtonNewArticle = $event"
+					(onCreateArticle)="onCreateArticle($event)"
+					(onComponentReady)="onEditComponentReady()"
+				></app-edit-info>
+			} 
+		}
 	</div>
 
 </div>

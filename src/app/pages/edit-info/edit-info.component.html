@@ -1,13 +1,39 @@
-<div class="editor-text" [ngClass]="{ 'flex-column': typeText === 'paragraph'}">
-    @if(typeText === 'title'){
-        <!-- Editor de titulos de articulo -->
-        <input type="text" pInputText [(ngModel)]="contentEdited" class="edit-input-text"/>
-    }@else if(typeText === 'paragraph'){
+<div class="editor-article">
+    <form [formGroup]="formArticle" (ngSubmit)="onSubmit()">
+
+        <!-- Editar titulo de articulo -->
+        <input type="text" pInputText formControlName="title" class="input-title"/>
+
         <!-- Editor de texto -->
-        <p-editor [(ngModel)]="contentEdited" [style]="{ height: 'auto' }" />
-    }
-    <div class="buttons d-inline-flex gap-3 justify-content-center mb-2">
-        <button type="submit" class="btn btn-primary boton" (click)="saveEdit()" ><i class="bi bi-check"></i></button>
-        <button type="button" class="btn btn-primary boton" (click)="cancelEdit()"><i class="bi bi-x"></i></button>
-    </div>
+        <p-editor formControlName="text" [style]="{ height: 'auto' }" class="text-editor" />
+
+        <!-- Editar imagenes -->
+        <div class="images-article">
+            @if(currentArticle && currentArticle.medias && currentArticle.medias.length > 0){
+                @for(img of currentArticle.medias; track img.uuid){
+                    <img [src]="img.path" [alt]="img.name">
+                }
+            }
+            @if(imgsPreview.length > 0){
+                @for(preview of imgsPreview; track preview.url){
+                    <img [src]="preview.url" [alt]="preview.name">
+                }
+            }
+            <div class="add-more-file" (click)="openInputFileMedia()" (keypress)="openInputFileMedia()">
+                <div class="add-more-content">
+                    <i class="bi bi-plus-lg"></i>
+                    Agregar imagen
+                </div>
+            </div>
+            <input #fileInput type="file" id="input-file-img" hidden (change)="changeInputMedia($event)" multiple accept="image/*">
+        </div>
+
+        
+        <div class="d-flex gap-3 justify-content-center m-3">
+            <button type="submit" class="btn btn-primary save"><i class="bi bi-check"></i> Guardar</button>
+            <button type="button" class="btn btn-danger delete" (click)="deleteArticle()"><i class="bi bi-trash-fill"></i> Eliminar</button>
+            <button type="button" class="btn btn-outline-primary" (click)="closeEdit()"><i class="bi bi-x"></i> Cancelar</button>
+        </div>
+    </form>
 </div>
+
