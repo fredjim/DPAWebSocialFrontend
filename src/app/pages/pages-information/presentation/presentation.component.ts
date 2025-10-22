@@ -4,27 +4,27 @@ import { Article } from '../../models/article';
 import { UserDetail } from '../../../posts/models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { PostService } from '../../../posts/services/post.service';
-import { MessageService } from 'primeng/api';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-presentation',
   templateUrl: './presentation.component.html',
-  styleUrl: './presentation.component.scss',
-  providers: [MessageService]
+  styleUrl: './presentation.component.scss'
 })
 export class PresentationComponent implements OnInit {
+  public readonly UUID_SECTION = '919ab4e8-0856-4aad-b3aa-747e2dba76d9';
   private readonly informationService = inject(InformationService);
   private readonly authService = inject(AuthService);
   private readonly postService = inject(PostService);
-  private readonly messageService = inject(MessageService)
-  private readonly sanitizer = inject(DomSanitizer)
+  private readonly sanitizer = inject(DomSanitizer);
 
   articles: Article[] = [];
   public isAuthenticated: boolean = false; 
   public currentUser!: UserDetail;
   public contentEdited: string = ''
-  public edit: string = '';
+  public idArticleToEdit: string = '';
+  public isEditReady = false;
+  public showButtonNewArticle = true;
 
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
@@ -37,26 +37,17 @@ export class PresentationComponent implements OnInit {
     this.getArticles();
   }
 
-  cancelEdit(){
-    this.edit = '';
+  closeEdit(){
+    this.idArticleToEdit = '';
+    this.isEditReady = false;
   }
 
   getArticles(){
-    this.informationService.getAllArticles().subscribe({
+    this.informationService.getArticlesBySectionUuid(this.UUID_SECTION).subscribe({
       next: (resArticles) => {
         this.articles = resArticles;
-        console.log(this.articles);
       }
     });
-  }
-
-  saveEdit(isUpdatedArticle: boolean){
-    if(isUpdatedArticle){
-      this.edit = ''
-      this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo editado exitosamente' });
-    }else{
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al editar artículo' });
-    }
   }
 
   public safeText(textToSanitizer: string): SafeHtml {
@@ -65,11 +56,32 @@ export class PresentationComponent implements OnInit {
   }
 
   private normalizeLineBreaks(html: string): string {
-    return html.replace(/\n/g, '<br>').replace(/&nbsp;/g, ' ');
+    return html.replaceAll('\n', '<br>').replaceAll('&nbsp;', ' ');
   }
 
   public editInfo(contentToEdit: string, idEdit: string): void{
     this.contentEdited = contentToEdit;
-    this.edit = idEdit;
+    this.idArticleToEdit = idEdit;
+    this.isEditReady = false;
+  }
+
+  public onUpdateArticle(updatedArticle: Article): void {
+    this.articles = this.articles.map(art => art.uuid === updatedArticle.uuid ? updatedArticle : art);
+  }
+
+  public onDeleteArticle(deletedArticle: Article): void {
+    this.articles = this.articles.filter(art => art.uuid !== deletedArticle.uuid);
+  }
+
+  public onCreateArticle(createdArticle: Article): void {
+    this.articles.push(createdArticle);
+  }
+
+  onEditComponentReady() {
+    this.isEditReady = true;
+  }
+
+  hideButtonNewArticle(): void {
+    this.showButtonNewArticle = false
   }
 }

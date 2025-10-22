@@ -11,58 +11,57 @@
 
 	<div class="page-section no-border-bottom">
 		@for(article of articles; track article.uuid;  let i = $index){
-			@if(i <= 5){
-				@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
-					@if(edit === article.uuid){
-						<app-edit-info
-							[contentEdited]="contentEdited"
-							[typeText]="'paragraph'"
-							[articleToEdit]="article"
-							(onCancelEdit)="cancelEdit()"
-							(onSaveSuccessfulEdit)="saveEdit($event)"
-						></app-edit-info>
-						@if(i === 0){
-							<div class="section-content">
-								<div class="media-container">
-									<img src="assets/personal/dpa-directora.jpg" alt="Directora del DPA">
-								</div>
-							</div>
-						}
-					}@else {
+			@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+				<!-- Mostrar form de edicion del articulo -->
+				@if(idArticleToEdit === article.uuid){
+					<app-edit-info
+						[currentArticle]="article"
+						typeForm="edit"
+						(onCloseEdit)="closeEdit()"
+						(onEditedArticle)="onUpdateArticle($event)"
+						(onDeletedArticle)="onDeleteArticle($event)"
+						(onComponentReady)="onEditComponentReady()"
+					></app-edit-info>
+				}@else {
+					<div class="edit-section-content">
 						<div class="section-content">
 							<h3>{{ article.title }}</h3>
 							<div class="text" *ngIf="article" [innerHTML]="safeText(article.text)"></div>
-							<div class="edit-info" (click)="editInfo(article.text, article.uuid)">
-								<i class="bi bi-pencil-fill"></i>
+							<div class="media-container" *ngIf="article.medias.length > 0">
+								@for(media of article.medias; track media.uuid){
+									<img [src]="media.path" [alt]="media.name">
+								}
 							</div>
 						</div>
-						@if(i === 0){
-							<div class="section-content">
-								<div class="media-container">
-									<img src="assets/personal/dpa-directora.jpg" alt="Directora del DPA">
-								</div>
-							</div>
-						}
-					}
-				}@else {
-					@if(i === 0){
-						<div class="section-content">
-							<p>{{ article.text }}</p>
+						<div class="edit-info" (click)="editInfo(article.text, article.uuid)" (keypress)="editInfo(article.text, article.uuid)">
+							<i class="bi bi-pencil-fill"></i>
 						</div>
-
-						<div class="section-content">
-							<div class="media-container">
-								<img src="assets/personal/dpa-directora.jpg" alt="Directora del DPA">
-							</div>
-						</div>
-					}@else {
-						<div class="section-content">
-							<h3>{{ article.title }}</h3>
-							<p [innerHTML]="article.text"></p>
-						</div>
-					}
+					</div>
 				}
+			}@else {
+				<div class="section-content">
+					<h3>{{ article.title }}</h3>
+					<p [innerHTML]="article.text"></p>
+					<div class="media-container" *ngIf="article.medias.length > 0">
+						@for(media of article.medias; track media.uuid){
+							<img [src]="media.path" [alt]="media.name">
+						}
+					</div>
+				</div>
 			}
+		}
+		@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+			@if(showButtonNewArticle){
+				<button class="btn btn-primary save" (click)="hideButtonNewArticle()" (keypress)="hideButtonNewArticle()"><i class="bi bi-plus-lg"></i> Agregar artículo</button>
+			}@else{
+				<app-edit-info
+					typeForm="create"
+					[currentSectionUuid]="UUID_SECTION"
+					(onCloseNew)="showButtonNewArticle = $event"
+					(onCreateArticle)="onCreateArticle($event)"
+					(onComponentReady)="onEditComponentReady()"
+				></app-edit-info>
+			} 
 		}
 	</div>
 

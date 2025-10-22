@@ -34,7 +34,7 @@ export class InformationService {
   }
 
   // PUT section
-  updatePresentationSection(uuid: string, updatedSection: Section): Observable<Section> {
+  updateSection(uuid: string, updatedSection: Section): Observable<Section> {
     return this.http.put<Section>(`${this.ROOT_URL}/${this.sectionsUrl}/${uuid}`, updatedSection , this.reqHeader);
   }
 
@@ -52,6 +52,11 @@ export class InformationService {
   // GET articles
   getAllArticles(): Observable<Article[]> {
     return this.http.get<Article[]>(`${this.ROOT_URL}/${this.articlesUrl}`);
+  }
+
+  // GET articles by section uuid
+  getArticlesBySectionUuid(uuidSection: string): Observable<Article[]> {
+    return this.http.get<Article[]>(`${this.ROOT_URL}/${this.articlesUrl}/section/${uuidSection}`);
   }
 
   // PUT articles
