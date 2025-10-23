@@ -145,26 +145,19 @@ export class EditInfoComponent implements OnInit, OnChanges {
             type: media.type,
             path: media.urlResource
           }));
-
-          let joinMediasArticle: MediaArticle[] = []
-          if(this.currentArticle?.medias && this.currentArticle?.medias.length > 0){
-            joinMediasArticle = [...this.currentArticle.medias, ...mediasToArticle];
-          }else{
-            joinMediasArticle = [...mediasToArticle];
-          }
   
           const articleUpdated: any  = {
             ...this.currentArticle,
             title: this.formArticle.value.title ?? '',
             text: this.formArticle.value.text ?? '',
-            medias: joinMediasArticle
+            medias: mediasToArticle
           }
           return this.informationService.updateArticle(this.currentArticle!.uuid, articleUpdated);
         })
       ).subscribe({
         next: (articleUpdated: Article)=>{
-          this.currentArticle!.medias = articleUpdated.medias;
           this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo editado exitosamente' });
+          articleUpdated.medias = [...this.currentArticle!.medias, ...articleUpdated.medias];
           this.onEditedArticle.emit(articleUpdated);
           this.closeEdit();
         },

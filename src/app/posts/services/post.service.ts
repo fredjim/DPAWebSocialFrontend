@@ -14,6 +14,7 @@ import { map } from 'rxjs/operators';
 import { EmojiType } from '../models/emoji-type';
 import { PostComment } from '../models/post-comment';
 import { FbUploadedMedia } from '../models/fb-uploaded-media';
+import { UserDetail } from '../models/user-detail';
 
 @Injectable({
   providedIn: 'root'
@@ -44,6 +45,10 @@ export class PostService {
   getUser(): Observable<any> {
     const getUser = 'users/me'
     return this.http.get<any>(`${this.ROOT_URL}/${getUser}`, this.reqHeader)
+  }
+
+  getUserByUuid(uuid: string): Observable<UserDetail> {
+    return this.http.get<UserDetail>(`${this.ROOT_URL}/user/${uuid}`);
   }
 
   // Método para obtener el número de seguidores de una institución

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, signal, WritableSignal, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal, WritableSignal, inject, OnInit } from '@angular/core';
 import { PostService } from '../../services/post.service';
 import { CreateReaction } from '../../models/create-reaction';
 import { Post } from '../../models/post';
@@ -15,8 +15,8 @@ import { UserDetail } from '../../models/user-detail';
   templateUrl: './post.component.html',
   styleUrl: './post.component.scss'
 })
-export class PostComponent {
-  private modalService = inject(NgbModal);
+export class PostComponent implements OnInit {
+  private readonly modalService = inject(NgbModal);
   @Input() post: any;
   @Output() reactionChanged = new EventEmitter<void>(); // Nuevo Output para emitir eventos de cambio de reacción
   @Input() currentUser!: UserDetail;
@@ -25,6 +25,7 @@ export class PostComponent {
   newComment: string = '';
   showCommentInput: boolean = false;
   postUrl: string = "https://devpws.cs.umss.edu.bo/post/";
+  userOfPost!: UserDetail
 
   @Output() requestDeletePost = new EventEmitter<string>();
   @Output() requestUpdatePost = new EventEmitter<Post>();
@@ -50,7 +51,7 @@ export class PostComponent {
   totalComments = signal(0);
 
   constructor(
-    private postService: PostService
+    private readonly postService: PostService
   ) {}
   
   ngOnInit() {
@@ -64,6 +65,11 @@ export class PostComponent {
         console.log(error);
       }
     });
+
+    // Cambiar por getUserByUuid
+    // this.postService.getUserByUuid(post.uuid).subscribe(user => {
+    //   this.userOfPost = user;
+    // })
 
     if (this.post.reactions) {
       this.totalReactions.set(this.post.reactions.total_reactions);
@@ -238,7 +244,6 @@ export class PostComponent {
 
   recuperarReaccion() {
     let reaccionUser = this.post.reactions.my_reaction_emoji;
-    //let reaccionUser = this.post.reactions.reactions_by_user[0]?.user_reaction
     if (reaccionUser) {
       this.like = true;
       if (reaccionUser === 'thumbs-up') {

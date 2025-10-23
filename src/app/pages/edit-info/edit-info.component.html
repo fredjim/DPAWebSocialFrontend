@@ -12,6 +12,11 @@
             @if(currentArticle && currentArticle.medias && currentArticle.medias.length > 0){
                 @for(img of currentArticle.medias; track img.uuid){
                     <img [src]="img.path" [alt]="img.name">
+                    <!-- <div class="container-img">
+                        <button type="button" class="btn-delete-media" aria-label="Eliminar">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div> -->
                 }
             }
             @if(imgsPreview.length > 0){
