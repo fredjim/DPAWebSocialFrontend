@@ -6,6 +6,8 @@ export interface Post {
     uuid:              string;
     institution_id:    string;
     user_id:           string;
+    name?:             string;
+    lastName?:         string;
     comment_config_id: string;
     post_type: string;
     date:              string;

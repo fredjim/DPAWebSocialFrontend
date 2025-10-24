@@ -25,7 +25,6 @@ export class PostComponent implements OnInit {
   newComment: string = '';
   showCommentInput: boolean = false;
   postUrl: string = "https://devpws.cs.umss.edu.bo/post/";
-  userOfPost!: UserDetail
 
   @Output() requestDeletePost = new EventEmitter<string>();
   @Output() requestUpdatePost = new EventEmitter<Post>();
@@ -65,11 +64,6 @@ export class PostComponent implements OnInit {
         console.log(error);
       }
     });
-
-    // Cambiar por getUserByUuid
-    // this.postService.getUserByUuid(post.uuid).subscribe(user => {
-    //   this.userOfPost = user;
-    // })
 
     if (this.post.reactions) {
       this.totalReactions.set(this.post.reactions.total_reactions);
