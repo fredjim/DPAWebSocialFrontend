@@ -46,6 +46,7 @@ import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
 import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.component';
 import { HeroProfileComponent } from './components/hero-profile/hero-profile.component';
 import { MessageService } from 'primeng/api';
+import { SectionContainerComponent } from './pages/section-container/section-container.component';
 
 @NgModule({
   declarations: [
@@ -72,7 +73,8 @@ import { MessageService } from 'primeng/api';
     PagesAppsComponent,
     PagesGaiaComponent,
     PagesContactsComponent,
-    HeroProfileComponent
+    HeroProfileComponent,
+    SectionContainerComponent
   ],
   imports: [
     BrowserModule,

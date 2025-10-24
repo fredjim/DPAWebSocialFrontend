@@ -22,6 +22,8 @@ import { AcademicProcedureGuideComponent } from './pages/pages-guide-procedure/a
 import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
 import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.component';
 import { PageComponent } from './posts/components/post-page/page/page.component';
+import { SectionContainerComponent } from './pages/section-container/section-container.component';
+import { SectionResolver } from './resolvers/section.resolver';
 
 const routes: Routes = [
   {
@@ -36,13 +38,13 @@ const routes: Routes = [
         component: PagesInformationComponent,
         children: [
           { path: '', redirectTo: 'presentacion', pathMatch: 'full' },
-          { path: 'presentacion', component: PresentationComponent },
-          { path: 'coordinacion-academica', component: AcademicCoordinationComponent },
-          { path: 'desarrollo-curricular', component: CurriculumDevelopmentComponent },
-          { path: 'personal-academico', component: AcademicPersonnelComponent },
-          { path: 'titulacion-alternativa', component: AlternativeGraduationComponent },
-          { path: 'seguimiento-academico', component: AcademicMonitoringComponent },
-          { path: 'registro-inscripciones', component: RecordRegistrationComponent },
+          { 
+            path: ':route', 
+            component: SectionContainerComponent,
+            resolve: {
+              section: SectionResolver // Opcional: para precargar datos
+            }
+          },
           { path: '**', redirectTo: 'presentacion', pathMatch: 'full' }
         ]
       },
