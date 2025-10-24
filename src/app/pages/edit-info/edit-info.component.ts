@@ -27,8 +27,12 @@ export class EditInfoComponent implements OnInit, OnChanges {
   @Output() onComponentReady = new EventEmitter<void>();
   @ViewChild('fileInput') fileInput!: ElementRef;
 
-  imgsPreview: {name: string, type: string, url: string}[] = [];
-  imageFiles: File[] = [];
+  public imgsPreview: {name: string, type: string, url: string}[] = [];
+  public imagesOfArticle: MediaArticle[] = []; // imagenes del articulo actual para renderizar
+  private imageFilesToCreate: File[] = []; //imagenes para subir al articulo
+  private imagesToDelete: MediaArticle[] = []; //imagenes del articulo para eliminar
+
+  public isLoading = false;
 
   public formArticle = new FormGroup({
     title: new FormControl(''),
@@ -51,6 +55,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
         title: this.currentArticle.title,
         text: this.currentArticle.text
       })
+      this.imagesOfArticle = [...this.currentArticle.medias];
     }
   }
 
@@ -63,9 +68,10 @@ export class EditInfoComponent implements OnInit, OnChanges {
   }
 
   private createArticle(): void {
-    if(this.imageFiles.length > 0){
+    if(this.imageFilesToCreate.length > 0){
+      this.isLoading = true;
       const formData = new FormData();
-      for (const file of this.imageFiles){
+      for (const file of this.imageFilesToCreate){
         if(file.type.includes('image')){
           formData.append('images', file);
         }
@@ -92,17 +98,20 @@ export class EditInfoComponent implements OnInit, OnChanges {
         })
       ).subscribe({
         next: (articleCreated: Article)=>{
+          this.isLoading = false;
           this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Artículo creado exitosamente' });
           this.onCreateArticle.emit(articleCreated);
           this.closeEdit();
         },
         error: (err) =>{
+          this.isLoading = false;
           console.log('Error al creat articulo', err);
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear artículo' });
           this.closeEdit();
         }
       });
     }else{
+      this.isLoading = true;
       const newArticle: Omit<Article, 'uuid' | 'user_id'> = {
         section_id: this.currentSectionUuid,
         date: '',
@@ -113,11 +122,13 @@ export class EditInfoComponent implements OnInit, OnChanges {
       
       this.informationService.createArticle(newArticle).subscribe({
         next: (created) => {
+          this.isLoading = false;
           this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Artículo creado exitosamente' });
           this.onCreateArticle.emit(created);
           this.closeEdit();
         },
         error: () => {
+          this.isLoading = false;
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear artículo' });
           this.closeEdit();
         }
@@ -128,9 +139,10 @@ export class EditInfoComponent implements OnInit, OnChanges {
   private updatedArticle(): void {
     if(!this.currentArticle) return;
 
-    if(this.imageFiles.length > 0){
+    if(this.imageFilesToCreate.length > 0){
+      this.isLoading = true;
       const formData = new FormData();
-      for (const file of this.imageFiles){
+      for (const file of this.imageFilesToCreate){
         if(file.type.includes('image')){
           formData.append('images', file);
         }
@@ -156,18 +168,21 @@ export class EditInfoComponent implements OnInit, OnChanges {
         })
       ).subscribe({
         next: (articleUpdated: Article)=>{
+          this.isLoading = false;
           this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo editado exitosamente' });
           articleUpdated.medias = [...this.currentArticle!.medias, ...articleUpdated.medias];
           this.onEditedArticle.emit(articleUpdated);
           this.closeEdit();
         },
         error: (err) =>{
+          this.isLoading = false;
           console.log('Error al actualizar imagenes', err);
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al editar artículo' });
           this.closeEdit();
         }
       });
     }else{
+      this.isLoading = true;
       const articleEdited: Omit<Article, 'uuid' | 'user_id'> = {
         ...this.currentArticle,
         title: this.formArticle.value.title ?? '',
@@ -177,11 +192,13 @@ export class EditInfoComponent implements OnInit, OnChanges {
       
       this.informationService.updateArticle(this.currentArticle.uuid, articleEdited).subscribe({
         next: (edited) => {
+          this.isLoading = false;
           this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo editado exitosamente' });
           this.onEditedArticle.emit(edited);
           this.closeEdit();
         },
         error: () => {
+          this.isLoading = false;
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al editar artículo' });
           this.closeEdit();
         }
@@ -191,6 +208,8 @@ export class EditInfoComponent implements OnInit, OnChanges {
 
   public closeEdit(): void {
     this.clearImagesPreview();
+    this.imageFilesToCreate = [];
+    this.imagesToDelete = [];
     if(this.typeForm === 'edit'){
       this.currentArticle = undefined;
       this.resetFileInput();
@@ -213,14 +232,17 @@ export class EditInfoComponent implements OnInit, OnChanges {
   public deleteArticle(): void {
     if(!this.currentArticle) return;
 
+    this.isLoading = true;
     this.informationService.deleteArticle(this.currentArticle.uuid).subscribe({
       next: () => {
+        this.isLoading = false;
         this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo eliminado exitosamente' });
         this.onDeletedArticle.emit(this.currentArticle);
         this.onCloseEdit.emit();
         this.currentArticle = undefined;
       },
       error: () => {
+        this.isLoading = false;
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al eliminar artículo' });
         this.onCloseEdit.emit();
       }
@@ -240,16 +262,16 @@ export class EditInfoComponent implements OnInit, OnChanges {
 
   changeInputMedia(event: Event){
     if (event.target instanceof HTMLInputElement && event.target.files){
-      this.imageFiles = Array.from(event.target.files);
+      this.imageFilesToCreate = Array.from(event.target.files);
 
       // Validaciones
-      if(!this.isValidFileType(this.imageFiles)){
+      if(!this.isValidFileType(this.imageFilesToCreate)){
         alert('Por favor, seleccione solo imágenes');
         this.resetFileInput();
         return;
       }
 
-      const newsPreviews = this.imageFiles.map(file => ({name: file.name, type: file.type, url: URL.createObjectURL(file)}));
+      const newsPreviews = this.imageFilesToCreate.map(file => ({name: file.name, type: file.type, url: URL.createObjectURL(file)}));
       this.imgsPreview.push(...newsPreviews);
       
     }
@@ -260,5 +282,15 @@ export class EditInfoComponent implements OnInit, OnChanges {
       const fileType = file.type;
       return fileType.startsWith('image/');
     });
+  }
+
+  selectImageDeleteOfArticle(index: number, image: MediaArticle): void {
+    this.imagesToDelete.push(image);
+    this.imagesOfArticle.splice(index, 1);
+  }
+
+  deleteImagePreview(index: number): void {
+    this.imgsPreview.splice(index, 1);
+    this.imageFilesToCreate.splice(index, 1);
   }
 }

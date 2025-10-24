@@ -21,7 +21,6 @@ export class PresentationComponent implements OnInit {
   articles: Article[] = [];
   public isAuthenticated: boolean = false; 
   public currentUser!: UserDetail;
-  public contentEdited: string = ''
   public idArticleToEdit: string = '';
   public isEditReady = false;
   public showButtonNewArticle = true;
@@ -59,8 +58,7 @@ export class PresentationComponent implements OnInit {
     return html.replaceAll('\n', '<br>').replaceAll('&nbsp;', ' ');
   }
 
-  public editInfo(contentToEdit: string, idEdit: string): void{
-    this.contentEdited = contentToEdit;
+  public editInfo(idEdit: string): void{
     this.idArticleToEdit = idEdit;
     this.isEditReady = false;
   }

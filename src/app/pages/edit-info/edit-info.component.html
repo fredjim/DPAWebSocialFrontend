@@ -9,19 +9,24 @@
 
         <!-- Editar imagenes -->
         <div class="images-article">
-            @if(currentArticle && currentArticle.medias && currentArticle.medias.length > 0){
-                @for(img of currentArticle.medias; track img.uuid){
-                    <img [src]="img.path" [alt]="img.name">
-                    <!-- <div class="container-img">
-                        <button type="button" class="btn-delete-media" aria-label="Eliminar">
+            @if(imagesOfArticle && imagesOfArticle.length > 0){
+                @for(img of imagesOfArticle; track img.uuid; let i = $index){
+                    <div class="container-img">
+                        <img [src]="img.path" [alt]="img.name">
+                        <button type="button" class="btn-delete-media" (click)="selectImageDeleteOfArticle(i, img)" >
                             <i class="bi bi-x"></i>
                         </button>
-                    </div> -->
+                    </div>
                 }
             }
             @if(imgsPreview.length > 0){
-                @for(preview of imgsPreview; track preview.url){
-                    <img [src]="preview.url" [alt]="preview.name">
+                @for(preview of imgsPreview; track preview.url; let i = $index){
+                    <div class="container-img">
+                        <img [src]="preview.url" [alt]="preview.name">
+                        <button type="button" class="btn-delete-media" (click)="deleteImagePreview(i)">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
                 }
             }
             <div class="add-more-file" (click)="openInputFileMedia()" (keypress)="openInputFileMedia()">
@@ -34,10 +39,15 @@
         </div>
 
         
-        <div class="d-flex gap-3 justify-content-center m-3">
+        <div class="d-flex gap-3 justify-content-center m-3" *ngIf="!isLoading">
             <button type="submit" class="btn btn-primary save"><i class="bi bi-check"></i> Guardar</button>
             <button type="button" class="btn btn-danger delete" (click)="deleteArticle()"><i class="bi bi-trash-fill"></i> Eliminar</button>
             <button type="button" class="btn btn-outline-primary" (click)="closeEdit()"><i class="bi bi-x"></i> Cancelar</button>
+        </div>
+        <!-- Spinner de carga -->
+        <div *ngIf="isLoading" class="loading-overlay w-100 d-flex flex-column align-items-center">
+            <div class="spinner-border text-primary"></div>
+            <span class="visually-hidden">Cargando...</span>
         </div>
     </form>
 </div>
