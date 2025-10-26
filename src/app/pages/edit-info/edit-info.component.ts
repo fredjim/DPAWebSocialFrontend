@@ -162,7 +162,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
             ...this.currentArticle,
             title: this.formArticle.value.title ?? '',
             text: this.formArticle.value.text ?? '',
-            medias: mediasToArticle
+            medias: [...this.imagesOfArticle,...mediasToArticle]
           }
           return this.informationService.updateArticle(this.currentArticle!.uuid, articleUpdated);
         })
@@ -170,7 +170,6 @@ export class EditInfoComponent implements OnInit, OnChanges {
         next: (articleUpdated: Article)=>{
           this.isLoading = false;
           this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo editado exitosamente' });
-          articleUpdated.medias = [...this.currentArticle!.medias, ...articleUpdated.medias];
           this.onEditedArticle.emit(articleUpdated);
           this.closeEdit();
         },
@@ -187,7 +186,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
         ...this.currentArticle,
         title: this.formArticle.value.title ?? '',
         text: this.formArticle.value.text ?? '',
-        medias: this.currentArticle.medias
+        medias: [...this.imagesOfArticle]
       }
       
       this.informationService.updateArticle(this.currentArticle.uuid, articleEdited).subscribe({
