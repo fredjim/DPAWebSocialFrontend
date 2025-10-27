@@ -28,7 +28,7 @@
 							<h3>{{ article.title }}</h3>
 							<div class="text" *ngIf="article" [innerHTML]="safeText(article.text)"></div>
 							<div class="media-container" *ngIf="article.medias.length > 0" 
-								[ngStyle]="{ width: article.medias.length === 1 ? '50%' : '100%' }">
+								[ngStyle]="{ width: article.medias.length == 1 ? '70%' : '100%' }">
 								@for(media of article.medias; track media.uuid){
 									<img [src]="media.path" [alt]="media.name">
 								}
@@ -43,7 +43,8 @@
 				<div class="section-content">
 					<h3>{{ article.title }}</h3>
 					<p [innerHTML]="article.text"></p>
-					<div class="media-container" *ngIf="article.medias.length > 0">
+					<div class="media-container" *ngIf="article.medias.length > 0" 
+						[ngStyle]="{ width: article.medias.length == 1 ? '70%' : '100%' }">
 						@for(media of article.medias; track media.uuid){
 							<img [src]="media.path" [alt]="media.name">
 						}
