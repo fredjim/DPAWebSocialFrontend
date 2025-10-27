@@ -26,6 +26,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
   @Output() onCreateArticle = new EventEmitter<Article>();
   @Output() onComponentReady = new EventEmitter<void>();
   @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('firstInput') firstInput!: ElementRef<HTMLInputElement>;
 
   public imgsPreview: {name: string, type: string, url: string}[] = [];
   public imagesOfArticle: MediaArticle[] = []; // imagenes del articulo actual para renderizar
@@ -46,6 +47,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     setTimeout(() => {
       this.onComponentReady.emit();
+      this.focusInputIfNeeded();
     });
   }
 
@@ -291,5 +293,13 @@ export class EditInfoComponent implements OnInit, OnChanges {
   deleteImagePreview(index: number): void {
     this.imgsPreview.splice(index, 1);
     this.imageFilesToCreate.splice(index, 1);
+  }
+
+  private focusInputIfNeeded(): void {
+    setTimeout(() => {
+      if (this.firstInput?.nativeElement) {
+        this.firstInput.nativeElement.focus();
+      }
+    }, 200);
   }
 }

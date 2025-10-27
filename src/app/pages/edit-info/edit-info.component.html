@@ -2,10 +2,10 @@
     <form [formGroup]="formArticle" (ngSubmit)="onSubmit()">
 
         <!-- Editar titulo de articulo -->
-        <input type="text" pInputText formControlName="title" class="input-title"/>
+        <input #firstInput type="text" pInputText formControlName="title" class="input-title" placeholder="Título del artículo" />
 
         <!-- Editor de texto -->
-        <p-editor formControlName="text" [style]="{ height: 'auto' }" class="text-editor" />
+        <p-editor formControlName="text" [style]="{ height: 'auto' }" class="text-editor" placeholder="Texto del artículo" />
 
         <!-- Editar imagenes -->
         <div class="images-article">
