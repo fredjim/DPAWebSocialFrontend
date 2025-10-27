@@ -1,0 +1,18 @@
+<div class="form-section">
+    <form [formGroup]="formSection" (ngSubmit)="onSubmit()">
+    
+        <!-- Nombre de seccion -->
+        <input #firstInput type="text" pInputText formControlName="name" class="input-name" placeholder="Nombre de sección"/>
+    
+        <div class="d-flex flex-column gap-3 justify-content-center m-1" *ngIf="!isLoading">
+            <button type="submit" class="btn btn-primary save"><i class="bi bi-check"></i> Guardar</button>
+            <button type="button" *ngIf="typeForm === 'edit'" class="btn btn-danger delete" (click)="deleteSection()"><i class="bi bi-trash-fill"></i> Eliminar</button>
+            <button type="button" class="btn btn-outline-primary" (click)="closeForm()"><i class="bi bi-x"></i> Cancelar</button>
+        </div>
+        <!-- Spinner de carga -->
+        <div *ngIf="isLoading" class="loading-overlay w-100 d-flex flex-column align-items-center">
+            <div class="spinner-border text-primary"></div>
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </form>
+</div>

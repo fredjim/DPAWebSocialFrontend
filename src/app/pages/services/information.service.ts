@@ -33,6 +33,18 @@ export class InformationService {
     return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}?name=${queryParam}`);
   }
 
+  getSectionByUuid(uuid: string): Observable<Section> {
+    return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}/${uuid}`);
+  }
+
+  getSectionByRoute(route: string | null): Observable<Section | null> {
+    return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}/${route}`);
+  }
+
+  getSectionById(uuid: string): Observable<Section> {
+    return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}/${uuid}`);
+  }
+
   // PUT section
   updateSection(uuid: string, updatedSection: Section): Observable<Section> {
     return this.http.put<Section>(`${this.ROOT_URL}/${this.sectionsUrl}/${uuid}`, updatedSection , this.reqHeader);

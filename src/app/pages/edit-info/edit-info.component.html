@@ -41,7 +41,7 @@
         
         <div class="d-flex gap-3 justify-content-center m-3" *ngIf="!isLoading">
             <button type="submit" class="btn btn-primary save"><i class="bi bi-check"></i> Guardar</button>
-            <button type="button" class="btn btn-danger delete" (click)="deleteArticle()"><i class="bi bi-trash-fill"></i> Eliminar</button>
+            <button type="button" *ngIf="typeForm === 'edit'" class="btn btn-danger delete" (click)="deleteArticle()"><i class="bi bi-trash-fill"></i> Eliminar</button>
             <button type="button" class="btn btn-outline-primary" (click)="closeEdit()"><i class="bi bi-x"></i> Cancelar</button>
         </div>
         <!-- Spinner de carga -->

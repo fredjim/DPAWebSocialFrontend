@@ -8,13 +8,6 @@ import { ViewAllPostsConveniosComponent } from './posts/components/view-all-post
 import { ViewAllPostsProyectosComponent } from './posts/components/view-all-posts-proyectos/view-all-posts-proyectos.component';
 import { ViewAllPostsBecasComponent } from './posts/components/view-all-posts-becas/view-all-posts-becas.component';
 import { ViewAllPostsCudieComponent } from './posts/components/view-all-posts-cudie/view-all-posts-cudie.component';
-import { PresentationComponent } from './pages/pages-information/presentation/presentation.component';
-import { AcademicCoordinationComponent } from './pages/pages-information/academic-coordination/academic-coordination.component';
-import { CurriculumDevelopmentComponent } from './pages/pages-information/curriculum-development/curriculum-development.component';
-import { AcademicPersonnelComponent } from './pages/pages-information/academic-personnel/academic-personnel.component';
-import { AlternativeGraduationComponent } from './pages/pages-information/alternative-graduation/alternative-graduation.component';
-import { AcademicMonitoringComponent } from './pages/pages-information/academic-monitoring/academic-monitoring.component';
-import { RecordRegistrationComponent } from './pages/pages-information/record-registration/record-registration.component';
 import { PagesGuideProcedureComponent } from './pages/pages-guide-procedure/pages-guide-procedure.component';
 import { AcademicMonitoringGuideComponent } from './pages/pages-guide-procedure/academic-monitoring-guide/academic-monitoring-guide.component';
 import { PagesInformationComponent } from './pages/pages-information/pages-information.component';
@@ -22,6 +15,7 @@ import { AcademicProcedureGuideComponent } from './pages/pages-guide-procedure/a
 import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
 import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.component';
 import { PageComponent } from './posts/components/post-page/page/page.component';
+import { SectionContainerComponent } from './pages/section-container/section-container.component';
 
 const routes: Routes = [
   {
@@ -35,15 +29,15 @@ const routes: Routes = [
       { path: 'informacion',
         component: PagesInformationComponent,
         children: [
-          { path: '', redirectTo: 'presentacion', pathMatch: 'full' },
-          { path: 'presentacion', component: PresentationComponent },
-          { path: 'coordinacion-academica', component: AcademicCoordinationComponent },
-          { path: 'desarrollo-curricular', component: CurriculumDevelopmentComponent },
-          { path: 'personal-academico', component: AcademicPersonnelComponent },
-          { path: 'titulacion-alternativa', component: AlternativeGraduationComponent },
-          { path: 'seguimiento-academico', component: AcademicMonitoringComponent },
-          { path: 'registro-inscripciones', component: RecordRegistrationComponent },
-          { path: '**', redirectTo: 'presentacion', pathMatch: 'full' }
+          { path: '', redirectTo: '919ab4e8-0856-4aad-b3aa-747e2dba76d9', pathMatch: 'full' },
+          { 
+            path: ':uuid', 
+            component: SectionContainerComponent,
+            // resolve: {
+            //   section: SectionResolver // Opcional: para precargar datos
+            // }
+          },
+          { path: '**', redirectTo: '919ab4e8-0856-4aad-b3aa-747e2dba76d9', pathMatch: 'full' }
         ]
       },
       { path: 'gaia',

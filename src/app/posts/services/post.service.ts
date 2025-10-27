@@ -42,9 +42,9 @@ export class PostService {
   }
 
   //Método para obtener un user
-  getUser(): Observable<any> {
+  getUser(): Observable<UserDetail> {
     const getUser = 'users/me'
-    return this.http.get<any>(`${this.ROOT_URL}/${getUser}`, this.reqHeader)
+    return this.http.get<UserDetail>(`${this.ROOT_URL}/${getUser}`, this.reqHeader)
   }
 
   getUserByUuid(uuid: string): Observable<UserDetail> {
