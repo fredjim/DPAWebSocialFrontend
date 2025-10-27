@@ -33,6 +33,10 @@ export class InformationService {
     return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}?name=${queryParam}`);
   }
 
+  getSectionByUuid(uuid: string): Observable<Section> {
+    return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}/${uuid}`);
+  }
+
   getSectionByRoute(route: string | null): Observable<Section | null> {
     return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}/${route}`);
   }

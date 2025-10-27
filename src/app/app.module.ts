@@ -47,6 +47,7 @@ import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.co
 import { HeroProfileComponent } from './components/hero-profile/hero-profile.component';
 import { MessageService } from 'primeng/api';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
+import { FormSectionComponent } from './components/navbar/form-section/form-section.component';
 
 @NgModule({
   declarations: [
@@ -74,7 +75,8 @@ import { SectionContainerComponent } from './pages/section-container/section-con
     PagesGaiaComponent,
     PagesContactsComponent,
     HeroProfileComponent,
-    SectionContainerComponent
+    SectionContainerComponent,
+    FormSectionComponent
   ],
   imports: [
     BrowserModule,

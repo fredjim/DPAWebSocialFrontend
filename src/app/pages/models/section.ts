@@ -6,6 +6,6 @@ export interface Section {
     user_id:        string;
     name:           string;
     date:           string;
-    route:          string;
+    // route:          string;
     articles:       Article[];
 }

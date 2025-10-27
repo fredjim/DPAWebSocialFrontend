@@ -1,17 +1,8 @@
 <nav>
-	<!-- <ul>
-		<li><a routerLink="presentacion" routerLinkActive="active"  (click)="closeMobileMenu()">Presentación</a></li>
-		<li><a routerLink="coordinacion-academica" routerLinkActive="active"  (click)="closeMobileMenu()">Coordinación Académica</a></li>
-		<li><a routerLink="desarrollo-curricular" routerLinkActive="active"  (click)="closeMobileMenu()">Desarrollo Curricular </a></li>
-		<li><a routerLink="personal-academico" routerLinkActive="active"  (click)="closeMobileMenu()">Personal Académico </a></li>
-		<li><a routerLink="titulacion-alternativa" routerLinkActive="active"  (click)="closeMobileMenu()">Titulación Alternativa</a></li>
-		<li><a routerLink="seguimiento-academico" routerLinkActive="active"  (click)="closeMobileMenu()">Seguimiento Académico</a></li>
-		<li><a routerLink="registro-inscripciones" routerLinkActive="active"  (click)="closeMobileMenu()">Registro e Inscripciones</a></li>
-	</ul> -->
 	<ul>
-		@for(section of sections; track section.uuid){
+		@for(section of sections; track section.uuid; let i = $index){
 			<li>
-				<a [routerLink]="['/informacion', section.route]" 
+				<a [routerLink]="['/informacion', section.uuid ]" 
 				routerLinkActive="active"  
 				(click)="closeMobileMenu()"
 				>{{ section.name }}
@@ -19,4 +10,17 @@
 			</li>
 		}
 	</ul>
+	@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+		@if(showButtonNewSection){
+			<button class="btn btn-primary save" (click)="hideButtonNewSection()" (keypress)="hideButtonNewSection()" ><i class="bi bi-plus-lg"></i> Agregar sección</button>
+		}@else {
+			<app-form-section
+				typeForm="create"
+				(onCloseNew)="showButtonNewSection = $event"
+				(onCreateSection)="onCreatedSection($event)"
+				(onDeletedSection)="onDeletedSection($event)"
+			></app-form-section>
+		}
+	}
 </nav>
+<p-toast/>

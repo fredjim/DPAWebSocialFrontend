@@ -1,0 +1,41 @@
+.form-section {
+    .input-name {
+		height: 34px;
+		width: 100%;
+		padding: 10px; 
+		color: var(--bs-heading-color);
+		margin-bottom: 1rem;
+	}
+
+    //Estilos botones
+    .btn {
+        --bs-btn-border-color: none;
+        width: auto;
+        height: 34px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 600;
+        gap: 5px;
+    
+        .bi {
+            font-size: x-large;
+        }
+    }
+    .btn.save {
+        background-color: var(--blue-color);
+        --bs-btn-border-color: none;
+    }
+    
+    .btn.delete {
+        background-color: var(--red-color);
+        --bs-btn-border-color: none;
+        .bi {
+            font-size: large;
+        }
+    }
+    .btn.cancel {
+        border-color: var(--blue-color);
+    }
+}
