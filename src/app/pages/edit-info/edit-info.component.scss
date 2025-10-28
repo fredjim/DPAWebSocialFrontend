@@ -29,7 +29,8 @@
 		
 		.container-img img, img {
 			width: 100%;
-			height: auto;
+			height: 100%;
+			max-height: 290px;
 			object-fit: cover;
 			-o-object-fit: contain;
 			border-radius: 8px;

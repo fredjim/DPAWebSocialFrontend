@@ -42,7 +42,7 @@
 			}@else {
 				<div class="section-content">
 					<h3>{{ article.title }}</h3>
-					<p [innerHTML]="article.text"></p>
+					<div class="text" [innerHTML]="safeText(article.text)"></div>
 					<div class="media-container" *ngIf="article.medias.length > 0" 
 						[ngStyle]="{ width: article.medias.length == 1 ? '70%' : '100%' }">
 						@for(media of article.medias; track media.uuid){

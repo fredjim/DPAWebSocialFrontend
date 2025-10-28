@@ -54,17 +54,22 @@
 		.edit-section-content {
 			display: flex;
 			flex-direction: row;
-			margin-bottom: 1.5rem;
 		}
 		
 		.section-content {
 			display: flex;
 			align-items: center;
 			flex-direction: column;
+			margin-bottom: 1.5rem;
+
 			h3 {
 				align-self: start;
 				font-size: 14px;
 				font-weight: 700;
+			}
+
+			.text {
+				align-self: start;
 			}
 
 			.media-container {
