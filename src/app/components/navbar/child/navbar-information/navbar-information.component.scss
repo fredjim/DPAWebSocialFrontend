@@ -6,6 +6,7 @@ nav {
 
 		li {
 			line-height: 2.5rem;
+			width: max-content;
 
 			a {
 				text-decoration: none;
@@ -19,6 +20,12 @@ nav {
 			a.active {
 				color: var(--red-color);
 			}
+		}
+
+		div.edit-section-pencil {
+			display: flex;
+			align-items: center;
+			color: var(--blue-color);
 		}
 	}
 	.btn-primary.save {

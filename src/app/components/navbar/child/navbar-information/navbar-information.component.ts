@@ -20,6 +20,8 @@ export class NavbarInformationComponent implements OnInit {
   public currentUser!: UserDetail;
   public showButtonNewSection = true;
 
+  uuidSectionToEdit: string = '';
+
   routesOfSection = [
     'presentacion',
     'coordinacion-academica',
@@ -60,7 +62,19 @@ export class NavbarInformationComponent implements OnInit {
     this.sections = this.sections.filter(sec => sec.uuid !== deleted.uuid);
   }
 
+  onEditSection(edited: Section): void {
+    this.sections = this.sections.map(sec => sec.uuid === edited.uuid ? edited : sec);
+  }
+
   hideButtonNewSection(): void {
     this.showButtonNewSection = false;
+  }
+
+  editSectionByUuid(uuid: string): void {
+    this.uuidSectionToEdit = uuid;
+  }
+
+  onCloseEditSection(): void {
+    this.uuidSectionToEdit = '';
   }
 }

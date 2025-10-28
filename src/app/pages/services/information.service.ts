@@ -46,8 +46,8 @@ export class InformationService {
   }
 
   // PUT section
-  updateSection(uuid: string, updatedSection: Section): Observable<Section> {
-    return this.http.put<Section>(`${this.ROOT_URL}/${this.sectionsUrl}/${uuid}`, updatedSection , this.reqHeader);
+  updateSection(updatedSection: Section): Observable<Section> {
+    return this.http.put<Section>(`${this.ROOT_URL}/${this.sectionsUrl}/${updatedSection.uuid}`, updatedSection, this.reqHeader);
   }
 
   // POST section
