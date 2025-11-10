@@ -204,11 +204,11 @@ export class ImagesUploaderComponent implements OnChanges {
   }
   
   private cleanUpMediaPreviews(): void {
-    this.mediaListPreview.forEach(media => {
+    for(const media of this.mediaListPreview){
       if (media.url) {
         URL.revokeObjectURL(media.url);
       }
-    });
+    }
     this.mediaListPreview = [];
   }
 }
