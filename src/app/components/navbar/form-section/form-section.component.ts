@@ -4,6 +4,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Section } from '../../../pages/models/section';
 import { MessageService } from 'primeng/api';
 import moment from 'moment';
+import { SectionStateService } from '../../../pages/services/sections-state.service';
 
 @Component({
   selector: 'app-form-section',
@@ -13,6 +14,7 @@ import moment from 'moment';
 export class FormSectionComponent implements OnInit, OnChanges {
   private readonly informationService = inject(InformationService);
   private readonly messageService = inject(MessageService);
+  private readonly sectionStateService = inject(SectionStateService);
 
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() currentSection: Section | undefined;
@@ -86,6 +88,7 @@ export class FormSectionComponent implements OnInit, OnChanges {
     this.informationService.updateSection(updatedSection).subscribe({
       next: (updated) => {
         this.isLoading = false;
+        this.sectionStateService.setSectionToEdit(updated);
         this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Sección actualizada exitosamente' });
         this.onEditedSection.emit(updated);
         this.closeForm();

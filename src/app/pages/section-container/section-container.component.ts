@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { InformationService } from '../services/information.service';
 import { Section } from '../models/section';
@@ -7,18 +7,22 @@ import { PostService } from '../../posts/services/post.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Article } from '../models/article';
 import { UserDetail } from '../../posts/models/user-detail';
+import { SectionStateService } from '../services/sections-state.service';
+import { Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-section-container',
   templateUrl: './section-container.component.html',
   styleUrl: './section-container.component.scss'
 })
-export class SectionContainerComponent implements OnInit {
+export class SectionContainerComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly informationService = inject(InformationService);
   private readonly authService = inject(AuthService);
   private readonly postService = inject(PostService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly sectionStateService = inject(SectionStateService);
+  private sectionUpdateSubscription?: Subscription;
   
   currentSection!: Section;
   articles: Article[] = [];
@@ -40,30 +44,47 @@ export class SectionContainerComponent implements OnInit {
       const sectionId = params.get('uuid');
       if (sectionId) {
         this.loadSection(sectionId);
+        this.setupSectionUpdates();
       }
     });
   }
 
+  ngOnDestroy() {
+    this.sectionUpdateSubscription?.unsubscribe();
+  }
+
   private loadSection(uuid: string) {
-    this.informationService.getSectionById(uuid).subscribe(section => {
-      this.currentSection = section;
-      this.getArticles();
+    this.informationService.getSectionById(uuid).pipe(
+      switchMap(section => {
+        this.currentSection = section;
+        this.checkForSectionUpdates(); // Verificación inicial
+        return this.informationService.getArticlesBySectionUuid(section.uuid);
+      })
+    ).subscribe(articles => {
+      this.articles = articles;
     });
+  }
+
+  private setupSectionUpdates() {
+    this.sectionUpdateSubscription = this.sectionStateService.currentSection$.subscribe(updated => {
+      if (updated && this.currentSection?.uuid === updated?.uuid) {
+        this.currentSection.name = updated.name;
+        this.sectionStateService.clearSection();
+      }
+    });
+  }
+
+  // Verificación inicial por si ya hay una sección en el estado
+  private checkForSectionUpdates() {
+    const currentState = this.sectionStateService.getCurrentSectionValue();
+    if (currentState && this.currentSection?.uuid === currentState?.uuid) {
+      this.currentSection.name = currentState.name;
+    }
   }
 
   closeEdit(){
     this.idArticleToEdit = '';
     this.isEditReady = false;
-  }
-
-  getArticles(){
-    if(!this.currentSection) return;
-
-    this.informationService.getArticlesBySectionUuid(this.currentSection.uuid).subscribe({
-      next: (resArticles) => {
-        this.articles = resArticles;
-      }
-    });
   }
 
   public safeText(textToSanitizer: string): SafeHtml {
