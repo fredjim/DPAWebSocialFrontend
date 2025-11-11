@@ -4,18 +4,19 @@ nav {
 	height: 60px;
 	border-top: 1px solid var(--blue-color);
 	border-bottom: 1px solid var(--blue-color);
+	overflow-x: auto;
 
 	ul {
 		display: flex;
-		justify-content: space-between;
+		justify-content: center;
 		margin: 0 auto;
 		padding: 15px 0 0;
-		width: var(--nav-width);
+		width: max-content;
 		list-style: none;
 
 		li {
-
-			#submenu {
+			position: relative;
+			.submenu {
 				display: none;
 			}
 
@@ -38,14 +39,39 @@ nav {
 				color: var(--red-color);
 				border-bottom: 10px solid var(--red-color);
 			}
+			.edit-info {
+				position: absolute;
+				top: -2px;
+				right: 0;
+				color: var(--blue-color);
+			}
 		}
 	}
+	.btn {
+        --bs-btn-border-color: none;
+        width: auto;
+        height: 34px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 600;
+        gap: 5px;
+    
+        .bi {
+            font-size: x-large;
+        }
+    }
+    .btn.save {
+        background-color: var(--blue-color);
+        --bs-btn-border-color: none;
+		font-size: 12px;
+    }
 }
 
 @media screen and (max-width: 768px) {
 
 	nav {
-		/*display: block;*/
 		display: none;
 		position: fixed;
 		top: 80px;

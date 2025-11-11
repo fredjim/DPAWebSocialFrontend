@@ -5,6 +5,7 @@ import { AuthService } from '../../authentication/services/auth.service';
 import { Observable } from 'rxjs';
 import { Section } from '../models/section';
 import { Article } from '../models/article';
+import { Menu } from '../models/menu';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class InformationService {
 
   private readonly reqHeader = { headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }) };
 
+  private readonly menusUrls: string = 'menus';
   private readonly sectionsUrl: string = 'sections';
   private readonly articlesUrl: string = 'articles';
 
@@ -22,6 +24,31 @@ export class InformationService {
     private readonly http: HttpClient, 
     private readonly authService: AuthService
   ) {}
+
+  // Menus
+  // GET menus
+  getAllMenus(): Observable<Menu[]> {
+    return this.http.get<Menu[]>(`${this.ROOT_URL}/${this.menusUrls}`);
+  }
+
+  getMenuById(uuid: string): Observable<Menu> {
+    return this.http.get<Menu>(`${this.ROOT_URL}/${this.sectionsUrl}/${uuid}`);
+  }
+
+  // PUT menu
+  updateMenu(updatedMenu: Menu): Observable<Menu> {
+    return this.http.put<Menu>(`${this.ROOT_URL}/${this.sectionsUrl}/${updatedMenu.uuid}`, updatedMenu, this.reqHeader);
+  }
+
+  // POST menu
+  createMenu(newMenu: Omit<Menu, 'uuid' | 'user_id' | 'sections'>): Observable<Menu> {
+    return this.http.post<Menu>(`${this.ROOT_URL}/${this.sectionsUrl}`, newMenu, this.reqHeader);
+  }
+
+  // DELETE menu
+  deleteMenu(uuid: string): Observable<void> {
+    return this.http.delete<void>(`${this.ROOT_URL}/${this.sectionsUrl}/${uuid}`, this.reqHeader);
+  }
 
   // Sections
   // GET section
@@ -31,10 +58,6 @@ export class InformationService {
 
   getSectionByParam(queryParam: string): Observable<Section>{
     return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}?name=${queryParam}`);
-  }
-
-  getSectionByUuid(uuid: string): Observable<Section> {
-    return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}/${uuid}`);
   }
 
   getSectionByRoute(route: string | null): Observable<Section | null> {

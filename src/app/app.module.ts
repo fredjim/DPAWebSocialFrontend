@@ -48,6 +48,8 @@ import { HeroProfileComponent } from './components/hero-profile/hero-profile.com
 import { MessageService } from 'primeng/api';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
 import { FormSectionComponent } from './components/navbar/form-section/form-section.component';
+import { FormMenuComponent } from './components/navbar/form-menu/form-menu.component';
+import { DialogModule } from 'primeng/dialog';
 
 @NgModule({
   declarations: [
@@ -76,7 +78,8 @@ import { FormSectionComponent } from './components/navbar/form-section/form-sect
     PagesContactsComponent,
     HeroProfileComponent,
     SectionContainerComponent,
-    FormSectionComponent
+    FormSectionComponent,
+    FormMenuComponent
   ],
   imports: [
     BrowserModule,
@@ -95,7 +98,8 @@ import { FormSectionComponent } from './components/navbar/form-section/form-sect
     FormsModule,
     InputTextModule,
     ToastModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    DialogModule,
 ],
   providers: [
     {
