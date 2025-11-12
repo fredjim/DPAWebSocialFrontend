@@ -29,13 +29,6 @@ import { EditInfoComponent } from './pages/edit-info/edit-info.component';
 import { ToastModule } from 'primeng/toast';
 import { NavbarInformationComponent } from './components/navbar/child/navbar-information/navbar-information.component';
 import { NavbarProcedureGuideComponent } from './components/navbar/child/navbar-procedure-guide/navbar-procedure-guide.component';
-import { PresentationComponent } from './pages/pages-information/presentation/presentation.component';
-import { AcademicCoordinationComponent } from './pages/pages-information/academic-coordination/academic-coordination.component';
-import { CurriculumDevelopmentComponent } from './pages/pages-information/curriculum-development/curriculum-development.component';
-import { AcademicPersonnelComponent } from './pages/pages-information/academic-personnel/academic-personnel.component';
-import { AlternativeGraduationComponent } from './pages/pages-information/alternative-graduation/alternative-graduation.component';
-import { AcademicMonitoringComponent } from './pages/pages-information/academic-monitoring/academic-monitoring.component';
-import { RecordRegistrationComponent } from './pages/pages-information/record-registration/record-registration.component';
 import { PagesGuideProcedureComponent } from './pages/pages-guide-procedure/pages-guide-procedure.component';
 import { PagesInformationComponent } from './pages/pages-information/pages-information.component';
 import { AcademicCoordintationGuideComponent } from './pages/pages-guide-procedure/academic-coordintation-guide/academic-coordintation-guide.component';
@@ -48,8 +41,9 @@ import { HeroProfileComponent } from './components/hero-profile/hero-profile.com
 import { MessageService } from 'primeng/api';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
 import { FormSectionComponent } from './components/navbar/form-section/form-section.component';
-import { FormMenuComponent } from './components/navbar/form-menu/form-menu.component';
+import { FormNavItemComponent } from './components/navbar/form-menu/form-menu.component';
 import { DialogModule } from 'primeng/dialog';
+import { PageContainerComponent } from './pages/page-container/page-container.component';
 
 @NgModule({
   declarations: [
@@ -61,13 +55,6 @@ import { DialogModule } from 'primeng/dialog';
     EditInfoComponent,
     NavbarInformationComponent,
     NavbarProcedureGuideComponent,
-    PresentationComponent,
-    AcademicCoordinationComponent,
-    CurriculumDevelopmentComponent,
-    AcademicPersonnelComponent,
-    AlternativeGraduationComponent,
-    AcademicMonitoringComponent,
-    RecordRegistrationComponent,
     PagesGuideProcedureComponent,
     PagesInformationComponent,
     AcademicCoordintationGuideComponent,
@@ -79,7 +66,8 @@ import { DialogModule } from 'primeng/dialog';
     HeroProfileComponent,
     SectionContainerComponent,
     FormSectionComponent,
-    FormMenuComponent
+    FormNavItemComponent,
+    PageContainerComponent
   ],
   imports: [
     BrowserModule,

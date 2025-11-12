@@ -3,19 +3,19 @@
     <li><a routerLink="/posts" routerLinkActive="active">Publicaciones</a></li>
 
 
-    @for(menu of localMenus; track menu.id){
+    @for(navItem of localNavItems; track navItem.uuid){
       @if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
         <li>
-          <a [routerLink]="menu.route" routerLinkActive="active">{{ menu.name }}</a>
-          <div class="edit-info" (click)="showModalEdit(menu)" (keypress)="showModalEdit(menu)">
+          <a [routerLink]="navItem.url" routerLinkActive="active">{{ navItem.label }}</a>
+          <div class="edit-info" (click)="showModalEdit(navItem)" (keypress)="showModalEdit(navItem)">
 						<i class="bi bi-pencil-fill"></i>
 					</div>
-          @if(menu.name === 'Información'){
+          @if(navItem.label === 'Información'){
             <div class="submenu">
               <app-navbar-information></app-navbar-information>
             </div>
           }
-          @if(menu.name === 'Guía y seguimiento de trámites'){
+          @if(navItem.label === 'Guía y seguimiento de trámites'){
             <div class="submenu">
               <app-navbar-procedure-guide></app-navbar-procedure-guide>
             </div>
@@ -23,13 +23,13 @@
         </li>
       }@else {
         <li>
-          <a [routerLink]="menu.route" routerLinkActive="active">{{ menu.name }}</a>
-          @if(menu.name === 'Información'){
+          <a [routerLink]="navItem.url" routerLinkActive="active">{{ navItem.label }}</a>
+          @if(navItem.label === 'Información'){
             <div class="submenu">
               <app-navbar-information></app-navbar-information>
             </div>
           }
-          @if(menu.name === 'Guía y seguimiento de trámites'){
+          @if(navItem.label === 'Guía y seguimiento de trámites'){
             <div class="submenu">
               <app-navbar-procedure-guide></app-navbar-procedure-guide>
             </div>
@@ -45,12 +45,12 @@
 <p-dialog header="Agregar Menú" [(visible)]="visible" [style]="{ width: '25rem' }">
   <app-form-menu
     [visibleModal]="visible"
-    [currentMenu]="menuToEdit"
+    [currentNavItem]="navItemToEdit"
     [typeForm]="typeForm"
     (modalClosed)="visible = $event"
-    (onCreateMenu)="onCreatedMenu($event)"
-    (onDeletedMenu)="onDeleteMenu($event)"
-    (onEditedMenu)="onEditedMenu($event)"
+    (onCreateNavItem)="onCreatedNavItem($event)"
+    (onDeletedNavItem)="onDeleteNavItem($event)"
+    (onEditedNavItem)="onEditedNavItem($event)"
   ></app-form-menu>
 </p-dialog>
 <p-toast/>

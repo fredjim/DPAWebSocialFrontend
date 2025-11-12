@@ -5,7 +5,7 @@ import { AuthService } from '../../authentication/services/auth.service';
 import { Observable } from 'rxjs';
 import { Section } from '../models/section';
 import { Article } from '../models/article';
-import { Menu } from '../models/menu';
+import { NavItem } from '../models/nav-item';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,8 @@ export class InformationService {
 
   private readonly reqHeader = { headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }) };
 
-  private readonly menusUrls: string = 'menus';
+  private readonly insitutionUuid: string = '93j203b4-f63b-4c4a-be05-eae84cef0c0c';
+  private readonly navItemUrl: string = 'navitems';
   private readonly sectionsUrl: string = 'sections';
   private readonly articlesUrl: string = 'articles';
 
@@ -25,35 +26,39 @@ export class InformationService {
     private readonly authService: AuthService
   ) {}
 
-  // Menus
-  // GET menus
-  getAllMenus(): Observable<Menu[]> {
-    return this.http.get<Menu[]>(`${this.ROOT_URL}/${this.menusUrls}`);
+  // NavItem
+  // GET nav items
+  getAllNavItems(): Observable<NavItem[]> {
+    return this.http.get<NavItem[]>(`${this.ROOT_URL}/${this.navItemUrl}?institution_id=${this.insitutionUuid}`);
   }
 
-  getMenuById(uuid: string): Observable<Menu> {
-    return this.http.get<Menu>(`${this.ROOT_URL}/${this.sectionsUrl}/${uuid}`);
+  getNavItemById(uuid: string): Observable<NavItem> {
+    return this.http.get<NavItem>(`${this.ROOT_URL}/${this.navItemUrl}/${uuid}`);
   }
 
-  // PUT menu
-  updateMenu(updatedMenu: Menu): Observable<Menu> {
-    return this.http.put<Menu>(`${this.ROOT_URL}/${this.sectionsUrl}/${updatedMenu.uuid}`, updatedMenu, this.reqHeader);
+  // PUT nav item
+  updateNavItem(updatedNavItem: NavItem): Observable<NavItem> {
+    return this.http.put<NavItem>(`${this.ROOT_URL}/${this.navItemUrl}/${updatedNavItem.uuid}`, updatedNavItem, this.reqHeader);
   }
 
-  // POST menu
-  createMenu(newMenu: Omit<Menu, 'uuid' | 'user_id' | 'sections'>): Observable<Menu> {
-    return this.http.post<Menu>(`${this.ROOT_URL}/${this.sectionsUrl}`, newMenu, this.reqHeader);
+  // POST nav item
+  createNavItem(newNavItem: Omit<NavItem, 'uuid' | 'user_id' | 'createdDate' | 'lastModifiedDate'>): Observable<NavItem> {
+    return this.http.post<NavItem>(`${this.ROOT_URL}/${this.navItemUrl}`, newNavItem, this.reqHeader);
   }
 
-  // DELETE menu
-  deleteMenu(uuid: string): Observable<void> {
-    return this.http.delete<void>(`${this.ROOT_URL}/${this.sectionsUrl}/${uuid}`, this.reqHeader);
+  // DELETE nav item
+  deleteNavItem(uuid: string): Observable<void> {
+    return this.http.delete<void>(`${this.ROOT_URL}/${this.navItemUrl}/${uuid}`, this.reqHeader);
   }
 
   // Sections
   // GET section
   getAllSections(): Observable<Section[]> {
     return this.http.get<Section[]>(`${this.ROOT_URL}/${this.sectionsUrl}`);
+  }
+
+  getAllSectionsByNavItemId(uuid: string): Observable<Section[]> {
+    return this.http.get<Section[]>(`${this.ROOT_URL}/${this.sectionsUrl}/by-nav/${uuid}`);
   }
 
   getSectionByParam(queryParam: string): Observable<Section>{
