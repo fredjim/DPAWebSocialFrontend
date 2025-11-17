@@ -15,11 +15,11 @@ export class FormNavItemComponent implements OnChanges {
 
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() visibleModal = false;
-  @Input() currentNavItem: NavItem | undefined;
+  @Input() currentNavItem!: NavItem | null;
   @Input() lengthNavItems!: number;
   @Output() onCreateNavItem = new EventEmitter<{menu?: NavItem, error?: any}>();
   @Output() onEditedNavItem = new EventEmitter<{menu?: NavItem, error?: any}>();
-  @Output() onDeletedNavItem = new EventEmitter<{menu?: NavItem, error?: any}>();
+  @Output() onDeletedNavItem = new EventEmitter<{menu?: NavItem | null, error?: any}>();
   @Output() modalClosed = new EventEmitter<boolean>();
   @ViewChild('firstInput') firstInput!: ElementRef<HTMLInputElement>;
 
@@ -117,7 +117,7 @@ export class FormNavItemComponent implements OnChanges {
   onCloseModal() {
     this.modalClosed.emit(false);
     this.formNavItem.reset();
-    this.currentNavItem = undefined;
+    this.currentNavItem = null;
   }
 
   getUrlFromLabel(label: string): string {

@@ -19,7 +19,7 @@ export class NavbarComponent implements OnInit {
 
   public isAuthenticated: boolean = false; 
   public currentUser!: UserDetail;
-  public navItemToEdit!: NavItem | undefined;
+  public navItemToEdit!: NavItem | null;
   public typeForm: 'create' | 'edit' = 'create';
   public navItems: NavItem[] = [];
   visible = false;
@@ -48,7 +48,7 @@ export class NavbarComponent implements OnInit {
   }
 
   showModalEdit(menu: NavItem) {
-    this.navItemToEdit = menu;
+    this.navItemToEdit = {...menu};
     this.typeForm = 'edit';
     this.visible = true;
   }
@@ -71,7 +71,7 @@ export class NavbarComponent implements OnInit {
     }
   }
 
-  onDeleteNavItem(event: { menu?: NavItem, error?: any }) {
+  onDeleteNavItem(event: { menu?: NavItem | null, error?: any }) {
     if(event.menu){
       this.navItems = this.navItems.filter(menu => menu.uuid !== event.menu?.uuid);
       this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Menú eliminado exitosamente' });
