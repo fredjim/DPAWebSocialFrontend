@@ -8,12 +8,12 @@ export const SectionResolver: ResolveFn<Section | null> = (route: ActivatedRoute
   const informationService = inject(InformationService);
   const router = inject(Router);
   
-  const routeParam = route.paramMap.get('route');
+  const routeParam = route.paramMap.get('uuidSection') ?? '';
   
-  return informationService.getSectionByRoute(routeParam).pipe(
+  return informationService.getSectionById(routeParam).pipe(
     catchError(error => {
       // Redirigir si hay error
-      router.navigate(['/informacion']);
+      router.navigate(['/919ab4e8-0856-4aad-b3aa-747e2dba76d9']);
       return of(null);
     })
   );

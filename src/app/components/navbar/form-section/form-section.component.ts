@@ -56,6 +56,7 @@ export class FormSectionComponent implements OnInit, OnChanges {
   private createSection(): void {
     this.isLoading = true;
     const newSection: Omit<Section, 'uuid' | 'user_id' | 'articles'> = {
+      nav_item_id: '',
       date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
       institution_id: '93j203b4-f63b-4c4a-be05-eae84cef0c0c',
       name: this.formSection.value.name?.trim() ?? ''

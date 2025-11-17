@@ -15,7 +15,7 @@
 					<!-- Vista para admins -->
 					<div class="edit-section-pencil">
 						<li>
-							<a [routerLink]="['/informacion', section.uuid ]" 
+							<a [routerLink]="['/'+currentNavItem.uuid , section.uuid ]"
 							routerLinkActive="active"  
 							(click)="closeMobileMenu()"
 							>{{ section.name }}
@@ -31,7 +31,7 @@
 			<!-- Vista para usuarios normales -->
 			@for(section of sections; track section.uuid; let i = $index){
 				<li>
-					<a [routerLink]="['/informacion', section.uuid ]" 
+					<a [routerLink]="['/'+currentNavItem.uuid, section.uuid ]" 
 					routerLinkActive="active"  
 					(click)="closeMobileMenu()"
 					>{{ section.name }}

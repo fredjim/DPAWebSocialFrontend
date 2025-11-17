@@ -1,0 +1,58 @@
+::ng-deep .p-dialog-header {
+    justify-content: center;
+    position: relative;
+    padding: 10px;
+    
+    span {
+        font-size: 18px;
+    }
+}
+
+::ng-deep .p-dialog-header-icon {
+    position: absolute;
+    right: 4px;
+}
+
+.modal-body {
+    padding: 10px 25px 10px;
+
+    #input-menu {
+        padding-left: 5px;
+    }
+}
+
+.modal-footer {
+    gap: 10px;
+    margin: 10px;
+    //Estilos botones
+    .btn {
+        --bs-btn-border-color: none;
+        width: auto;
+        height: 34px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 600;
+        gap: 5px;
+    
+        .bi {
+            font-size: x-large;
+        }
+    }
+    .btn.save {
+        background-color: var(--blue-color);
+        --bs-btn-border-color: none;
+    }
+    
+    .btn.delete {
+        background-color: var(--red-color);
+        --bs-btn-border-color: none;
+        .bi {
+            font-size: large;
+        }
+    }
+    .btn.cancel {
+        border-color: var(--blue-color);
+    }
+}

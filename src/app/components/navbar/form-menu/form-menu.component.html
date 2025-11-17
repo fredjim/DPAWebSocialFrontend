@@ -1,0 +1,22 @@
+<form [formGroup]="formNavItem" (ngSubmit)="onSubmit()">
+    <div class="modal-body d-flex gap-4">
+        <label for="input-menu">Nombre:</label>
+        <input #firstInput type="text" autocomplete="off" formControlName="label" pInputText id="input-menu" class="w-100">
+    </div>
+    <div *ngIf="!isLoading" class="modal-footer">
+        <button type="submit" class="btn btn-primary save" [disabled]="formNavItem.invalid">
+        <i class="bi bi-check"></i> Guardar
+        </button>
+        <button type="button" *ngIf="typeForm === 'edit'" class="btn btn-danger delete" (click)="deleteNavItem()">
+        <i class="bi bi-trash-fill"></i> Eliminar
+        </button>
+        <button type="button" class="btn btn-outline-primary" (click)="onCloseModal()">
+        <i class="bi bi-x"></i> Cancelar
+        </button>
+    </div>
+    <!-- Spinner de carga -->
+    <div *ngIf="isLoading" class="loading-overlay w-100 d-flex flex-column align-items-center">
+        <div class="spinner-border text-primary"></div>
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+</form>
