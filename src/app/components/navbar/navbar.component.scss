@@ -48,15 +48,12 @@ nav {
 		}
 	}
 	.btn {
-        --bs-btn-border-color: none;
-        width: auto;
-        height: 34px;
+        width: 30px;
+        height: 30px;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 14px;
-        font-weight: 600;
-        gap: 5px;
+		margin-left: 15px;
     
         .bi {
             font-size: x-large;

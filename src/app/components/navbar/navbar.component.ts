@@ -22,25 +22,17 @@ export class NavbarComponent implements OnInit {
   public navItemToEdit!: NavItem | undefined;
   public typeForm: 'create' | 'edit' = 'create';
   public navItems: NavItem[] = [];
-  localNavItems: any[] = []
   visible = false;
 
   ngOnInit(): void {
     this.informationService.getAllNavItems().subscribe({
       next: (resNavItems) => {
         this.navItems = resNavItems;
-        console.log('res',this.navItems)
       },
       error: (error) => {
         console.log('error al obtener nav items', error)
       }
     })
-    this.localNavItems = [
-      { uuid: 1, label: 'Información', url: '/informacion',},
-      { uuid: 2, label: 'Guía y seguimiento de trámites', url: '/guia-seguimiento-tramites',},
-      { uuid: 3, label: 'GAIA', url: '/gaia',},
-      { uuid: 4, label: 'Contactos', url: '/contactos',},
-    ];
 
     this.isAuthenticated = this.authService.isAuthenticated();
     if(this.isAuthenticated){
@@ -61,32 +53,28 @@ export class NavbarComponent implements OnInit {
     this.visible = true;
   }
 
-  onCreatedNavItem(event: {created?: NavItem, error?: any}) {
-    this.localNavItems.push({
-      uuid: 10,
-      label: 'NavItem 1',
-      url: '/urlName'
-    })
-    if(event.created){
+  onCreatedNavItem(event: { menu?: NavItem, error?: any }) {
+    if(event.menu){
+      this.navItems.push(event.menu);
       this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Menú creado exitosamente' });
     }else{
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear menú' });
     }
   }
 
-  onEditedNavItem(event: {edited?: NavItem, error?: any}) {
-    if(event.edited){
+  onEditedNavItem(event: { menu?: NavItem, error?: any }) {
+    if(event.menu){
+      this.navItems = this.navItems.map(menu => menu.uuid === event.menu?.uuid ? event.menu : menu);
       this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Menú actualizado exitosamente' });
-      this.localNavItems = this.localNavItems.map(menu => menu.uuid === event.edited?.uuid ? event.edited : menu);
     }else {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar sección' });
     }
   }
 
-  onDeleteNavItem(event: {deleted?: NavItem, error?: any}) {
-    if(event.deleted){
+  onDeleteNavItem(event: { menu?: NavItem, error?: any }) {
+    if(event.menu){
+      this.navItems = this.navItems.filter(menu => menu.uuid !== event.menu?.uuid);
       this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Menú eliminado exitosamente' });
-      this.localNavItems = this.localNavItems.filter(menu => menu.uuid !== event.deleted?.uuid);
     }else{
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al eliminar sección' });
     }

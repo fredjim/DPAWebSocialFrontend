@@ -16,6 +16,8 @@ import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
 import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.component';
 import { PageComponent } from './posts/components/post-page/page/page.component';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
+import { PageContainerComponent } from './pages/page-container/page-container.component';
+import { SectionResolver } from './resolvers/section.resolver';
 
 const routes: Routes = [
   {
@@ -26,35 +28,47 @@ const routes: Routes = [
         path: 'posts',
         component: ViewAllPostsComponent,
       },
-      { path: 'informacion',
-        component: PagesInformationComponent,
+      { path: ':uuidNavItem',
+        component: PageContainerComponent,
         children: [
-          { path: '', redirectTo: '919ab4e8-0856-4aad-b3aa-747e2dba76d9', pathMatch: 'full' },
           { 
-            path: ':uuid', 
+            path: ':uuidSection', 
             component: SectionContainerComponent,
-            // resolve: {
-            //   section: SectionResolver // Opcional: para precargar datos
-            // }
-          },
-          { path: '**', redirectTo: '919ab4e8-0856-4aad-b3aa-747e2dba76d9', pathMatch: 'full' }
+            resolve: {
+              section: SectionResolver // precargar datos
+            }
+          }
         ]
       },
-      { path: 'gaia',
-        component: PagesGaiaComponent
-      },
-      { path: 'guia-seguimiento-tramites',
-        component: PagesGuideProcedureComponent,
-        children: [
-          { path: '', redirectTo: 'guia-tramites', pathMatch: 'full' },
-          { path: 'guia-tramites', component: AcademicProcedureGuideComponent },
-          { path: 'seguimiento-tramites', component: AcademicMonitoringGuideComponent },
-          { path: '**', redirectTo: 'guia-tramites', pathMatch: 'full' }
-        ]
-      },
-      { path: 'contactos',
-        component: PagesContactsComponent
-      },
+      // { path: 'informacion',
+      //   component: PagesInformationComponent,
+      //   children: [
+      //     { path: '', redirectTo: '919ab4e8-0856-4aad-b3aa-747e2dba76d9', pathMatch: 'full' },
+      //     { 
+      //       path: ':uuid', 
+      //       component: SectionContainerComponent,
+      //       // resolve: {
+      //       //   section: SectionResolver // Opcional: para precargar datos
+      //       // }
+      //     },
+      //     { path: '**', redirectTo: '919ab4e8-0856-4aad-b3aa-747e2dba76d9', pathMatch: 'full' }
+      //   ]
+      // },
+      // { path: 'gaia',
+      //   component: PagesGaiaComponent
+      // },
+      // { path: 'guia-seguimiento-tramites',
+      //   component: PagesGuideProcedureComponent,
+      //   children: [
+      //     { path: '', redirectTo: 'guia-tramites', pathMatch: 'full' },
+      //     { path: 'guia-tramites', component: AcademicProcedureGuideComponent },
+      //     { path: 'seguimiento-tramites', component: AcademicMonitoringGuideComponent },
+      //     { path: '**', redirectTo: 'guia-tramites', pathMatch: 'full' }
+      //   ]
+      // },
+      // { path: 'contactos',
+      //   component: PagesContactsComponent
+      // },
       { path: 'fotos', 
         component: PhotosGalleryComponent
       },

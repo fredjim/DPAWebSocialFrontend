@@ -3,10 +3,10 @@
     <li><a routerLink="/posts" routerLinkActive="active">Publicaciones</a></li>
 
 
-    @for(navItem of localNavItems; track navItem.uuid){
+    @for(navItem of navItems; track navItem.uuid){
       @if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
         <li>
-          <a [routerLink]="navItem.url" routerLinkActive="active">{{ navItem.label }}</a>
+          <a [routerLink]="navItem.uuid" routerLinkActive="active">{{ navItem.label }}</a>
           <div class="edit-info" (click)="showModalEdit(navItem)" (keypress)="showModalEdit(navItem)">
 						<i class="bi bi-pencil-fill"></i>
 					</div>
@@ -23,7 +23,7 @@
         </li>
       }@else {
         <li>
-          <a [routerLink]="navItem.url" routerLinkActive="active">{{ navItem.label }}</a>
+          <a [routerLink]="navItem.uuid" routerLinkActive="active">{{ navItem.label }}</a>
           @if(navItem.label === 'Información'){
             <div class="submenu">
               <app-navbar-information></app-navbar-information>
@@ -47,6 +47,7 @@
     [visibleModal]="visible"
     [currentNavItem]="navItemToEdit"
     [typeForm]="typeForm"
+    [lengthNavItems]="navItems.length"
     (modalClosed)="visible = $event"
     (onCreateNavItem)="onCreatedNavItem($event)"
     (onDeletedNavItem)="onDeleteNavItem($event)"

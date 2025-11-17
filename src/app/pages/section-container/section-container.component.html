@@ -2,7 +2,7 @@
 
 	<div class="header-post">
 		<div class="data-user">
-			<img src="assets/dpa-logo.jpg" alt="'Foto de perfil'" class="img-profile">
+			<img *ngIf="currentInstitution" [src]="currentInstitution.logo_url" alt="'Foto de perfil'" class="img-profile">
 			<div class="info-user">
 				<h2 *ngIf="currentSection">{{ currentSection.name }}</h2>
 			</div>

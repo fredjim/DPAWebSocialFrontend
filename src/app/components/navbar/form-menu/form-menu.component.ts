@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, Output, 
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NavItem } from '../../../pages/models/nav-item';
 import { InformationService } from '../../../pages/services/information.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-form-menu',
@@ -10,10 +11,12 @@ import { InformationService } from '../../../pages/services/information.service'
 })
 export class FormNavItemComponent implements OnChanges {
   private readonly informationService = inject(InformationService);
+  private readonly institutionId = environment.INSTITUTION_ID;
 
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() visibleModal = false;
   @Input() currentNavItem: NavItem | undefined;
+  @Input() lengthNavItems!: number;
   @Output() onCreateNavItem = new EventEmitter<{menu?: NavItem, error?: any}>();
   @Output() onEditedNavItem = new EventEmitter<{menu?: NavItem, error?: any}>();
   @Output() onDeletedNavItem = new EventEmitter<{menu?: NavItem, error?: any}>();
@@ -23,7 +26,7 @@ export class FormNavItemComponent implements OnChanges {
   isLoading = false;
 
   public formNavItem = new FormGroup({
-    label: new FormControl('', [Validators.required, Validators.minLength(2),Validators.maxLength(50)])
+    label: new FormControl('', [Validators.required, Validators.minLength(2),Validators.maxLength(50)]) as FormControl<string>
   });
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -39,22 +42,21 @@ export class FormNavItemComponent implements OnChanges {
 
   onSubmit() {
     if(this.typeForm === 'create'){
-      console.log('create')
       this.createNavItem();
     }else if(this.typeForm === 'edit'){
-      console.log('edit')
       this.updateNavItem();
     }
   }
 
   private createNavItem() {
+
     this.isLoading = true;
     const newNavItem: Omit<NavItem, 'uuid' | 'user_id' | 'createdDate' | 'lastModifiedDate'> = {
-      institution_id: '93j203b4-f63b-4c4a-be05-eae84cef0c0c',
-      label: this.formNavItem.get('name')?.value ?? '',
-      url: '',
+      institution_id: this.institutionId,
+      label: this.formNavItem.get('label')!.value,
+      url: this.getUrlFromLabel(this.formNavItem.get('label')!.value),
       visible: true,
-      orderIndex: 1
+      orderIndex: this.lengthNavItems + 1
     }
 
     this.informationService.createNavItem(newNavItem).subscribe({
@@ -65,6 +67,7 @@ export class FormNavItemComponent implements OnChanges {
       },
       error: (error) => {
         this.isLoading = false;
+        console.log('err', error)
         this.onCreateNavItem.emit({error});
       }
     });
@@ -76,15 +79,15 @@ export class FormNavItemComponent implements OnChanges {
     this.isLoading = true;
     const updatedNavItem: NavItem = {
       ...this.currentNavItem,
-      label: this.formNavItem.value.label?.trim() ?? '',
-      url: ''
+      label: this.formNavItem.get('label')!.value.trim(),
+      url: this.getUrlFromLabel(this.formNavItem.get('label')!.value)
     }
 
     this.informationService.updateNavItem(updatedNavItem).subscribe({
       next: (updated) => {
         this.isLoading = false;
         this.onEditedNavItem.emit({menu: updated});
-        
+        this.onCloseModal();
       },
       error: (error) => {
         this.isLoading = false;
@@ -101,7 +104,7 @@ export class FormNavItemComponent implements OnChanges {
       next: () => {
         this.isLoading = false;
         this.onDeletedNavItem.emit({menu: this.currentNavItem});
-        this.currentNavItem = undefined;
+        this.onCloseModal();
       },
       error: (error) => {
         this.isLoading = false;
@@ -115,6 +118,17 @@ export class FormNavItemComponent implements OnChanges {
     this.modalClosed.emit(false);
     this.formNavItem.reset();
     this.currentNavItem = undefined;
+  }
+
+  getUrlFromLabel(label: string): string {
+    return label
+      .toLowerCase() // Convertir a minúsculas
+      .normalize("NFD") // Reemplazar caracteres con acento por sus equivalentes sin acento
+      .replaceAll(/[\u0300-\u036f]/g, "") // Reemplazar espacios, guiones y barras por guiones
+      .replaceAll(/[\s/]+/g, '-') // Eliminar caracteres especiales excepto guiones
+      .replaceAll(/([^a-z0-9-])/g, '') // Eliminar guiones múltiples consecutivos
+      .replaceAll(/-+/g, '-') // Eliminar guiones múltiples consecutivos
+      .replaceAll(/(^-+)|(-+$)/g, '');  // Eliminar guiones al inicio y final
   }
 
   private focusInputIfNeeded(): void {

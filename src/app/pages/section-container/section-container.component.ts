@@ -9,6 +9,8 @@ import { Article } from '../models/article';
 import { UserDetail } from '../../posts/models/user-detail';
 import { SectionStateService } from '../services/sections-state.service';
 import { Subscription, switchMap } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Institution } from '../../posts/models/institution';
 
 @Component({
   selector: 'app-section-container',
@@ -22,12 +24,14 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
   private readonly postService = inject(PostService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly sectionStateService = inject(SectionStateService);
+  private readonly institutionId = environment.INSTITUTION_ID;
   private sectionUpdateSubscription?: Subscription;
   
   currentSection!: Section;
   articles: Article[] = [];
   public isAuthenticated: boolean = false; 
   public currentUser!: UserDetail;
+  public currentInstitution!: Institution;
   public idArticleToEdit: string = '';
   public isEditReady = false;
   public showButtonNewArticle = true;
@@ -40,8 +44,12 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
       });
     }
 
+    this.postService.getInstitution(this.institutionId).subscribe(institution => {
+      this.currentInstitution = institution;
+    });
+
     this.route.paramMap.subscribe(params => {
-      const sectionId = params.get('uuid');
+      const sectionId = params.get('uuidSection');
       if (sectionId) {
         this.loadSection(sectionId);
         this.setupSectionUpdates();
