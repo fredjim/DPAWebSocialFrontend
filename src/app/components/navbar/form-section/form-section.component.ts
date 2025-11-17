@@ -5,6 +5,7 @@ import { Section } from '../../../pages/models/section';
 import { MessageService } from 'primeng/api';
 import moment from 'moment';
 import { SectionStateService } from '../../../pages/services/sections-state.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-form-section',
@@ -15,9 +16,11 @@ export class FormSectionComponent implements OnInit, OnChanges {
   private readonly informationService = inject(InformationService);
   private readonly messageService = inject(MessageService);
   private readonly sectionStateService = inject(SectionStateService);
+  private readonly institutionId = environment.INSTITUTION_ID;
 
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() currentSection: Section | undefined;
+  @Input() currentNavItemId!: string | null;
   @Output() onCloseNew = new EventEmitter<boolean>();
   @Output() onCloseEdit = new EventEmitter<void>();
   @Output() onEditedSection = new EventEmitter<Section>();
@@ -54,11 +57,13 @@ export class FormSectionComponent implements OnInit, OnChanges {
   }
 
   private createSection(): void {
+    if(!this.currentNavItemId) return;
+
     this.isLoading = true;
     const newSection: Omit<Section, 'uuid' | 'user_id' | 'articles'> = {
-      nav_item_id: '',
+      nav_item_id: this.currentNavItemId,
       date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
-      institution_id: '93j203b4-f63b-4c4a-be05-eae84cef0c0c',
+      institution_id: this.institutionId,
       name: this.formSection.value.name?.trim() ?? ''
     }
     

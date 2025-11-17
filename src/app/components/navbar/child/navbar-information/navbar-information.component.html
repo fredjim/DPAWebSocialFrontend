@@ -46,6 +46,7 @@
 		}@else {
 			<app-form-section
 				typeForm="create"
+				[currentNavItemId]="currentNavItem.uuid"
 				(onCloseNew)="showButtonNewSection = $event"
 				(onCreateSection)="onCreatedSection($event)"
 				(onDeletedSection)="onDeletedSection($event)"
