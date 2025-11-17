@@ -27,6 +27,20 @@
 						<div class="section-content">
 							<h3>{{ article.title }}</h3>
 							<div class="text" *ngIf="article" [innerHTML]="safeText(article.text)"></div>
+							@if(article.uuid === '916ib4e8-0856-4aad-b3aa-747e2dba76d9'){
+								<div class="attach-files">
+									<a href="http://digital.ddc.dpa.umss.edu.bo/65d05fdded95d67bd38647382442c54d" target="_blank"><img src="assets/icon-link.png" alt="Procedimiento"> Guía de trámites</a>
+								</div>
+							}@else if (article.uuid === '917ib4e8-0856-4aad-b3aa-747e2dba76d9') {
+								<div class="attach-files">
+									<a href="http://tareas.umss.net" target="_blank"><img src="assets/icon-link.png" alt="Sistema de Seguimiento de Trámites"> SITRA</a>
+								</div>
+							}@else if (article.uuid === '918ib4e8-0856-4aad-b3aa-747e2dba76d9') {
+								<div class="attach-files">
+									<a href="http://plataforma.dpa.umss.edu.bo/acceso/login.php" target="_blank"><img src="assets/icon-link.png"
+									alt="Sistema GAIA"> Sistema GAIA</a>
+								</div>
+							}
 							<div class="media-container" *ngIf="article.medias.length > 0" 
 								[ngStyle]="{ width: article.medias.length == 1 ? '70%' : '100%' }">
 								@for(media of article.medias; track media.uuid){
@@ -43,6 +57,20 @@
 				<div class="section-content">
 					<h3>{{ article.title }}</h3>
 					<div class="text" [innerHTML]="safeText(article.text)"></div>
+					@if(article.uuid === '916ib4e8-0856-4aad-b3aa-747e2dba76d9'){
+						<div class="attach-files">
+							<a href="http://digital.ddc.dpa.umss.edu.bo/65d05fdded95d67bd38647382442c54d" target="_blank"><img src="assets/icon-link.png" alt="Procedimiento"> Guía de trámites</a>
+						</div>
+					}@else if (article.uuid === '917ib4e8-0856-4aad-b3aa-747e2dba76d9') {
+						<div class="attach-files">
+							<a href="http://tareas.umss.net" target="_blank"><img src="assets/icon-link.png" alt="Sistema de Seguimiento de Trámites"> SITRA</a>
+						</div>
+					}@else if (article.uuid === '918ib4e8-0856-4aad-b3aa-747e2dba76d9') {
+						<div class="attach-files">
+							<a href="http://plataforma.dpa.umss.edu.bo/acceso/login.php" target="_blank"><img src="assets/icon-link.png"
+							alt="Sistema GAIA"> Sistema GAIA</a>
+						</div>
+					}
 					<div class="media-container" *ngIf="article.medias.length > 0" 
 						[ngStyle]="{ width: article.medias.length == 1 ? '70%' : '100%' }">
 						@for(media of article.medias; track media.uuid){

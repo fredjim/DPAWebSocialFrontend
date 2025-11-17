@@ -93,6 +93,35 @@
 					border-radius: 8px;
 				}
 			}
+
+			.attach-files {
+				display: flex;
+				gap: 20px;
+				justify-content: flex-end;
+				height: 30px;
+				align-self: end;
+
+				a {
+					padding: 5px 10px 30px;
+					text-decoration: none;
+					color: white;
+					transition-property: background-color;
+					transition-duration: 0.5s;
+
+					border-radius: 7px;
+					background-color: var(--red-color);
+
+					&:hover {
+						border-radius: 7px;
+						background-color: var(--blue-color);
+					}
+				}
+
+				img {
+					height: 25px;
+				}
+
+			}
 		}
 
 		.btn-primary.save {
