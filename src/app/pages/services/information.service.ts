@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { Section } from '../models/section';
 import { Article } from '../models/article';
 import { NavItem } from '../models/nav-item';
+import { Link } from '../models/link';
 
 @Injectable({
   providedIn: 'root'
@@ -105,7 +106,7 @@ export class InformationService {
   }
 
   // POST article
-  createArticle(newArticle: Omit<Article, 'uuid' | 'user_id'>): Observable<Article> {
+  createArticle(newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & {links: Array<Omit<Link, 'uuid'>> }): Observable<Article> {
     return this.http.post<Article>(`${this.ROOT_URL}/${this.articlesUrl}`, newArticle, this.reqHeader);
   }
 

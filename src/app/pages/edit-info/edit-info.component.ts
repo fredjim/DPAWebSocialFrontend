@@ -2,11 +2,12 @@ import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnInit, 
 import { Article } from '../models/article';
 import { InformationService } from '../services/information.service';
 import { MessageService } from 'primeng/api';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { concatMap } from 'rxjs';
 import { PostService } from '../../posts/services/post.service';
 import { UploadedMedia } from '../../posts/models/uploaded-media';
 import { MediaArticle } from '../models/media-article';
+import { Link } from '../models/link';
 
 @Component({
   selector: 'app-edit-info',
@@ -32,12 +33,28 @@ export class EditInfoComponent implements OnInit, OnChanges {
   public imagesOfArticle: MediaArticle[] = []; // imagenes del articulo actual para renderizar
   private imageFilesToCreate: File[] = []; //imagenes para subir al articulo
   private imagesToDelete: MediaArticle[] = []; //imagenes del articulo para eliminar
-
+  
   public isLoading = false;
 
   public formArticle = new FormGroup({
     title: new FormControl(''),
     text: new FormControl(''),
+  });
+
+  public buttonsOfArticle: Link[] = [];
+  public buttonsToDelete: Link[]= [];
+  public buttonsToAdd: { name: string, url: string }[] = []; // Para crear articulo
+  // Modal de agregar botones
+  public visibleModalAddButton = false;
+
+  private modeEdit: 'load' | 'preload' = 'load'; // Modo de edicion de un boton ya guardado en BD o uno pre cargado 
+  private indexButton: undefined | number;
+  public typeModalButton: 'create' | 'edit' = 'create'; //Tipo de modal de para un boton
+
+
+  public formNewButton = new FormGroup({
+    name: new FormControl('', [Validators.required]),
+    url: new FormControl('', [Validators.required])
   });
 
   constructor(
@@ -58,6 +75,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
         text: this.currentArticle.text
       })
       this.imagesOfArticle = [...this.currentArticle.medias];
+      this.buttonsOfArticle = structuredClone(this.currentArticle.links);
     }
   }
 
@@ -89,12 +107,13 @@ export class EditInfoComponent implements OnInit, OnChanges {
             path: media.urlResource
           }));
   
-          const newArticle: Omit<Article, 'uuid' | 'user_id'>  = {
+          const newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & {links: Array<Omit<Link, 'uuid'>> }  = {
             section_id: this.currentSectionUuid,
             date: '',
             title: this.formArticle.value.title ?? '',
             text: this.formArticle.value.text ?? '',
-            medias: mediasToArticle
+            medias: mediasToArticle,
+            links: this.buttonsToAdd
           }
           return this.informationService.createArticle(newArticle);
         })
@@ -107,19 +126,20 @@ export class EditInfoComponent implements OnInit, OnChanges {
         },
         error: (err) =>{
           this.isLoading = false;
-          console.log('Error al creat articulo', err);
+          console.log('Error al crear articulo con imagen', err);
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear artículo' });
           this.closeEdit();
         }
       });
     }else{
       this.isLoading = true;
-      const newArticle: Omit<Article, 'uuid' | 'user_id'> = {
+      const newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & {links: Array<Omit<Link, 'uuid'>> } = {
         section_id: this.currentSectionUuid,
         date: '',
         title: this.formArticle.value.title ?? '',
         text: this.formArticle.value.text ?? '',
-        medias: []
+        medias: [],
+        links: this.buttonsToAdd
       }
       
       this.informationService.createArticle(newArticle).subscribe({
@@ -129,8 +149,9 @@ export class EditInfoComponent implements OnInit, OnChanges {
           this.onCreateArticle.emit(created);
           this.closeEdit();
         },
-        error: () => {
+        error: (err) => {
           this.isLoading = false;
+          console.log('Error al crear articulo', err);
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear artículo' });
           this.closeEdit();
         }
@@ -164,7 +185,8 @@ export class EditInfoComponent implements OnInit, OnChanges {
             ...this.currentArticle,
             title: this.formArticle.value.title ?? '',
             text: this.formArticle.value.text ?? '',
-            medias: [...this.imagesOfArticle,...mediasToArticle]
+            medias: [...this.imagesOfArticle,...mediasToArticle],
+            links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
           }
           return this.informationService.updateArticle(this.currentArticle!.uuid, articleUpdated);
         })
@@ -184,11 +206,12 @@ export class EditInfoComponent implements OnInit, OnChanges {
       });
     }else{
       this.isLoading = true;
-      const articleEdited: Omit<Article, 'uuid' | 'user_id'> = {
+      const articleEdited: any = {
         ...this.currentArticle,
         title: this.formArticle.value.title ?? '',
         text: this.formArticle.value.text ?? '',
-        medias: [...this.imagesOfArticle]
+        medias: [...this.imagesOfArticle],
+        links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
       }
       
       this.informationService.updateArticle(this.currentArticle.uuid, articleEdited).subscribe({
@@ -198,8 +221,9 @@ export class EditInfoComponent implements OnInit, OnChanges {
           this.onEditedArticle.emit(edited);
           this.closeEdit();
         },
-        error: () => {
+        error: (err) => {
           this.isLoading = false;
+          console.log('Error al editar articulo', err);
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al editar artículo' });
           this.closeEdit();
         }
@@ -212,6 +236,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
     this.imageFilesToCreate = [];
     this.imagesToDelete = [];
     if(this.typeForm === 'edit'){
+      this.buttonsOfArticle = [];
       this.currentArticle = undefined;
       this.resetFileInput();
       this.onCloseEdit.emit();
@@ -301,5 +326,90 @@ export class EditInfoComponent implements OnInit, OnChanges {
         this.firstInput.nativeElement.focus();
       }
     }, 200);
+  }
+
+  // Eliminar boton (BD) desde le icono (sin abrir modal)
+  public deleteButton(button: Link, index: number): void {
+    this.buttonsToDelete.push(button);
+    this.buttonsOfArticle.splice(index, 1);
+  }
+
+  // Mostrar el modal del boton para crear o editar (boton en BD o local)
+  // modeEdit = load -> editar un boton cargado en la BD
+  // modeEdit = preload -> editar un boton local
+  public showModalNewButton(typeModal: 'create' | 'edit', modeEdit?: 'load' | 'preload', newButton?: {name: string, url: string}, button?: Link, index?: number): void {
+    if(typeModal === 'edit' && index !== undefined && index >= 0){
+      this.indexButton = index;
+      this.typeModalButton = 'edit'; 
+      if(modeEdit && modeEdit === 'load' && button){
+        this.modeEdit = 'load';
+        this.formNewButton.patchValue({
+          name: button.name,
+          url: button.url
+        });
+      }else if(modeEdit && modeEdit === 'preload' && newButton){
+        this.modeEdit = 'preload';
+        this.formNewButton.patchValue({
+          name: newButton.name,
+          url: newButton.url
+        });
+      }
+    }else if(typeModal === 'create'){
+      this.typeModalButton = 'create';
+    }
+    this.visibleModalAddButton = true;
+  }
+
+  public saveNewEditButton(): void {
+    if(this.typeModalButton === 'create'){
+      this.buttonsToAdd.push({
+        name: this.formNewButton.get('name')!.value?.trim() || '',
+        url: this.formNewButton.get('url')!.value?.trim() || ''
+      });
+    }else if(this.typeModalButton === 'edit'){
+
+      if(this.indexButton === undefined) return;
+      // Edicion boton en BD (de tipo Link)
+      if(this.modeEdit === 'load'){
+        this.buttonsOfArticle[this.indexButton].name = this.formNewButton.get('name')!.value ?? '';
+        this.buttonsOfArticle[this.indexButton].url = this.formNewButton.get('url')!.value ?? '';
+
+        // Edicion boton en local
+      }else if(this.modeEdit === 'preload'){
+        this.buttonsToAdd[this.indexButton].name = this.formNewButton.get('name')!.value ?? '';
+        this.buttonsToAdd[this.indexButton].url = this.formNewButton.get('url')!.value ?? '';
+      }
+    }
+    this.cancelModalNewButton();
+  }
+
+  public preDeleteButton(index: number): void {
+    this.buttonsToAdd.splice(index,1);
+  }
+
+  public deleteButtonInModal(): void {
+    // modeEdit = load -> Boton guardado en BD
+    if(this.modeEdit === 'load' && this.indexButton){
+      const buttonToDelete = this.buttonsOfArticle[this.indexButton];
+      this.buttonsOfArticle.splice(this.indexButton,1);
+      this.buttonsToDelete.push(buttonToDelete);
+
+      // modeEdit = preload -> Boton local 
+    }else if(this.modeEdit === 'preload' && this.indexButton){
+      this.buttonsToAdd.splice(this.indexButton,1);
+    }
+
+    this.cancelModalNewButton();
+  }
+
+  public cancelModalNewButton(): void {
+    this.formNewButton.reset();
+    this.visibleModalAddButton = false;
+    this.indexButton = undefined;
+  }
+
+  public closeModalNewButton(): void {
+    this.cancelModalNewButton();
+    this.buttonsOfArticle = this.currentArticle!.links
   }
 }

@@ -53,7 +53,7 @@ export class FormNavItemComponent implements OnChanges {
     this.isLoading = true;
     const newNavItem: Omit<NavItem, 'uuid' | 'user_id' | 'createdDate' | 'lastModifiedDate'> = {
       institution_id: this.institutionId,
-      label: this.formNavItem.get('label')!.value,
+      label: this.formNavItem.get('label')!.value.trim(),
       url: this.getUrlFromLabel(this.formNavItem.get('label')!.value),
       visible: true,
       orderIndex: this.lengthNavItems + 1
