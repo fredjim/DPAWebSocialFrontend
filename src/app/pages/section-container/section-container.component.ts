@@ -11,6 +11,7 @@ import { SectionStateService } from '../services/sections-state.service';
 import { Subscription, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Institution } from '../../posts/models/institution';
+import { Link } from '../models/link';
 
 @Component({
   selector: 'app-section-container',
@@ -35,6 +36,8 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
   public idArticleToEdit: string = '';
   public isEditReady = false;
   public showButtonNewArticle = true;
+  public visibleModalNewButton = false;
+  public buttonsOfArticle: Link[] | Omit<Link, 'uuid'>[] = [];
 
   ngOnInit() {
     this.isAuthenticated = this.authService.isAuthenticated();

@@ -7,6 +7,45 @@
         <!-- Editor de texto -->
         <p-editor formControlName="text" [style]="{ height: 'auto' }" class="text-editor" placeholder="Texto del artículo" />
 
+        <!-- Agregar botones -->
+        <div class="buttons">
+            @if(currentArticle && buttonsOfArticle.length > 0){
+                @for(button of buttonsOfArticle; track button.uuid; let i = $index){
+                    <div class="d-flex gap-1 justify-content-end">
+                        <div class="attach-files">
+                            <a [href]="button.url" target="_blank">
+                                <img src="assets/icon-link.png" alt="icon-link"> {{ button.name }}
+                            </a>
+                        </div>
+                        <div class="edit-info" (click)="showModalNewButton('edit','load', undefined, button, i)" (keypress)="showModalNewButton('edit','load', undefined,button, i)">
+                            <i class="bi bi-pencil-fill"></i>
+                        </div>
+                        <div class="edit-info delete" (click)="deleteButton(button, i)" (keypress)="deleteButton(button, i)">
+                            <i class="bi bi-trash-fill"></i>
+                        </div>
+                    </div>
+                }
+            }
+            @if(buttonsToAdd.length > 0){
+                @for(newButton of buttonsToAdd; track newButton; let i = $index){
+                    <div class="d-flex gap-1 justify-content-end">
+                        <div class="attach-files">
+                            <a [href]="newButton.url" target="_blank">
+                                <img src="assets/icon-link.png" alt="icon-link"> {{ newButton.name }}
+                            </a>
+                        </div>
+                        <div class="edit-info" (click)="showModalNewButton('edit','preload',newButton, undefined, i)" (keypress)="showModalNewButton('edit','preload',newButton, undefined, i)">
+                            <i class="bi bi-pencil-fill"></i>
+                        </div>
+                        <div class="edit-info delete" (click)="preDeleteButton(i)" (keypress)="preDeleteButton(i)">
+                            <i class="bi bi-trash-fill"></i>
+                        </div>
+                    </div>
+                }
+            }
+            <button id="add-button" class="btn btn-primary save" type="button" (click)="showModalNewButton('create')"><i class="bi bi-plus-lg"></i> Agregar botón</button>
+        </div>
+
         <!-- Editar imagenes -->
         <div class="images-article">
             @if(imagesOfArticle && imagesOfArticle.length > 0){
@@ -51,4 +90,30 @@
         </div>
     </form>
 </div>
+<!-- Modal nuevo botón -->
+<p-dialog [header]="typeModalButton === 'create' ? 'Agregar Botón' : 'Editar Botón'" [(visible)]="visibleModalAddButton" [style]="{ width: '25rem' }">
+    <form [formGroup]="formNewButton">
+        <div class="modal-body d-flex gap-4 flex-column">
+            <div class="input-field">
+                <label for="name">Nombre del botón:</label>
+                <input #firstInput type="text" autocomplete="off" formControlName="name" pInputText id="name" class="w-100">
+            </div>
+            <div class="input-field">
+                <label for="url">URL del botón:</label>
+                <input type="text" autocomplete="off" placeholder="https://www.pagina.com/" formControlName="url" pInputText id="url" class="w-100">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary save" [disabled]="formNewButton.invalid" (click)="saveNewEditButton()">
+                <i class="bi bi-check"></i> Guardar
+            </button>
+            <button type="button" *ngIf="typeModalButton === 'edit'" class="btn btn-danger delete" (click)="deleteButtonInModal()" >
+                <i class="bi bi-trash-fill"></i> Eliminar
+            </button>
+            <button type="button" class="btn btn-outline-primary" (click)="cancelModalNewButton()">
+                <i class="bi bi-x"></i> Cancelar
+            </button>
+        </div>
+    </form>
+</p-dialog>
 

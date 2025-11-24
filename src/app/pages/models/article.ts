@@ -1,3 +1,4 @@
+import { Link } from "./link";
 import { MediaArticle } from "./media-article";
 
 export interface Article {
@@ -8,4 +9,5 @@ export interface Article {
     text:       string;
     date:       string;
     medias:     MediaArticle[];
+    links:      Link[];
 }
