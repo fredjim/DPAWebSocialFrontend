@@ -1,39 +1,25 @@
 <nav>
   <ul>
-    <li><a routerLink="/posts" routerLinkActive="active">Publicaciones</a></li>
+    <li (click)="closeMenuNav()" (keypress)="closeMenuNav()"><a routerLink="/posts" routerLinkActive="active">Publicaciones</a></li>
 
 
     @for(navItem of navItems; track navItem.uuid){
       @if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
-        <li>
+        <li (click)="closeMenuNav()" (keypress)="closeMenuNav()">
           <a [routerLink]="navItem.uuid" routerLinkActive="active">{{ navItem.label }}</a>
           <div class="edit-info" (click)="showModalEdit(navItem)" (keypress)="showModalEdit(navItem)">
 						<i class="bi bi-pencil-fill"></i>
 					</div>
-          @if(navItem.label === 'Información'){
-            <div class="submenu">
-              <app-navbar-information></app-navbar-information>
-            </div>
-          }
-          @if(navItem.label === 'Guía y seguimiento de trámites'){
-            <div class="submenu">
-              <app-navbar-procedure-guide></app-navbar-procedure-guide>
-            </div>
-          }
+          <div class="submenu">
+            <app-navbar-information [currentNavItem]="navItem" (collapse)="closeMenuNav()"></app-navbar-information>
+          </div>
         </li>
       }@else {
-        <li>
+        <li (click)="closeMenuNav()" (keypress)="closeMenuNav()">
           <a [routerLink]="navItem.uuid" routerLinkActive="active">{{ navItem.label }}</a>
-          @if(navItem.label === 'Información'){
-            <div class="submenu">
-              <app-navbar-information></app-navbar-information>
-            </div>
-          }
-          @if(navItem.label === 'Guía y seguimiento de trámites'){
-            <div class="submenu">
-              <app-navbar-procedure-guide></app-navbar-procedure-guide>
-            </div>
-          }
+          <div class="submenu">
+            <app-navbar-information [currentNavItem]="navItem" (collapse)="closeMenuNav()"></app-navbar-information>
+          </div>
         </li>
       }
     }

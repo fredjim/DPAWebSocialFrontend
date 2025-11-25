@@ -69,10 +69,9 @@ nav {
 @media screen and (max-width: 768px) {
 
 	nav {
-		display: none;
-		position: fixed;
+		display: block;
 		top: 80px;
-		height: calc(100vh - 80px);
+		height: auto;
 		border: none;
 		background: white;
 		z-index: 1;
@@ -85,7 +84,7 @@ nav {
 
 			li {
 
-				#submenu {
+				.submenu {
 					display: block;
 				}
 

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { NavItem } from '../../pages/models/nav-item';
 import { UserDetail } from '../../posts/models/user-detail';
 import { AuthService } from '../../authentication/services/auth.service';
@@ -23,6 +23,7 @@ export class NavbarComponent implements OnInit {
   public typeForm: 'create' | 'edit' = 'create';
   public navItems: NavItem[] = [];
   visible = false;
+  @Output() closeMenuHamburguer = new EventEmitter<void>();
 
   ngOnInit(): void {
     this.informationService.getAllNavItems().subscribe({
@@ -45,6 +46,10 @@ export class NavbarComponent implements OnInit {
   showDialog() {
     this.typeForm = 'create';
     this.visible = true;
+  }
+
+  closeMenuNav(): void {
+    this.closeMenuHamburguer.emit();
   }
 
   showModalEdit(menu: NavItem) {

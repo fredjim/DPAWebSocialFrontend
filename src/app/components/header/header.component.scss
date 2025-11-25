@@ -37,7 +37,6 @@ header {
 
 		.burger-menu {
 			display: none;
-			display: block;
 			width: 50px;
 			height: 50px;
 
@@ -78,6 +77,9 @@ header {
 }
 
 @media screen and (max-width: 768px) {
+	.submenu {	
+		display: none;
+	}
 
 	header {
 		margin: 0;
@@ -101,13 +103,12 @@ header {
 			}
 		}
 
-		.submenu {
-
-			&:open {
-				display: block;
-			}
+		
+	}
+	.submenu {
+		&.open {
+			display: block;	
 		}
-
 	}
 
 }
