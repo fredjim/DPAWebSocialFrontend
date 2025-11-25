@@ -47,7 +47,7 @@
     [visibleModal]="visible"
     [currentNavItem]="navItemToEdit"
     [typeForm]="typeForm"
-    [lengthNavItems]="navItems.length"
+    [lastOrderIndexNavItems]="getLastOrderIndexNavItem()"
     (modalClosed)="visible = $event"
     (onCreateNavItem)="onCreatedNavItem($event)"
     (onDeletedNavItem)="onDeleteNavItem($event)"

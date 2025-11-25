@@ -1,7 +1,13 @@
 <form [formGroup]="formNavItem" (ngSubmit)="onSubmit()">
-    <div class="modal-body d-flex gap-4">
-        <label for="input-menu">Nombre:</label>
-        <input #firstInput type="text" autocomplete="off" formControlName="label" pInputText id="input-menu" class="w-100">
+    <div class="modal-body d-flex gap-4 flex-column">
+        <div class="input-field">
+            <label for="input-menu">Nombre:</label>
+            <input #firstInput type="text" autocomplete="off" formControlName="label" pInputText id="input-menu">
+        </div>
+        <div class="input-field">
+            <label for="input-index">Posición:</label>
+            <p-inputNumber autocomplete="off" formControlName="orderIndex" id="input-index"/>
+        </div>
     </div>
     <div *ngIf="!isLoading" class="modal-footer">
         <button type="submit" class="btn btn-primary save" [disabled]="formNavItem.invalid">
