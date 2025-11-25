@@ -1,7 +1,6 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Institution } from '../../posts/models/institution';
 import { PostService } from '../../posts/services/post.service';
-import { Follower } from '../../posts/models/follower';
 import { environment } from '../../../environments/environment';
 import { Subject, takeUntil } from 'rxjs';
 import { Modal } from 'bootstrap';
@@ -13,9 +12,9 @@ import { CommentService } from '../../comments/services/comment.service';
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy {
 
-  uuidIntitutionDric = `${environment.INSTITUTION_ID}`;
+  uuidIntitution = `${environment.INSTITUTION_ID}`;
 
   institution!: Institution
   totalFollowers!: number;
@@ -34,7 +33,9 @@ export class HeaderComponent {
 
   @ViewChild('moderateCommentModal') modalElement!: ElementRef;
 
-  constructor(private authService: AuthService, private postService: PostService, private commentService: CommentService) {
+  constructor(private readonly authService: AuthService, 
+    private readonly postService: PostService, 
+    private readonly commentService: CommentService) {
     this.authenticated = authService.isAuthenticated();
     this.canModerate = authService.canModerate();
   }
@@ -57,7 +58,7 @@ export class HeaderComponent {
   }
 
   getInstitution() {
-    const uuid = "93j203b4-f63b-4c4a-be05-eae84cef0c0c";
+    const uuid = this.uuidIntitution;
     this.postService.getInstitution(uuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -91,7 +92,6 @@ export class HeaderComponent {
 
   logout() {
     this.authService.logout();
-    //window.location.reload();
   }
 
   toggleMobileMenu(): void {
@@ -99,9 +99,7 @@ export class HeaderComponent {
   }
 
   closeMobileMenu() {
-    if (window.innerWidth <= 768) {
-      this.isMobileMenuOpen = false;
-    }
+    this.isMobileMenuOpen = false;
   }
 
   totalModeratedComments() {

@@ -28,13 +28,13 @@
             <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" class="logo user-image">
         }
 		
-        <!-- <div class="burger-menu" (click)="toggleMobileMenu()">
+        <div class="burger-menu" (click)="toggleMobileMenu()">
 			<i class="material-icons">{{ isMobileMenuOpen ? "close" : "menu" }}</i>
-		</div> -->
+		</div>
 
-        <!--<button class="burguer-menu" (click)="toggleMobileMenu()">
+        <!-- <button class="burguer-menu" (click)="toggleMobileMenu()">
 			{{ isMobileMenuOpen ? '✖' : '☰' }}
-		</button>-->
+		</button> -->
 
     </div>
 
@@ -61,4 +61,4 @@
 <app-moderate-comments *ngIf="authenticated && canModerate"
     (counterUpdated)="onCounterUpdated($event)"></app-moderate-comments>
 
-<app-navbar class="submenu" [class.open]="isMobileMenuOpen"></app-navbar>
+<app-navbar class="submenu" [class.open]="isMobileMenuOpen" (closeMenuHamburguer)="closeMobileMenu()"></app-navbar>

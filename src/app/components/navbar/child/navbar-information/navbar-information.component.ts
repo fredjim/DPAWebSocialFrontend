@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { InformationService } from '../../../../pages/services/information.service';
 import { Section } from '../../../../pages/models/section';
 import { UserDetail } from '../../../../posts/models/user-detail';
@@ -26,6 +26,7 @@ export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy 
   public showButtonNewSection = true;
 
   @Input() currentNavItem!: NavItem;
+  @Output() collapse = new EventEmitter<void>(); 
   uuidSectionToEdit: string = '';
 
   ngOnInit(): void {
@@ -84,9 +85,7 @@ export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   closeMobileMenu() {
-    if (window.innerWidth <= 768) {
-      this.isMobileMenuOpen = false;
-    }
+    this.collapse.emit();
   }
 
   onCreatedSection(created: Section): void {
