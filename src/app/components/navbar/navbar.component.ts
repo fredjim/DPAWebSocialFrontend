@@ -53,20 +53,20 @@ export class NavbarComponent implements OnInit {
     this.visible = true;
   }
 
-  onCreatedNavItem(event: { menu?: NavItem, error?: any }) {
-    if(event.menu){
-      this.navItems.push(event.menu);
+  onCreatedNavItem(event: { menus?: NavItem[], error?: any }) {
+    if(event.menus){
+      this.navItems = structuredClone(event.menus).sort((a, b) => a.orderIndex - b.orderIndex);
       this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Menú creado exitosamente' });
     }else{
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear menú' });
     }
   }
 
-  onEditedNavItem(event: { menu?: NavItem, error?: any }) {
-    if(event.menu){
-      this.navItems = this.navItems.map(menu => menu.uuid === event.menu?.uuid ? event.menu : menu);
+  onEditedNavItem(event: { menus?: NavItem[], error?: any }) {
+    if(event.menus){
+      this.navItems = structuredClone(event.menus).sort((a, b) => a.orderIndex - b.orderIndex);
       this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Menú actualizado exitosamente' });
-    }else {
+    }else{
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar sección' });
     }
   }
@@ -78,5 +78,9 @@ export class NavbarComponent implements OnInit {
     }else{
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al eliminar sección' });
     }
+  }
+
+  getLastOrderIndexNavItem(): number {
+    return this.navItems.at(-1)?.orderIndex ?? this.navItems.length
   }
 }

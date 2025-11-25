@@ -18,6 +18,16 @@
 
     #input-menu {
         padding-left: 5px;
+        width: 100%;
+    }
+}
+::ng-deep p-inputnumber {
+    width: 100%;
+    .p-inputnumber {
+        width: 100% ;
+    }
+    .p-inputnumber-input {
+        padding-left: 5px;
     }
 }
 
