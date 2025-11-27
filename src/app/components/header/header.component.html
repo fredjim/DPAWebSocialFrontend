@@ -8,6 +8,7 @@
     </div>
 
     <img src="assets/logo-umss-horizontal.jpg" alt="Logo UMSS" class="main-logo">
+    <h2 *ngIf="institution" class="name-inst-mobile">{{ institution.name }}</h2>
 
     <div class="user-profile">
         <!--
@@ -20,21 +21,17 @@
     -->
         @if (authenticated && user) {
             @if (user.photo_profile_path){
-                <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="toggleMenu()" class="logo user-image">
+                <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
             } @else {
-                <img src="assets/user-icon.png" alt="" (click)="toggleMenu()" class="logo user-image">
+                <img src="assets/user-icon.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
             }
         } @else {
-            <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" class="logo user-image">
+            <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
         }
 		
-        <div class="burger-menu" (click)="toggleMobileMenu()">
+        <div class="burger-menu" (click)="toggleMobileMenu()" (keypress)="toggleMobileMenu()">
 			<i class="material-icons">{{ isMobileMenuOpen ? "close" : "menu" }}</i>
 		</div>
-
-        <!-- <button class="burguer-menu" (click)="toggleMobileMenu()">
-			{{ isMobileMenuOpen ? '✖' : '☰' }}
-		</button> -->
 
     </div>
 

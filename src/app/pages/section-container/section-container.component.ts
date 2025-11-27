@@ -12,6 +12,7 @@ import { Subscription, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Institution } from '../../posts/models/institution';
 import { Link } from '../models/link';
+import { MediaArticle } from '../models/media-article';
 
 @Component({
   selector: 'app-section-container',
@@ -38,6 +39,8 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
   public showButtonNewArticle = true;
   public visibleModalNewButton = false;
   public buttonsOfArticle: Link[] | Omit<Link, 'uuid'>[] = [];
+  public visibleModalImagesArticle = false;
+  public mediasToModal: MediaArticle[] = [];
 
   ngOnInit() {
     this.isAuthenticated = this.authService.isAuthenticated();
@@ -132,4 +135,13 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
     this.showButtonNewArticle = false
   }
 
+  showModalArticleMedias(mediasArticle: MediaArticle[]): void {
+    this.mediasToModal = mediasArticle;
+    this.visibleModalImagesArticle = true;
+  }
+  
+  closeModalArticleMedias(): void {
+    this.mediasToModal = [];
+
+  }
 }

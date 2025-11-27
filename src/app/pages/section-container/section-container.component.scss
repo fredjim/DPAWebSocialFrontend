@@ -5,7 +5,7 @@
 	font-size: 14px;
 	color: var(--blue-color);
 
-	.header-post {
+	.header-section {
 		display: flex;
 		justify-content: space-between;
 		padding-bottom: 20px;
@@ -33,13 +33,6 @@
 					padding-top: 8px;
 					font-family: var(--secondary-font-family);
 					font-size: 20px;
-				}
-
-				p {
-					margin: 0;
-					padding: 0;
-					font-size: 14px;
-					font-weight: normal;
 				}
 			}
 		}
@@ -92,13 +85,13 @@
 					object-fit: cover;
 					-o-object-fit: contain;
 					border-radius: 8px;
+					cursor: pointer;
 				}
 			}
 
 			.buttons {
 				display: flex;
-				flex-direction: column;
-				justify-content: end;
+				justify-content: center;
 				margin-top: 1rem;
 				gap: 10px;
 				width: 100%;
@@ -107,7 +100,7 @@
 					display: flex;
 					gap: 20px;
 					justify-content: flex-end;
-					height: 30px;
+					height: 35px;
 					align-self: end;
 	
 					a {
@@ -146,6 +139,21 @@
 		border: none;
 	}
 }
+.container-img {
+	margin: 5px;
+}
+.image-modal {
+	width: 100%;
+	height: auto;
+	max-height: 80vh;
+}
+
+::ng-deep button.p-dialog-header-icon.p-dialog-header-close {
+	position: absolute;
+	top: 0px;
+	right: 0;
+	border-radius: 6px;
+}
 
 @media screen and (max-width: 768px) {
 
@@ -164,10 +172,14 @@
 					
 					img {
 						border-radius: 10px;
+						cursor: pointer;
 					}
 				}
 			}
 		}
 	}
 
+	.image-modal {
+		height: auto;
+	}
 }

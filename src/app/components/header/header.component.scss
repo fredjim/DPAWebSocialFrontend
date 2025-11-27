@@ -74,11 +74,17 @@ header {
 		}
 	}
 
+	.name-inst-mobile {
+		display: none;
+	}
 }
 
 @media screen and (max-width: 768px) {
 	.submenu {	
 		display: none;
+		&.open {
+			display: block;	
+		}
 	}
 
 	header {
@@ -103,11 +109,16 @@ header {
 			}
 		}
 
-		
-	}
-	.submenu {
-		&.open {
-			display: block;	
+		.name-inst-mobile {
+			display: flex;
+			margin: 0;
+			font-family: var(--secondary-font-family);
+			font-optical-sizing: auto;
+			font-weight: bold;
+			font-size: 22px;
+			color: var(--blue-color);
+			text-align: center;
+			align-items: center;
 		}
 	}
 

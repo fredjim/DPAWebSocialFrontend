@@ -60,18 +60,19 @@
 			width: 100%;
 
 			.img-profile {
-				position: relative;
 				width: 40px;
 				height: 40px;
 				border-radius: 50%;
 				border: 1px solid var(--blue-color);
+				display: flex;
+				align-items: center;
+				justify-content: center;
 
 				img {
-					position: absolute;
-					top: 4px;
-					left: 50%;
-					height: 30px;
-					transform: translate(-50%);
+					border-radius: 50%;
+					width: 99%;
+					height: 99%;
+					object-fit: contain;
 				}
 			}
 
@@ -200,7 +201,6 @@ hr {
 	justify-content: space-between;
 	margin: 0;
 	padding: 0 30px;
-	/*background-color: #ffcf31;*/
 
 	#btn-like {
 		display: flex;
@@ -210,7 +210,6 @@ hr {
 		align-items: center;
 		font-weight: 600;
 		border: none;
-		/*background-color: #fff;*/
 
 		.option-reactions {
 			display: none;
@@ -314,8 +313,6 @@ hr {
 	}
 
 	.btn.red-heart {
-
-		// transition-duration: 500ms;
 		i {
 			background-color: #FB4D70;
 			border-radius: 50%;
@@ -336,7 +333,6 @@ hr {
 
 	.btn.crying-face {
 
-		// transition-duration: 500ms;
 		img {
 			height: 20px;
 		}
@@ -348,7 +344,6 @@ hr {
 
 	.btn.angry-face {
 
-		// transition-duration: 500ms;
 		img {
 			height: 20px;
 		}
@@ -545,6 +540,45 @@ hr {
 
 		.bi-chat-fill {
 			color: #5F6771;
+		}
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.img-profile {
+		display: none !important;
+	}
+
+	.header-section {
+		display: flex;
+		justify-content: space-between;
+		padding-bottom: 20px;
+
+		.data-user {
+			width: 100%;
+			display: flex;
+			gap: 10px;
+
+			.img-profile {
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				border: 1px solid var(--blue-color);
+				object-fit: contain;
+			}
+
+			.info-user {
+				margin: 0;
+				padding: 0;
+
+				h2 {
+					margin: 0;
+					padding: 0;
+					padding-top: 8px;
+					font-family: var(--secondary-font-family);
+					font-size: 20px;
+				}
+			}
 		}
 	}
 }

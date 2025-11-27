@@ -3,6 +3,8 @@ import { PostService } from '../../services/post.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Post } from '../../models/post';
 import { UserDetail } from '../../models/user-detail';
+import { Institution } from '../../models/institution';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-view-all-posts',
@@ -13,13 +15,15 @@ export class ViewAllPostsComponent implements OnInit {
   authenticated: boolean = false;
   posts: Post[] = [];
   currentUser!: UserDetail;
+  currentInstitution!: Institution;
   selectedPostReactions: any = null;
   selectedPostUuid: string = '';
   loading = false;
   pageCounter = 0;
+  institutionId = environment.INSTITUTION_ID;
 
-  constructor(private postService: PostService,
-    private authService: AuthService
+  constructor(private readonly postService: PostService,
+    private readonly authService: AuthService
   ){
   }
   
@@ -35,6 +39,11 @@ export class ViewAllPostsComponent implements OnInit {
         console.error('Error al obtener los posts paginados', error);
       }
     });
+
+    this.postService.getInstitution(this.institutionId).subscribe(institution => {
+      this.currentInstitution = institution;
+    })
+
     if(this.authenticated === true) {
       this.postService.getUser().subscribe({
         next:(user: UserDetail) => {
