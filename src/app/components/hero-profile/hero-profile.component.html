@@ -7,5 +7,5 @@
 			<img *ngIf="institution" [src]="institution.logo_url" alt="">
 		</div>
 	</div>
-	<h3 class="profile-information">{{ institution ? institution.name : '' }}</h3>
+	<h3 class="profile-information" *ngIf="institution">{{ institution.name }}</h3>
 </div>

@@ -6,6 +6,14 @@
     @if (authenticated && currentUser) {
       <app-create-post *ngIf="currentUser.role === 'ADMIN'"></app-create-post>
     }
+    <div class="header-section">
+      <div class="data-user">
+        <img *ngIf="currentInstitution" [src]="currentInstitution.logo_url" alt="'Foto de perfil'" class="img-profile">
+        <div class="info-user">
+          <h2>Publicaciones</h2>
+        </div>
+      </div>
+    </div>
     <app-post *ngFor="let post of posts" 
       [post]="post" 
       [currentUser]="currentUser"

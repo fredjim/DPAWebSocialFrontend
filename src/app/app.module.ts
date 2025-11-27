@@ -45,6 +45,7 @@ import { FormNavItemComponent } from './components/navbar/form-menu/form-menu.co
 import { DialogModule } from 'primeng/dialog';
 import { PageContainerComponent } from './pages/page-container/page-container.component';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { CarouselModule } from 'primeng/carousel';
 
 @NgModule({
   declarations: [
@@ -89,7 +90,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
     ToastModule,
     ReactiveFormsModule,
     DialogModule,
-    InputNumberModule
+    InputNumberModule,
+    CarouselModule
 ],
   providers: [
     {

@@ -1,6 +1,6 @@
 <div class="page-container">
 
-	<div class="header-post">
+	<div class="header-section">
 		<div class="data-user">
 			<img *ngIf="currentInstitution" [src]="currentInstitution.logo_url" alt="'Foto de perfil'" class="img-profile">
 			<div class="info-user">
@@ -39,7 +39,8 @@
 							<div class="media-container" *ngIf="article.medias.length > 0" 
 								[ngStyle]="{ width: article.medias.length == 1 ? '70%' : '100%' }">
 								@for(media of article.medias; track media.uuid){
-									<img [src]="media.path" [alt]="media.name">
+									<img [src]="media.path" [alt]="media.name" 
+										(click)="showModalArticleMedias(article.medias)" (keypress)="showModalArticleMedias(article.medias)">
 								}
 							</div>
 						</div>
@@ -64,7 +65,8 @@
 					<div class="media-container" *ngIf="article.medias.length > 0" 
 						[ngStyle]="{ width: article.medias.length == 1 ? '70%' : '100%' }">
 						@for(media of article.medias; track media.uuid){
-							<img [src]="media.path" [alt]="media.name">
+							<img [src]="media.path" [alt]="media.name"
+								(click)="showModalArticleMedias(article.medias)" (keypress)="showModalArticleMedias(article.medias)">
 						}
 					</div>
 				</div>
@@ -86,4 +88,23 @@
 	</div>
 
 </div>
+<p-dialog
+	[modal]="true"
+	[(visible)]="visibleModalImagesArticle"
+	(onHide)="closeModalArticleMedias()"
+>
+	<p-carousel 
+        [value]="mediasToModal" 
+        [numVisible]="1" 
+        [numScroll]="1" 
+        [circular]="false">
+            <ng-template let-product pTemplate="item">
+                <div class="container-img">
+					@for(image of mediasToModal; track image.uuid){
+						<img [src]="image.path" alt="" class="image-modal">
+					}
+                </div>
+            </ng-template>
+    </p-carousel>
+</p-dialog>
 <p-toast>

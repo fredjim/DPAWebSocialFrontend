@@ -11,7 +11,7 @@
         <div class="buttons">
             @if(currentArticle && buttonsOfArticle.length > 0){
                 @for(button of buttonsOfArticle; track button.uuid; let i = $index){
-                    <div class="d-flex gap-1 justify-content-end">
+                    <div class="d-flex gap-1 align-items-center">
                         <div class="attach-files">
                             <a [href]="button.url" target="_blank">
                                 <img src="assets/icon-link.png" alt="icon-link"> {{ button.name }}
