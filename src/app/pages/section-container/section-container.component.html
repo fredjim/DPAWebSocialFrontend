@@ -1,5 +1,14 @@
 <div class="page-container">
 
+	<div class="header-navitem">
+		<div class="data-user">
+			<img *ngIf="currentInstitution" [src]="currentInstitution.logo_url" alt="'Foto de perfil'" class="img-institution">
+			<div class="info-user">
+				<h2 *ngIf="currentNavItem">{{ currentNavItem.label }}</h2>
+			</div>
+		</div>
+	</div>
+
 	<div class="header-section">
 		<div class="data-user">
 			<img *ngIf="currentInstitution" [src]="currentInstitution.logo_url" alt="'Foto de perfil'" class="img-profile">
@@ -98,11 +107,9 @@
         [numVisible]="1" 
         [numScroll]="1" 
         [circular]="false">
-            <ng-template let-product pTemplate="item">
+            <ng-template let-image pTemplate="item">
                 <div class="container-img">
-					@for(image of mediasToModal; track image.uuid){
-						<img [src]="image.path" alt="" class="image-modal">
-					}
+					<img [src]="image.path" alt="" class="image-modal">
                 </div>
             </ng-template>
     </p-carousel>
