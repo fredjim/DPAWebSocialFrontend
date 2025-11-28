@@ -38,6 +38,10 @@
 		}
 	}
 
+	.header-navitem {
+		display: none;
+	}
+
 	.page-section {
 		display: flex;
 		flex-direction: column;
@@ -146,6 +150,7 @@
 	width: 100%;
 	height: auto;
 	max-height: 80vh;
+	object-fit: contain;
 }
 
 ::ng-deep button.p-dialog-header-icon.p-dialog-header-close {
@@ -179,7 +184,42 @@
 		}
 	}
 
-	.image-modal {
-		height: auto;
+	.header-section {
+		.img-profile {
+			display: none;
+		}
+	}
+
+	.header-navitem {
+		display: flex !important;
+		justify-content: space-between;
+		padding-bottom: 15px;
+
+		.data-user {
+			width: 95%;
+			display: flex;
+			gap: 10px;
+
+			.img-institution {
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				border: 1px solid var(--blue-color);
+				object-fit: contain;
+			}
+
+			.info-user {
+				margin: 0;
+				padding: 0;
+
+				h2 {
+					margin: 0;
+					padding: 0;
+					padding-top: 8px;
+					font-family: var(--secondary-font-family);
+					font-size: 20px;
+				}
+			}
+		}
 	}
 }

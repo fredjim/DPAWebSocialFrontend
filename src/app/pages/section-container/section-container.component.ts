@@ -13,6 +13,7 @@ import { environment } from '../../../environments/environment';
 import { Institution } from '../../posts/models/institution';
 import { Link } from '../models/link';
 import { MediaArticle } from '../models/media-article';
+import { NavItem } from '../models/nav-item';
 
 @Component({
   selector: 'app-section-container',
@@ -28,12 +29,14 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
   private readonly sectionStateService = inject(SectionStateService);
   private readonly institutionId = environment.INSTITUTION_ID;
   private sectionUpdateSubscription?: Subscription;
+  private navItemSubscription?: Subscription;
   
   currentSection!: Section;
   articles: Article[] = [];
   public isAuthenticated: boolean = false; 
   public currentUser!: UserDetail;
   public currentInstitution!: Institution;
+  public currentNavItem!: NavItem;
   public idArticleToEdit: string = '';
   public isEditReady = false;
   public showButtonNewArticle = true;
@@ -47,6 +50,17 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
     if(this.isAuthenticated){
       this.postService.getUser().subscribe(user => {
         this.currentUser = user;
+      });
+    }
+
+    if (this.route.parent) {
+      this.navItemSubscription = this.route.parent.paramMap.pipe(
+        switchMap(params => {
+          const navItemId = params.get('uuidNavItem') ?? '';
+          return this.informationService.getNavItemById(navItemId);
+        })
+      ).subscribe(navItem => {
+        this.currentNavItem = navItem;
       });
     }
 
@@ -65,6 +79,7 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.sectionUpdateSubscription?.unsubscribe();
+    this.navItemSubscription?.unsubscribe();
   }
 
   private loadSection(uuid: string) {
