@@ -6,7 +6,7 @@ import { AuthService } from '../../../../authentication/services/auth.service';
 import { PostService } from '../../../../posts/services/post.service';
 import { NavItem } from '../../../../pages/models/nav-item';
 import { Subject, takeUntil } from 'rxjs';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar-information',
@@ -18,6 +18,7 @@ export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy 
   private readonly authService = inject(AuthService);
   private readonly postService = inject(PostService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroy$ = new Subject<void>();
   public sections: Section[] = []; 
   isMobileMenuOpen = false;
@@ -58,18 +59,20 @@ export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy 
         this.sections = secs;
         
         // Navegar al primer elemento solo si no estamos ya en una sección válida
-        if (this.sections.length > 0 && !this.isCurrentSectionValid()) {
+        if (this.sections.length > 0 && this.isCurrentNavItemValid() && !this.isCurrentSectionValid()) {
           this.navigateToFirstSection();
         }
       });
   }
 
+  private isCurrentNavItemValid(): boolean {
+    const currentNavItemUuid = this.route.snapshot.paramMap.get('uuidNavItem');
+    // Comparar con el navItem actual del componente
+    return currentNavItemUuid === this.currentNavItem?.uuid;
+  }
+
   private isCurrentSectionValid(): boolean {
-    const currentUrl = this.router.url;
-    const segments = currentUrl.split('/');
-    const currentSectionUuid = segments.at(-1); ;
-    
-    // Verificar si la sección actual existe en la lista de secciones
+    const currentSectionUuid = this.route.snapshot.paramMap.get('uuidSection');
     return this.sections.some(section => section.uuid === currentSectionUuid);
   }
 
