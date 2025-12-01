@@ -40,6 +40,7 @@ import { ViewAllPostsBecasComponent } from './components/view-all-posts-becas/vi
 import { ViewAllPostsCudieComponent } from './components/view-all-posts-cudie/view-all-posts-cudie.component';
 import { PageComponent } from './components/post-page/page/page.component';
 import { PostActionsComponent } from './components/post-page/post-actions/post-actions.component';
+import { AppRoutingModule } from "../app-routing.module";
 
 @NgModule({
   declarations: [
@@ -85,7 +86,8 @@ import { PostActionsComponent } from './components/post-page/post-actions/post-a
     NgbCarouselModule,
     PdfViewerModule,
     OverlayPanelModule,
-  ],
+    AppRoutingModule
+],
   exports: [
     ViewAllPostsComponent,
     PostComponent

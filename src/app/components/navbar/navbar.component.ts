@@ -5,6 +5,7 @@ import { AuthService } from '../../authentication/services/auth.service';
 import { PostService } from '../../posts/services/post.service';
 import { MessageService } from 'primeng/api';
 import { InformationService } from '../../pages/services/information.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -16,6 +17,8 @@ export class NavbarComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly postService = inject(PostService);
   private readonly messageService = inject(MessageService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   public isAuthenticated: boolean = false; 
   public currentUser!: UserDetail;
@@ -79,6 +82,11 @@ export class NavbarComponent implements OnInit {
   onDeleteNavItem(event: { menu?: NavItem | null, error?: any }) {
     if(event.menu){
       this.navItems = this.navItems.filter(menu => menu.uuid !== event.menu?.uuid);
+      const currentNavItemUuid = this.route.snapshot.firstChild?.paramMap.get('uuidNavItem');
+      if(currentNavItemUuid === event.menu.uuid){
+        // Si el nav item eliminado es el que se está visualizando, redirigir al inicio
+        this.router.navigate(['/'], { replaceUrl: true });
+      }
       this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Menú eliminado exitosamente' });
     }else{
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al eliminar sección' });

@@ -2,7 +2,7 @@
 
   <div class="section-title">
     <h3>Fotos</h3>
-    <a href="/fotos">Ver más</a>
+    <a routerLink="/fotos">Ver más</a>
   </div>
 
   <div *ngIf="isLoading" class="loading-message">
@@ -12,7 +12,7 @@
   @if (!isLoading && photos.length > 0) {
   <div class="grid-container">
     @for (photo of photos; track photo.url) {
-    <img src="{{ photo.url }}" alt="Foto de {{ institution.name }}" (click)="openViewPost(photo.postUuid)">
+    <img src="{{ photo.url }}" alt="Foto de {{ institution.name }}" (click)="openViewPost(photo.postUuid)" (keypress)="openViewPost(photo.postUuid)">
     }
   </div>
   }
