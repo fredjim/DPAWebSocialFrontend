@@ -46,6 +46,8 @@ import { DialogModule } from 'primeng/dialog';
 import { PageContainerComponent } from './pages/page-container/page-container.component';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CarouselModule } from 'primeng/carousel';
+import { UserProfileModule } from './user-profile/user-profile.module';
+import { InstitutionModule } from './institution/institution.module';
 
 @NgModule({
   declarations: [
@@ -91,8 +93,12 @@ import { CarouselModule } from 'primeng/carousel';
     ReactiveFormsModule,
     DialogModule,
     InputNumberModule,
-    CarouselModule
+    CarouselModule,
+    UserProfileModule,
 ],
+  exports: [
+    NavbarComponent
+  ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,

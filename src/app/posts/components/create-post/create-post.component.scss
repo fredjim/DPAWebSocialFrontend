@@ -128,3 +128,12 @@
 .custom-facebook-color {
   color: #0866FF;
 }
+
+@media screen and (max-width: 768px) {
+	.img-profile {
+		display: none !important;
+	}
+	.new-post {
+		width: 100% !important;
+	}
+} 

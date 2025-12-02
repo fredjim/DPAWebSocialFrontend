@@ -12,8 +12,18 @@ import { PageComponent } from './posts/components/post-page/page/page.component'
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
 import { PageContainerComponent } from './pages/page-container/page-container.component';
 import { SectionResolver } from './resolvers/section.resolver';
+import { ProfileComponent } from './user-profile/components/profile/profile.component';
+import { ProfileInstitutionComponent } from './institution/components/profile-institution/profile-institution.component';
 
 const routes: Routes = [
+  {
+    path: 'profile',
+    component: ProfileComponent
+  },
+  {
+    path: 'institution',
+    component: ProfileInstitutionComponent
+  },
   {
     path: '', component: HomeComponent, 
     children: [
@@ -58,7 +68,7 @@ const routes: Routes = [
   {
     path: 'posts/:id',
     component: PageComponent
-  }
+  },
 ];
 
 @NgModule({

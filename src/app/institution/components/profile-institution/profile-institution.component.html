@@ -1,0 +1,109 @@
+<header>
+    <div class="logo-brands">
+        <img src="assets/logo-umss.png" alt="Logo UMSS">
+
+        @if (institution) {
+        <img src="{{ institution.logo_url }}" alt="Logo">
+        }
+    </div>
+
+    <img src="assets/logo-umss-horizontal.jpg" alt="Logo UMSS" class="main-logo">
+
+    <div class="user-profile">
+       
+        @if (authenticated && currentUser) {
+            @if (currentUser.photo_profile_path){
+                <img [src]="currentUser.photo_profile_path" alt="Foto de perfil" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
+            } @else {
+                <img src="assets/user-icon.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
+            }
+        } @else {
+            <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
+        }
+		
+        <div class="burger-menu" (click)="toggleMobileMenu()" (keypress)="toggleMobileMenu()">
+			<i class="material-icons">{{ isMobileMenuOpen ? "close" : "menu" }}</i>
+		</div>
+
+    </div>
+
+    @if (isMenuOpen) {
+    <div class="dropdown-menu">
+        <ng-container *ngIf="authenticated">
+            <!-- <a class="dropdown-item" routerLink="/profile">Ver perfil</a> -->
+            <a *ngIf="currentUser.role === 'ADMIN'" class="dropdown-item" routerLink="/institution">Ver página</a>
+            <a class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
+        </ng-container>
+        <ng-container *ngIf="!authenticated">
+            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar Sesión</a>
+            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#registerModal">Registrarse</a>
+        </ng-container>
+    </div>
+    }
+</header>
+
+<app-navbar class="submenu" [class.open]="isMobileMenuOpen" (closeMenuHamburguer)="closeMobileMenu()"></app-navbar>
+
+<div class="header-container">
+    <div class="header-image">
+
+        <div class="banner-container">
+            @if(institution && institution.background_url) {
+                <img [src]="imageCover"  alt="Foto cubierta ususario" class="banner-image">
+                <input #fileInputCover type="file" id="input-background-inst" (change)="changeInputMediaCover($event)"
+                    hidden accept="image/jpg, image/png, image/jpeg">
+                <div class="edit-info" (click)="openInputFileCover()" (keypress)="openInputFileCover()">
+                    <i class="bi bi-pencil-fill"></i>
+                </div>
+            } @else {
+                <div class="default-cover" (click)="openInputFileCover()" (keypress)="openInputFileCover()">
+                    <h3>Seleccione una foto de portada</h3>
+                </div>
+            }
+        </div>
+
+        <div class="logo-overlay">
+            <img *ngIf="institution" [src]="institution.logo_url" alt="Foto institucion" class="user-logo">
+            <input #fileInputLogo type="file" id="input-logo-inst" (change)="changeInputMediaLogo($event)"
+                 hidden accept="image/jpg, image/png, image/jpeg">
+            <div class="edit-info" (click)="openInputFileLogo()" (keypress)="openInputFileLogo()">
+                <i class="bi bi-pencil-fill"></i>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="header-details">
+        <h3 *ngIf="institution">{{ institution.name }}</h3>
+    </div>
+
+    <div class="form-institution">
+        <h4>Detalles de la unidad</h4>
+        <form [formGroup]="formInstitution" (ngSubmit)="onSubmit()">
+            <div class="field">
+                <label for="name">Nombre:</label>
+                <input pInputText id="name" formControlName="name" type="text">
+            </div>
+            <div class="field">
+                <label for="description">Descripción:</label>
+                <textarea  id="description" formControlName="description" rows="4"></textarea>
+            </div>
+            <div class="field">
+                <label for="location">Ubicación:</label>
+                <input pInputText id="location" formControlName="location" type="text">
+            </div>
+            <div class="field">
+                <label for="email">Correo electrónico:</label>
+                <input pInputText id="email" formControlName="email" type="email">
+            </div>
+            <div class="field">
+                <label for="phone">Teléfono:</label>
+                <input pInputText id="phone" formControlName="phone" type="tel">
+            </div>
+            <div class="d-flex justify-content-center gap-4">
+                <button class="btn btn-primary save" type="submit">Guardar</button>
+                <button class="btn btn-secondary cancel" type="button" routerLink="/posts">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
