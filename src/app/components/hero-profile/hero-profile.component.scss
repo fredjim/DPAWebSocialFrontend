@@ -60,7 +60,12 @@
 @media screen and (max-width: 768px) {
 
 	.hero-profile {
-		display: none;
+		display: block;
+
+		.profile-information {
+			font-size: 24px;
+			padding: 5px 3px;
+		}
 	}
 
 }

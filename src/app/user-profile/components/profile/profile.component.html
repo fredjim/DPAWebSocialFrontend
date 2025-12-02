@@ -3,7 +3,7 @@
         <img src="assets/logo-umss.png" alt="Logo UMSS">
 
         @if (institution) {
-        <img src="{{ institution.logo_url }}" alt="Logo" id="logo-inst">
+        <img src="{{ institution.logo_url }}" alt="Logo">
         }
     </div>
 
@@ -11,17 +11,10 @@
     <h2 *ngIf="institution" class="name-inst-mobile">{{ institution.name }}</h2>
 
     <div class="user-profile">
-        <!--
-    @if (counterModeratedComments > 0) {
-    <div class="icon-up-number" (click)="showModeratedComments()">
-      <img src="assets/moderate-messages.png" alt="Ícono mensajes para moderar" class="logo-small">
-      <span class="number-up">{{ counterModeratedComments }}</span>
-    </div>
-    }
-    -->
-        @if (authenticated && user) {
-            @if (user.photo_profile_path){
-                <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
+       
+        @if (authenticated && currentUser) {
+            @if (currentUser.photo_profile_path){
+                <img [src]="currentUser.photo_profile_path" alt="Foto de perfil" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
             } @else {
                 <img src="assets/user-icon.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
             }
@@ -39,7 +32,7 @@
     <div class="dropdown-menu">
         <ng-container *ngIf="authenticated">
             <!-- <a class="dropdown-item" routerLink="/profile">Ver perfil</a> -->
-            <a *ngIf="user.role === 'ADMIN'" class="dropdown-item" routerLink="/institution">Ver página</a>
+            <a *ngIf="currentUser.role === 'ADMIN'" class="dropdown-item" routerLink="/institution">Ver página</a>
             <a class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
         </ng-container>
         <ng-container *ngIf="!authenticated">
@@ -50,13 +43,33 @@
     }
 </header>
 
-<app-hero-profile></app-hero-profile>
+<div class="header-container">
+    <div class="header-image">
 
-<app-login></app-login>
+        <div class="banner-container">
+            @if(currentUser && institution.background_url) {
+                <img [src]="institution.background_url"  alt="Foto cubierta ususario" class="banner-image">
+                <div class="edit-info">
+                    <i class="bi bi-pencil-fill"></i>
+                </div>
+            } @else {
+                <div class="default-cover">
+                    <h3>Seleccione una foto de portada</h3>
+                </div>
+            }
+        </div>
 
-<app-register></app-register>
+        <div class="logo-overlay">
+            <img *ngIf="currentUser" [src]="currentUser.photo_profile_path" alt="Foto ususario" class="user-logo">
+            <div class="edit-info">
+                <i class="bi bi-pencil-fill"></i>
+            </div>
+        </div>
 
-<app-moderate-comments *ngIf="authenticated && canModerate"
-    (counterUpdated)="onCounterUpdated($event)"></app-moderate-comments>
+    </div>
 
-<app-navbar class="submenu" [class.open]="isMobileMenuOpen" (closeMenuHamburguer)="closeMobileMenu()"></app-navbar>
+    <div class="header-details">
+        <h3 *ngIf="currentUser">{{ currentUser.name + ' ' + currentUser.lastName }}</h3>
+    </div>
+
+</div>
