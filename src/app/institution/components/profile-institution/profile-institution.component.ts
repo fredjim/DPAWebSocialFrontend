@@ -54,6 +54,7 @@ export class ProfileInstitutionComponent implements OnInit {
         location: this.institution.location,
         email: this.institution.email,
         phone: this.institution.phone,
+        url: this.institution.url,
       });
     });
   }
@@ -65,6 +66,7 @@ export class ProfileInstitutionComponent implements OnInit {
       location: new FormControl(),
       email: new FormControl(),
       phone: new FormControl(),
+      url: new FormControl(),
     });
   }
 

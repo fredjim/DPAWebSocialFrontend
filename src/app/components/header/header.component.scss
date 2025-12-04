@@ -97,9 +97,6 @@ header {
 
 		.logo-brands {
 			gap: 20px;
-			#logo-inst {
-				display: none;
-			}
 		}
 
 		.main-logo {
@@ -115,7 +112,7 @@ header {
 		}
 
 		.name-inst-mobile {
-			display: none;
+			display: flex;
 			margin: 0;
 			font-family: var(--secondary-font-family);
 			font-optical-sizing: auto;
