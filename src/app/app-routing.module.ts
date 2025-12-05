@@ -14,15 +14,19 @@ import { PageContainerComponent } from './pages/page-container/page-container.co
 import { SectionResolver } from './resolvers/section.resolver';
 import { ProfileComponent } from './user-profile/components/profile/profile.component';
 import { ProfileInstitutionComponent } from './institution/components/profile-institution/profile-institution.component';
+import { authGuard } from './authentication/services/auth.guard';
 
 const routes: Routes = [
   {
     path: 'profile',
-    component: ProfileComponent
+    component: ProfileComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'institution',
-    component: ProfileInstitutionComponent
+    component: ProfileInstitutionComponent,
+    canActivate: [authGuard],
+    data: { roles: ['ADMIN'] }
   },
   {
     path: '', component: HomeComponent, 

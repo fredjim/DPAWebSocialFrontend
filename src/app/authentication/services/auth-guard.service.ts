@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, Router } from "@angular/router";
-/* import { AnyCnameRecord } from "dns"; */
 import { AuthService } from "./auth.service";
 
 
@@ -24,8 +23,8 @@ export class AuthGuardService {
     }
     
     if (route.data["roles"]) {
-      var splittedRoles = route.data["roles"].split(",");
-      var result = splittedRoles.some((r:any) => this.auth.getRoles().includes(r))
+      let splittedRoles = route.data["roles"].split(",");
+      let result = splittedRoles.some((r:any) => this.auth.getRoles().includes(r))
 
       if (!result) {
         this.router.navigate(['/']);
