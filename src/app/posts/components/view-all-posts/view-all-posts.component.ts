@@ -21,6 +21,8 @@ export class ViewAllPostsComponent implements OnInit {
   loading = false;
   pageCounter = 0;
   institutionId = environment.INSTITUTION_ID;
+  showScrollButton = false;
+  private readonly scrollThreshold = 300;
 
   constructor(private readonly postService: PostService,
     private readonly authService: AuthService
@@ -62,6 +64,20 @@ export class ViewAllPostsComponent implements OnInit {
     if ((window.innerHeight + window.scrollY + 1) >= document.body.offsetHeight) {
       this.loadPosts(); // Cargar más posts al llegar al final
     }
+  }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    const yOffset = window.pageYOffset || document.documentElement.scrollTop;
+    this.showScrollButton = yOffset > this.scrollThreshold;
+  }
+
+  scrollToTopSmooth() {
+    window.scroll({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
   }
 
   loadPosts(): void {

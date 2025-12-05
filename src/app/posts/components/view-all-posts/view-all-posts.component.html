@@ -22,5 +22,14 @@
       (requestUpdatePost)="updatePost($event)" 
       (reactionChanged)="updateReactions(post.uuid)">
     </app-post>
+
+    <button 
+      *ngIf="showScrollButton"
+      (click)="scrollToTopSmooth()"
+      class="scroll-to-top-btn"
+      [ngClass]="{'visible': showScrollButton}"
+      aria-label="Volver arriba">
+      <i class="bi bi-arrow-up"></i>
+    </button>
   </div>
 </div>
