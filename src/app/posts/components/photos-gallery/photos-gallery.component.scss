@@ -37,3 +37,15 @@
   color: var(--red-color);
   margin-top: 20px;
 }
+
+footer {
+	text-align: center;
+	padding: 5px;
+	background-color: var(--blue-color);
+	color: white;
+	width: 100%;
+
+	p {
+		margin: 0;
+	}
+}
