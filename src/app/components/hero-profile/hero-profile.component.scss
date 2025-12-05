@@ -60,7 +60,23 @@
 @media screen and (max-width: 768px) {
 
 	.hero-profile {
-		display: none;
+		.hero-images {
+			height: 255px;
+
+			.hero-photo {
+				height: 200px;
+			}
+
+			.profile-photo {
+				top: 145px;
+				width: 120px;
+				height: 120px;
+			}
+
+		}
+		.profile-information {
+			font-size: 24px !important;
+		}
 	}
 
 }

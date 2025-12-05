@@ -82,6 +82,10 @@ header {
 	}
 }
 
+.submenu {
+	display: none;
+}
+
 .section-container {
 	display: flex;
 	align-items: center;
@@ -214,5 +218,52 @@ footer {
 
 	p {
 		margin: 0;
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.submenu {	
+		display: none;
+		&.open {
+			display: block;	
+		}
+	}
+
+	header {
+		margin: 0;
+		padding-left: 15px;
+		padding-right: 15px;
+		width: 100%;
+		min-height: 80px !important;
+		height: auto;
+
+		.logo-brands {
+			gap: 20px;
+		}
+
+		.main-logo {
+			display: none;
+		}
+
+		.user-profile {
+			gap: 15px;
+
+			.burger-menu {
+				display: block;
+			}
+		}
+
+	}
+
+	.section-container {
+		flex-direction: column;
+
+		.side-left {
+			margin-bottom: 0;
+		}
+
+		.side-right {
+			margin: 1rem 5rem;
+		}
 	}
 }
