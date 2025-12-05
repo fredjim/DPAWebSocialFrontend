@@ -102,7 +102,7 @@ export class AuthService {
   }
 
   tokenHasExpired() {
-    let convertDate = parseInt(localStorage.getItem('expires') ?? '') * 1000;
+    let convertDate = Number.parseInt(localStorage.getItem('expires') ?? '') * 1000;
     let expireDate = new Date(convertDate);
     let currentDate = new Date();
     const expired = currentDate > expireDate;
