@@ -127,7 +127,7 @@ export class AuthService {
     const refreshToken = localStorage.getItem('refreshToken');
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
-    window.location.reload();
+    globalThis.location.reload();
     if (refreshToken) {
       this.http.post(`${this.ROOT_URL}/logout`, {}, {
         headers: {
