@@ -1,4 +1,4 @@
-<div class="hero-profile">
+<div class="hero-profile" *ngIf="showHero">
 	<div class="hero-images">
 		<div class="hero-photo">
 			<img *ngIf="institution" [src]="institution.background_url" alt="">

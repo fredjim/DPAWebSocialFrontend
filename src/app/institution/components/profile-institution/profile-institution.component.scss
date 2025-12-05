@@ -312,4 +312,37 @@ footer {
 
 	}
 
+	.header-container {
+		.header-image {
+			height: 255px;
+
+			.banner-container {
+				height: 200px;
+
+			}
+
+			
+			.logo-overlay {
+				bottom: -35px;
+
+				.user-logo {
+					top: 145px;
+					width: 120px;
+					height: 120px;
+				}
+			}
+		}
+		
+		.header-details {
+			padding: 10px 0 20px;
+			h3 {
+				font-size: 24px !important;
+			}
+		}
+
+		.form-institution {
+			margin-bottom: 5rem;
+		}
+	}
+
 }

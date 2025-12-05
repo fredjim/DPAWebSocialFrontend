@@ -70,16 +70,17 @@ nav {
 
 	nav {
 		display: block;
-		top: 80px;
+		top: 82px;
 		height: auto;
 		border: none;
 		background: white;
 		z-index: 1;
+		position: absolute;
 
 		ul {
 			flex-direction: column;
 			gap: 25px;
-			padding-top: 50px;
+			padding-top: 25px;
 			width: 100%;
 
 			li {

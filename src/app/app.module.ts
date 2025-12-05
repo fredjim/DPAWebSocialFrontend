@@ -94,7 +94,6 @@ import { InstitutionModule } from './institution/institution.module';
     DialogModule,
     InputNumberModule,
     CarouselModule,
-    UserProfileModule,
 ],
   exports: [
     NavbarComponent

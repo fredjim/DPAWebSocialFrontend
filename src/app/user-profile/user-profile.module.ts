@@ -5,6 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from "primeng/inputtext";
 import { RouterModule } from '@angular/router';
 import { UserProfileRoutingModule } from './user-profile-routing.module';
+import { AppModule } from '../app.module';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import { UserProfileRoutingModule } from './user-profile-routing.module';
     ReactiveFormsModule,
     InputTextModule,
     RouterModule,
-    UserProfileRoutingModule
+    UserProfileRoutingModule,
+    AppModule
   ]
 })
 export class UserProfileModule { }
