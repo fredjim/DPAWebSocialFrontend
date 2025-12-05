@@ -4,6 +4,7 @@ import { ProfileInstitutionComponent } from './components/profile-institution/pr
 import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from "../app-routing.module";
 import { AppModule } from '../app.module';
+import { RouterModule } from '@angular/router';
 
 
 
@@ -15,7 +16,8 @@ import { AppModule } from '../app.module';
     CommonModule,
     ReactiveFormsModule,
     AppRoutingModule,
-    AppModule
+    AppModule,
+    RouterModule
 ]
 })
 export class InstitutionModule { }

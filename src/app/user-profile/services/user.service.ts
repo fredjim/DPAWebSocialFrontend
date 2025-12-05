@@ -2,22 +2,33 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { AuthService } from "../../authentication/services/auth.service";
 import { environment } from "../../../environments/environment";
 import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
+import { UploadedMedia } from "../../posts/models/uploaded-media";
+import { UserDetail } from "../../posts/models/user-detail";
 
 @Injectable({
   providedIn: 'root'
 })
-export class InformationService {
+export class UserService {
 
   private readonly ROOT_URL = `${environment.BACK_END_HOST_DEV}`;
 
   private readonly reqHeader = { headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }) };
-
-  private readonly insitutionUuid: string = '93j203b4-f63b-4c4a-be05-eae84cef0c0c';
 
   constructor(
     private readonly http: HttpClient, 
     private readonly authService: AuthService
   ) {}
 
-//   updateUserProfilePhoto(userUuid: string, photoPath: string) {}
+  // Update data user
+  updateUserDate(updatedUser: UserDetail): Observable<UserDetail> {
+    const url = `${this.ROOT_URL}/users/me`;
+    return this.http.put<UserDetail>(url, updatedUser, this.reqHeader);
+  }
+
+  // Update photo user profile
+  postUserPhotoProfile(formData: FormData): Observable<UploadedMedia[]> {
+    const url = `${this.ROOT_URL}/images/user-profile`;
+    return this.http.post<UploadedMedia[]>(url, formData, this.reqHeader);
+  }
 }

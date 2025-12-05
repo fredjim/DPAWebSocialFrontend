@@ -7,7 +7,7 @@ import { environment } from '../../../../environments/environment';
 import { InstitutionService } from '../../services/institution.service';
 import { switchMap } from 'rxjs/operators';
 import { UploadedMedia } from '../../../posts/models/uploaded-media';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-profile-institution',
@@ -61,10 +61,10 @@ export class ProfileInstitutionComponent implements OnInit {
 
   private initForm(): void {
     this.formInstitution = new FormGroup({
-      name: new FormControl(),
+      name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
       description: new FormControl(),
       location: new FormControl(),
-      email: new FormControl(),
+      email: new FormControl('', [Validators.email]),
       phone: new FormControl(),
       url: new FormControl(),
     });

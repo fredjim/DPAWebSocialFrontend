@@ -31,7 +31,7 @@
     @if (isMenuOpen) {
     <div class="dropdown-menu">
         <ng-container *ngIf="authenticated">
-            <!-- <a class="dropdown-item" routerLink="/profile">Ver perfil</a> -->
+            <a class="dropdown-item" routerLink="/profile">Ver perfil</a>
             <a *ngIf="currentUser.role === 'ADMIN'" class="dropdown-item" routerLink="/institution">Ver página</a>
             <a class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
         </ng-container>
@@ -43,33 +43,50 @@
     }
 </header>
 
-<div class="header-container">
-    <div class="header-image">
-
-        <div class="banner-container">
-            @if(currentUser && institution.background_url) {
-                <img [src]="institution.background_url"  alt="Foto cubierta ususario" class="banner-image">
-                <div class="edit-info">
+<div class="section-container">
+    
+    <div class="side-left">
+        <div class="side-image">
+    
+            <div class="logo-overlay">
+                <img *ngIf="currentUser" [src]="currentUser.photo_profile_path" alt="Foto ususario" class="user-logo">
+                <input #fileInputProfile type="file" id="input-photo-profile" (change)="changeInputMediaProfile($event)"
+                 hidden accept="image/jpg, image/png, image/jpeg">
+                <div class="edit-info" (click)="openInputFileProfile()" (keypress)="openInputFileProfile()" >
                     <i class="bi bi-pencil-fill"></i>
                 </div>
-            } @else {
-                <div class="default-cover">
-                    <h3>Seleccione una foto de portada</h3>
-                </div>
-            }
-        </div>
-
-        <div class="logo-overlay">
-            <img *ngIf="currentUser" [src]="currentUser.photo_profile_path" alt="Foto ususario" class="user-logo">
-            <div class="edit-info">
-                <i class="bi bi-pencil-fill"></i>
             </div>
+    
         </div>
-
+    
+        <div class="name-user">
+            <h3 *ngIf="currentUser">{{ currentUser.name + ' ' + currentUser.lastName }}</h3>
+        </div>
     </div>
 
-    <div class="header-details">
-        <h3 *ngIf="currentUser">{{ currentUser.name + ' ' + currentUser.lastName }}</h3>
+    <div class="side-right">
+        <h4>Datos de usuario</h4>
+        <form [formGroup]="formUser" (ngSubmit)="onSubmit()">
+            <div class="field">
+                <label for="name">Nombre:</label>
+                <input type="text" pInputText id="name" formControlName="name" autocomplete="off">
+            </div>
+            <div class="field">
+                <label for="lastName">Apellido:</label>
+                <input type="text" pInputText id="lastName" formControlName="lastName" autocomplete="off">
+            </div>
+            <div class="field">
+                <label for="phone">Teléfono:</label>
+                <input type="text" pInputText id="phone" formControlName="phone" autocomplete="off">
+            </div>
+            <div class="d-flex justify-content-center gap-4">
+                @if(isLoading) {
+                    <span class="spinner-border spinner-border-sm ms-2" aria-hidden="true"></span>
+                }@else {
+                    <button class="btn btn-primary save" type="submit">Guardar</button>
+                    <button class="btn btn-secondary cancel" type="button" routerLink="/posts">Cancelar</button>
+                }
+            </div>
+        </form>
     </div>
-
 </div>
