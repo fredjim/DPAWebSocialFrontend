@@ -202,3 +202,17 @@ header {
 		}
 	}
 }
+
+footer {
+	text-align: center;
+	padding: 5px;
+	background-color: var(--blue-color);
+	color: white;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+
+	p {
+		margin: 0;
+	}
+}

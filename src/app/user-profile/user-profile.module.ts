@@ -4,6 +4,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from "primeng/inputtext";
 import { RouterModule } from '@angular/router';
+import { UserProfileRoutingModule } from './user-profile-routing.module';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import { RouterModule } from '@angular/router';
     CommonModule,
     ReactiveFormsModule,
     InputTextModule,
-    RouterModule
-]
+    RouterModule,
+    UserProfileRoutingModule
+  ]
 })
 export class UserProfileModule { }

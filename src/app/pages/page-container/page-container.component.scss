@@ -5,6 +5,7 @@
 	margin: 0 auto;
 	padding: 50px 0 0;
 	width: 1020px;
+	position: relative;
 
 	.submenu-pages {
 		padding-top: 8px;
@@ -28,6 +29,18 @@
 		width: 100%;
 		min-height: 40vh;
 		border-left: 1px solid var(--red-color);
+	}
+}
+
+footer {
+	text-align: center;
+	padding: 5px;
+	background-color: var(--blue-color);
+	color: white;
+	width: 100%;
+
+	p {
+		margin: 0;
 	}
 }
 
