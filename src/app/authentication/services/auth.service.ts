@@ -106,7 +106,6 @@ export class AuthService {
     let expireDate = new Date(convertDate);
     let currentDate = new Date();
     const expired = currentDate > expireDate;
-    console.log('[AuthService] tokenHasExpired:', expired, 'expireDate:', expireDate, 'currentDate:', currentDate);
     return expired;
   }
 
@@ -114,11 +113,9 @@ export class AuthService {
   isTokenExpired(): boolean {
     const token = localStorage.getItem('token');
     if (!token) {
-      console.log('[AuthService] isTokenExpired: true (no token)');
       return true;
     }
     const expired = this.jwtHelper.isTokenExpired(token);
-    console.log('[AuthService] isTokenExpired:', expired, 'token:', token);
     return expired;
   }
 
@@ -141,7 +138,6 @@ export class AuthService {
   refreshAccessToken() {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) return null;
-    console.log('[AuthService] Llamando endpoint de refresh token...');
     return this.http.post<any>(`${this.ROOT_URL}/refresh`, {}, {
       headers: {
         Authorization: `Bearer ${refreshToken}`

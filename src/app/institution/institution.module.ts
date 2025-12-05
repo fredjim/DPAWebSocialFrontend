@@ -5,6 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from "../app-routing.module";
 import { AppModule } from '../app.module';
 import { RouterModule } from '@angular/router';
+import { InstitutionRoutingModule } from './institution-routing.module';
 
 
 
@@ -15,9 +16,10 @@ import { RouterModule } from '@angular/router';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    AppRoutingModule,
+    RouterModule,
+    InstitutionRoutingModule,
     AppModule,
-    RouterModule
-]
+    AppRoutingModule
+  ]
 })
 export class InstitutionModule { }

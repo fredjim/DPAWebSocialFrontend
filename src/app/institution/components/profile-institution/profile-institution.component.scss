@@ -89,6 +89,7 @@ header {
 	flex-direction: column;
 	align-items: center;
 	background-color: #f8f9fa;
+	position: relative;
 
 	.header-image {
 		position: relative;
@@ -177,7 +178,7 @@ header {
 		display: flex;
 		align-items: center;
 		flex-direction: column;
-		margin-bottom: 1.5rem;
+		margin-bottom: 3rem;
 		color: var(--blue-color);
 
 		h4 {
@@ -235,6 +236,20 @@ header {
 
 .btn.cancel {
 	border-color: var(--blue-color);
+}
+
+footer {
+	text-align: center;
+	padding: 5px;
+	background-color: var(--blue-color);
+	color: white;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+
+	p {
+		margin: 0;
+	}
 }
 
 @media screen and (max-width: 768px) {
