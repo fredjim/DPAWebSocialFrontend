@@ -1,17 +1,18 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { PostService } from '../../services/post.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Post } from '../../models/post';
 import { UserDetail } from '../../models/user-detail';
 import { Institution } from '../../models/institution';
 import { environment } from '../../../../environments/environment';
+import { distinctUntilChanged, fromEvent, Subscription, throttleTime } from 'rxjs';
 
 @Component({
   selector: 'app-view-all-posts',
   templateUrl: './view-all-posts.component.html',
   styleUrl: './view-all-posts.component.scss'
 })
-export class ViewAllPostsComponent implements OnInit {
+export class ViewAllPostsComponent implements OnInit, OnDestroy {
   authenticated: boolean = false;
   posts: Post[] = [];
   currentUser!: UserDetail;
@@ -23,6 +24,9 @@ export class ViewAllPostsComponent implements OnInit {
   institutionId = environment.INSTITUTION_ID;
   showScrollButton = false;
   private readonly scrollThreshold = 300;
+  private scrollSubscription!: Subscription;
+  private readonly loadThreshold = 100; // Pixeles antes del final para cargar
+  private readonly throttleTimeMs = 200; // Tiempo para throttling
 
   constructor(private readonly postService: PostService,
     private readonly authService: AuthService
@@ -30,6 +34,7 @@ export class ViewAllPostsComponent implements OnInit {
   }
   
   ngOnInit(){
+    this.setupScrollListener();
     this.authenticated = this.authService.isAuthenticated();
     // Obtener una cantidad de posts
     this.postService.getPagedPosts(this.pageCounter).subscribe({
@@ -58,18 +63,44 @@ export class ViewAllPostsComponent implements OnInit {
     }
   }
 
-  @HostListener('window:scroll', [])
-  onScroll(): void {
-
-    if ((window.innerHeight + window.scrollY + 1) >= document.body.offsetHeight) {
-      this.loadPosts(); // Cargar más posts al llegar al final
+  ngOnDestroy(): void {
+    if (this.scrollSubscription) {
+      this.scrollSubscription.unsubscribe();
     }
   }
 
-  @HostListener('window:scroll', [])
-  onWindowScroll() {
+  private setupScrollListener(): void {
+    this.scrollSubscription = fromEvent(window, 'scroll')
+      .pipe(
+        throttleTime(this.throttleTimeMs, undefined, { leading: true, trailing: true }),
+        distinctUntilChanged()
+      )
+      .subscribe(() => {
+        this.handleScroll();
+      });
+  }
+
+  private handleScroll(): void {
+    // 1. Controlar visibilidad del botón "ir arriba"
     const yOffset = window.pageYOffset || document.documentElement.scrollTop;
     this.showScrollButton = yOffset > this.scrollThreshold;
+    
+    // 2. Verificar si debemos cargar más posts
+    this.checkForMorePosts();
+  }
+
+  private checkForMorePosts(): void {
+    // Si ya está cargando, no hacer nada
+    if (this.loading) return;
+    
+    // Calcular posición actual
+    const scrollPosition = window.innerHeight + window.scrollY;
+    const documentHeight = document.body.offsetHeight;
+    
+    // Verificar si estamos cerca del final
+    if (scrollPosition >= documentHeight - this.loadThreshold) {
+      this.loadPosts();
+    }
   }
 
   scrollToTopSmooth() {
@@ -100,7 +131,7 @@ export class ViewAllPostsComponent implements OnInit {
     this.postService.deletePost(postUuid).subscribe({
       next: (response) => {
         // Actualizar la lista localmente
-        console.log('post eliminado', response);
+        console.log('post eliminado');
         this.posts = this.posts.filter(post => post.uuid !== postUuid);
       },
       error: (error) => {
