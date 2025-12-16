@@ -3,11 +3,12 @@ import { Article } from '../models/article';
 import { InformationService } from '../services/information.service';
 import { MessageService } from 'primeng/api';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { concatMap } from 'rxjs';
+import { concatMap, firstValueFrom } from 'rxjs';
 import { PostService } from '../../posts/services/post.service';
 import { UploadedMedia } from '../../posts/models/uploaded-media';
 import { MediaArticle } from '../models/media-article';
 import { Link } from '../models/link';
+import imageCompression from 'browser-image-compression';
 
 @Component({
   selector: 'app-edit-info',
@@ -87,148 +88,243 @@ export class EditInfoComponent implements OnInit, OnChanges {
     }
   }
 
-  private createArticle(): void {
+  private async createArticle(): Promise<void> {
     if(this.imageFilesToCreate.length > 0){
       this.isLoading = true;
+
+      try {
+      // 1. Optimizar imágenes antes de crear FormData
+      const optimizedImages = await this.optimizeImages(this.imageFilesToCreate);
+
+      // 2. Crear FormData con imágenes optimizadas
       const formData = new FormData();
-      for (const file of this.imageFilesToCreate){
-        if(file.type.includes('image')){
-          formData.append('images', file);
-        }
+      for (const file of optimizedImages) {
+        formData.append('images', file);
       }
-  
-      this.postService.uploadImages(formData).pipe(
-        concatMap((uploadResponse: UploadedMedia[]) => {
-          const mediasToArticle: MediaArticle[] = uploadResponse.map((media, index)=> ({
-            uuid: media.uuid,
-            number: index + 1,
-            name: media.name,
-            type: media.type,
-            path: media.urlResource
-          }));
-  
-          const newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & {links: Array<Omit<Link, 'uuid'>> }  = {
-            section_id: this.currentSectionUuid,
-            date: '',
-            title: this.formArticle.value.title ?? '',
-            text: this.formArticle.value.text ?? '',
-            medias: mediasToArticle,
-            links: this.buttonsToAdd
-          }
-          return this.informationService.createArticle(newArticle);
-        })
-      ).subscribe({
-        next: (articleCreated: Article)=>{
-          this.isLoading = false;
-          this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Artículo creado exitosamente' });
-          this.onCreateArticle.emit(articleCreated);
-          this.closeEdit();
-        },
-        error: (err) =>{
-          this.isLoading = false;
-          console.log('Error al crear articulo con imagen', err);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear artículo' });
-          this.closeEdit();
-        }
-      });
-    }else{
-      this.isLoading = true;
-      const newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & {links: Array<Omit<Link, 'uuid'>> } = {
+
+      // 3. Subir imágenes optimizadas
+      const uploadResponse = await firstValueFrom(
+        this.postService.uploadImages(formData)
+      );
+
+      // 4. Crear el artículo
+      const mediasToArticle: MediaArticle[] = uploadResponse.map((media, index) => ({
+        uuid: media.uuid,
+        number: index + 1,
+        name: media.name,
+        type: media.type,
+        path: media.urlResource
+      }));
+
+      const newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & { links: Array<Omit<Link, 'uuid'>> } = {
         section_id: this.currentSectionUuid,
         date: '',
         title: this.formArticle.value.title ?? '',
         text: this.formArticle.value.text ?? '',
-        medias: [],
+        medias: mediasToArticle,
         links: this.buttonsToAdd
-      }
-      
-      this.informationService.createArticle(newArticle).subscribe({
-        next: (created) => {
-          this.isLoading = false;
-          this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Artículo creado exitosamente' });
-          this.onCreateArticle.emit(created);
-          this.closeEdit();
-        },
-        error: (err) => {
-          this.isLoading = false;
-          console.log('Error al crear articulo', err);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear artículo' });
-          this.closeEdit();
-        }
-      })
+      };
+
+      const articleCreated = await firstValueFrom(
+        this.informationService.createArticle(newArticle)
+      );
+
+      // Éxito
+      this.isLoading = false;
+      this.messageService.add({ 
+        severity: 'success', 
+        summary: 'Exitoso', 
+        detail: 'Artículo creado exitosamente' 
+      });
+      this.onCreateArticle.emit(articleCreated);
+      this.closeEdit();
+
+    } catch (error) {
+      // Error
+      this.isLoading = false;
+      console.error('Error al crear artículo con imagen', error);
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: 'Error', 
+        detail: 'Error al crear artículo' 
+      });
+      this.closeEdit();
+    }
+    }else{
+      this.createArticleWithoutImages();
     }
   }
 
-  private updatedArticle(): void {
+  private createArticleWithoutImages(): void {
+    this.isLoading = true;
+    const newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & {links: Array<Omit<Link, 'uuid'>> } = {
+      section_id: this.currentSectionUuid,
+      date: '',
+      title: this.formArticle.value.title ?? '',
+      text: this.formArticle.value.text ?? '',
+      medias: [],
+      links: this.buttonsToAdd
+    }
+    
+    this.informationService.createArticle(newArticle).subscribe({
+      next: (created) => {
+        this.isLoading = false;
+        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Artículo creado exitosamente' });
+        this.onCreateArticle.emit(created);
+        this.closeEdit();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.log('Error al crear articulo', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear artículo' });
+        this.closeEdit();
+      }
+    })
+  }
+
+  private async optimizeImages(files: File[]): Promise<File[]> {
+    const compressionOptions = {
+      maxSizeMB: 1, // Máximo 1MB por imagen
+      maxWidthOrHeight: 1920, // Resolución máxima
+      useWebWorker: true, // No bloquear UI
+      fileType: 'image/webp', // Convertir a WebP
+      initialQuality: 0.8, // Calidad 80%
+      alwaysKeepResolution: false,
+      preserveExif: false
+    };
+
+    // Optimizar cada imagen en paralelo
+    const optimizationPromises = files.map(async (file, index) => {
+      if (!file.type.includes('image')) {
+        return file; // Si no es imagen, devolver sin cambios
+      }
+
+      // Si ya es WebP y es pequeño, no optimizar
+      if (file.type === 'image/webp' && file.size < 1024 * 500) { // < 500KB
+        console.log(`Imagen ${file.name} ya es WebP y pequeña, omitiendo optimización`);
+        return file;
+      }
+
+      try {
+        // Optimizar la imagen
+        const compressedFile = await imageCompression(file, compressionOptions);
+        
+        // Mantener el nombre original pero cambiar extensión a .webp
+        const originalName = file.name.replace(/\.[^/.]+$/, "");
+        const optimizedName = `${originalName}_optimized_${Date.now()}.webp`;
+        
+        return new File([compressedFile], optimizedName, {
+          type: 'image/webp'
+        });
+        
+      } catch (error) {
+        console.warn(`No se pudo optimizar ${file.name}:`, error);
+        return file; // Fallback al archivo original
+      }
+    });
+
+    // Esperar a que todas se optimicen
+    const results = await Promise.all(optimizationPromises);
+    return results.filter((file): file is File => file !== null);
+  }
+
+  private async updatedArticle(): Promise<void> {
     if(!this.currentArticle) return;
 
     if(this.imageFilesToCreate.length > 0){
       this.isLoading = true;
-      const formData = new FormData();
-      for (const file of this.imageFilesToCreate){
-        if(file.type.includes('image')){
-          formData.append('images', file);
-        }
-      }
-  
-      this.postService.uploadImages(formData).pipe(
-        concatMap((uploadResponse: UploadedMedia[]) => {
-          const mediasToArticle: MediaArticle[] = uploadResponse.map((media, index)=> ({
-            uuid: media.uuid,
-            number: index + 1,
-            name: media.name,
-            type: media.type,
-            path: media.urlResource
-          }));
-  
-          const articleUpdated: any  = {
-            ...this.currentArticle,
-            title: this.formArticle.value.title ?? '',
-            text: this.formArticle.value.text ?? '',
-            medias: [...this.imagesOfArticle,...mediasToArticle],
-            links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
+
+      try {
+        // 1. Optimizar imágenes nuevas a WebP antes de crear FormData
+        const optimizedImages = await this.optimizeImages(this.imageFilesToCreate);
+        
+        // 2. Crear FormData con imágenes optimizadas
+        const formData = new FormData();
+        for (const file of optimizedImages) {
+          if (file.type.includes('image')) {
+            formData.append('images', file);
           }
-          return this.informationService.updateArticle(this.currentArticle!.uuid, articleUpdated);
-        })
-      ).subscribe({
-        next: (articleUpdated: Article)=>{
-          this.isLoading = false;
-          this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo editado exitosamente' });
-          this.onEditedArticle.emit(articleUpdated);
-          this.closeEdit();
-        },
-        error: (err) =>{
-          this.isLoading = false;
-          console.log('Error al actualizar imagenes', err);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al editar artículo' });
-          this.closeEdit();
         }
-      });
-    }else{
-      this.isLoading = true;
-      const articleEdited: any = {
-        ...this.currentArticle,
-        title: this.formArticle.value.title ?? '',
-        text: this.formArticle.value.text ?? '',
-        medias: [...this.imagesOfArticle],
-        links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
+
+        // 3. Subir imágenes optimizadas
+        const uploadResponse = await firstValueFrom(
+          this.postService.uploadImages(formData)
+        );
+
+        // 4. Preparar datos del artículo actualizado
+        const mediasToArticle: MediaArticle[] = uploadResponse.map((media, index) => ({
+          uuid: media.uuid,
+          number: index + 1,
+          name: media.name,
+          type: 'image/webp', // Forzar tipo WebP ya que convertimos
+          path: media.urlResource
+        }));
+
+        const articleUpdated: any = {
+          ...this.currentArticle,
+          title: this.formArticle.value.title ?? '',
+          text: this.formArticle.value.text ?? '',
+          medias: [...this.imagesOfArticle, ...mediasToArticle],
+          links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
+        };
+
+        // 5. Actualizar artículo
+        const articleUpdatedResult = await firstValueFrom(
+          this.informationService.updateArticle(this.currentArticle.uuid, articleUpdated)
+        );
+
+        // Éxito
+        this.isLoading = false;
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: 'Exitoso', 
+          detail: 'Artículo editado exitosamente' 
+        });
+        this.onEditedArticle.emit(articleUpdatedResult);
+        this.closeEdit();
+
+      } catch (error) {
+        // Error
+        this.isLoading = false;
+        console.error('Error al actualizar artículo con imágenes', error);
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: 'Error al editar artículo' 
+        });
+        this.closeEdit();
       }
-      
-      this.informationService.updateArticle(this.currentArticle.uuid, articleEdited).subscribe({
-        next: (edited) => {
-          this.isLoading = false;
-          this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo editado exitosamente' });
-          this.onEditedArticle.emit(edited);
-          this.closeEdit();
-        },
-        error: (err) => {
-          this.isLoading = false;
-          console.log('Error al editar articulo', err);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al editar artículo' });
-          this.closeEdit();
-        }
-      })
+    }else{
+      this.updateArticleWithoutNewImages();
     }
+  }
+
+  private updateArticleWithoutNewImages(): void {
+    if(!this.currentArticle) return;
+
+    this.isLoading = true;
+    const articleEdited: any = {
+      ...this.currentArticle,
+      title: this.formArticle.value.title ?? '',
+      text: this.formArticle.value.text ?? '',
+      medias: [...this.imagesOfArticle],
+      links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
+    }
+    
+    this.informationService.updateArticle(this.currentArticle.uuid, articleEdited).subscribe({
+      next: (edited) => {
+        this.isLoading = false;
+        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo editado exitosamente' });
+        this.onEditedArticle.emit(edited);
+        this.closeEdit();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.log('Error al editar articulo', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al editar artículo' });
+        this.closeEdit();
+      }
+    })
   }
 
   public closeEdit(): void {
