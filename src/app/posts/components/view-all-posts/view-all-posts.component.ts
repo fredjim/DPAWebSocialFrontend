@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { PostService } from '../../services/post.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Post } from '../../models/post';
@@ -70,7 +70,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   }
 
   private setupScrollListener(): void {
-    this.scrollSubscription = fromEvent(window, 'scroll')
+    this.scrollSubscription = fromEvent(globalThis, 'scroll')
       .pipe(
         throttleTime(this.throttleTimeMs, undefined, { leading: true, trailing: true }),
         distinctUntilChanged()
