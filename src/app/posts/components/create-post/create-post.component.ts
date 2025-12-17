@@ -2,7 +2,6 @@ import { AfterViewInit, Component, ElementRef, OnInit, signal, ViewChild } from 
 import { PostService } from '../../services/post.service';
 import { Modal } from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Media } from '../../models/media';
 import { concatMap, of, map, catchError, reduce, tap, concat } from 'rxjs';
 import { UploadedMedia } from '../../models/uploaded-media';
 import { CreatePost } from '../../models/create-post';
@@ -13,6 +12,7 @@ import { CommentConfig } from '../../models/comment-config';
 import { FbUploadedMedia } from '../../models/fb-uploaded-media';
 import { environment } from '../../../../environments/environment';
 import { UserDetail } from '../../models/user-detail';
+import imageCompression from 'browser-image-compression';
 
 @Component({
   selector: 'app-create-post',
@@ -106,7 +106,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   //Deshabilitar el boton de publicar si no hay texto
   getTextPost(text: string) {
     this.postForm.get('contentPost')?.setValue(text);
-    text != '' ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
+    text === '' ? this.disabledPublishButton.set(true) : this.disabledPublishButton.set(false);
   }
 
   //Mostrar area de imagenes y deshabilitar el boton de cargar documentos
@@ -147,7 +147,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   closeAreaDoc(option: boolean) {
     this.disableLoadImage.set(option);
     const contentPost = this.postForm.get('contentPost')?.value;
-    contentPost != '' ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
+    contentPost === '' ? this.disabledPublishButton.set(true) : this.disabledPublishButton.set(false);
     this.fileDoc = new File([''], '');//Limpiar el archivo
   }
 
@@ -196,12 +196,56 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
     }
   }
 
-  post() {
+  private async optimizeImages(files: File[]): Promise<File[]> {
+    const compressionOptions = {
+      maxSizeMB: 1, // Máximo 1MB por imagen
+      maxWidthOrHeight: 1920, // Resolución máxima
+      useWebWorker: true, // No bloquear UI
+      fileType: 'image/webp', // Convertir a WebP
+      initialQuality: 0.8, // Calidad 80%
+      alwaysKeepResolution: false,
+      preserveExif: false
+    };
+
+    // Optimizar cada imagen en paralelo
+    const optimizationPromises = files.map(async (file, index) => {
+      if (!file.type.includes('image')) {
+        return file; // Si no es imagen, devolver sin cambios
+      }
+
+      // Si ya es WebP y es pequeño, no optimizar
+      if (file.type === 'image/webp' && file.size < 1024 * 500) { // < 500KB
+        console.log(`Imagen ${file.name} ya es WebP y pequeña, omitiendo optimización`);
+        return file;
+      }
+
+      try {
+        // Optimizar la imagen
+        const compressedFile = await imageCompression(file, compressionOptions);
+        
+        // Mantener el nombre original pero cambiar extensión a .webp
+        const originalName = file.name.replace(/\.[^/.]+$/, "");
+        const optimizedName = `${originalName}_optimized_${Date.now()}.webp`;
+        
+        return new File([compressedFile], optimizedName, {
+          type: 'image/webp'
+        });
+        
+      } catch (error) {
+        console.warn(`No se pudo optimizar ${file.name}:`, error);
+        return file; // Fallback al archivo original
+      }
+    });
+
+    // Esperar a que todas se optimicen
+    const results = await Promise.all(optimizationPromises);
+    return results.filter((file): file is File => file !== null);
+  }
+
+  async post() {
     const valueFormPost = this.postForm.value;
     const formData = new FormData();
     const formDataFBdoc = new FormData();
-    const responseMedia: Media[] = []; //Respuesta de imagenes y videos guardados
-    let responseDoc: Media;
     const post: CreatePost = {
       institution_id: this.institution.uuid,
       date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
@@ -220,87 +264,96 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
 
       this.showLoading();
       if (this.listFile && this.listFile.length > 0) { //Si hay imagenes-videos se los procesa
-        //Convertir las imagenes y videos en Form Data con su key correspondiente
-        Array.from(this.listFile).forEach((file) => {
-          if (file.type.includes('image')) {
-            formData.append('images', file);
-          } else if (file.type.includes('video')) {
-            formData.append('videos', file);
-          }
-        });
-        let isVideo = false;
-        this.postService.uploadMedia(formData).pipe(
-          concatMap((uploadResponse: UploadedMedia[]) => {
-            // Only process Facebook uploads if switch is on
-            const processMedia$ = uploadResponse.map((media, index) => {
-              const isImage = media.type.includes('image');
-              const baseMedia = {
-                number: index + 1,
-                type: isImage ? 'image' : 'video',
-                name: media.name,
-                path: media.urlResource
-              };
+        
+        try {
+          // OPTIMIZAR IMÁGENES ANTES DE CREAR FORMDATA
+          const optimizedFiles = await this.optimizeImages(this.listFile);
+          
+          // Reemplazar this.listFile con los archivos optimizados temporalmente
+          const originalFiles = this.listFile; // Guardar originales para Facebook
+          
+          // Crear FormData con archivos optimizados
+          Array.from(optimizedFiles).forEach((file) => {
+            if (file.type.includes('image')) {
+              formData.append('images', file);
+            } else if (file.type.includes('video')) {
+              formData.append('videos', file);
+            }
+          });
+          
+          let isVideo = false;
+          this.postService.uploadMedia(formData).pipe(
+            concatMap((uploadResponse: UploadedMedia[]) => {
+              const processMedia$ = uploadResponse.map((media, index) => {
+                const isImage = media.type.includes('image');
+                const baseMedia = {
+                  number: index + 1,
+                  type: isImage ? 'image' : 'video',
+                  name: media.name,
+                  path: media.urlResource
+                };
 
-              // Skip Facebook upload if disabled
-              if (!this.isFbSwitchOn) {
-                return of({
-                  ...baseMedia,
-                  fb_media_id: ''
-                });
-              }
-
-              const formDataFB = new FormData();
-              formDataFB.append('source', this.listFile[index]);
-
-              const uploadService$ = isImage
-                ? this.postService.uploadPhotoToFacebook(formDataFB)
-                : this.postService.publishVideoToFacebook(formDataFB, valueFormPost.contentPost);
-
-              isVideo = !isImage;
-              return uploadService$.pipe(
-                
-                map(fbResponse => ({
-                  ...baseMedia,
-                  fb_media_id: fbResponse ? fbResponse.id : ''
-                })),
-                catchError(error => {
-                  console.error(`Error uploading ${isImage ? 'photo' : 'video'} to Facebook`, error);
+                if (!this.isFbSwitchOn) {
                   return of({
                     ...baseMedia,
                     fb_media_id: ''
                   });
+                }
+
+                const formDataFB = new FormData();
+                // PARA FACEBOOK USAR EL ARCHIVO ORIGINAL, NO EL OPTIMIZADO
+                formDataFB.append('source', originalFiles[index]);
+
+                const uploadService$ = isImage
+                  ? this.postService.uploadPhotoToFacebook(formDataFB)
+                  : this.postService.publishVideoToFacebook(formDataFB, valueFormPost.contentPost);
+
+                isVideo = !isImage;
+                return uploadService$.pipe(
+                  map(fbResponse => ({
+                    ...baseMedia,
+                    fb_media_id: fbResponse ? fbResponse.id : ''
+                  })),
+                  catchError(error => {
+                    console.error(`Error uploading ${isImage ? 'photo' : 'video'} to Facebook`, error);
+                    return of({
+                      ...baseMedia,
+                      fb_media_id: ''
+                    });
+                  })
+                );
+              });
+
+              return concat(...processMedia$).pipe(
+                reduce((acc: any[], media) => [...acc, media], []),
+                tap((responseMedia) => {
+                  this.isFbPosted = this.isFbSwitchOn &&
+                    responseMedia.some(media => (media.fb_media_id != ''));
+                }),
+                concatMap(responseMedia => {
+                  post.content.media = responseMedia;
+                  post.is_fb_posted = isVideo;
+                  post.fb_post_enable =  this.isFbSwitchOn;
+                  return this.postService.createPost(post);
                 })
-                
               );
-              
-            });
+            })
+          ).subscribe({
+            next: (created) => {
+              this.hideLoading();
+              globalThis.location.reload();
+            },
+            error: (error) => {
+              this.hideLoading();
+              console.log('Error al crear el post con contenido media', error);
+            }
+          });
 
-            // Process media sequentially instead of in parallel
-            return concat(...processMedia$).pipe(
-              reduce((acc: any[], media) => [...acc, media], []),
-              tap((responseMedia) => {
-                this.isFbPosted = this.isFbSwitchOn &&
-                  responseMedia.some(media => (media.fb_media_id != ''));
-              }),
-              concatMap(responseMedia => {
-                post.content.media = responseMedia;
-                post.is_fb_posted = isVideo;
-                post.fb_post_enable =  this.isFbSwitchOn;
-                return this.postService.createPost(post);
-              })
-            );
-          })
-
-        ).subscribe({
-          next: () => {
-            this.hideLoading();
-            window.location.reload()
-          },
-          error: (error) => {
-            this.hideLoading();
-            console.log('Error al crear el post con contenido media (imagenes y/o videos)', error)
-          }
-        })
+        } catch (optimizationError) {
+          console.error('Error en optimización, usando archivos originales:', optimizationError);
+          // Fallback a la lógica original
+          this.processWithOriginalFilesFallback(post, valueFormPost);
+        }
 
       } else if (this.fileDoc && this.fileDoc.size > 0) {//Si hay un archivo
         formData.append('file', this.fileDoc);
@@ -354,7 +407,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
         ).subscribe({
           next: () => {
             this.hideLoading();
-            window.location.reload();
+            globalThis.location.reload();
             
           },
           error: (error) => {
@@ -370,7 +423,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
         this.postService.createPost(post).subscribe({
           next: () => {
             this.hideLoading();
-            window.location.reload()
+            globalThis.location.reload()
           },
           error: (error) => {
             this.hideLoading();
@@ -381,5 +434,91 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
     } else {
       console.log('No hay datos para postear');
     }
+  }
+
+  private processWithOriginalFilesFallback(post: CreatePost, valueFormPost: any): void {
+    const formData = new FormData();
+    
+    Array.from(this.listFile).forEach((file) => {
+      if (file.type.includes('image')) {
+        formData.append('images', file);
+      } else if (file.type.includes('video')) {
+        formData.append('videos', file);
+      }
+    });
+    
+    // Continuar con el flujo original usando this.listFile directamente
+    let isVideo = false;
+    this.postService.uploadMedia(formData).pipe(
+      concatMap((uploadResponse: UploadedMedia[]) => {
+        // Only process Facebook uploads if switch is on
+        const processMedia$ = uploadResponse.map((media, index) => {
+          const isImage = media.type.includes('image');
+          const baseMedia = {
+            number: index + 1,
+            type: isImage ? 'image' : 'video',
+            name: media.name,
+            path: media.urlResource
+          };
+
+          // Skip Facebook upload if disabled
+          if (!this.isFbSwitchOn) {
+            return of({
+              ...baseMedia,
+              fb_media_id: ''
+            });
+          }
+
+          const formDataFB = new FormData();
+          formDataFB.append('source', this.listFile[index]);
+
+          const uploadService$ = isImage
+            ? this.postService.uploadPhotoToFacebook(formDataFB)
+            : this.postService.publishVideoToFacebook(formDataFB, valueFormPost.contentPost);
+
+          isVideo = !isImage;
+          return uploadService$.pipe(
+            
+            map(fbResponse => ({
+              ...baseMedia,
+              fb_media_id: fbResponse ? fbResponse.id : ''
+            })),
+            catchError(error => {
+              console.error(`Error uploading ${isImage ? 'photo' : 'video'} to Facebook`, error);
+              return of({
+                ...baseMedia,
+                fb_media_id: ''
+              });
+            })
+            
+          );
+          
+        });
+
+        // Process media sequentially instead of in parallel
+        return concat(...processMedia$).pipe(
+          reduce((acc: any[], media) => [...acc, media], []),
+          tap((responseMedia) => {
+            this.isFbPosted = this.isFbSwitchOn &&
+              responseMedia.some(media => (media.fb_media_id != ''));
+          }),
+          concatMap(responseMedia => {
+            post.content.media = responseMedia;
+            post.is_fb_posted = isVideo;
+            post.fb_post_enable =  this.isFbSwitchOn;
+            return this.postService.createPost(post);
+          })
+        );
+      })
+    ).subscribe({
+      next: () => {
+        this.hideLoading();
+        globalThis.location.reload()
+      },
+      error: (error) => {
+        this.hideLoading();
+        console.log('Error al crear el post con contenido media (imagenes y/o videos)', error)
+      }
+    });
   }
 }

@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Input, Output, signal, WritableSignal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
 import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
 import { CommentConfig } from '../../models/comment-config';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { PostService } from '../../services/post.service';
 import { Media } from '../../models/media';
 import { CreatePost } from '../../models/create-post';
@@ -12,15 +12,15 @@ import { UploadedDocument } from '../../models/uploaded-document';
 import { FbUploadedMedia } from '../../models/fb-uploaded-media';
 import { Modal } from 'bootstrap';
 import { UserDetail } from '../../models/user-detail';
-import { faL } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../../authentication/services/auth.service';
+import imageCompression from 'browser-image-compression';
 
 @Component({
   selector: 'app-modal-edit-post',
   templateUrl: './modal-edit-post.component.html',
   styleUrl: './modal-edit-post.component.scss'
 })
-export class ModalEditPostComponent {
+export class ModalEditPostComponent implements OnInit {
   @Input() institution!: Institution;
   @Input() postToEdit!: Post;
   @Input() showModalEdit!: WritableSignal<boolean>;
@@ -50,8 +50,8 @@ export class ModalEditPostComponent {
   }
 
   constructor(
-      private postService: PostService,
-      private formBuilder: FormBuilder,
+      private readonly postService: PostService,
+      private readonly formBuilder: FormBuilder,
       private readonly authService: AuthService
   ){}
 
@@ -89,7 +89,7 @@ export class ModalEditPostComponent {
   //Obtener texto editado del textarea y Deshabilitar el boton de guardar si no hay texto
   getTextPost(text: string){
     this.postForm.get('contentPost')?.setValue(text);
-    text != '' ? this.disabledSaveButton.set(false) : this.disabledSaveButton.set(true);
+    text === '' ? this.disabledSaveButton.set(true) : this.disabledSaveButton.set(false);
   }
   
   //Mostrar area de imagenes y deshabilitar el boton de cargar documentos
@@ -251,11 +251,56 @@ export class ModalEditPostComponent {
         return 'GENERAL';
     }
   }
+
+  private async optimizeImages(files: File[]): Promise<File[]> {
+    const compressionOptions = {
+      maxSizeMB: 1, // Máximo 1MB por imagen
+      maxWidthOrHeight: 1920, // Resolución máxima
+      useWebWorker: true, // No bloquear UI
+      fileType: 'image/webp', // Convertir a WebP
+      initialQuality: 0.8, // Calidad 80%
+      alwaysKeepResolution: false,
+      preserveExif: false
+    };
+
+    // Optimizar cada imagen en paralelo
+    const optimizationPromises = files.map(async (file, index) => {
+      if (!file.type.includes('image')) {
+        return file; // Si no es imagen, devolver sin cambios
+      }
+
+      // Si ya es WebP y es pequeño, no optimizar
+      if (file.type === 'image/webp' && file.size < 1024 * 500) { // < 500KB
+        console.log(`Imagen ${file.name} ya es WebP y pequeña, omitiendo optimización`);
+        return file;
+      }
+
+      try {
+        // Optimizar la imagen
+        const compressedFile = await imageCompression(file, compressionOptions);
+        
+        // Mantener el nombre original pero cambiar extensión a .webp
+        const originalName = file.name.replace(/\.[^/.]+$/, "");
+        const optimizedName = `${originalName}_optimized_${Date.now()}.webp`;
+        
+        return new File([compressedFile], optimizedName, {
+          type: 'image/webp'
+        });
+        
+      } catch (error) {
+        console.warn(`No se pudo optimizar ${file.name}:`, error);
+        return file; // Fallback al archivo original
+      }
+    });
+
+    // Esperar a que todas se optimicen
+    const results = await Promise.all(optimizationPromises);
+    return results.filter((file): file is File => file !== null);
+  }
   
-  updatePost(){
+  async updatePost(){
     const valueFormPost = this.postForm.value;
     const formData = new FormData();
-    const formDataFB = new FormData();
     const responseMedia: Media[] = []; //Respuesta de imagenes y videos guardados
     let responseDoc: Media;
     const editedPost: CreatePost = {
@@ -283,14 +328,23 @@ export class ModalEditPostComponent {
       //Si hay nuevas imagenes-videos se los procesa
       if(this.listNewMediaFile && this.listNewMediaFile.length > 0){ 
 
-        //Convertir las nuevas imagenes y videos en Form Data con su key correspondiente
-        Array.from(this.listNewMediaFile).forEach((file) => {
-          file.type.includes('image')? formData.append('images', file) : formData.append('videos', file);
-        });
+        try {
+          // 1. Optimizar nuevas imágenes
+          const optimizedFiles = await this.optimizeImages(this.listNewMediaFile);
+          
+          // 2. Crear FormData con archivos optimizados
+          Array.from(optimizedFiles).forEach((file) => {
+            file.type.includes('image') ? formData.append('images', file) : formData.append('videos', file);
+          });
+        } catch (error) {
+          console.warn('Error en optimización, usando archivos originales:', error);
+          // Fallback a archivos originales
+          Array.from(this.listNewMediaFile).forEach((file) => {
+            file.type.includes('image') ? formData.append('images', file) : formData.append('videos', file);
+          });
+        }
 
         const amountImagesPost = this.postToEdit.content.media.length;
-
-        //Borrar lista de media antigua 
 
         //Subir las nuevas imagenes-videos
         this.postService.uploadMedia(formData).pipe(
@@ -321,8 +375,7 @@ export class ModalEditPostComponent {
         ).subscribe({
           next: (responseUpdatedPost)=> {
             console.log('post con nuevas imagenes videos actualizado',responseUpdatedPost);
-            window.location.reload();
-            // this.postUpdatedEvent.emit(responseUpdatedPost);
+            globalThis.location.reload();
           },
           error: (error) => {
             console.log('Error al actualizar el post con contenido media (imagenes y/o videos)', error)
@@ -355,8 +408,7 @@ export class ModalEditPostComponent {
         ).subscribe({
           next: (responseUpdatedPost)=> {
             console.log('post con archivo actualizado',responseUpdatedPost);
-            window.location.reload();
-            // this.postUpdatedEvent.emit(responseUpdatedPost);
+            globalThis.location.reload();
           },
           error: (error) => {
             console.log('Error al actualizar el post con archivo',error)
@@ -375,8 +427,7 @@ export class ModalEditPostComponent {
         this.postService.updatePost(this.postToEdit.uuid, editedPost).subscribe({
           next: (responseUpdatedPost) => {
             console.log('post actualizado',responseUpdatedPost);
-            window.location.reload();
-            // this.postUpdatedEvent.emit(responseUpdatedPost);
+            globalThis.location.reload();
           },
           error: (error) => {
             console.log('Error al actualizar post', error)
