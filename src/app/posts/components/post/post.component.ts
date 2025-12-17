@@ -325,8 +325,6 @@ export class PostComponent implements OnInit {
     this.postService.postReaction(postUuid, newReaction).subscribe({
       next: () => {
         this.like = true;
-        console.log('Reaccion exitosa')
-        console.log(this.like)
         //this.totalReactions.update(valor => valor + 1)
         this.reactionChanged.emit(); // Emitir evento de cambio de reacción
       },
