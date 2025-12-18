@@ -71,6 +71,18 @@
 				align-self: start;
 			}
 
+			.documents {
+				align-self: flex-start;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+
+				a > i {
+					font-size: 18px;
+					color: var(--red-color);
+				}
+			}
+
 			.media-container {
 				margin-bottom: 20px;
 				margin-top: 20px;

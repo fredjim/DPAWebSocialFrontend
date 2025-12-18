@@ -7,6 +7,34 @@
         <!-- Editor de texto -->
         <p-editor formControlName="text" [style]="{ height: 'auto' }" class="text-editor" placeholder="Texto del artículo" />
 
+        <!-- Agregar documentos -->
+        <div class="documents-section">
+            @if(docsOfArticle.length > 0){
+                @for(doc of docsOfArticle; track doc.uuid; let i = $index){
+                    <div class="container-doc">
+                        <a [href]="doc.path" target="_blank"><i class="bi bi-file-earmark-pdf-fill"></i> {{ doc.name }}</a>
+                        <button type="button" class="btn-delete-media" (click)="selectDocumentDeleteOfArticle(i, doc)" >
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                }
+            }
+            @if(docsPreview.length > 0){
+                @for(doc of docsPreview; track doc.url; let i = $index){
+                    <div class="container-doc">
+                        <a [href]="doc.url" target="_blank"><i class="bi bi-file-earmark-pdf-fill"></i> {{ doc.name }}</a>
+                        <button type="button" class="btn-delete-media" (click)="deleteDocumentPreview(i)" >
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                }
+            }
+            <button id="add-documents" class="btn btn-primary save" type="button" (click)="openInputFile(fileInputDoc)" (keypress)="openInputFile(fileInputDoc)">
+                <i class="bi bi-plus-lg"></i> Agregar documentos pdf
+            </button>
+            <input #fileInputDocument type="file" id="input-file-doc" hidden (change)="changeInputDocs($event)" multiple accept=".pdf">
+        </div>
+
         <!-- Agregar botones -->
         <div class="buttons">
             @if(currentArticle && buttonsOfArticle.length > 0){
@@ -68,13 +96,13 @@
                     </div>
                 }
             }
-            <div class="add-more-file" (click)="openInputFileMedia()" (keypress)="openInputFileMedia()">
+            <div class="add-more-file" (click)="openInputFile(fileInputImage)" (keypress)="openInputFile(fileInputImage)">
                 <div class="add-more-content">
                     <i class="bi bi-plus-lg"></i>
                     Agregar imagen
                 </div>
             </div>
-            <input #fileInput type="file" id="input-file-img" hidden (change)="changeInputMedia($event)" multiple accept="image/*">
+            <input #fileInputImg type="file" id="input-file-img" hidden (change)="changeInputMedia($event)" multiple accept="image/*">
         </div>
 
         

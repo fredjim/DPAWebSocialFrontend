@@ -8,6 +8,7 @@ import { PostService } from '../../posts/services/post.service';
 import { MediaArticle } from '../models/media-article';
 import { Link } from '../models/link';
 import imageCompression from 'browser-image-compression';
+import { UploadedMedia } from '../../posts/models/uploaded-media';
 
 @Component({
   selector: 'app-edit-info',
@@ -26,13 +27,21 @@ export class EditInfoComponent implements OnInit, OnChanges {
   @Output() onDeletedArticle = new EventEmitter<Article>();
   @Output() onCreateArticle = new EventEmitter<Article>();
   @Output() onComponentReady = new EventEmitter<void>();
-  @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('fileInputImg') fileInputImage!: ElementRef;
   @ViewChild('firstInput') firstInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('fileInputDocument') fileInputDoc!: ElementRef;
 
   public imgsPreview: {name: string, type: string, url: string}[] = [];
   public imagesOfArticle: MediaArticle[] = []; // imagenes del articulo actual para renderizar
   private imageFilesToCreate: File[] = []; //imagenes para subir al articulo
   private imagesToDelete: MediaArticle[] = []; //imagenes del articulo para eliminar
+  
+  public docsPreview: {name: string, type: string, url: string}[] = [];
+  public docsOfArticle: MediaArticle[] = []; // docs del articulo para renderizar
+  private docsToCreate: File[] = [];
+  private docsToDelete: MediaArticle[] = [];
+
+  public typeDocs = ['document', 'application/pdf'];
   
   public isLoading = false;
 
@@ -73,8 +82,9 @@ export class EditInfoComponent implements OnInit, OnChanges {
       this.formArticle.patchValue({
         title: this.currentArticle.title,
         text: this.currentArticle.text
-      })
-      this.imagesOfArticle = [...this.currentArticle.medias];
+      });
+      this.imagesOfArticle = this.currentArticle.medias.filter(media => media.type.includes('image'));
+      this.docsOfArticle = this.currentArticle.medias.filter(media => this.typeDocs.includes(media.type));
       this.buttonsOfArticle = structuredClone(this.currentArticle.links);
     }
   }
@@ -88,67 +98,95 @@ export class EditInfoComponent implements OnInit, OnChanges {
   }
 
   private async createArticle(): Promise<void> {
-    if(this.imageFilesToCreate.length > 0){
+    if(this.imageFilesToCreate.length > 0 || this.docsToCreate.length > 0){
       this.isLoading = true;
+      let uploadResponseImages: UploadedMedia[] = [];
+      let uploadResponseDocs: UploadedMedia[] = [];
+      let mediasToArticle: MediaArticle[] = [];
 
       try {
-      // 1. Optimizar imágenes antes de crear FormData
-      const optimizedImages = await this.optimizeImages(this.imageFilesToCreate);
+        if(this.imageFilesToCreate.length > 0){
 
-      // 2. Crear FormData con imágenes optimizadas
-      const formData = new FormData();
-      for (const file of optimizedImages) {
-        formData.append('images', file);
+          // 1. Optimizar imágenes antes de crear FormData
+          const optimizedImages = await this.optimizeImages(this.imageFilesToCreate);
+  
+          // 2. Crear FormData con imágenes optimizadas
+          const formData = new FormData();
+          for (const file of optimizedImages) {
+            formData.append('images', file);
+          }
+  
+          // 3. Subir imágenes optimizadas
+          uploadResponseImages = await firstValueFrom(
+            this.postService.uploadImages(formData)
+          );
+  
+          // 4. Crear el artículo
+          mediasToArticle = uploadResponseImages.map((media, index) => ({
+            uuid: media.uuid,
+            number: index + 1,
+            name: media.name,
+            type: media.type,
+            path: media.urlResource
+          }))
+        }
+
+        if(this.docsToCreate.length > 0){
+          const formDataDocs = new FormData();
+          for (const file of this.docsToCreate) {
+            formDataDocs.append('files', file);
+          }
+
+          uploadResponseDocs = await firstValueFrom(
+            this.informationService.uploadDocumentsForArticle(formDataDocs)
+          );
+
+          const uploadResMappedToMediaArticle: MediaArticle[] = uploadResponseDocs.map((media, index) => ({
+            uuid: media.uuid,
+            number: index + 1,
+            name: media.name,
+            type: media.type,
+            path: media.urlResource
+          }))
+
+          mediasToArticle = [...mediasToArticle, ...uploadResMappedToMediaArticle];
+        }
+
+
+        const newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & { links: Array<Omit<Link, 'uuid'>> } = {
+          section_id: this.currentSectionUuid,
+          date: '',
+          title: this.formArticle.value.title ?? '',
+          text: this.formArticle.value.text ?? '',
+          medias: mediasToArticle,
+          links: this.buttonsToAdd
+        };
+
+        const articleCreated = await firstValueFrom(
+          this.informationService.createArticle(newArticle)
+        );
+
+        // Éxito
+        this.isLoading = false;
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: 'Exitoso', 
+          detail: 'Artículo creado exitosamente' 
+        });
+        this.onCreateArticle.emit(articleCreated);
+        this.closeEdit();
+
+      } catch (error) {
+        // Error
+        this.isLoading = false;
+        console.error('Error al crear artículo con imagen', error);
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: 'Error al crear artículo' 
+        });
+        this.closeEdit();
       }
-
-      // 3. Subir imágenes optimizadas
-      const uploadResponse = await firstValueFrom(
-        this.postService.uploadImages(formData)
-      );
-
-      // 4. Crear el artículo
-      const mediasToArticle: MediaArticle[] = uploadResponse.map((media, index) => ({
-        uuid: media.uuid,
-        number: index + 1,
-        name: media.name,
-        type: media.type,
-        path: media.urlResource
-      }));
-
-      const newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & { links: Array<Omit<Link, 'uuid'>> } = {
-        section_id: this.currentSectionUuid,
-        date: '',
-        title: this.formArticle.value.title ?? '',
-        text: this.formArticle.value.text ?? '',
-        medias: mediasToArticle,
-        links: this.buttonsToAdd
-      };
-
-      const articleCreated = await firstValueFrom(
-        this.informationService.createArticle(newArticle)
-      );
-
-      // Éxito
-      this.isLoading = false;
-      this.messageService.add({ 
-        severity: 'success', 
-        summary: 'Exitoso', 
-        detail: 'Artículo creado exitosamente' 
-      });
-      this.onCreateArticle.emit(articleCreated);
-      this.closeEdit();
-
-    } catch (error) {
-      // Error
-      this.isLoading = false;
-      console.error('Error al crear artículo con imagen', error);
-      this.messageService.add({ 
-        severity: 'error', 
-        summary: 'Error', 
-        detail: 'Error al crear artículo' 
-      });
-      this.closeEdit();
-    }
     }else{
       this.createArticleWithoutImages();
     }
@@ -230,40 +268,64 @@ export class EditInfoComponent implements OnInit, OnChanges {
   private async updatedArticle(): Promise<void> {
     if(!this.currentArticle) return;
 
-    if(this.imageFilesToCreate.length > 0){
+    if(this.imageFilesToCreate.length > 0 || this.docsToCreate.length > 0){
       this.isLoading = true;
+      let mediasToArticleImage: MediaArticle[] = [];
+      let mediasToArticleDocs: MediaArticle[] = [];
 
       try {
-        // 1. Optimizar imágenes nuevas a WebP antes de crear FormData
-        const optimizedImages = await this.optimizeImages(this.imageFilesToCreate);
-        
-        // 2. Crear FormData con imágenes optimizadas
-        const formData = new FormData();
-        for (const file of optimizedImages) {
-          if (file.type.includes('image')) {
-            formData.append('images', file);
+        if(this.imageFilesToCreate.length > 0){
+          
+          // 1. Optimizar imágenes nuevas a WebP antes de crear FormData
+          const optimizedImages = await this.optimizeImages(this.imageFilesToCreate);
+          
+          // 2. Crear FormData con imágenes optimizadas
+          const formData = new FormData();
+          for (const file of optimizedImages) {
+            if (file.type.includes('image')) {
+              formData.append('images', file);
+            }
           }
+  
+          // 3. Subir imágenes optimizadas
+          const uploadResponseImages = await firstValueFrom(
+            this.postService.uploadImages(formData)
+          );
+  
+          // 4. Preparar datos del artículo actualizado
+          mediasToArticleImage = uploadResponseImages.map((media, index) => ({
+            uuid: media.uuid,
+            number: index + 1,
+            name: media.name,
+            type: 'image/webp', // Forzar tipo WebP ya que convertimos
+            path: media.urlResource
+          }));
         }
 
-        // 3. Subir imágenes optimizadas
-        const uploadResponse = await firstValueFrom(
-          this.postService.uploadImages(formData)
-        );
+        if(this.docsToCreate.length > 0){
+          const formDataDocs = new FormData();
+          for (const file of this.docsToCreate) {
+            formDataDocs.append('files', file);
+          }
 
-        // 4. Preparar datos del artículo actualizado
-        const mediasToArticle: MediaArticle[] = uploadResponse.map((media, index) => ({
-          uuid: media.uuid,
-          number: index + 1,
-          name: media.name,
-          type: 'image/webp', // Forzar tipo WebP ya que convertimos
-          path: media.urlResource
-        }));
+          const uploadResponseDocs = await firstValueFrom(
+            this.informationService.uploadDocumentsForArticle(formDataDocs)
+          )
+
+          mediasToArticleDocs = uploadResponseDocs.map((media, index) => ({
+            uuid: media.uuid,
+            number: index + 1,
+            name: media.name,
+            type: media.type,
+            path: media.urlResource
+          }));
+        }
 
         const articleUpdated: any = {
           ...this.currentArticle,
           title: this.formArticle.value.title ?? '',
           text: this.formArticle.value.text ?? '',
-          medias: [...this.imagesOfArticle, ...mediasToArticle],
+          medias: [...this.imagesOfArticle, ...mediasToArticleImage, ...this.docsOfArticle, ...mediasToArticleDocs],
           links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
         };
 
@@ -306,7 +368,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
       ...this.currentArticle,
       title: this.formArticle.value.title ?? '',
       text: this.formArticle.value.text ?? '',
-      medias: [...this.imagesOfArticle],
+      medias: [...this.imagesOfArticle, ...this.docsOfArticle],
       links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
     }
     
@@ -328,12 +390,15 @@ export class EditInfoComponent implements OnInit, OnChanges {
 
   public closeEdit(): void {
     this.clearImagesPreview();
+    this.clearDocsPreview();
     this.imageFilesToCreate = [];
     this.imagesToDelete = [];
+    this.docsToCreate = [];
+    this.docsToDelete = [];
     if(this.typeForm === 'edit'){
       this.buttonsOfArticle = [];
       this.currentArticle = undefined;
-      this.resetFileInput();
+      this.resetFileInput(this.fileInputImage);
       this.onCloseEdit.emit();
     }else {
       this.formArticle.reset();
@@ -347,6 +412,15 @@ export class EditInfoComponent implements OnInit, OnChanges {
         URL.revokeObjectURL(img.url);
       }
       this.imgsPreview = [];
+    }
+  }
+
+  private clearDocsPreview(): void {
+    if(this.docsPreview.length > 0) {
+      for(const doc of this.docsPreview){
+        URL.revokeObjectURL(doc.url);
+      }
+      this.docsPreview = [];
     }
   }
 
@@ -370,15 +444,45 @@ export class EditInfoComponent implements OnInit, OnChanges {
     });
   }
 
-  public openInputFileMedia(): void {
-    this.resetFileInput();
-    this.fileInput?.nativeElement.click();  
+  public openInputFile(fileInput: ElementRef): void {
+    this.resetFileInput(fileInput);
+    fileInput?.nativeElement.click();  
   }
 
-  private resetFileInput(): void {
-    if (this.fileInput?.nativeElement) {
-      this.fileInput.nativeElement.value = '';
+  private resetFileInput(fileInput: ElementRef): void {
+    if (fileInput?.nativeElement) {
+      fileInput.nativeElement.value = '';
     }
+  }
+
+  changeInputDocs(event: Event): void {
+    if(event.target instanceof HTMLInputElement && event.target.files){
+      this.docsToCreate = Array.from(event.target.files);
+
+      // Validar docs
+      if(!this.isValidFileTypeDoc(this.docsToCreate)){
+        alert('Por favor, seleccione solo documentos pdf');
+        this.resetFileInput(this.fileInputDoc);
+        return;
+      }
+
+      const newDocs = this.docsToCreate.map(file => ({name: file.name, type: file.type, url: URL.createObjectURL(file)}));
+      this.docsPreview.push(...newDocs);
+    }
+  }
+
+  private isValidFileTypeDoc(files: File[]): boolean {
+    return files.every(file => this.typeDocs.includes(file.type));
+  }
+
+  public selectDocumentDeleteOfArticle(index: number, doc: MediaArticle): void {
+    this.docsToDelete.push(doc);
+    this.docsOfArticle.splice(index, 1);
+  }
+
+  public deleteDocumentPreview(index: number): void {
+    this.docsPreview.splice(index, 1);
+    this.docsToCreate.splice(index, 1);
   }
 
   changeInputMedia(event: Event){
@@ -388,7 +492,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
       // Validaciones
       if(!this.isValidFileType(this.imageFilesToCreate)){
         alert('Por favor, seleccione solo imágenes');
-        this.resetFileInput();
+        this.resetFileInput(this.fileInputImage);
         return;
       }
 
@@ -405,12 +509,12 @@ export class EditInfoComponent implements OnInit, OnChanges {
     });
   }
 
-  selectImageDeleteOfArticle(index: number, image: MediaArticle): void {
+  public selectImageDeleteOfArticle(index: number, image: MediaArticle): void {
     this.imagesToDelete.push(image);
     this.imagesOfArticle.splice(index, 1);
   }
 
-  deleteImagePreview(index: number): void {
+  public deleteImagePreview(index: number): void {
     this.imgsPreview.splice(index, 1);
     this.imageFilesToCreate.splice(index, 1);
   }

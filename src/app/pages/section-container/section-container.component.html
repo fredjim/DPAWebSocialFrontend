@@ -21,6 +21,7 @@
 	<div class="page-section no-border-bottom">
 		@for(article of articles; track article.uuid;  let i = $index){
 			@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+				<!-- View admin -->
 				<!-- Mostrar form de edicion del articulo -->
 				@if(idArticleToEdit === article.uuid){
 					<app-edit-info
@@ -36,6 +37,17 @@
 						<div class="section-content">
 							<h3>{{ article.title }}</h3>
 							<div class="text" *ngIf="article" [innerHTML]="safeText(article.text)"></div>
+
+							<!-- Documents article -->
+							<div class="documents" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeDocs)">
+								@for(media of article.medias; track media.uuid){
+									@if(typeDocs.includes(media.type)){
+										<a [href]="media.path" target="_blank"><i class="bi bi-file-earmark-pdf-fill"></i> {{ media.name }}</a>
+									}
+								}
+							</div>
+
+							<!-- Buttons article -->
 							<div class="buttons" *ngIf="article.links.length > 0">
 								@for(button of article.links; track button.uuid){
 									<div class="attach-files">
@@ -45,11 +57,15 @@
 									</div>
 								}
 							</div>
-							<div class="media-container" *ngIf="article.medias.length > 0" 
+
+							<!-- Images article -->
+							<div class="media-container" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeImages)" 
 								[ngStyle]="{ width: article.medias.length == 1 ? '70%' : '100%' }">
 								@for(media of article.medias; track media.uuid){
-									<img [src]="media.path" [alt]="media.name" 
-										(click)="showModalArticleMedias(article.medias)" (keypress)="showModalArticleMedias(article.medias)">
+									@if(media.type.includes('image')){
+										<img [src]="media.path" [alt]="media.name" 
+											(click)="showModalArticleMedias(article.medias)" (keypress)="showModalArticleMedias(article.medias)">
+									}
 								}
 							</div>
 						</div>
@@ -59,9 +75,21 @@
 					</div>
 				}
 			}@else {
+				<!-- View general user -->
 				<div class="section-content">
 					<h3>{{ article.title }}</h3>
 					<div class="text" [innerHTML]="safeText(article.text)"></div>
+
+					<!-- Documents article -->
+					<div class="documents" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeDocs)">
+						@for(media of article.medias; track media.uuid){
+							@if(typeDocs.includes(media.type)){
+								<a [href]="media.path" target="_blank"><i class="bi bi-file-earmark-pdf-fill"></i> {{ media.name }}</a>
+							}
+						}
+					</div>
+
+					<!-- Buttons article -->
 					<div class="buttons" *ngIf="article.links.length > 0">
 						@for(button of article.links; track button.uuid){
 							<div class="attach-files">
@@ -71,11 +99,15 @@
 							</div>
 						}
 					</div>
-					<div class="media-container" *ngIf="article.medias.length > 0" 
+
+					<!-- Images article -->
+					<div class="media-container" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeImages)" 
 						[ngStyle]="{ width: article.medias.length == 1 ? '70%' : '100%' }">
 						@for(media of article.medias; track media.uuid){
-							<img [src]="media.path" [alt]="media.name"
-								(click)="showModalArticleMedias(article.medias)" (keypress)="showModalArticleMedias(article.medias)">
+							@if(media.type.includes('image')){
+								<img [src]="media.path" [alt]="media.name"
+									(click)="showModalArticleMedias(article.medias)" (keypress)="showModalArticleMedias(article.medias)">
+							}
 						}
 					</div>
 				</div>

@@ -44,6 +44,8 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
   public buttonsOfArticle: Link[] | Omit<Link, 'uuid'>[] = [];
   public visibleModalImagesArticle = false;
   public mediasToModal: MediaArticle[] = [];
+  public typeImages = ['image', 'image/webp', 'image/jpg', 'image/jpeg', 'image/png'];
+  public typeDocs = ['document', 'application/pdf'];
 
   ngOnInit() {
     this.isAuthenticated = this.authService.isAuthenticated();
@@ -151,12 +153,16 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
   }
 
   showModalArticleMedias(mediasArticle: MediaArticle[]): void {
-    this.mediasToModal = mediasArticle;
+    this.mediasToModal = mediasArticle.filter(media => media.type.includes('image'));
     this.visibleModalImagesArticle = true;
   }
   
   closeModalArticleMedias(): void {
     this.mediasToModal = [];
 
+  }
+
+  existTypeMedia(article: Article, typesExist: string[]): boolean {
+    return article.medias.some(media => typesExist.includes(media.type));
   }
 }
