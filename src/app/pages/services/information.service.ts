@@ -7,6 +7,7 @@ import { Section } from '../models/section';
 import { Article } from '../models/article';
 import { NavItem } from '../models/nav-item';
 import { Link } from '../models/link';
+import { UploadedMedia } from '../../posts/models/uploaded-media';
 
 @Injectable({
   providedIn: 'root'
@@ -170,5 +171,10 @@ export class InformationService {
   // DELETE Article
   deleteArticle(uuid: string): Observable<void> {
     return this.http.delete<void>(`${this.ROOT_URL}/${this.articlesUrl}/${uuid}`, this.reqHeader);
+  }
+
+  uploadDocumentsForArticle(formData: FormData): Observable<UploadedMedia[]> {
+    const uploadDocs = 'documents/articles';
+    return this.http.post<UploadedMedia[]>(`${this.ROOT_URL}/${uploadDocs}`, formData, this.reqHeader);
   }
 }
