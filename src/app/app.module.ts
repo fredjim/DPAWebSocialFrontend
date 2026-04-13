@@ -4,6 +4,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './authentication/http-interceptors/auth-interceptor';
+import { TenantInterceptor } from './authentication/http-interceptors/tenant-interceptor';
 import { AuthService } from './authentication/services/auth.service';
 export function refreshTokenFactory(authService: AuthService) {
   return () => authService.tryRefreshOnStartup();
@@ -99,6 +100,11 @@ import { InstitutionModule } from './institution/institution.module';
     NavbarComponent
   ],
   providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TenantInterceptor,
+      multi: true
+    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

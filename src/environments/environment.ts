@@ -6,6 +6,9 @@ export const environment = {
   //Institution
   INSTITUTION_ID: '93j203b4-f63b-4c4a-be05-eae84cef0c0c',
 
+  // Tenant fallback (development)
+  DEFAULT_TENANT_SLUG: 'dpa',
+
   //Backend data
   production: false,
   BACK_END_HOST_PROD: 'https://devpws.cs.umss.edu.bo/api/v1',

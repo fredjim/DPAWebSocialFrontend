@@ -1,27 +1,20 @@
-import { Component } from '@angular/core';
-import { PostService } from '../../services/post.service';
-import { environment } from '../../../../environments/environment';
+import { Component, OnInit } from '@angular/core';
+import { TenantService } from '../../../services/tenant.service';
 
 @Component({
   selector: 'app-department-details',
   templateUrl: './department-details.component.html',
   styleUrl: './department-details.component.scss'
 })
-export class DepartmentDetailsComponent {
+export class DepartmentDetailsComponent implements OnInit {
   institution: any;
 
-  constructor(private postService: PostService) {}
+  constructor(private tenantService: TenantService) {}
 
   ngOnInit(): void {
-    const intitutionUUID = `${environment.INSTITUTION_ID}`;
-
-    this.postService.getInstitution(intitutionUUID).subscribe(
-      (data) => {
-        this.institution = data;
-      },
-      (error) => {
-        console.error('Error al obtener los datos de la institución', error);
-      }
-    );
+    this.tenantService.getInstitution().subscribe({
+      next: (data) => { this.institution = data; },
+      error: (error) => { console.error('Error al obtener los datos de la institución', error); }
+    });
   }
 }

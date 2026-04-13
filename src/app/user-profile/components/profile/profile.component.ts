@@ -2,7 +2,7 @@ import { Component ,ElementRef,inject, OnInit, ViewChild } from '@angular/core';
 import { PostService } from '../../../posts/services/post.service';
 import { UserDetail } from '../../../posts/models/user-detail';
 import { Institution } from '../../../posts/models/institution';
-import { environment } from '../../../../environments/environment';
+import { TenantService } from '../../../services/tenant.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
@@ -18,10 +18,10 @@ export class ProfileComponent implements OnInit {
   private readonly postService = inject(PostService);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
+  private readonly tenantService = inject(TenantService);
 
   currentUser!: UserDetail;
   institution!: Institution;
-  uuidIntitution = `${environment.INSTITUTION_ID}`;
   authenticated: boolean = false;
   isMobileMenuOpen = false;
   isMenuOpen = false;
@@ -47,8 +47,8 @@ export class ProfileComponent implements OnInit {
       });
     }
 
-    this.postService.getInstitution(this.uuidIntitution).subscribe(institutionData =>{
-      this.institution = institutionData;     
+    this.tenantService.getInstitution().subscribe(institutionData =>{
+      this.institution = institutionData;
     });
   }
 

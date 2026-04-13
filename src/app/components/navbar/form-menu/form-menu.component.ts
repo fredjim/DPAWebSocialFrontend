@@ -2,7 +2,7 @@ import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnInit, 
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NavItem } from '../../../pages/models/nav-item';
 import { InformationService } from '../../../pages/services/information.service';
-import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../authentication/services/auth.service';
 
 @Component({
   selector: 'app-form-menu',
@@ -11,7 +11,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class FormNavItemComponent implements OnInit, OnChanges {
   private readonly informationService = inject(InformationService);
-  private readonly institutionId = environment.INSTITUTION_ID;
+  private readonly authService = inject(AuthService);
 
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() visibleModal = false;
@@ -65,7 +65,7 @@ export class FormNavItemComponent implements OnInit, OnChanges {
 
     this.isLoading = true;
     const newNavItem: Omit<NavItem, 'uuid' | 'user_id' | 'createdDate' | 'lastModifiedDate'> = {
-      institution_id: this.institutionId,
+      institution_id: this.authService.getInstitutionId() ?? '',
       label: this.formNavItem.get('label')!.value.trim(),
       url: this.getUrlFromLabel(this.formNavItem.get('label')!.value),
       visible: true,

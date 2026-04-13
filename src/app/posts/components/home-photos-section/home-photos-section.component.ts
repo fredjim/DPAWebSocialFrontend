@@ -5,7 +5,7 @@ import { Post } from '../../models/post';
 import { PostComment } from '../../models/post-comment';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from './../comments/comments.component';
-import { environment } from '../../../../environments/environment';
+import { TenantService } from '../../../services/tenant.service';
 
 @Component({
   selector: 'home-photos-section',
@@ -20,18 +20,16 @@ export class HomePhotosSectionComponent implements OnInit {
   isLoading: boolean = true;
   currentPost !: Post;
 
-  constructor(private postService: PostService) {
-   
-
-  }
+  constructor(
+    private postService: PostService,
+    private tenantService: TenantService
+  ) {}
 
   ngOnInit(){
-    const intitutionUUID = `${environment.INSTITUTION_ID}`;
-    this.postService.getInstitution(intitutionUUID).subscribe({
-      
+    this.tenantService.getInstitution().subscribe({
       next: (dataInstitution: Institution) => {
         this.institution = dataInstitution;
-        this.loadPhotos(); // Llama a loadPhotos después de obtener la institución
+        this.loadPhotos();
       },
       error: (error) => {
         console.log(error);

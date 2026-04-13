@@ -76,6 +76,17 @@ export class AuthService {
     }
   }
 
+  getInstitutionId(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.institutionId ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   getRoles() {
     const token = this.getToken();
     if (!token) return [];

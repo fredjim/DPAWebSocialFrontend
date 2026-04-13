@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Institution } from '../posts/models/institution';
-import { environment } from '../../environments/environment';
-import { PostService } from '../posts/services/post.service';
+import { TenantService } from '../services/tenant.service';
 import { InstitutionStateService } from '../services/institution-state.service';
 
 @Component({
@@ -11,17 +9,15 @@ import { InstitutionStateService } from '../services/institution-state.service';
 })
 export class PagesComponent implements OnInit {
 
-  private readonly institutionID = `${environment.INSTITUTION_ID}`;
-
   constructor(
-    private readonly postService: PostService,
+    private readonly tenantService: TenantService,
     private readonly institutionStateService: InstitutionStateService
   ){}
 
   ngOnInit(): void {
-    this.postService.getInstitution(this.institutionID).subscribe({
-      next: (insititutionResponse: Institution) => {
-        this.institutionStateService.setInstitution(insititutionResponse);
+    this.tenantService.getInstitution().subscribe({
+      next: (institution) => {
+        this.institutionStateService.setInstitution(institution);
       },
       error: (err) => {
         console.log('Error al obtener institucion para informacion', err);

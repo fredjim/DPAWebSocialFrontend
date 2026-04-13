@@ -5,7 +5,7 @@ import { Section } from '../../../pages/models/section';
 import { MessageService } from 'primeng/api';
 import moment from 'moment';
 import { SectionStateService } from '../../../pages/services/sections-state.service';
-import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../authentication/services/auth.service';
 
 @Component({
   selector: 'app-form-section',
@@ -16,7 +16,7 @@ export class FormSectionComponent implements OnInit, OnChanges {
   private readonly informationService = inject(InformationService);
   private readonly messageService = inject(MessageService);
   private readonly sectionStateService = inject(SectionStateService);
-  private readonly institutionId = environment.INSTITUTION_ID;
+  private readonly authService = inject(AuthService);
 
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() currentSection: Section | undefined;
@@ -63,7 +63,7 @@ export class FormSectionComponent implements OnInit, OnChanges {
     const newSection: Omit<Section, 'uuid' | 'user_id' | 'articles'> = {
       nav_item_id: this.currentNavItemId,
       date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
-      institution_id: this.institutionId,
+      institution_id: this.authService.getInstitutionId() ?? '',
       name: this.formSection.value.name?.trim() ?? ''
     }
     

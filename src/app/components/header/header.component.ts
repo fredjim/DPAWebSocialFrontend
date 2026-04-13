@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Institution } from '../../posts/models/institution';
 import { PostService } from '../../posts/services/post.service';
-import { environment } from '../../../environments/environment';
+import { TenantService } from '../../services/tenant.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Modal } from 'bootstrap';
 import { AuthService } from '../../authentication/services/auth.service';
@@ -13,8 +13,6 @@ import { CommentService } from '../../comments/services/comment.service';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-
-  uuidIntitution = `${environment.INSTITUTION_ID}`;
 
   institution!: Institution
   totalFollowers!: number;
@@ -33,9 +31,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   @ViewChild('moderateCommentModal') modalElement!: ElementRef;
 
-  constructor(private readonly authService: AuthService, 
-    private readonly postService: PostService, 
-    private readonly commentService: CommentService) {
+  constructor(private readonly authService: AuthService,
+    private readonly postService: PostService,
+    private readonly commentService: CommentService,
+    private readonly tenantService: TenantService) {
     this.authenticated = authService.isAuthenticated();
     this.canModerate = authService.canModerate();
   }
@@ -58,16 +57,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   getInstitution() {
-    const uuid = this.uuidIntitution;
-    this.postService.getInstitution(uuid)
+    this.tenantService.getInstitution()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (institutionData) => {
           this.institution = institutionData;
         },
-        error: (error) => {
-          // Error manejado silenciosamente
-        }
+        error: () => {}
       });
   }
 

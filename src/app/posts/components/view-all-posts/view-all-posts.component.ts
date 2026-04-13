@@ -4,7 +4,7 @@ import { AuthService } from '../../../authentication/services/auth.service';
 import { Post } from '../../models/post';
 import { UserDetail } from '../../models/user-detail';
 import { Institution } from '../../models/institution';
-import { environment } from '../../../../environments/environment';
+import { TenantService } from '../../../services/tenant.service';
 import { distinctUntilChanged, fromEvent, Subscription, throttleTime } from 'rxjs';
 
 @Component({
@@ -21,17 +21,17 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   selectedPostUuid: string = '';
   loading = false;
   pageCounter = 0;
-  institutionId = environment.INSTITUTION_ID;
   showScrollButton = false;
   private readonly scrollThreshold = 300;
   private scrollSubscription!: Subscription;
   private readonly loadThreshold = 100; // Pixeles antes del final para cargar
   private readonly throttleTimeMs = 200; // Tiempo para throttling
 
-  constructor(private readonly postService: PostService,
-    private readonly authService: AuthService
-  ){
-  }
+  constructor(
+    private readonly postService: PostService,
+    private readonly authService: AuthService,
+    private readonly tenantService: TenantService
+  ){}
   
   ngOnInit(){
     this.setupScrollListener();
@@ -47,9 +47,9 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.postService.getInstitution(this.institutionId).subscribe(institution => {
+    this.tenantService.getInstitution().subscribe(institution => {
       this.currentInstitution = institution;
-    })
+    });
 
     if(this.authenticated === true) {
       this.postService.getUser().subscribe({
