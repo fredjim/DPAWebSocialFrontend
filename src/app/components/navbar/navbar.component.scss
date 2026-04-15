@@ -5,6 +5,7 @@ nav {
 	border-top: 1px solid var(--blue-color);
 	border-bottom: 1px solid var(--blue-color);
 	overflow-x: auto;
+	overflow-y: hidden;
 
 	ul {
 		display: flex;
