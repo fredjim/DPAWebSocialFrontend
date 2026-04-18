@@ -28,15 +28,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { EditInfoComponent } from './pages/edit-info/edit-info.component';
 import { ToastModule } from 'primeng/toast';
 import { NavbarInformationComponent } from './components/navbar/child/navbar-information/navbar-information.component';
-import { NavbarProcedureGuideComponent } from './components/navbar/child/navbar-procedure-guide/navbar-procedure-guide.component';
-import { PagesGuideProcedureComponent } from './pages/pages-guide-procedure/pages-guide-procedure.component';
 import { PagesInformationComponent } from './pages/pages-information/pages-information.component';
-import { AcademicCoordintationGuideComponent } from './pages/pages-guide-procedure/academic-coordintation-guide/academic-coordintation-guide.component';
-import { AcademicMonitoringGuideComponent } from './pages/pages-guide-procedure/academic-monitoring-guide/academic-monitoring-guide.component';
-import { AcademicProcedureGuideComponent } from './pages/pages-guide-procedure/academic-procedure-guide/academic-procedure-guide.component';
-import { PagesAppsComponent } from './pages/pages-apps/pages-apps.component';
-import { PagesGaiaComponent } from './pages/pages-gaia/pages-gaia.component';
-import { PagesContactsComponent } from './pages/pages-contacts/pages-contacts.component';
 import { HeroProfileComponent } from './components/hero-profile/hero-profile.component';
 import { MessageService } from 'primeng/api';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
@@ -58,15 +50,7 @@ import { InstitutionModule } from './institution/institution.module';
     PagesComponent,
     EditInfoComponent,
     NavbarInformationComponent,
-    NavbarProcedureGuideComponent,
-    PagesGuideProcedureComponent,
     PagesInformationComponent,
-    AcademicCoordintationGuideComponent,
-    AcademicMonitoringGuideComponent,
-    AcademicProcedureGuideComponent,
-    PagesAppsComponent,
-    PagesGaiaComponent,
-    PagesContactsComponent,
     HeroProfileComponent,
     SectionContainerComponent,
     FormSectionComponent,
