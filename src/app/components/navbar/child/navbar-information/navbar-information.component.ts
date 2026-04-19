@@ -78,7 +78,8 @@ export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy 
 
   private navigateToFirstSection(): void {
     const firstSection = this.sections[0];
-    this.router.navigate([`/${this.currentNavItem.uuid}`, firstSection.uuid], {
+    this.router.navigate([firstSection.uuid], {
+      relativeTo: this.route,
       replaceUrl: true // Reemplaza la URL actual en el historial
     });
   }

@@ -6,6 +6,7 @@ import { Observable } from "rxjs";
 import { UploadedMedia } from "../../posts/models/uploaded-media";
 import { Institution } from "../../posts/models/institution";
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -14,8 +15,6 @@ export class InstitutionService {
   private readonly ROOT_URL = `${environment.BACK_END_HOST_DEV}`;
 
   private readonly reqHeader = { headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }) };
-
-  private readonly institutionUuid = environment.INSTITUTION_ID;
 
   constructor(
     private readonly http: HttpClient, 
@@ -33,7 +32,8 @@ export class InstitutionService {
   }
 
   updateInstitutionData(updateInstitution: Institution): Observable<Institution> {
-    const url = `${this.ROOT_URL}/institutions/${this.institutionUuid}`;
+    const institutionId = this.authService.getInstitutionId();
+    const url = `${this.ROOT_URL}/institutions/${institutionId}`;
     return this.http.put<Institution>(url, updateInstitution, this.reqHeader);
   }
 }

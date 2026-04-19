@@ -5,8 +5,8 @@ import { Post } from '../../models/post';
 import { PostComment } from '../../models/post-comment';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from './../comments/comments.component';
+import { TenantService } from '../../../services/tenant.service';
 import moment from 'moment';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-videos-gallery',
@@ -21,15 +21,16 @@ export class VideosGalleryComponent implements OnInit {
   isLoading: boolean = true;
     currentPost !: Post;
 
-  constructor(private postService: PostService) {
-  }
+  constructor(
+    private postService: PostService,
+    private tenantService: TenantService
+  ) {}
 
   ngOnInit() {
-    const   uuidIntitutionUUID = `${environment.INSTITUTION_ID}`;
-    this.postService.getInstitution(uuidIntitutionUUID).subscribe({
+    this.tenantService.getInstitution().subscribe({
       next: (dataInstitution: Institution) => {
         this.institution = dataInstitution;
-        this.loadVideos(); // Llama a loadPhotos después de obtener la institución
+        this.loadVideos();
       },
       error: (error) => {
         console.log(error);

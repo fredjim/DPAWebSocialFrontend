@@ -9,7 +9,7 @@ import { Article } from '../models/article';
 import { UserDetail } from '../../posts/models/user-detail';
 import { SectionStateService } from '../services/sections-state.service';
 import { Subscription, switchMap } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { TenantService } from '../../services/tenant.service';
 import { Institution } from '../../posts/models/institution';
 import { Link } from '../models/link';
 import { MediaArticle } from '../models/media-article';
@@ -27,7 +27,7 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
   private readonly postService = inject(PostService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly sectionStateService = inject(SectionStateService);
-  private readonly institutionId = environment.INSTITUTION_ID;
+  private readonly tenantService = inject(TenantService);
   private sectionUpdateSubscription?: Subscription;
   private navItemSubscription?: Subscription;
   
@@ -66,7 +66,7 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
       });
     }
 
-    this.postService.getInstitution(this.institutionId).subscribe(institution => {
+    this.tenantService.getInstitution().subscribe(institution => {
       this.currentInstitution = institution;
     });
 

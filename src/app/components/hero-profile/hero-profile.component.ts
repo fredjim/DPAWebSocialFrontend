@@ -1,7 +1,7 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Institution } from '../../posts/models/institution';
 import { PostService } from '../../posts/services/post.service';
-import { environment } from '../../../environments/environment';
+import { TenantService } from '../../services/tenant.service';
 import { filter, Subscription } from 'rxjs';
 import { NavigationEnd, Router } from '@angular/router';
 
@@ -11,7 +11,6 @@ import { NavigationEnd, Router } from '@angular/router';
   styleUrl: './hero-profile.component.scss'
 })
 export class HeroProfileComponent implements OnInit, OnDestroy {
-  uuidIntitutionDric = `${environment.INSTITUTION_ID}`;
   institution!: Institution;
   screenWidth!: number;
   showHero = true;
@@ -19,12 +18,13 @@ export class HeroProfileComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly postService: PostService,
+    private readonly tenantService: TenantService,
     private readonly router: Router
   ) {}
 
   ngOnInit() {
     this.screenWidth = window.innerWidth;
-    this.getInstitutionData(this.uuidIntitutionDric);
+    this.getInstitutionData();
     
     // Suscribirse a cambios de ruta
     this.subscribeToRouteChanges();
@@ -64,8 +64,8 @@ export class HeroProfileComponent implements OnInit, OnDestroy {
     return this.router.url.includes('/posts');
   }
 
-  getInstitutionData(uuid: string) {
-    const dataSubscription = this.postService.getInstitution(uuid).subscribe({
+  getInstitutionData() {
+    const dataSubscription = this.tenantService.getInstitution().subscribe({
       next: (dataInstitution: Institution) => {
         this.institution = dataInstitution;
       },
@@ -73,7 +73,7 @@ export class HeroProfileComponent implements OnInit, OnDestroy {
         console.log(error);
       }
     });
-    
+
     this.subscriptions.add(dataSubscription);
   }
 

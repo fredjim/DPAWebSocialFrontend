@@ -3,7 +3,7 @@ import { PostService } from '../../../posts/services/post.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { UserDetail } from '../../../posts/models/user-detail';
 import { Institution } from '../../../posts/models/institution';
-import { environment } from '../../../../environments/environment';
+import { TenantService } from '../../../services/tenant.service';
 import { InstitutionService } from '../../services/institution.service';
 import { switchMap } from 'rxjs/operators';
 import { UploadedMedia } from '../../../posts/models/uploaded-media';
@@ -18,10 +18,10 @@ export class ProfileInstitutionComponent implements OnInit {
   private readonly postService = inject(PostService);
   private readonly authService = inject(AuthService);
   private readonly institutionService = inject(InstitutionService);
+  private readonly tenantService = inject(TenantService);
 
   currentUser!: UserDetail;
   institution!: Institution;
-  uuidIntitution = `${environment.INSTITUTION_ID}`;
   authenticated: boolean = false;
   isMobileMenuOpen = false;
   isMenuOpen = false;
@@ -44,7 +44,7 @@ export class ProfileInstitutionComponent implements OnInit {
       });
     }
 
-    this.postService.getInstitution(this.uuidIntitution).subscribe(institutionData =>{
+    this.tenantService.getInstitution().subscribe(institutionData =>{
       this.institution = institutionData;
       this.imageCover = this.institution.background_url || '';
       this.imageLogo = this.institution.logo_url || '';

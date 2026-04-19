@@ -10,7 +10,7 @@ import { UploadedDocument } from '../../models/uploaded-document';
 import moment from 'moment';
 import { CommentConfig } from '../../models/comment-config';
 import { FbUploadedMedia } from '../../models/fb-uploaded-media';
-import { environment } from '../../../../environments/environment';
+import { TenantService } from '../../../services/tenant.service';
 import { UserDetail } from '../../models/user-detail';
 import imageCompression from 'browser-image-compression';
 
@@ -41,18 +41,17 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
 
   constructor(
     private readonly postService: PostService,
-    private readonly formBuilder: FormBuilder
+    private readonly formBuilder: FormBuilder,
+    private readonly tenantService: TenantService
   ) { }
 
   ngOnInit() {
-    const intitutionUUID = `${environment.INSTITUTION_ID}`;
-    //Obtener la informacion de la institucion
-    this.postService.getInstitution(intitutionUUID).subscribe({
+    this.tenantService.getInstitution().subscribe({
       next: (institutionData: Institution) => {
-        this.institution = institutionData
+        this.institution = institutionData;
       },
       error: (error) => {
-        console.log(error)
+        console.log(error);
       }
     });
     //Obtener la configuracion de comentarios

@@ -15,8 +15,10 @@ import { SectionResolver } from './resolvers/section.resolver';
 import { ProfileComponent } from './user-profile/components/profile/profile.component';
 import { ProfileInstitutionComponent } from './institution/components/profile-institution/profile-institution.component';
 import { authGuard } from './authentication/services/auth.guard';
+import { environment } from '../environments/environment';
 
 const routes: Routes = [
+  // Rutas protegidas — van ANTES del wildcard :slug para que no sean absorbidas
   {
     path: 'profile',
     component: ProfileComponent,
@@ -28,51 +30,46 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { roles: ['ADMIN'] }
   },
+
+  // Rutas públicas prefijadas con el slug del tenant
   {
-    path: '', component: HomeComponent, 
+    path: ':slug',
+    component: HomeComponent,
     children: [
-      { path: '', redirectTo: '/posts', pathMatch: 'full'},
+      { path: '', redirectTo: 'posts', pathMatch: 'full' },
+      { path: 'posts', component: ViewAllPostsComponent },
+      { path: 'fotos', component: PhotosGalleryComponent },
+      { path: 'videos', component: VideosGalleryComponent },
+      { path: 'convenios', component: ViewAllPostsConveniosComponent },
+      { path: 'proyectos', component: ViewAllPostsProyectosComponent },
+      { path: 'becas', component: ViewAllPostsBecasComponent },
+      { path: 'cudie', component: ViewAllPostsCudieComponent },
       {
-        path: 'posts',
-        component: ViewAllPostsComponent,
-      },
-      { path: 'fotos', 
-        component: PhotosGalleryComponent
-      },
-      { path: 'videos', 
-        component: VideosGalleryComponent
-      },
-      { path: 'convenios', 
-        component: ViewAllPostsConveniosComponent
-      },
-      { path: 'proyectos', 
-        component: ViewAllPostsProyectosComponent
-      },
-      { path: 'becas', 
-        component: ViewAllPostsBecasComponent
-      },
-      { path: 'cudie', 
-        component: ViewAllPostsCudieComponent
-      },
-      { 
         path: ':uuidNavItem',
         component: PageContainerComponent,
         children: [
-          { 
-            path: ':uuidSection', 
+          {
+            path: ':uuidSection',
             component: SectionContainerComponent,
-            resolve: {
-              section: SectionResolver
-            }
+            resolve: { section: SectionResolver }
           }
         ]
       }
-    ],
+    ]
   },
+
+  // Post detail prefijado con slug
   {
-    path: 'posts/:id',
+    path: ':slug/posts/:id',
     component: PageComponent
   },
+
+  // Raíz → redirige al tenant por defecto
+  {
+    path: '',
+    redirectTo: environment.DEFAULT_TENANT_SLUG || 'dpa',
+    pathMatch: 'full'
+  }
 ];
 
 @NgModule({
