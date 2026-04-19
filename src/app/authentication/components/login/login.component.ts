@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { finalize } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -15,8 +16,9 @@ export class LoginComponent implements OnInit {
   public inputType: string = 'password';
   public errorMessage!: string;
   @ViewChild('userFocus', { static: true })
-  usernameField!: ElementRef;
-  correctCredentials: boolean = true;
+  public usernameField!: ElementRef;
+  public correctCredentials: boolean = true;
+  public credentialsAnotherInstitution = false;
   public isLoggedIn = false;
   public isLoading = false;
 
@@ -52,9 +54,13 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['/']);
           globalThis.location.reload();
         },
-        error: (error: any) => {
-          console.log('se imprime esto',error)
-          this.correctCredentials = false;
+        error: (error: HttpErrorResponse) => {
+          console.log('Error al iniciar sesión',error);
+          if(error.status === 400 && error.error.message.includes('El usuario no pertenece a esta institución.')){
+            this.credentialsAnotherInstitution = true;
+          }else if(error.status === 401){
+            this.correctCredentials = false;
+          }
         }
       });
     }
