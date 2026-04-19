@@ -72,7 +72,7 @@ export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   private isCurrentSectionValid(): boolean {
-    const currentSectionUuid = this.route.snapshot.paramMap.get('uuidSection');
+    const currentSectionUuid = this.route.snapshot.firstChild?.paramMap.get('uuidSection') ?? null;
     return this.sections.some(section => section.uuid === currentSectionUuid);
   }
 
