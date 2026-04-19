@@ -78,7 +78,8 @@ export class LoginComponent implements OnInit {
 
   loginReset(){
     this.loginForm.reset()
-    this.correctCredentials = true
+    this.correctCredentials = true;
+    this.credentialsAnotherInstitution = false;
   }
 
 }
