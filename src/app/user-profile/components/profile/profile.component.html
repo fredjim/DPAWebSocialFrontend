@@ -51,7 +51,7 @@
         <div class="side-image">
     
             <div class="logo-overlay">
-                <img *ngIf="currentUser" [src]="currentUser.photo_profile_path" alt="Foto ususario" class="user-logo">
+                <img *ngIf="currentUser" [src]="currentUser.photo_profile_path || 'assets/user-icon.png'" alt="Foto ususario" class="user-logo">
                 <input #fileInputProfile type="file" id="input-photo-profile" (change)="changeInputMediaProfile($event)"
                  hidden accept="image/jpg, image/png, image/jpeg">
                 <div class="edit-info" (click)="openInputFileProfile()" (keypress)="openInputFileProfile()" >
