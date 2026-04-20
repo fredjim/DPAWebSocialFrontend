@@ -283,9 +283,8 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
           let isVideo = false;
           this.postService.uploadMedia(formData).pipe(
             concatMap((uploadResponse: UploadedMedia[]) => {
-              console.log('uploadResponse',uploadResponse)
               const processMedia$ = uploadResponse.map((media, index) => {
-                console.log('media', media)
+
                 const isImage = media.mimeType.includes('image');
                 const baseMedia = {
                   number: index + 1,
@@ -367,7 +366,6 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
         this.postService.uploadDocument(formData).pipe(
           concatMap((uploadResponse: UploadedMedia) => {
             // Initialize response object
-            console.log('uploaded doc',uploadResponse)
             const responseDoc = {
               number: 1,
               type: 'document',//uploadResponse.mimeType,
@@ -402,7 +400,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
                 post.content.media = post.content.media || [];
                 post.content.media.push(responseDoc);
                 post.is_fb_posted = responseDoc.is_fb_posted;
-                console.log('post a crear', post)
+
                 return this.postService.createPost(post);
               })
             );

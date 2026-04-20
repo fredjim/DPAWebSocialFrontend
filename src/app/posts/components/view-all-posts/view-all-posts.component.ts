@@ -40,7 +40,6 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
     this.postService.getPagedPosts(this.pageCounter).subscribe({
       next:(data: Post[])=>{
         this.posts = data;
-        console.log(data)
         this.postService.getPagedPosts(this.pageCounter++); // Avanza a la siguiente página
       },
       error:(error) => {
