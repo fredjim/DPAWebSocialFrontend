@@ -353,9 +353,10 @@ export class ModalEditPostComponent implements OnInit {
 
               responseMedia.push({
                 number: index + 1 + amountImagesPost,
-                type: media.type,
+                type: media.mimeType,
                 name: media.name,
                 path: media.urlResource,
+                uploaded_file_uuid: media.uuid,
                 fb_media_id: this.fbMediaResponse ? this.fbMediaResponse.id : ''
               });
             });
@@ -384,15 +385,16 @@ export class ModalEditPostComponent implements OnInit {
       }else if(this.fileDoc && this.fileDoc.size > 0){//Si hay un archivo
         //Convertir el archivo en form data
         formData.append('file', this.fileDoc);
-        console.log('dentro', this.fileDoc)
+
         this.postService.uploadDocument(formData).pipe(
-          concatMap((uploadResponse: UploadedDocument) => {
+          concatMap((uploadResponse: UploadedMedia) => {
   
             responseDoc = {
               number: 1,
-              type: 'document',//uploadResponse.type,
+              type: uploadResponse.mimeType,
               name: uploadResponse.name,
               path: uploadResponse.urlResource,
+              uploaded_file_uuid: uploadResponse.uuid,
               fb_media_id: ''
             }
 
