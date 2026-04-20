@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { finalize } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-login',
@@ -15,8 +17,9 @@ export class LoginComponent implements OnInit {
   public inputType: string = 'password';
   public errorMessage!: string;
   @ViewChild('userFocus', { static: true })
-  usernameField!: ElementRef;
-  correctCredentials: boolean = true;
+  public usernameField!: ElementRef;
+  public correctCredentials: boolean = true;
+  public credentialsAnotherInstitution = false;
   public isLoggedIn = false;
   public isLoading = false;
 
@@ -24,6 +27,7 @@ export class LoginComponent implements OnInit {
     private readonly formBuilder: FormBuilder,
     private readonly auth: AuthService,
     private readonly router: Router,
+    private readonly messageService: MessageService
   ) { }
 
   ngOnInit(): void {
@@ -52,9 +56,19 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['/']);
           globalThis.location.reload();
         },
-        error: (error: any) => {
-          console.log('se imprime esto',error)
-          this.correctCredentials = false;
+        error: (error: HttpErrorResponse) => {
+          console.log('Error al iniciar sesión',error);
+          if(error.status === 400 && error.error.message.includes('El usuario no pertenece a esta institución.')){
+            this.credentialsAnotherInstitution = true;
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error al iniciar sesión',
+              detail: 'El usuario no pertenece a esta institución',
+              sticky: true
+            });
+          }else if(error.status === 401){
+            this.correctCredentials = false;
+          }
         }
       });
     }
@@ -72,7 +86,8 @@ export class LoginComponent implements OnInit {
 
   loginReset(){
     this.loginForm.reset()
-    this.correctCredentials = true
+    this.correctCredentials = true;
+    this.credentialsAnotherInstitution = false;
   }
 
 }
