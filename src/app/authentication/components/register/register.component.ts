@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { NewUser } from '../../models/new-user';
 import { MessageService } from 'primeng/api';
 import { Modal } from 'bootstrap';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-register',
@@ -91,26 +92,31 @@ export class RegisterComponent implements OnInit {
             this.showModalLogin();
           }, 5000);
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.isRegistering = false;
           console.error('Error al registrar', error);
 
           const backendMessage = error?.error?.message || error?.error?.detail || 'Inténtelo más tarde.';
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error al registrar',
-            detail: backendMessage,
-            sticky: true
-          });
 
-          if (backendMessage.toLowerCase().includes('already registered') ||
-              backendMessage.toLowerCase().includes('ya registrado') ||
-              backendMessage.toLowerCase().includes('email exists')) {
+          if (backendMessage.includes("The user email is already registered")) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error al registrar',
+              detail: 'El correo ya esta registrado.',
+              sticky: true
+            });
             const emailControl = this.registerForm.get('email');
             if (emailControl) {
               emailControl.setErrors({ backend: 'Este correo ya está registrado' });
               emailControl.markAsTouched();
             }
+          }else{
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error al registrar',
+              detail: 'Inténtelo más tarde.',
+              sticky: true
+            });
           }
 
           if (error?.error?.errors) {
