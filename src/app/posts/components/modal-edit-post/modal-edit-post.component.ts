@@ -8,7 +8,6 @@ import { Media } from '../../models/media';
 import { CreatePost } from '../../models/create-post';
 import { concatMap } from 'rxjs';
 import { UploadedMedia } from '../../models/uploaded-media';
-import { UploadedDocument } from '../../models/uploaded-document';
 import { FbUploadedMedia } from '../../models/fb-uploaded-media';
 import { Modal } from 'bootstrap';
 import { UserDetail } from '../../models/user-detail';
