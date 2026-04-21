@@ -82,8 +82,8 @@ export class NavbarComponent implements OnInit {
   onDeleteNavItem(event: { menu?: NavItem | null, error?: any }) {
     if(event.menu){
       this.navItems = this.navItems.filter(menu => menu.uuid !== event.menu?.uuid);
-      const currentNavItemUuid = this.route.snapshot.firstChild?.paramMap.get('uuidNavItem');
-      if(currentNavItemUuid === event.menu.uuid){
+      const currentNavItemPath = this.route.snapshot.firstChild?.paramMap.get('pathNavItem');
+      if(currentNavItemPath === event.menu.path){
         // Si el nav item eliminado es el que se está visualizando, redirigir al inicio
         this.router.navigate(['/'], { replaceUrl: true });
       }

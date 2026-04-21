@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { InformationService } from '../services/information.service';
 import { Section } from '../models/section';
 import { AuthService } from '../../authentication/services/auth.service';
@@ -22,6 +22,7 @@ import { NavItem } from '../models/nav-item';
 })
 export class SectionContainerComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly informationService = inject(InformationService);
   private readonly authService = inject(AuthService);
   private readonly postService = inject(PostService);
@@ -29,7 +30,7 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
   private readonly sectionStateService = inject(SectionStateService);
   private readonly tenantService = inject(TenantService);
   private sectionUpdateSubscription?: Subscription;
-  private navItemSubscription?: Subscription;
+  private readonly subscriptions = new Subscription();
   
   currentSection!: Section;
   articles: Article[] = [];
@@ -46,6 +47,7 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
   public mediasToModal: MediaArticle[] = [];
   public typeImages = ['image', 'image/webp', 'image/jpg', 'image/jpeg', 'image/png'];
   public typeDocs = ['document', 'application/pdf'];
+  public currentNavItemPath!: string | null;
 
   ngOnInit() {
     this.isAuthenticated = this.authService.isAuthenticated();
@@ -55,33 +57,46 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
       });
     }
 
-    if (this.route.parent) {
-      this.navItemSubscription = this.route.parent.paramMap.pipe(
+    this.subscriptions.add(
+      this.route.parent?.paramMap.pipe(
         switchMap(params => {
-          const navItemId = params.get('uuidNavItem') ?? '';
-          return this.informationService.getNavItemById(navItemId);
+          this.currentNavItemPath = params.get('pathNavItem');
+
+          if(this.currentNavItemPath)
+            return this.informationService.getAllNavItems();
+          return [];
         })
-      ).subscribe(navItem => {
-        this.currentNavItem = navItem;
-      });
-    }
+      ).subscribe(navItems => {
+        const navItemFinded = navItems.find(
+          navItem => navItem.path === this.currentNavItemPath
+        );
+        
+        if (navItemFinded) {
+          this.currentNavItem = navItemFinded;
+        } else {
+          this.router.navigate(['/']);
+        }
+      })
+    );
 
     this.tenantService.getInstitution().subscribe(institution => {
       this.currentInstitution = institution;
     });
 
-    this.route.paramMap.subscribe(params => {
-      const sectionId = params.get('uuidSection');
-      if (sectionId) {
-        this.loadSection(sectionId);
-        this.setupSectionUpdates();
-      }
-    });
+    this.subscriptions.add(
+      this.route.paramMap.subscribe(params => {
+        const sectionId = params.get('uuidSection');
+        if (sectionId) {
+          this.loadSection(sectionId);
+          this.setupSectionUpdates();
+        }
+      })
+    );
   }
 
   ngOnDestroy() {
     this.sectionUpdateSubscription?.unsubscribe();
-    this.navItemSubscription?.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   private loadSection(uuid: string) {

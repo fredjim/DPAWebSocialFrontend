@@ -1,15 +1,16 @@
-import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NavItem } from '../../../pages/models/nav-item';
 import { InformationService } from '../../../pages/services/information.service';
 import { AuthService } from '../../../authentication/services/auth.service';
+import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-menu',
   templateUrl: './form-menu.component.html',
   styleUrl: './form-menu.component.scss'
 })
-export class FormNavItemComponent implements OnInit, OnChanges {
+export class FormNavItemComponent implements OnInit, OnChanges, OnDestroy {
   private readonly informationService = inject(InformationService);
   private readonly authService = inject(AuthService);
 
@@ -23,10 +24,12 @@ export class FormNavItemComponent implements OnInit, OnChanges {
   @Output() modalClosed = new EventEmitter<boolean>();
   @ViewChild('firstInput') firstInput!: ElementRef<HTMLInputElement>;
 
-  isLoading = false;
+  public isLoading = false;
+  private readonly subscription: Subscription = new Subscription();
 
   public formNavItem = new FormGroup({
     label: new FormControl('', [Validators.required, Validators.minLength(2),Validators.maxLength(50)]) as FormControl<string>,
+    path: new FormControl('', [Validators.required, Validators.min(2), Validators.max(50)]) as FormControl<string>,
     orderIndex: new FormControl(this.lastOrderIndexNavItems + 1, [Validators.min(1), Validators.max(50)])
   });
 
@@ -34,6 +37,18 @@ export class FormNavItemComponent implements OnInit, OnChanges {
     this.formNavItem.patchValue({
       orderIndex: this.lastOrderIndexNavItems + 1
     });
+
+    this.subscription.add(
+      this.formNavItem.get('label')?.valueChanges
+      .pipe(
+        debounceTime(200), // Espera a que deje de escribir
+        distinctUntilChanged() // Solo si el valor cambió
+      )
+      .subscribe(valor => {
+        const pathTransformado = this.getPathFromLabel(valor || '');
+        this.formNavItem.get('path')?.setValue(pathTransformado, { emitEvent: false });
+      })
+    );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -48,9 +63,14 @@ export class FormNavItemComponent implements OnInit, OnChanges {
     if(changes['currentNavItem'] && this.currentNavItem && this.formNavItem && this.typeForm === 'edit'){
       this.formNavItem.patchValue({
         label: this.currentNavItem.label,
+        path: this.currentNavItem.path,
         orderIndex: this.currentNavItem.orderIndex
       })
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   onSubmit() {
@@ -67,7 +87,7 @@ export class FormNavItemComponent implements OnInit, OnChanges {
     const newNavItem: Omit<NavItem, 'uuid' | 'user_id' | 'createdDate' | 'lastModifiedDate'> = {
       institution_id: this.authService.getInstitutionId() ?? '',
       label: this.formNavItem.get('label')!.value.trim(),
-      url: this.getUrlFromLabel(this.formNavItem.get('label')!.value),
+      path: this.getPathFromLabel(this.formNavItem.get('path')!.value.trim()),
       visible: true,
       orderIndex: this.formNavItem.get('orderIndex')!.value ?? this.lastOrderIndexNavItems + 1
     }
@@ -93,7 +113,7 @@ export class FormNavItemComponent implements OnInit, OnChanges {
     const updatedNavItem: NavItem = {
       ...this.currentNavItem,
       label: this.formNavItem.get('label')!.value.trim(),
-      url: this.getUrlFromLabel(this.formNavItem.get('label')!.value),
+      path: this.getPathFromLabel(this.formNavItem.get('path')!.value.trim()),
       orderIndex: this.formNavItem.get('orderIndex')!.value ?? this.lastOrderIndexNavItems + 1
     }
 
@@ -136,15 +156,32 @@ export class FormNavItemComponent implements OnInit, OnChanges {
     this.currentNavItem = null;
   }
 
-  getUrlFromLabel(label: string): string {
-    return label
-      .toLowerCase() // Convertir a minúsculas
-      .normalize("NFD") // Reemplazar caracteres con acento por sus equivalentes sin acento
-      .replaceAll(/[\u0300-\u036f]/g, "") // Reemplazar espacios, guiones y barras por guiones
-      .replaceAll(/[\s/]+/g, '-') // Eliminar caracteres especiales excepto guiones
-      .replaceAll(/([^a-z0-9-])/g, '') // Eliminar guiones múltiples consecutivos
-      .replaceAll(/-+/g, '-') // Eliminar guiones múltiples consecutivos
-      .replaceAll(/(^-+)|(-+$)/g, '');  // Eliminar guiones al inicio y final
+  getPathFromLabel(label: string): string {
+    if (!label || label.trim().length === 0) {
+      return 'untitled';
+    }
+    
+    let path = label
+      .toLowerCase()
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, '')     // Acentos -> regex
+      .replace(/[\\/]/g, '-')              // Barras -> regex
+      .replaceAll('.', '-')                // Puntos -> string literal
+      .replace(/[<>:"|?*]/g, '')           // Especiales -> regex
+      .replaceAll(' ', '-')                // Espacios -> string literal
+      .replaceAll('_', '-')                // Guiones bajos -> string literal
+      .replace(/[^a-z0-9-]/g, '')          // Resto -> regex
+      .replace(/-+/g, '-')                 // Múltiples guiones -> regex
+      .replace(/^-+|-+$/g, '');            // Guiones extremos -> regex
+    
+    // Evitar rutas reservadas
+    const reservedPaths = ['', 'posts', 'home', 'dashboard', 'admin', 'login', 'register', 'profile'];
+    if (reservedPaths.includes(path)) {
+      path = `${path}_page`;
+    }
+    
+    return path;
   }
 
   private focusInputIfNeeded(): void {

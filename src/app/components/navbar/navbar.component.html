@@ -6,7 +6,7 @@
     @for(navItem of navItems; track navItem.uuid){
       @if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
         <li (click)="closeMenuNav()" (keypress)="closeMenuNav()">
-          <a [routerLink]="navItem.uuid" routerLinkActive="active">{{ navItem.label }}</a>
+          <a [routerLink]="navItem.path" routerLinkActive="active">{{ navItem.label }}</a>
           <div class="edit-info" (click)="showModalEdit(navItem)" (keypress)="showModalEdit(navItem)">
 						<i class="bi bi-pencil-fill"></i>
 					</div>
@@ -16,7 +16,7 @@
         </li>
       }@else {
         <li (click)="closeMenuNav()" (keypress)="closeMenuNav()">
-          <a [routerLink]="navItem.uuid" routerLinkActive="active">{{ navItem.label }}</a>
+          <a [routerLink]="navItem.path" routerLinkActive="active">{{ navItem.label }}</a>
           <div class="submenu">
             <app-navbar-information [currentNavItem]="navItem" (collapse)="closeMenuNav()"></app-navbar-information>
           </div>
