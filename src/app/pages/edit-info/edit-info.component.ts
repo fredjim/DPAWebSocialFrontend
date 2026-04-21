@@ -126,7 +126,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
             uuid: media.uuid,
             number: index + 1,
             name: media.name,
-            type: media.type,
+            type: media.mimeType,
             path: media.urlResource
           }))
         }
@@ -145,7 +145,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
             uuid: media.uuid,
             number: index + 1,
             name: media.name,
-            type: media.type,
+            type: media.mimeType,
             path: media.urlResource
           }))
 
@@ -316,7 +316,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
             uuid: media.uuid,
             number: index + 1,
             name: media.name,
-            type: media.type,
+            type: media.mimeType,
             path: media.urlResource
           }));
         }

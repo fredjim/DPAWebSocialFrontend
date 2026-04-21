@@ -6,7 +6,6 @@ import { concatMap, of, map, catchError, reduce, tap, concat } from 'rxjs';
 import { UploadedMedia } from '../../models/uploaded-media';
 import { CreatePost } from '../../models/create-post';
 import { Institution } from '../../models/institution';
-import { UploadedDocument } from '../../models/uploaded-document';
 import moment from 'moment';
 import { CommentConfig } from '../../models/comment-config';
 import { FbUploadedMedia } from '../../models/fb-uploaded-media';
@@ -284,12 +283,14 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
           this.postService.uploadMedia(formData).pipe(
             concatMap((uploadResponse: UploadedMedia[]) => {
               const processMedia$ = uploadResponse.map((media, index) => {
-                const isImage = media.type.includes('image');
+
+                const isImage = media.mimeType.includes('image');
                 const baseMedia = {
                   number: index + 1,
-                  type: isImage ? 'image' : 'video',
+                  type: media.mimeType,
                   name: media.name,
-                  path: media.urlResource
+                  path: media.urlResource,
+                  uploaded_file_uuid: media.uuid
                 };
 
                 if (!this.isFbSwitchOn) {
@@ -362,13 +363,14 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
           //call uploadDocument
         }
         this.postService.uploadDocument(formData).pipe(
-          concatMap((uploadResponse: UploadedDocument) => {
+          concatMap((uploadResponse: UploadedMedia) => {
             // Initialize response object
             const responseDoc = {
               number: 1,
-              type: 'document',
+              type: 'document',//uploadResponse.mimeType,
               name: uploadResponse.name,
               path: uploadResponse.urlResource,
+              uploaded_file_uuid: uploadResponse.uuid,
               fb_media_id: '',
               is_fb_posted: false
             };
@@ -452,10 +454,10 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
       concatMap((uploadResponse: UploadedMedia[]) => {
         // Only process Facebook uploads if switch is on
         const processMedia$ = uploadResponse.map((media, index) => {
-          const isImage = media.type.includes('image');
+          const isImage = media.mimeType.includes('image');
           const baseMedia = {
             number: index + 1,
-            type: isImage ? 'image' : 'video',
+            type: media.mimeType,
             name: media.name,
             path: media.urlResource
           };
