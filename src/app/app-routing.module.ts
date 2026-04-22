@@ -45,7 +45,7 @@ const routes: Routes = [
       { path: 'becas', component: ViewAllPostsBecasComponent },
       { path: 'cudie', component: ViewAllPostsCudieComponent },
       {
-        path: ':uuidNavItem',
+        path: ':pathNavItem',
         component: PageContainerComponent,
         children: [
           {

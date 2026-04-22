@@ -8,6 +8,7 @@ import { SectionStateService } from '../../../pages/services/sections-state.serv
 import { AuthService } from '../../../authentication/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { concatMap, finalize, map, Observable, of, tap } from 'rxjs';
+import { NavItem } from '../../../pages/models/nav-item';
 
 @Component({
   selector: 'app-form-section',
@@ -24,7 +25,7 @@ export class FormSectionComponent implements OnInit, OnChanges {
 
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() currentSection: Section | undefined;
-  @Input() currentNavItemId!: string | null;
+  @Input() currentNavItem!: NavItem;
   @Output() onCloseNew = new EventEmitter<boolean>();
   @Output() onCloseEdit = new EventEmitter<void>();
   @Output() onEditedSection = new EventEmitter<Section>();
@@ -61,11 +62,11 @@ export class FormSectionComponent implements OnInit, OnChanges {
   }
 
   private createSection(): void {
-    if(!this.currentNavItemId) return;
+    if(!this.currentNavItem) return;
 
     this.isLoading = true;
     const newSection: Omit<Section, 'uuid' | 'user_id' | 'articles'> = {
-      nav_item_id: this.currentNavItemId,
+      nav_item_id: this.currentNavItem.uuid,
       date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
       institution_id: this.authService.getInstitutionId() ?? '',
       name: this.formSection.value.name?.trim() ?? ''
@@ -142,11 +143,11 @@ export class FormSectionComponent implements OnInit, OnChanges {
     const currentSectionUrlUuid = this.route.snapshot.firstChild?.paramMap.get('uuidSection');
     
     if (currentSectionUrlUuid && currentSectionUrlUuid === this.currentSection?.uuid) {
-      const currentNavItemUuid = this.route.snapshot.paramMap.get('uuidNavItem');
+      const currentNavItemPath = this.route.snapshot.paramMap.get('pathNavItem');
       
-      if (currentNavItemUuid) {
-        return this.informationService.getAllSectionsByNavItemId(currentNavItemUuid).pipe(
-          tap(secs => this.performRedirection(currentNavItemUuid, secs)),
+      if (currentNavItemPath && this.currentNavItem) {
+        return this.informationService.getAllSectionsByNavItemId(this.currentNavItem.uuid).pipe(
+          tap(secs => this.performRedirection(currentNavItemPath, secs)),
           map(() => void 0)
         );
       }
@@ -155,12 +156,12 @@ export class FormSectionComponent implements OnInit, OnChanges {
     return of(void 0);
   }
 
-  private performRedirection(currentNavItemUuid: string, sections: any[]): void {
+  private performRedirection(currentNavItemPath: string, sections: any[]): void {
     if (sections.length > 0) {
       const firstSection = sections[0];
-      this.router.navigate(['../' + currentNavItemUuid, firstSection.uuid], { relativeTo: this.route });
+      this.router.navigate(['../' + currentNavItemPath, firstSection.uuid], { relativeTo: this.route });
     } else {
-      this.router.navigate(['../' + currentNavItemUuid], { relativeTo: this.route });
+      this.router.navigate(['../' + currentNavItemPath], { relativeTo: this.route });
     }
   }
 

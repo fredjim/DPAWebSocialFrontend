@@ -5,6 +5,10 @@
             <input #firstInput type="text" autocomplete="off" formControlName="label" pInputText id="input-menu">
         </div>
         <div class="input-field">
+            <label for="input-path">Ruta:</label>
+            <input type="text" (input)="firstInput.value" autocomplete="off" formControlName="path" pInputText id="input-path">
+        </div>
+        <div class="input-field">
             <label for="input-index">Posición:</label>
             <p-inputNumber autocomplete="off" formControlName="orderIndex" id="input-index"/>
         </div>

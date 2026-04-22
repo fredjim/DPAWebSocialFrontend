@@ -66,9 +66,9 @@ export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   private isCurrentNavItemValid(): boolean {
-    const currentNavItemUuid = this.route.snapshot.paramMap.get('uuidNavItem');
+    const currentNavItemPath = this.route.snapshot.paramMap.get('pathNavItem');
     // Comparar con el navItem actual del componente
-    return currentNavItemUuid === this.currentNavItem?.uuid;
+    return currentNavItemPath === this.currentNavItem?.path;
   }
 
   private isCurrentSectionValid(): boolean {
