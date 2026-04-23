@@ -4,6 +4,7 @@ import { NavItem } from '../../../pages/models/nav-item';
 import { InformationService } from '../../../pages/services/information.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-form-menu',
@@ -13,6 +14,8 @@ import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 export class FormNavItemComponent implements OnInit, OnChanges, OnDestroy {
   private readonly informationService = inject(InformationService);
   private readonly authService = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() visibleModal = false;
@@ -121,6 +124,7 @@ export class FormNavItemComponent implements OnInit, OnChanges, OnDestroy {
       next: (updatedNavs) => {
         this.isLoading = false;
         this.onEditedNavItem.emit({menus: updatedNavs});
+        this.handleRedirectionAfertEdit(updatedNavs);
         this.onCloseModal();
       },
       error: (error) => {
@@ -154,6 +158,24 @@ export class FormNavItemComponent implements OnInit, OnChanges, OnDestroy {
       orderIndex: this.lastOrderIndexNavItems + 1 // mantiene el último valor
     });
     this.currentNavItem = null;
+  }
+
+  private handleRedirectionAfertEdit(updatedNavItems: NavItem[]): void {
+    const currentNavItemPath = this.route.snapshot.firstChild?.paramMap.get('pathNavItem');
+    // Si se edito el NavItem en el que estamos ubicados
+    if(currentNavItemPath && currentNavItemPath === this.currentNavItem?.path){
+      // Buscar el navItem editado por su uuid
+      const navItemUpdated = updatedNavItems.find(navItem => navItem.uuid === this.currentNavItem?.uuid);
+      if(navItemUpdated){
+        // Actualizar el currentNavItem y redirigir a su ruta actualizada
+        this.currentNavItem = navItemUpdated;
+        const currentSectionPath = this.route.snapshot.firstChild?.children[0].paramMap.get('pathSection');
+        if(currentSectionPath)
+          this.router.navigate([navItemUpdated.path, currentSectionPath], { relativeTo: this.route });
+        else
+          this.router.navigate([navItemUpdated.path], { relativeTo: this.route });
+      }
+    }
   }
 
   private getPathFromLabelNavItem(label: string): string {

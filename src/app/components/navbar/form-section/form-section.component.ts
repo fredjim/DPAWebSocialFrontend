@@ -155,7 +155,6 @@ export class FormSectionComponent implements OnInit, OnChanges, OnDestroy {
 
   private handleDeleteSuccess(): void {
     this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Sección eliminada exitosamente' });
-    this.sectionStateService.clearSection();
     this.onDeletedSection.emit(this.currentSection);
     this.onCloseEdit.emit();
   }
