@@ -7,6 +7,5 @@ export interface Section {
     nav_item_id:    string;
     name:           string;
     date:           string;
-    // route:          string;
-    articles:       Article[];
+    path:           string;
 }

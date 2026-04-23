@@ -85,9 +85,9 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.route.paramMap.subscribe(params => {
-        const sectionId = params.get('uuidSection');
-        if (sectionId) {
-          this.loadSection(sectionId);
+        const sectionPath = params.get('pathSection');
+        if (sectionPath) {
+          this.loadSection(sectionPath);
           this.setupSectionUpdates();
         }
       })
@@ -99,8 +99,8 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  private loadSection(uuid: string) {
-    this.informationService.getSectionById(uuid).pipe(
+  private loadSection(path: string) {
+    this.informationService.getSectionByPath(path).pipe(
       switchMap(section => {
         this.currentSection = section;
         this.checkForSectionUpdates(); // Verificación inicial

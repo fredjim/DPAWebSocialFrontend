@@ -2,7 +2,8 @@
     <form [formGroup]="formSection" (ngSubmit)="onSubmit()">
     
         <!-- Nombre de seccion -->
-        <input #firstInput type="text" pInputText formControlName="name" class="input-name" placeholder="Nombre de sección"/>
+        <input #firstInput type="text" pInputText formControlName="name" class="input-form" placeholder="Nombre de sección"/>
+        <input type="text" pInputText formControlName="path" class="input-form" placeholder="Ruta de sección"/>
     
         <div class="d-flex flex-column gap-3 justify-content-center m-1" *ngIf="!isLoading">
             <button type="submit" class="btn btn-primary save"><i class="bi bi-check"></i> Guardar</button>

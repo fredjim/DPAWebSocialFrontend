@@ -45,7 +45,7 @@ export class FormNavItemComponent implements OnInit, OnChanges, OnDestroy {
         distinctUntilChanged() // Solo si el valor cambió
       )
       .subscribe(valor => {
-        const pathTransformado = this.getPathFromLabel(valor || '');
+        const pathTransformado = this.getPathFromLabelNavItem(valor || '');
         this.formNavItem.get('path')?.setValue(pathTransformado, { emitEvent: false });
       })
     );
@@ -87,7 +87,7 @@ export class FormNavItemComponent implements OnInit, OnChanges, OnDestroy {
     const newNavItem: Omit<NavItem, 'uuid' | 'user_id' | 'createdDate' | 'lastModifiedDate'> = {
       institution_id: this.authService.getInstitutionId() ?? '',
       label: this.formNavItem.get('label')!.value.trim(),
-      path: this.getPathFromLabel(this.formNavItem.get('path')!.value.trim()),
+      path: this.getPathFromLabelNavItem(this.formNavItem.get('path')!.value.trim()),
       visible: true,
       orderIndex: this.formNavItem.get('orderIndex')!.value ?? this.lastOrderIndexNavItems + 1
     }
@@ -113,7 +113,7 @@ export class FormNavItemComponent implements OnInit, OnChanges, OnDestroy {
     const updatedNavItem: NavItem = {
       ...this.currentNavItem,
       label: this.formNavItem.get('label')!.value.trim(),
-      path: this.getPathFromLabel(this.formNavItem.get('path')!.value.trim()),
+      path: this.getPathFromLabelNavItem(this.formNavItem.get('path')!.value.trim()),
       orderIndex: this.formNavItem.get('orderIndex')!.value ?? this.lastOrderIndexNavItems + 1
     }
 
@@ -156,7 +156,7 @@ export class FormNavItemComponent implements OnInit, OnChanges, OnDestroy {
     this.currentNavItem = null;
   }
 
-  getPathFromLabel(label: string): string {
+  private getPathFromLabelNavItem(label: string): string {
     if (!label || label.trim().length === 0) {
       return 'untitled';
     }

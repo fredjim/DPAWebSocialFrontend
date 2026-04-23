@@ -72,13 +72,13 @@ export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   private isCurrentSectionValid(): boolean {
-    const currentSectionUuid = this.route.snapshot.firstChild?.paramMap.get('uuidSection') ?? null;
-    return this.sections.some(section => section.uuid === currentSectionUuid);
+    const currentSectionPath = this.route.snapshot.firstChild?.paramMap.get('pathSection') ?? null;
+    return this.sections.some(section => section.path === currentSectionPath);
   }
 
   private navigateToFirstSection(): void {
     const firstSection = this.sections[0];
-    this.router.navigate([firstSection.uuid], {
+    this.router.navigate([firstSection.path], {
       relativeTo: this.route,
       replaceUrl: true // Reemplaza la URL actual en el historial
     });
