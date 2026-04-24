@@ -8,16 +8,17 @@ import { Media } from '../../../models/media';
 })
 export class DocumentEditorComponent implements OnInit {
   @Input() showAreaDoc!: WritableSignal<boolean>;
+
   @Input() mediaDocPost!: Media[] | undefined; //Documento que se recibe del post
+  public fileMediaDoc!: Media | null; //El doc del post - not undefined
+  public fileDoc!: File; //El doc nuevo que se puede añadir
+
   @Output() closeAreaDocEvent = new EventEmitter<boolean>(); 
   @Output() loadNewFileDoc = new EventEmitter<File>(); 
-  @Output() documentRemovedEvent = new EventEmitter<boolean>(); // Nuevo evento para notificar la eliminación
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   public readonly SIZE = 100;
   private readonly MAX_FILE_SIZE = this.SIZE * 1024 * 1024; // 100MB en bytes
   showPreviewDoc = false;
-  fileMediaDoc!: Media; //El doc del post - not undefined
-  fileDoc!: File; //El doc nuevo que se puede añadir
   typesDocs = {
     pdf : 'application/pdf',
     document : ['application/doc','application/docx','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
@@ -98,8 +99,9 @@ export class DocumentEditorComponent implements OnInit {
     // Verificar si había un documento existente que estamos eliminando
     const hadExistingDocument = this.mediaDocPost && this.mediaDocPost.length > 0;
     
-    this.mediaDocPost = undefined; 
-    this.fileDoc = new File([''],'');
+    this.mediaDocPost = undefined; // Arreglo media con 1 doc
+    this.fileMediaDoc = null; // El doc como tal tipo Media
+    this.fileDoc = new File([''],''); // El nuevo doc como File 
     this.showPreviewDoc = false;
     this.showAreaDoc.set(false);
     
@@ -109,10 +111,5 @@ export class DocumentEditorComponent implements OnInit {
 
     // Emitir que se cerró el área de documentos
     this.closeAreaDocEvent.emit(false);
-    
-    // Si había un documento existente, emitir que se eliminó
-    if (hadExistingDocument) {
-      this.documentRemovedEvent.emit(true);
-    }
   }
 }

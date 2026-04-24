@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
 import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
 import { CommentConfig } from '../../models/comment-config';
@@ -13,6 +13,14 @@ import { Modal } from 'bootstrap';
 import { UserDetail } from '../../models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
 import imageCompression from 'browser-image-compression';
+import { MessageService } from 'primeng/api';
+
+interface NewMedia {
+  number: number;
+  type:   string;
+  name:   string;
+  uploaded_file_uuid: string;
+}
 
 @Component({
   selector: 'app-modal-edit-post',
@@ -20,30 +28,30 @@ import imageCompression from 'browser-image-compression';
   styleUrl: './modal-edit-post.component.scss'
 })
 export class ModalEditPostComponent implements OnInit {
-  @Input() institution!: Institution;
-  @Input() postToEdit!: Post;
+  private readonly messageService = inject(MessageService);
+
+  @Input({ required: true }) institution!: Institution;
+  @Input({ required: true }) postToEdit!: Post;
   @Input() showModalEdit!: WritableSignal<boolean>;
   @Output() postUpdatedEvent = new EventEmitter<Post>();
-  commentConfig!: CommentConfig[];
-  selectedCommentConfig!: string;
-  visibleAreaMedia = signal(false); //Mostrar seleccion y prevista de imagenes
-  visibleAreaMediaDoc = signal(false); //Mostrar seleccion y prevista de documentos
+  public commentConfig!: CommentConfig[];
+  public selectedCommentConfig!: string;
+  public visibleAreaMedia = signal(false); //Mostrar seleccion y prevista de imagenes
+  public visibleAreaMediaDoc = signal(false); //Mostrar seleccion y prevista de documentos
 
-  disableLoadImage = signal(false); //Deshabilitar el boton de cargar imagenes
-  disableLoadDoc = signal(false); //Deshabilitar el boton de cargar documentos
+  public disableLoadImage = signal(false); //Deshabilitar el boton de cargar imagenes
+  public disableLoadDoc = signal(false); //Deshabilitar el boton de cargar documentos
 
-  disabledSaveButton = signal(false); //Deshabilitar el boton de guardar
-  postForm!: FormGroup;
-  listNewMediaFile: File[] = []; //Lista de media editada obtenida de 'image-video-editor' component
-  listOldMediaFile!: Media[]; //Lista de media editada que existe en el post
-  fileDoc!: File;  //Doc añadido en edicion
-  fbMediaResponse!: FbUploadedMedia;
-  currentUser!: UserDetail;
-  currentPostType!: string;
-  isAuthenticated: boolean = false;
-  documentWasRemoved: boolean = false; // Bandera para rastrear si el documento fue eliminado
-  mediaWasRemoved: boolean = false; // Bandera para rastrear si las imágenes/videos fueron eliminados
-  typeMedia = {
+  public disabledSaveButton = signal(false); //Deshabilitar el boton de guardar
+  public postForm!: FormGroup;
+  private listNewMediaFile: File[] = []; //Lista de media editada obtenida de 'image-video-editor' component
+  private listOldMediaFile!: Media[]; //Lista de media editada que existe en el post
+  private fileNewDoc: File | null = null;  //Doc añadido en edicion
+  private readonly fbMediaResponse!: FbUploadedMedia;
+  private currentUser!: UserDetail;
+  private currentPostType!: string;
+  private isAuthenticated: boolean = false;
+  public typeMedia = {
     img_vid : 'images-videos',
     doc: 'document'
   }
@@ -69,12 +77,7 @@ export class ModalEditPostComponent implements OnInit {
     this.buildForm()
     
     // Inicializar listOldMediaFile con los medios existentes del post
-    this.listOldMediaFile = this.postToEdit.content.media ? [...this.postToEdit.content.media] : [];
-    
-    //No deshabilitar boton Guardar si el post viene con info
-    this.disabledSaveButton.set(!(this.postToEdit.content.text != '' || this.postToEdit.content.media.length > 0));
-    if(this.postToEdit.content.media.length > 0)
-      this.postToEdit.content.media[0].type == 'document'? this.disableLoadImage.set(true) : this.disableLoadDoc.set(true);
+    this.listOldMediaFile = [...this.postToEdit.content.media];
   }
 
   private buildForm() {
@@ -88,7 +91,7 @@ export class ModalEditPostComponent implements OnInit {
   //Obtener texto editado del textarea y Deshabilitar el boton de guardar si no hay texto
   getTextPost(text: string){
     this.postForm.get('contentPost')?.setValue(text);
-    text === '' ? this.disabledSaveButton.set(true) : this.disabledSaveButton.set(false);
+    this.checkDisableSaveButton();
   }
   
   //Mostrar area de imagenes y deshabilitar el boton de cargar documentos
@@ -100,28 +103,21 @@ export class ModalEditPostComponent implements OnInit {
   //Ocultar area de imagenes
   closeAreaMedia(option: boolean){
     this.disableLoadDoc.set(option); //Habilitar el boton de cargar documentos
-    //Deshabilitar el boton de guardar si no hay text
-    this.postForm.get('contentPost')?.value == ''? this.disabledSaveButton.set(true) : this.disabledSaveButton.set(false);
-    this.listNewMediaFile = [];//Limpiar la lista de imagenes
+    //Deshabilitar el boton de guardar si no hay info
+    this.checkDisableSaveButton();
   }
   
-  //Establecer imagenes-videos editados y Deshabilitar el boton de guardar si no hay imagenes
+  //Establecer NUEVAS imagenes-videos editados y verificar deshabilitar boton Guardar
   setFilesMediaPostAdded(fileMedia: File[]){
     this.listNewMediaFile = fileMedia;
-    this.listNewMediaFile ? this.disabledSaveButton.set(false) : this.disabledSaveButton.set(true);
+    this.checkDisableSaveButton();
   }
 
-  //Establecer imagenes-videos ya existentes y Deshabilitar el boton de guardar si no hay imagenes
+  //Establecer VIEJAS imagenes-videos ya existentes y verificar deshabilitar boton Guardar
   setFilesMediaPostOld(fileMedia: Media[]){
     // Asignar fileMedia o un array vacío si es undefined
-    this.listOldMediaFile = fileMedia || [];
-    // Solo deshabilitar el botón si hay elementos en el array
-    if (this.listOldMediaFile && this.listOldMediaFile.length > 0) {
-      this.disabledSaveButton.set(false);
-    } else if (this.postForm.get('contentPost')?.value === '') {
-      // Si no hay media ni texto, deshabilitar el botón
-      this.disabledSaveButton.set(true);
-    }
+    this.listOldMediaFile = fileMedia;
+    this.checkDisableSaveButton();
   }
   
   //Mostrar area de documentos y deshabilitar el boton de cargar imagenes
@@ -133,40 +129,16 @@ export class ModalEditPostComponent implements OnInit {
   //Ocultar area de documentos
   closeAreaDoc(option: boolean){
     this.disableLoadImage.set(option);
-    //Deshabilitar el boton de guardar si no hay text
-    this.postForm.get('contentPost')?.value == ''? this.disabledSaveButton.set(true) : this.disabledSaveButton.set(false);
-    this.fileDoc = new File([''],'');//Limpiar el archivo
+    // Limpiar si selecciono un File para Doc y la lista de Medias si habia un Doc 
+    this.fileNewDoc = null;//Limpiar el archivo
+    this.listOldMediaFile = [];
+    this.checkDisableSaveButton();
   }
   
-  //Establecer el Doc editado y Deshabilitar el boton de guardar si no hay archivo
+  //Establecer el Doc editado y verificar deshabilitar boton Guardar
   setFileDocPostAdded(doc: File){
-    this.fileDoc = doc;
-    // Asegurarse de que el tamaño del archivo sea mayor que 0
-    if (this.fileDoc && this.fileDoc.size > 0) {
-      this.disabledSaveButton.set(false);
-    } else {
-      this.disabledSaveButton.set(true);
-    }
-  }
-  
-  // Método para manejar la eliminación de un documento
-  handleDocumentRemoved(removed: boolean) {
-    if (removed) {
-      this.documentWasRemoved = true;
-      // Remover el documento de listOldMediaFile si existe
-      this.listOldMediaFile = this.listOldMediaFile.filter(media => media.type !== 'document');
-      // Habilitar el botón de guardar para que se pueda actualizar el post sin el documento
-      this.disabledSaveButton.set(false);
-    }
-  }
-  
-  // Método para manejar la eliminación de imágenes/videos
-  handleMediaRemoved(removed: boolean) {
-    if (removed) {
-      this.mediaWasRemoved = true;
-      // Habilitar el botón de guardar para que se pueda actualizar el post sin las imágenes/videos
-      this.disabledSaveButton.set(false);
-    }
+    this.fileNewDoc = doc;
+    this.checkDisableSaveButton();
   }
 
   sendMedia(type: string){
@@ -188,9 +160,12 @@ export class ModalEditPostComponent implements OnInit {
     }
   }
 
-  disableSaveButton(){
-    if(this.postForm.get('contentPost')?.value && this.listNewMediaFile || this.fileDoc){
+  checkDisableSaveButton(){
+    if(this.postForm.get('contentPost')?.value === '' && this.listNewMediaFile.length === 0 
+      && this.listOldMediaFile.length === 0 && !this.fileNewDoc){
       this.disabledSaveButton.set(true);
+    }else{
+      this.disabledSaveButton.set(false);
     }
   }
 
@@ -316,15 +291,9 @@ export class ModalEditPostComponent implements OnInit {
     }
 
     //Si hay info para postear (texto, imagen o video, documento)
-    if(valueFormPost.contentPost != '' || this.listNewMediaFile || this.fileDoc){
+    if(valueFormPost.contentPost != '' || this.listOldMediaFile.length > 0 || this.listNewMediaFile.length > 0 || this.fileNewDoc){
 
-      //Pseudo eliminacion, actualiza solo texto de post con media img video
-      if(this.listOldMediaFile == undefined){
-        if(this.postToEdit.content.media.length>0 && this.postToEdit.content.media[0].type != 'document')
-          editedPost.content.media = this.postToEdit.content.media;
-      }
-
-      //Si hay nuevas imagenes-videos se los procesa
+      //Si hay nuevas imagenes-videos se los procesa Y imgs-videos eliminados se actualiza
       if(this.listNewMediaFile && this.listNewMediaFile.length > 0){ 
 
         try {
@@ -354,15 +323,15 @@ export class ModalEditPostComponent implements OnInit {
                 number: index + 1 + amountImagesPost,
                 type: media.mimeType,
                 name: media.name,
-                path: media.urlResource,
                 uploaded_file_uuid: media.uuid,
+                path: media.urlResource,
                 fb_media_id: this.fbMediaResponse ? this.fbMediaResponse.id : ''
               });
             });
 
-            //Añadir las imagenes que ya habian en el post
-            // Inicializar como array vacío si listOldMediaFile es undefined
-            editedPost.content.media = this.listOldMediaFile || [];
+            //Asignar las imgs/videos que ya habian en el post
+            // Puede tener medias [{},{}] o ser un array vacio []
+            editedPost.content.media = this.listOldMediaFile;
 
             //Añadir las nuevas medias que se agregaron
             Array.from(responseMedia).forEach((newMedia) => {
@@ -378,27 +347,28 @@ export class ModalEditPostComponent implements OnInit {
             globalThis.location.reload();
           },
           error: (error) => {
+            this.messageService.add({
+              severity: 'error', 
+              summary: 'Error', 
+              detail: 'Error al actualizar publicación' 
+            });
             console.log('Error al actualizar el post con contenido media (imagenes y/o videos)', error)
           }
         })
-      }else if(this.fileDoc && this.fileDoc.size > 0){//Si hay un archivo
+      }else if(this.fileNewDoc && this.fileNewDoc.size > 0){//Si hay un archivo
         //Convertir el archivo en form data
-        formData.append('file', this.fileDoc);
+        formData.append('file', this.fileNewDoc);
 
         this.postService.uploadDocument(formData).pipe(
           concatMap((uploadResponse: UploadedMedia) => {
   
             responseDoc = {
               number: 1,
-              type: uploadResponse.mimeType,
+              type: 'document',//uploadResponse.mimeType,
               name: uploadResponse.name,
               path: uploadResponse.urlResource,
               uploaded_file_uuid: uploadResponse.uuid,
               fb_media_id: ''
-            }
-
-            if (!editedPost.content.media) {
-              editedPost.content.media = [];
             }
             
             editedPost.content.media.push(responseDoc);
@@ -412,18 +382,18 @@ export class ModalEditPostComponent implements OnInit {
             globalThis.location.reload();
           },
           error: (error) => {
+            this.messageService.add({
+              severity: 'error', 
+              summary: 'Error', 
+              detail: 'Error al actualizar publicación' 
+            });
             console.log('Error al actualizar el post con archivo',error)
           }
         })      
-      }else if(valueFormPost.contentPost != '' || this.mediaWasRemoved || this.documentWasRemoved){//Si solo tiene texto O si se eliminaron medios
+      }else if(valueFormPost.contentPost != '' || this.listOldMediaFile.length > 0){//Si solo tiene texto O si se eliminaron medios
         // Usar directamente listOldMediaFile que ya contiene solo los medios que NO fueron eliminados
-        if(this.listOldMediaFile && this.listOldMediaFile.length > 0) {
-          // listOldMediaFile ya contiene solo los medios que deben preservarse
-          editedPost.content.media = [...this.listOldMediaFile];
-        } else {
-          // Si no hay medios en listOldMediaFile, significa que se eliminaron todos o no había ninguno
-          editedPost.content.media = [];
-        }
+        // O si fueron eliminados listOldMediaFile es un []
+        editedPost.content.media = [...this.listOldMediaFile];
 
         this.postService.updatePost(this.postToEdit.uuid, editedPost).subscribe({
           next: (responseUpdatedPost) => {
@@ -431,12 +401,15 @@ export class ModalEditPostComponent implements OnInit {
             globalThis.location.reload();
           },
           error: (error) => {
+            this.messageService.add({
+              severity: 'error', 
+              summary: 'Error', 
+              detail: 'Error al actualizar publicación' 
+            });
             console.log('Error al actualizar post', error)
           }
         })
       }
-    }else{
-      console.log('No hay datos para postear');
     }
   }
 }
