@@ -120,12 +120,8 @@ export class InformationService {
     return this.http.get<Section[]>(`${this.ROOT_URL}/${this.sectionsUrl}/by-nav/${uuid}`);
   }
 
-  getSectionByParam(queryParam: string): Observable<Section>{
-    return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}?name=${queryParam}`);
-  }
-
-  getSectionByRoute(route: string | null): Observable<Section | null> {
-    return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}/${route}`);
+  getSectionByPath(queryParam: string): Observable<Section>{
+    return this.http.get<Section>(`${this.ROOT_URL}/${this.sectionsUrl}?path=${queryParam}`);
   }
 
   getSectionById(uuid: string): Observable<Section> {

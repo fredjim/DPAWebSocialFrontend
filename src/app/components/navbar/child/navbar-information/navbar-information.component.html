@@ -7,6 +7,7 @@
 					<app-form-section
 						typeForm="edit"
 						[currentSection]="section"
+						[currentNavItem]="currentNavItem"
 						(onCloseEdit)="onCloseEditSection()"
 						(onEditedSection)="onEditSection($event)"
 						(onDeletedSection)="onDeletedSection($event)"
@@ -15,7 +16,7 @@
 					<!-- Vista para admins -->
 					<div class="edit-section-pencil">
 						<li>
-							<a [routerLink]="section.uuid"
+							<a [routerLink]="section.path"
 							routerLinkActive="active"  
 							(click)="closeMobileMenu()"
 							>{{ section.name }}
@@ -31,7 +32,7 @@
 			<!-- Vista para usuarios normales -->
 			@for(section of sections; track section.uuid; let i = $index){
 				<li>
-					<a [routerLink]="section.uuid" 
+					<a [routerLink]="section.path" 
 					routerLinkActive="active"  
 					(click)="closeMobileMenu()"
 					>{{ section.name }}

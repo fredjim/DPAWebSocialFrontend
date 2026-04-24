@@ -49,7 +49,7 @@ const routes: Routes = [
         component: PageContainerComponent,
         children: [
           {
-            path: ':uuidSection',
+            path: ':pathSection',
             component: SectionContainerComponent,
             resolve: { section: SectionResolver }
           }
