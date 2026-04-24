@@ -17,7 +17,7 @@ import { UserDetail } from '../../models/user-detail';
 })
 export class PostComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
-  @Input() post: any;
+  @Input({ required: true }) post!: Post;
   @Output() reactionChanged = new EventEmitter<void>(); // Nuevo Output para emitir eventos de cambio de reacción
   @Input() currentUser!: UserDetail;
   @Input() authenticated: boolean = false;
@@ -77,7 +77,7 @@ export class PostComponent implements OnInit {
   
 
   loadComments() {
-    this.postService.getComments(this.post.id).subscribe({
+    this.postService.getComments(this.post.uuid).subscribe({
       next: (data: any) => {
         this.comments = data.map((c: any) => ({
           postId: c.postId,

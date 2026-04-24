@@ -13,7 +13,6 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
   @Output() closeAreaMediaEvent = new EventEmitter<boolean>();//Ocultar la seleccion y prevista de media
   @Output() loadNewFilesMediaEvent = new EventEmitter<File[]>(); //Devolver las imagenes/videos nuevos seleccionadas
   @Output() loadOldFilesMediaEvent = new EventEmitter<Media[]>(); //Devolver las imagenes/videos nuevos seleccionadas
-  @Output() mediaRemovedEvent = new EventEmitter<boolean>(); // Evento para notificar cuando se eliminan medias
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   
   showPreviewMedia = false; //Mostrar la prevista de imagenes y/o videos
@@ -49,10 +48,7 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
   }
 
   //Cerrar y limpiar la seleccion y prevista de imagenes videos
-  closeCleanPreviewMedia(){
-    // Verificar si había imágenes/videos existentes que estamos eliminando
-    const hadExistingMedia = this.listMediaPost && this.listMediaPost.length > 0;
-    
+  closeCleanPreviewMedia(){    
     this.cleanUpMediaPreviews();
     this.listFileMediaPost = []; // Borrar la copia del medias del post
     this.listFileMediaAdded = [];
@@ -63,11 +59,6 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
     this.loadOldFilesMediaEvent.emit(this.listFileMediaPost); //Enviar medias existentes "borradas"
     this.loadNewFilesMediaEvent.emit(this.listFileMediaAdded);
     this.closeAreaMediaEvent.emit(this.showAreaMedia());
-    
-    // Si había imágenes/videos existentes, emitir que fueron eliminados
-    if (hadExistingMedia) {
-      this.mediaRemovedEvent.emit(true);
-    }
   }
 
   //Abrir el input para seleccionar imagenes videos
@@ -109,9 +100,8 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
     //Renderizar imagenes videos seleccionados - ACUMULAR en lugar de reemplazar
     this.listFileMediaAdded = [...this.listFileMediaAdded, ...newFiles];
     
-    //Emitir al padre las images precargadas para habilitar el boton de publicar
+    //Emitir al padre las images News precargadas para habilitar el boton de publicar
     this.loadNewFilesMediaEvent.emit(this.listFileMediaAdded);
-    this.loadOldFilesMediaEvent.emit(this.listFileMediaPost); //Enviar imagenes existentes actualizadas (después de eliminaciones)
 
     this.loadMediaPreviewsAppend(newFiles);
   }
@@ -213,17 +203,13 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
       // Resetear el input file
       this.resetFileInput();
       
-      // Emitir las listas actualizadas al padre
+      // Emitir solo la lista Old Media actualizada al padre
       this.loadOldFilesMediaEvent.emit(this.listFileMediaPost);
-      this.loadNewFilesMediaEvent.emit(this.listFileMediaAdded);
       
       // Si no hay más archivos, ocultar el preview o mostrar área vacía
       if (this.getAmountMedia() === 0) {
         this.showPreviewMedia = false;
       }
-      
-      // Emitir que se eliminaron medias
-      this.mediaRemovedEvent.emit(true);
     }
   }
 
@@ -240,9 +226,8 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
       // Resetear el input file
       this.resetFileInput();
       
-      // Emitir las listas actualizadas al padre
+      // Emitir la lista New Files actualizada al padre
       this.loadNewFilesMediaEvent.emit(this.listFileMediaAdded);
-      this.loadOldFilesMediaEvent.emit(this.listFileMediaPost);
       
       // Si no hay más archivos, ocultar el preview o mostrar área vacía
       if (this.getAmountMedia() === 0) {
@@ -259,16 +244,6 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
   // Determinar si debe mostrar con overlay (posición 3 y hay más de 4 elementos)
   shouldShowWithOverlay(absoluteIndex: number): boolean {
     return absoluteIndex === 3 && this.getAmountMedia() > 4;
-  }
-
-  resetUploader(): void {
-    this.cleanUpMediaPreviews();
-    this.listFileMediaAdded = [];
-    this.listFileMediaPost = [];
-    this.showPreviewMedia = false;
-    this.resetFileInput();
-    this.loadNewFilesMediaEvent.emit(this.listFileMediaAdded);
-    this.loadOldFilesMediaEvent.emit(this.listFileMediaPost);
   }
   
   private cleanUpMediaPreviews(): void {
