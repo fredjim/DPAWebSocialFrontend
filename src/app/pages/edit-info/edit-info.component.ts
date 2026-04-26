@@ -3,12 +3,14 @@ import { Article } from '../models/article';
 import { InformationService } from '../services/information.service';
 import { MessageService } from 'primeng/api';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, forkJoin, from, map, of, switchMap } from 'rxjs';
 import { PostService } from '../../posts/services/post.service';
 import { MediaArticle } from '../models/media-article';
 import { Link } from '../models/link';
 import imageCompression from 'browser-image-compression';
 import { UploadedMedia } from '../../posts/models/uploaded-media';
+import { UploadedMediaArticle } from '../models/uploaded-media-article';
+import { CreateUpdateArticle } from '../models/create-update-article';
 
 @Component({
   selector: 'app-edit-info',
@@ -102,7 +104,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
       this.isLoading = true;
       let uploadResponseImages: UploadedMedia[] = [];
       let uploadResponseDocs: UploadedMedia[] = [];
-      let mediasToArticle: MediaArticle[] = [];
+      let mediasToArticle: (MediaArticle | UploadedMediaArticle)[] = [];
 
       try {
         if(this.imageFilesToCreate.length > 0){
@@ -121,13 +123,13 @@ export class EditInfoComponent implements OnInit, OnChanges {
             this.postService.uploadImages(formData)
           );
   
-          // 4. Crear el artículo
+          // 4. Crear  las medias [] para el artículo
           mediasToArticle = uploadResponseImages.map((media, index) => ({
-            uuid: media.uuid,
             number: index + 1,
-            name: media.name,
             type: media.mimeType,
-            path: media.urlResource
+            file_name: media.name,
+            uploaded_file_uuid: media.uuid,
+            // path: media.urlResource,
           }))
         }
 
@@ -141,19 +143,19 @@ export class EditInfoComponent implements OnInit, OnChanges {
             this.informationService.uploadDocumentsForArticle(formDataDocs)
           );
 
-          const uploadResMappedToMediaArticle: MediaArticle[] = uploadResponseDocs.map((media, index) => ({
-            uuid: media.uuid,
+          const uploadResMappedToMediaArticle: UploadedMediaArticle[] = uploadResponseDocs.map((media, index) => ({
             number: index + 1,
-            name: media.name,
-            type: media.mimeType,
-            path: media.urlResource
+            type: 'document',//media.mimeType,
+            file_name: media.name,
+            uploaded_file_uuid: media.uuid,
+            // path: media.urlResource
           }))
 
           mediasToArticle = [...mediasToArticle, ...uploadResMappedToMediaArticle];
         }
 
 
-        const newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & { links: Array<Omit<Link, 'uuid'>> } = {
+        const newArticle: Omit<CreateUpdateArticle, 'uuid' | 'user_id' | 'links'> & { links: Array<Omit<Link, 'uuid'>> } = {
           section_id: this.currentSectionUuid,
           date: '',
           title: this.formArticle.value.title ?? '',
@@ -265,113 +267,120 @@ export class EditInfoComponent implements OnInit, OnChanges {
     return results.filter((file): file is File => file !== null);
   }
 
-  private async updatedArticle(): Promise<void> {
-    if(!this.currentArticle) return;
+  private updatedArticle(): void {
+    if (!this.currentArticle) return;
 
-    if(this.imageFilesToCreate.length > 0 || this.docsToCreate.length > 0){
-      this.isLoading = true;
-      let mediasToArticleImage: MediaArticle[] = [];
-      let mediasToArticleDocs: MediaArticle[] = [];
+    if (this.imageFilesToCreate.length === 0 && this.docsToCreate.length === 0) {
+      this.updateArticleWithoutNewImages();
+      return;
+    }
 
-      try {
-        if(this.imageFilesToCreate.length > 0){
-          
-          // 1. Optimizar imágenes nuevas a WebP antes de crear FormData
-          const optimizedImages = await this.optimizeImages(this.imageFilesToCreate);
-          
-          // 2. Crear FormData con imágenes optimizadas
-          const formData = new FormData();
-          for (const file of optimizedImages) {
-            if (file.type.includes('image')) {
-              formData.append('images', file);
-            }
-          }
-  
-          // 3. Subir imágenes optimizadas
-          const uploadResponseImages = await firstValueFrom(
-            this.postService.uploadImages(formData)
-          );
-  
-          // 4. Preparar datos del artículo actualizado
-          mediasToArticleImage = uploadResponseImages.map((media, index) => ({
-            uuid: media.uuid,
-            number: index + 1,
-            name: media.name,
-            type: 'image/webp', // Forzar tipo WebP ya que convertimos
-            path: media.urlResource
-          }));
-        }
+    this.isLoading = true;
 
-        if(this.docsToCreate.length > 0){
-          const formDataDocs = new FormData();
-          for (const file of this.docsToCreate) {
-            formDataDocs.append('files', file);
-          }
+    // Crear observables para cada operación
+    const uploadImages$ = this.imageFilesToCreate.length > 0
+      ? from(this.optimizeImages(this.imageFilesToCreate)).pipe(
+          switchMap(optimizedImages => {
+            const formData = new FormData();
+            optimizedImages.forEach(file => {
+              if (file.type.includes('image')) {
+                formData.append('images', file);
+              }
+            });
+            return this.postService.uploadImages(formData);
+          }),
+          map(uploadResponse => 
+            uploadResponse.map((media, index) => ({
+              number: index + 1,
+              file_name: media.name,
+              type: 'image/webp',
+              uploaded_file_uuid: media.uuid,
+            }))
+          ),
+          catchError(error => {
+            console.error('Error al subir imágenes:', error);
+            return of([]); // Retornar array vacío en caso de error
+          })
+        )
+      : of([]);
 
-          const uploadResponseDocs = await firstValueFrom(
-            this.informationService.uploadDocumentsForArticle(formDataDocs)
-          )
+    const uploadDocs$ = this.docsToCreate.length > 0
+      ? from(Promise.resolve(this.docsToCreate)).pipe(
+          switchMap(docs => {
+            const formDataDocs = new FormData();
+            docs.forEach(file => {
+              formDataDocs.append('files', file);
+            });
+            return this.informationService.uploadDocumentsForArticle(formDataDocs);
+          }),
+          map(uploadResponse =>
+            uploadResponse.map((media, index) => ({
+              number: index + 1,
+              file_name: media.name,
+              type: 'document',
+              uploaded_file_uuid: media.uuid,
+            }))
+          ),
+          catchError(error => {
+            console.error('Error al subir documentos:', error);
+            return of([]);
+          })
+        )
+      : of([]);
 
-          mediasToArticleDocs = uploadResponseDocs.map((media, index) => ({
-            uuid: media.uuid,
-            number: index + 1,
-            name: media.name,
-            type: media.mimeType,
-            path: media.urlResource
-          }));
-        }
-
-        const articleUpdated: any = {
-          ...this.currentArticle,
+    // Combinar ambas operaciones
+    forkJoin({
+      images: uploadImages$,
+      docs: uploadDocs$
+    }).pipe(
+      switchMap(({ images, docs }) => {
+        // Construir el artículo actualizado
+        const articleUpdated: CreateUpdateArticle = {
+          ...this.currentArticle!,
           title: this.formArticle.value.title ?? '',
           text: this.formArticle.value.text ?? '',
-          medias: [...this.imagesOfArticle, ...mediasToArticleImage, ...this.docsOfArticle, ...mediasToArticleDocs],
+          medias: [...this.imagesOfArticle, ...images, ...this.docsOfArticle, ...docs],
           links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
         };
-
-        // 5. Actualizar artículo
-        const articleUpdatedResult = await firstValueFrom(
-          this.informationService.updateArticle(this.currentArticle.uuid, articleUpdated)
-        );
-
-        // Éxito
+        // Actualizar artículo
+        return this.informationService.updateArticle(this.currentArticle!.uuid, articleUpdated);
+      })
+    ).subscribe({
+      next: (articleUpdatedResult) => {
         this.isLoading = false;
-        this.messageService.add({ 
-          severity: 'success', 
-          summary: 'Exitoso', 
-          detail: 'Artículo editado exitosamente' 
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Exitoso',
+          detail: 'Artículo editado exitosamente'
         });
         this.onEditedArticle.emit(articleUpdatedResult);
         this.closeEdit();
-
-      } catch (error) {
-        // Error
+      },
+      error: (error) => {
         this.isLoading = false;
-        console.error('Error al actualizar artículo con imágenes', error);
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Error', 
-          detail: 'Error al editar artículo' 
+        console.error('Error al actualizar artículo:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al editar artículo'
         });
         this.closeEdit();
       }
-    }else{
-      this.updateArticleWithoutNewImages();
-    }
+    });
   }
 
   private updateArticleWithoutNewImages(): void {
     if(!this.currentArticle) return;
 
     this.isLoading = true;
-    const articleEdited: any = {
+    const articleEdited: Article = {
       ...this.currentArticle,
       title: this.formArticle.value.title ?? '',
       text: this.formArticle.value.text ?? '',
       medias: [...this.imagesOfArticle, ...this.docsOfArticle],
       links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
     }
-    
+
     this.informationService.updateArticle(this.currentArticle.uuid, articleEdited).subscribe({
       next: (edited) => {
         this.isLoading = false;
@@ -381,7 +390,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
       },
       error: (err) => {
         this.isLoading = false;
-        console.log('Error al editar articulo', err);
+        console.log('Error al editar articulo sin nuevas imagenes', err);
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al editar artículo' });
         this.closeEdit();
       }

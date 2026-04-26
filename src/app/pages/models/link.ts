@@ -1,5 +1,5 @@
 export interface Link {
-    uuid:   string;
+    uuid?:   string;
     name:   string;
     url:    string;
 }

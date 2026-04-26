@@ -3,5 +3,7 @@ export interface MediaArticle {
     number: number;
     type:   string;
     name:   string;
-    path:   string;
+    uploaded_file_uuid: string;
+    path:        string;
+    fb_media_id: string
 }
