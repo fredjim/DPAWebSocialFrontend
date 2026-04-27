@@ -29,7 +29,7 @@
                     </div>
                 }
             }
-            <button id="add-documents" class="btn btn-primary save" type="button" (click)="openInputFile(fileInputDoc)" (keypress)="openInputFile(fileInputDoc)">
+            <button id="add-documents" class="btn btn-primary save" type="button" (click)="openInputFileDoc($event)" (keypress)="openInputFileDoc($event)">
                 <i class="bi bi-plus-lg"></i> Agregar documentos pdf
             </button>
             <input #fileInputDocument type="file" id="input-file-doc" hidden (change)="changeInputDocs($event)" multiple accept=".pdf">
@@ -96,7 +96,7 @@
                     </div>
                 }
             }
-            <div class="add-more-file" (click)="openInputFile(fileInputImage)" (keypress)="openInputFile(fileInputImage)">
+            <div class="add-more-file" (click)="openInputFileImg($event)" (keypress)="openInputFileImg($event)">
                 <div class="add-more-content">
                     <i class="bi bi-plus-lg"></i>
                     Agregar imagen

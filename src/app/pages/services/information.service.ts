@@ -8,6 +8,7 @@ import { Article } from '../models/article';
 import { NavItem } from '../models/nav-item';
 import { Link } from '../models/link';
 import { UploadedMedia } from '../../posts/models/uploaded-media';
+import { CreateUpdateArticle } from '../models/create-update-article';
 
 @Injectable({
   providedIn: 'root'
@@ -155,12 +156,12 @@ export class InformationService {
   }
 
   // PUT articles
-  updateArticle(uuidArticle: string, updatedArticle: any): Observable<Article> {
+  updateArticle(uuidArticle: string, updatedArticle: CreateUpdateArticle): Observable<Article> {
     return this.http.put<Article>(`${this.ROOT_URL}/${this.articlesUrl}/${uuidArticle}`, updatedArticle ,this.reqHeader)
   }
 
   // POST article
-  createArticle(newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & {links: Array<Omit<Link, 'uuid'>> }): Observable<Article> {
+  createArticle(newArticle: Omit<CreateUpdateArticle, 'uuid' | 'user_id' | 'links'> & {links: Array<Omit<Link, 'uuid'>> }): Observable<Article> {
     return this.http.post<Article>(`${this.ROOT_URL}/${this.articlesUrl}`, newArticle, this.reqHeader);
   }
 
