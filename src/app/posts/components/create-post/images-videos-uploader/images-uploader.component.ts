@@ -34,7 +34,13 @@ export class ImagesUploaderComponent implements OnChanges {
   }
 
   //Abrir el input para seleccionar imagenes videos
-  openInputFileMedia(){
+  openInputFileMedia(event?: Event){
+    // Prevenir la propagación del evento
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     this.resetFileInput();
     this.fileInput?.nativeElement.click();  
   }
