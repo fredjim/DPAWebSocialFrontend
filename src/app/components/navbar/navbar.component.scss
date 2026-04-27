@@ -72,7 +72,7 @@ nav {
 	nav {
 		display: block;
 		top: 82px;
-		height: auto;
+		height: calc(100vh - 82px) !important;
 		border: none;
 		background: white;
 		z-index: 2;
