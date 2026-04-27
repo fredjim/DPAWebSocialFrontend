@@ -1,12 +1,11 @@
 <nav>
   <ul>
-    <li (click)="closeMenuNav()" (keypress)="closeMenuNav()"><a routerLink="posts" routerLinkActive="active">Publicaciones</a></li>
-
+    <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="posts" routerLinkActive="active">Publicaciones</a></li>
 
     @for(navItem of navItems; track navItem.uuid){
       @if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
-        <li (click)="closeMenuNav()" (keypress)="closeMenuNav()">
-          <a [routerLink]="navItem.path" routerLinkActive="active">{{ navItem.label }}</a>
+        <li>
+          <a (click)="closeMenuNav()" (keypress)="closeMenuNav()" [routerLink]="navItem.path" routerLinkActive="active">{{ navItem.label }}</a>
           <div class="edit-info" (click)="showModalEdit(navItem)" (keypress)="showModalEdit(navItem)">
 						<i class="bi bi-pencil-fill"></i>
 					</div>
@@ -15,8 +14,8 @@
           </div>
         </li>
       }@else {
-        <li (click)="closeMenuNav()" (keypress)="closeMenuNav()">
-          <a [routerLink]="navItem.path" routerLinkActive="active">{{ navItem.label }}</a>
+        <li>
+          <a (click)="closeMenuNav()" (keypress)="closeMenuNav()" [routerLink]="navItem.path" routerLinkActive="active">{{ navItem.label }}</a>
           <div class="submenu">
             <app-navbar-information [currentNavItem]="navItem" (collapse)="closeMenuNav()"></app-navbar-information>
           </div>
