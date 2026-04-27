@@ -86,7 +86,12 @@ export class DocumentEditorComponent implements OnInit {
       return 'File PDF'
   }
 
-  openInputFileDoc(){
+  openInputFileDoc(event?: Event){
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     // Usar ViewChild para acceder al input
     if (this.fileInput?.nativeElement) {
       this.fileInput.nativeElement.click();
@@ -96,9 +101,6 @@ export class DocumentEditorComponent implements OnInit {
   }
 
   closeCleanPreviewDoc(){
-    // Verificar si había un documento existente que estamos eliminando
-    const hadExistingDocument = this.mediaDocPost && this.mediaDocPost.length > 0;
-    
     this.mediaDocPost = undefined; // Arreglo media con 1 doc
     this.fileMediaDoc = null; // El doc como tal tipo Media
     this.fileDoc = new File([''],''); // El nuevo doc como File 

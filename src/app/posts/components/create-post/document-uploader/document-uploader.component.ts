@@ -74,8 +74,17 @@ export class DocumentUploaderComponent implements OnChanges {
       return 'File PDF'
   }
 
-  openInputFileDoc(){
-    this.fileInput.nativeElement.click();
+  openInputFileDoc(event?: Event){
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    if (this.fileInput?.nativeElement) {
+      // Resetear antes de abrir
+      this.fileInput.nativeElement.value = '';
+      this.fileInput.nativeElement.click();
+    }
   }
 
   closeCleanPreviewDoc(){
