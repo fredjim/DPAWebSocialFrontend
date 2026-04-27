@@ -170,7 +170,7 @@ export class EditInfoComponent implements OnInit, OnChanges {
           medias: mediasToArticle,
           links: this.buttonsToAdd
         };
-        console.log('newArticle',newArticle)
+        
         return this.informationService.createArticle(newArticle);
       })
     ).subscribe({
