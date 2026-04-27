@@ -99,63 +99,70 @@ export class EditInfoComponent implements OnInit, OnChanges {
     }
   }
 
-  private async createArticle(): Promise<void> {
-    if(this.imageFilesToCreate.length > 0 || this.docsToCreate.length > 0){
-      this.isLoading = true;
-      let uploadResponseImages: UploadedMedia[] = [];
-      let uploadResponseDocs: UploadedMedia[] = [];
-      let mediasToArticle: (MediaArticle | UploadedMediaArticle)[] = [];
+  private createArticle(): void {
+    if (this.imageFilesToCreate.length === 0 && this.docsToCreate.length === 0) {
+      this.createArticleWithoutImages();
+      return;
+    }
 
-      try {
-        if(this.imageFilesToCreate.length > 0){
+    this.isLoading = true;
 
-          // 1. Optimizar imágenes antes de crear FormData
-          const optimizedImages = await this.optimizeImages(this.imageFilesToCreate);
-  
-          // 2. Crear FormData con imágenes optimizadas
-          const formData = new FormData();
-          for (const file of optimizedImages) {
-            formData.append('images', file);
-          }
-  
-          // 3. Subir imágenes optimizadas
-          uploadResponseImages = await firstValueFrom(
-            this.postService.uploadImages(formData)
-          );
-  
-          // 4. Crear  las medias [] para el artículo
-          mediasToArticle = uploadResponseImages.map((media, index) => ({
-            number: index + 1,
-            type: media.mimeType,
-            file_name: media.name,
-            uploaded_file_uuid: media.uuid,
-            // path: media.urlResource,
-          }))
-        }
+    const uploadImages$ = this.imageFilesToCreate.length > 0
+      ? from(this.optimizeImages(this.imageFilesToCreate)).pipe(
+          switchMap(optimizedImages => {
+            const formData = new FormData();
+            optimizedImages.forEach(file => {
+              if (file.type.includes('image')) {
+                formData.append('images', file);
+              }
+            });
+            return this.postService.uploadImages(formData);
+          }),
+          map(uploadResponse => 
+            uploadResponse.map((media, index) => ({
+              number: index + 1,
+              type: media.mimeType,
+              file_name: media.name,
+              uploaded_file_uuid: media.uuid,
+            }))
+          )
+        )
+      : of([]);
 
-        if(this.docsToCreate.length > 0){
-          const formDataDocs = new FormData();
-          for (const file of this.docsToCreate) {
-            formDataDocs.append('files', file);
-          }
+    const uploadDocs$ = this.docsToCreate.length > 0
+      ? from(Promise.resolve(this.docsToCreate)).pipe(
+          switchMap(docs => {
+            const formDataDocs = new FormData();
+            docs.forEach(file => {
+              formDataDocs.append('files', file);
+            });
+            return this.informationService.uploadDocumentsForArticle(formDataDocs);
+          }),
+          map(uploadResponse =>
+            uploadResponse.map((media, index) => ({
+              number: index + 1,
+              type: 'document',
+              file_name: media.name,
+              uploaded_file_uuid: media.uuid,
+            }))
+          )
+        )
+      : of([]);
 
-          uploadResponseDocs = await firstValueFrom(
-            this.informationService.uploadDocumentsForArticle(formDataDocs)
-          );
-
-          const uploadResMappedToMediaArticle: UploadedMediaArticle[] = uploadResponseDocs.map((media, index) => ({
-            number: index + 1,
-            type: 'document',//media.mimeType,
-            file_name: media.name,
-            uploaded_file_uuid: media.uuid,
-            // path: media.urlResource
-          }))
-
-          mediasToArticle = [...mediasToArticle, ...uploadResMappedToMediaArticle];
-        }
-
-
-        const newArticle: Omit<CreateUpdateArticle, 'uuid' | 'user_id' | 'links'> & { links: Array<Omit<Link, 'uuid'>> } = {
+    forkJoin({
+      images: uploadImages$.pipe(catchError(error => {
+        console.error('Error en imágenes:', error);
+        throw new Error('IMAGE_UPLOAD_FAILED');
+      })),
+      docs: uploadDocs$.pipe(catchError(error => {
+        console.error('Error en documentos:', error);
+        throw new Error('DOC_UPLOAD_FAILED');
+      }))
+    }).pipe(
+      switchMap(({ images, docs }) => {
+        const mediasToArticle = [...images, ...docs];
+        
+        const newArticle = {
           section_id: this.currentSectionUuid,
           date: '',
           title: this.formArticle.value.title ?? '',
@@ -163,35 +170,40 @@ export class EditInfoComponent implements OnInit, OnChanges {
           medias: mediasToArticle,
           links: this.buttonsToAdd
         };
-
-        const articleCreated = await firstValueFrom(
-          this.informationService.createArticle(newArticle)
-        );
-
-        // Éxito
+        console.log('newArticle',newArticle)
+        return this.informationService.createArticle(newArticle);
+      })
+    ).subscribe({
+      next: (articleCreated) => {
         this.isLoading = false;
-        this.messageService.add({ 
-          severity: 'success', 
-          summary: 'Exitoso', 
-          detail: 'Artículo creado exitosamente' 
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Exitoso',
+          detail: 'Artículo creado exitosamente'
         });
         this.onCreateArticle.emit(articleCreated);
         this.closeEdit();
-
-      } catch (error) {
-        // Error
+      },
+      error: (error) => {
         this.isLoading = false;
-        console.error('Error al crear artículo con imagen', error);
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Error', 
-          detail: 'Error al crear artículo' 
+        
+        // Mensaje de error específico
+        let errorDetail = 'Error al crear artículo';
+        if (error.message === 'IMAGE_UPLOAD_FAILED') {
+          errorDetail = 'Error al subir las imágenes';
+        } else if (error.message === 'DOC_UPLOAD_FAILED') {
+          errorDetail = 'Error al subir los documentos';
+        }
+        
+        console.error('Error al crear artículo:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: errorDetail
         });
         this.closeEdit();
       }
-    }else{
-      this.createArticleWithoutImages();
-    }
+    });
   }
 
   private createArticleWithoutImages(): void {
@@ -453,9 +465,28 @@ export class EditInfoComponent implements OnInit, OnChanges {
     });
   }
 
-  public openInputFile(fileInput: ElementRef): void {
-    this.resetFileInput(fileInput);
-    fileInput?.nativeElement.click();  
+  public openInputFileDoc(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  
+    setTimeout(() => {
+      this.resetFileInput(this.fileInputDoc);
+      this.fileInputDoc?.nativeElement.click();
+    }, 10); 
+  }
+
+  public openInputFileImg(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  
+    setTimeout(() => {
+      this.resetFileInput(this.fileInputImage);
+      this.fileInputImage?.nativeElement.click();
+    }, 10);
   }
 
   private resetFileInput(fileInput: ElementRef): void {
@@ -465,18 +496,33 @@ export class EditInfoComponent implements OnInit, OnChanges {
   }
 
   changeInputDocs(event: Event): void {
-    if(event.target instanceof HTMLInputElement && event.target.files){
-      this.docsToCreate = Array.from(event.target.files);
+    event.preventDefault();
+    event.stopPropagation();
 
-      // Validar docs
-      if(!this.isValidFileTypeDoc(this.docsToCreate)){
+    if(event.target instanceof HTMLInputElement && event.target.files){
+      // Convertir FileList a array
+      const newDocs = Array.from(event.target.files);
+      
+      // Validar tipos de los nuevos documentos
+      if(!this.isValidFileTypeDoc(newDocs)){
         alert('Por favor, seleccione solo documentos pdf');
         this.resetFileInput(this.fileInputDoc);
         return;
       }
 
-      const newDocs = this.docsToCreate.map(file => ({name: file.name, type: file.type, url: URL.createObjectURL(file)}));
-      this.docsPreview.push(...newDocs);
+      // Crear y acumular previews
+      // Acumular nuevos documentos a los ya seleccionados
+      for(const doc of newDocs) {
+        this.docsToCreate.push(doc);
+        this.docsPreview.push({
+          name: doc.name, 
+          type: doc.type, 
+          url: URL.createObjectURL(doc)
+        });
+      }
+      
+      // Resetear el input para permitir seleccionar los mismos archivos nuevamente
+      this.resetFileInput(this.fileInputDoc);
     }
   }
 
@@ -495,19 +541,33 @@ export class EditInfoComponent implements OnInit, OnChanges {
   }
 
   changeInputMedia(event: Event){
+    event.preventDefault();
+    event.stopPropagation();
+    
     if (event.target instanceof HTMLInputElement && event.target.files){
-      this.imageFilesToCreate = Array.from(event.target.files);
-
-      // Validaciones
-      if(!this.isValidFileType(this.imageFilesToCreate)){
+      // Convertir FileList a array
+      const newFiles = Array.from(event.target.files);
+      
+      // Validar tipos de los nuevos archivos
+      if(!this.isValidFileType(newFiles)){
         alert('Por favor, seleccione solo imágenes');
         this.resetFileInput(this.fileInputImage);
         return;
       }
-
-      const newsPreviews = this.imageFilesToCreate.map(file => ({name: file.name, type: file.type, url: URL.createObjectURL(file)}));
-      this.imgsPreview.push(...newsPreviews);
       
+      // Crear y acumular previews
+      // Acumular nuevas imagenes a las ya seleccionadas
+      for(const img of newFiles) {
+        this.imageFilesToCreate.push(img);
+        this.imgsPreview.push({
+          name: img.name, 
+          type: img.type, 
+          url: URL.createObjectURL(img)
+        });
+      }
+      
+      // Resetear el input para permitir seleccionar los mismos archivos nuevamente
+      this.resetFileInput(this.fileInputImage);
     }
   }
 
