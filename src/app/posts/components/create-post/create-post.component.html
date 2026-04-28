@@ -38,7 +38,7 @@
 				<form [formGroup]="postForm" class="form d-flex flex-column">
 					<div class="container">
 						<!-- Texto del post -->
-						<app-text-editor [isVisibleModal]="visibleModalCreate" (textChangeEvent)="getTextPost($event)"></app-text-editor>						
+						<app-text-editor [isVisibleModal]="visibleModalCreate" [maxLength]="maxLengthText" (textChangeEvent)="getTextPost($event)"></app-text-editor>						
 					</div>
 
 					<!-- Seleccionar redes sociales para compartir publicacion -->

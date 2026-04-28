@@ -25,7 +25,7 @@
           <form [formGroup]="postForm" class="form d-flex flex-column">
             <div class="container">
               <!-- Texto del post -->
-              <app-edit-text  [contentText]="postToEdit.content.text" [postUuid]="postToEdit.uuid" (textChangeEvent)="getTextPost($event)"></app-edit-text>
+              <app-edit-text  [contentText]="postToEdit.content.text" [maxLength]="maxLegthTextPost" [postUuid]="postToEdit.uuid" (textChangeEvent)="getTextPost($event)"></app-edit-text>
             </div>
 
             <div class="container">

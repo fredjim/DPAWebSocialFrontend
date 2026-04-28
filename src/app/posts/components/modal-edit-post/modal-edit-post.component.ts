@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, OnInit, Output, signal, Writabl
 import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
 import { CommentConfig } from '../../models/comment-config';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PostService } from '../../services/post.service';
 import { Media } from '../../models/media';
 import { CreatePost } from '../../models/create-post';
@@ -29,6 +29,7 @@ export class ModalEditPostComponent implements OnInit {
   @Output() postUpdatedEvent = new EventEmitter<Post>();
   public commentConfig!: CommentConfig[];
   public selectedCommentConfig!: string;
+  public maxLegthTextPost = 1200;
   public visibleAreaMedia = signal(false); //Mostrar seleccion y prevista de imagenes
   public visibleAreaMediaDoc = signal(false); //Mostrar seleccion y prevista de documentos
 
@@ -75,7 +76,7 @@ export class ModalEditPostComponent implements OnInit {
 
   private buildForm() {
     this.postForm = this.formBuilder.group({
-      contentPost: [this.postToEdit.content.text],
+      contentPost: [this.postToEdit.content.text, [Validators.maxLength(this.maxLegthTextPost)]],
       media: [[]],
       mediaDoc: [[]]
     });
@@ -154,7 +155,8 @@ export class ModalEditPostComponent implements OnInit {
   }
 
   private checkDisableSaveButton(){
-    if(this.postForm.get('contentPost')?.value === '' && this.listNewMediaFile.length === 0 
+    const textPost: string = this.postForm.get('contentPost')?.value ?? '';
+    if((textPost === '' || textPost.length > this.maxLegthTextPost) && this.listNewMediaFile.length === 0 
       && this.listOldMediaFile.length === 0 && !this.fileNewDoc){
       this.disabledSaveButton.set(true);
     }else{

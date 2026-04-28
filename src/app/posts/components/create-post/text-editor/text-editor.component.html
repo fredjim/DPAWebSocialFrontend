@@ -1,7 +1,17 @@
-<textarea 
-id="text-area" 
-placeholder="¿Qué estás pensando?" 
-rows="4" 
-(input)="onTextChange($event)" 
-#textareaRef
-></textarea>
+<div class="textarea-container">
+    <textarea 
+        id="text-area" 
+        placeholder="¿Qué estás pensando?" 
+        rows="4" 
+        (input)="onManualInput($event)"
+        [class.exceeded]="isExceeded"
+        #textareaRef
+    ></textarea>
+
+    <div class="char-counter" [class.exceeded]="isExceeded">
+        <span>{{ currentLength }}</span> / {{ maxLength }}
+        <span *ngIf="isExceeded" class="error-message">
+          Has excedido el límite de {{ maxLength }} caracteres
+        </span>
+    </div>
+</div>
