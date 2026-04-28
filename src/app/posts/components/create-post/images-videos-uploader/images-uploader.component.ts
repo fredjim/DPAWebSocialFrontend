@@ -54,6 +54,7 @@ export class ImagesUploaderComponent implements OnChanges {
 
   changeInputMedia(event: Event | DragEvent): void {
     event.preventDefault();
+    event.stopPropagation();
     
     // Obtener archivos según el tipo de evento
     const files = this.getFilesFromEvent(event);

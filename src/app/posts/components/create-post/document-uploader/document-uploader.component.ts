@@ -30,6 +30,9 @@ export class DocumentUploaderComponent implements OnChanges {
   }
 
   changeInputMediaDoc(event: Event){
+    event.preventDefault();
+    event.stopPropagation();
+    
     if(event.target instanceof HTMLInputElement && event.target.files && event.target.files.length > 0){
       this.fileDoc = event.target.files[0];
 
