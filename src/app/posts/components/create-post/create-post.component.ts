@@ -30,7 +30,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   disabledPublishButton = signal(true); //Deshabilitar el boton de publicar
   postForm!: FormGroup;
   listFile!: File[];
-  fileDoc!: File;
+  fileDoc!: File | null;
   isFbPosted!: boolean;
   isFbSwitchOn: boolean = false;
   currentUser!: UserDetail;
@@ -98,6 +98,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
       const modal = new Modal(modalElement);
       modal.show();
       this.visibleModalCreate = true;
+      this.disabledPublishButton.set(true);
     }
   }
 
@@ -146,7 +147,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
     this.disableLoadImage.set(option);
     const contentPost = this.postForm.get('contentPost')?.value;
     contentPost === '' ? this.disabledPublishButton.set(true) : this.disabledPublishButton.set(false);
-    this.fileDoc = new File([''], '');//Limpiar el archivo
+    this.fileDoc = null;//Limpiar el archivo
   }
 
   //Deshabilitar el boton de publicar si no hay archivo
@@ -154,6 +155,13 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
     this.fileDoc = doc;
     const contentPost = this.postForm.get('contentPost')?.value;
     contentPost != '' || this.fileDoc ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
+  }
+
+  closeModal(): void {
+    this.postForm.reset();
+    this.listFile = [];
+    this.fileDoc = null;
+    this.disabledPublishButton.set(true);
   }
 
   showLoading() {

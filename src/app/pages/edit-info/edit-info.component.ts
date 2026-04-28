@@ -3,13 +3,11 @@ import { Article } from '../models/article';
 import { InformationService } from '../services/information.service';
 import { MessageService } from 'primeng/api';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { catchError, firstValueFrom, forkJoin, from, map, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, from, map, of, switchMap } from 'rxjs';
 import { PostService } from '../../posts/services/post.service';
 import { MediaArticle } from '../models/media-article';
 import { Link } from '../models/link';
 import imageCompression from 'browser-image-compression';
-import { UploadedMedia } from '../../posts/models/uploaded-media';
-import { UploadedMediaArticle } from '../models/uploaded-media-article';
 import { CreateUpdateArticle } from '../models/create-update-article';
 
 @Component({

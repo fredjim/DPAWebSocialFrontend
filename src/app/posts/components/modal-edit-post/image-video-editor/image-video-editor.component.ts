@@ -82,6 +82,7 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
 
   async changeInputMedia(event: Event | DragEvent){
     event.preventDefault();
+    event.stopPropagation();
     const newFiles = this.getFilesFromEvent(event);
 
     if (!newFiles || newFiles.length === 0) {

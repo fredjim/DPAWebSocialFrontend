@@ -15,13 +15,6 @@ import { AuthService } from '../../../authentication/services/auth.service';
 import imageCompression from 'browser-image-compression';
 import { MessageService } from 'primeng/api';
 
-interface NewMedia {
-  number: number;
-  type:   string;
-  name:   string;
-  uploaded_file_uuid: string;
-}
-
 @Component({
   selector: 'app-modal-edit-post',
   templateUrl: './modal-edit-post.component.html',
@@ -42,7 +35,7 @@ export class ModalEditPostComponent implements OnInit {
   public disableLoadImage = signal(false); //Deshabilitar el boton de cargar imagenes
   public disableLoadDoc = signal(false); //Deshabilitar el boton de cargar documentos
 
-  public disabledSaveButton = signal(false); //Deshabilitar el boton de guardar
+  public disabledSaveButton = signal(true); //Deshabilitar el boton de guardar
   public postForm!: FormGroup;
   private listNewMediaFile: File[] = []; //Lista de media editada obtenida de 'image-video-editor' component
   private listOldMediaFile!: Media[]; //Lista de media editada que existe en el post
@@ -160,7 +153,7 @@ export class ModalEditPostComponent implements OnInit {
     }
   }
 
-  checkDisableSaveButton(){
+  private checkDisableSaveButton(){
     if(this.postForm.get('contentPost')?.value === '' && this.listNewMediaFile.length === 0 
       && this.listOldMediaFile.length === 0 && !this.fileNewDoc){
       this.disabledSaveButton.set(true);
@@ -177,6 +170,11 @@ export class ModalEditPostComponent implements OnInit {
       modal?.hide();
       this.selectedCommentConfig = this.postToEdit.comment_config_id;
       this.showModalEdit.set(false);
+      this.listNewMediaFile = [];
+      this.fileNewDoc = null;
+      this.listOldMediaFile = this.postToEdit.content.media;
+      this.postForm.get('contentPost')?.setValue(this.postToEdit.content.text);
+      this.disabledSaveButton.set(true);
     }
   }
 
