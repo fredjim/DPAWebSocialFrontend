@@ -37,6 +37,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   currentPostType!: string;
   @ViewChild('modalCreatePost') modal!: ElementRef;
   public visibleModalCreate: boolean = false;
+  public maxLengthText = 1200;
 
   constructor(
     private readonly postService: PostService,
@@ -77,7 +78,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
 
   private buildForm() {
     this.postForm = this.formBuilder.group({
-      contentPost: ['', [Validators.maxLength(1000)]],
+      contentPost: ['', [Validators.maxLength(this.maxLengthText)]],
       media: [[]],
       mediaDoc: [[]],
       switchControl: [false]
@@ -105,7 +106,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   //Deshabilitar el boton de publicar si no hay texto
   getTextPost(text: string) {
     this.postForm.get('contentPost')?.setValue(text);
-    text === '' ? this.disabledPublishButton.set(true) : this.disabledPublishButton.set(false);
+    text === '' || text.length > this.maxLengthText ? this.disabledPublishButton.set(true) : this.disabledPublishButton.set(false);
   }
 
   //Mostrar area de imagenes y deshabilitar el boton de cargar documentos
@@ -426,7 +427,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
         })
 
       } else if (valueFormPost.contentPost != '') {//Si solo tiene texto
-        console.log("Publicando texto en opcion correcta: " + valueFormPost.contentPost )
+        
         post.fb_post_enable = this.isFbSwitchOn;
         post.is_fb_posted = false;
         this.postService.createPost(post).subscribe({

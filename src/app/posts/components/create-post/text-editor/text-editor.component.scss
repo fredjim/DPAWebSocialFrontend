@@ -1,5 +1,32 @@
+.textarea-container {
+  position: relative;
+}
+
 textarea {
   resize: none;
   width: 100%;
   overflow: hidden;
+}
+    
+textarea.exceeded {
+  border-color: #dc3545;
+  background-color: #fff8f8;
+}
+
+.char-counter {
+  font-size: 12px;
+  margin-top: 4px;
+  text-align: right;
+  color: #666;
+}
+
+.char-counter.exceeded {
+  color: #dc3545;
+}
+
+.error-message {
+  display: block;
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
 }

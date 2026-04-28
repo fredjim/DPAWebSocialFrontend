@@ -310,10 +310,10 @@ export class PostComponent implements OnInit {
 
   //Metodo para aumentar o no el totalReactions
   incrementTotalReactions() {
-    if(this.like==false) {
-      this.totalReactions.update(valor => valor + 1)
-    }else{
+    if(this.like) {
       this.totalReactions.update(valor => valor)
+    }else{
+      this.totalReactions.update(valor => valor + 1)
     }
   }
 
@@ -346,7 +346,6 @@ export class PostComponent implements OnInit {
     const textPost = document.getElementById('text-post-'+id) as HTMLParagraphElement;
     if(textPost){
       textPost.innerHTML = `<p id="text-post" *ngIf="post.content.text != ''" class="text-post">${this.post.content.text}</p>`;
-      console.log(textPost)
     }
     return textPost || '';
   }
