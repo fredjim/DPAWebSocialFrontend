@@ -9,6 +9,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from './../comments/comments.component';
 import { PostComment } from '../../models/post-comment';
 import { UserDetail } from '../../models/user-detail';
+import { TenantService } from '../../../services/tenant.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-post',
@@ -25,7 +27,6 @@ export class PostComponent implements OnInit {
   comments: PostComment[] = [];
   newComment: string = '';
   showCommentInput: boolean = false;
-  postUrl: string = "https://devpws.cs.umss.edu.bo/post/";
 
   @Output() requestDeletePost = new EventEmitter<string>();
   @Output() requestUpdatePost = new EventEmitter<Post>();
@@ -52,7 +53,8 @@ export class PostComponent implements OnInit {
   totalComments = signal(0);
 
   constructor(
-    private readonly postService: PostService
+    private readonly postService: PostService,
+    private readonly tenantService: TenantService
   ) {}
   
   ngOnInit() {
@@ -357,15 +359,23 @@ export class PostComponent implements OnInit {
   }
 
   onShare() {
+    const shareUrl = this.buildPostUrl(this.post.uuid);
     if (navigator.share) {
       navigator.share({
         title: 'Mira esta publicación',
-        url: this.postUrl + this.post.uuid
+        url: shareUrl
       }).catch(() => { });
     } else {
-      navigator.clipboard.writeText(this.postUrl).then(() => {
+      navigator.clipboard.writeText(shareUrl).then(() => {
         alert('URL copiada al portapapeles');
       });
     }
+  }
+
+  private buildPostUrl(postUuid: string): string {
+    const slug = this.tenantService.getSlug();
+    const base = environment.URL_BASE;
+    const slugSegment = slug ? `/${slug}` : '';
+    return `${base}${slugSegment}/posts/${postUuid}`;
   }
 }

@@ -10,6 +10,8 @@ import { PostService } from '../../../services/post.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserDetail } from '../../../models/user-detail';
 import { CommentsComponent } from '../../comments/comments.component';
+import { TenantService } from '../../../../services/tenant.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-page',
@@ -17,13 +19,13 @@ import { CommentsComponent } from '../../comments/comments.component';
   styleUrl: './page.component.scss'
 })
 export class PageComponent {
-  private modalService = inject(NgbModal);
-  private postService = inject(PostService);
+  private readonly modalService = inject(NgbModal);
+  private readonly postService = inject(PostService);
 
   public post: Post | null = null;
   loading: boolean = true;
   error: string | null = null;
-  private apiUrl = 'https://devpws.cs.umss.edu.bo/api/v1/posts';
+  private readonly apiUrl = 'https://devpws.cs.umss.edu.bo/api/v1/posts';
 
   // Propiedades del PostComponent original
   institution!: Institution;
@@ -56,8 +58,9 @@ export class PageComponent {
   totalComments = signal(0);
 
   constructor(
-    private route: ActivatedRoute,
-    private http: HttpClient
+    private readonly route: ActivatedRoute,
+    private readonly http: HttpClient,
+    private readonly tenantService: TenantService
   ) { }
 
   ngOnInit() {
@@ -190,6 +193,13 @@ export class PageComponent {
     if (textPost && this.post) {
       textPost.innerHTML = this.post.content.text;
     }
+  }
+
+  buildPostUrl(postUuid: string): string {
+    const slug = this.tenantService.getSlug();
+    const base = environment.URL_BASE;
+    const slugSegment = slug ? `/${slug}` : '';
+    return `${base}${slugSegment}/posts/${postUuid}`;
   }
 
   // Métodos de reacciones
