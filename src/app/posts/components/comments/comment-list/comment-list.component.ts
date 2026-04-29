@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
 import { Comment, Reply } from '../../../models/comment';
 import { UserDetail } from '../../../models/user-detail';
 import moment from 'moment-timezone';
@@ -15,7 +15,7 @@ import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-repl
   templateUrl: './comment-list.component.html',
   styleUrls: ['./comment-list.component.scss']
 })
-export class CommentListComponent implements OnChanges {
+export class CommentListComponent implements OnInit, OnChanges {
   @Input() comments: Comment[] = [];
   @Input() currentUser: UserDetail | null = null;
   @Input() authenticated: boolean = false;
@@ -73,7 +73,6 @@ export class CommentListComponent implements OnChanges {
       if (this.emojis.length) {
         this.defaultEmoji = { ...this.emojis[0], class: this.emojiClassMap[this.emojis[0].emoji_name] };
       }
-      console.log('Emojis loaded:', this.emojis);
     });
   }
 
@@ -97,9 +96,9 @@ export class CommentListComponent implements OnChanges {
   }
 
   constructor(
-    private postService: PostService,
-    private authService: AuthService,
-    private modalService: NgbModal
+    private readonly postService: PostService,
+    private readonly authService: AuthService,
+    private readonly modalService: NgbModal
   ) { }
 
   reactToComment(commentUuid: string, emojiTypeUuid: string, forceChange: boolean = false) {
@@ -192,7 +191,7 @@ export class CommentListComponent implements OnChanges {
   private findItemByUuid(uuid: string, items: any[]): any {
     for (let item of items) {
       if (item.uuid === uuid) return item;
-      if (item.replies && item.replies.length) {
+      if (item?.replies.length) {
         let found = this.findItemByUuid(uuid, item.replies);
         if (found) return found;
       }
