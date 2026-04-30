@@ -63,8 +63,8 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/ws/",
-              "deployUrl": "/ws/"
+              "baseHref": "/",
+              "deployUrl": "/"
             },
             "development": {
               "optimization": false,
