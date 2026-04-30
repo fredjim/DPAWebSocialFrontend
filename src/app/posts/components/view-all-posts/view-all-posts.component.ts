@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PostService } from '../../services/post.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Post } from '../../models/post';
@@ -6,6 +7,8 @@ import { UserDetail } from '../../models/user-detail';
 import { Institution } from '../../models/institution';
 import { TenantService } from '../../../services/tenant.service';
 import { distinctUntilChanged, fromEvent, Subscription, throttleTime } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CommentsComponent } from '../comments/comments.component';
 
 @Component({
   selector: 'app-view-all-posts',
@@ -30,12 +33,24 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   constructor(
     private readonly postService: PostService,
     private readonly authService: AuthService,
-    private readonly tenantService: TenantService
+    private readonly tenantService: TenantService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly modalService: NgbModal
   ){}
   
   ngOnInit(){
     this.setupScrollListener();
     this.authenticated = this.authService.isAuthenticated();
+
+    this.route.paramMap.subscribe(params => {
+      const postId = params.get('id');
+      if (postId) {
+        const state = window.history.state as { initialImageIndex?: number };
+        const initialImageIndex = state?.initialImageIndex ?? 0;
+        this.openPostById(postId, initialImageIndex);
+      }
+    });
     // Obtener una cantidad de posts
     this.postService.getPagedPosts(this.pageCounter).subscribe({
       next:(data: Post[])=>{
@@ -159,5 +174,85 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
         console.error('Error al actualizar las reacciones', error);
       }
     });
+  }
+
+  handleOpenPost(post: Post, initialImageIndex: number = 0): void {
+    this.navigateToPost(post.uuid, initialImageIndex);
+  }
+
+  private openPostById(postUuid: string, initialImageIndex: number = 0): void {
+    const existing = this.posts.find(p => p.uuid === postUuid);
+    if (existing) {
+      this.openPostModal(existing, initialImageIndex);
+      return;
+    }
+
+    this.postService.getPost(postUuid).subscribe({
+      next: (post) => this.openPostModal(post, initialImageIndex),
+      error: (error) => console.error('Error al obtener el post', error)
+    });
+  }
+
+  private openPostModal(post: Post, initialImageIndex: number = 0): void {
+    this.postService.getInstitution(post.institution_id).subscribe({
+      next: (institution) => {
+        const modalRef = this.modalService.open(CommentsComponent, { size: 'lg', centered: true });
+        modalRef.componentInstance.institution = institution;
+        modalRef.componentInstance.post = post;
+        modalRef.componentInstance.postUuid = post.uuid;
+        modalRef.componentInstance.postImages = post.content.media;
+        modalRef.componentInstance.postAuthor = institution.name;
+        modalRef.componentInstance.postDate = this.calculateTimePost(post);
+        modalRef.componentInstance.postDescription = post.content.text;
+        modalRef.componentInstance.initialImageIndex = initialImageIndex;
+
+        modalRef.closed.subscribe(() => this.navigateToPosts());
+        modalRef.dismissed.subscribe(() => this.navigateToPosts());
+      },
+      error: (error) => console.error('Error al obtener la institucion', error)
+    });
+  }
+
+  private calculateTimePost(post: Post): string {
+    const postDate = new Date(post.date);
+    const currentDate = new Date(Date.now());
+    const diferenciaMs: number = currentDate.getTime() - postDate.getTime();
+    const unMinuto = 60 * 1000;
+    const unaHora = 60 * unMinuto;
+    const unDia = 24 * unaHora;
+    const sieteDias = 7 * unDia;
+
+    if (diferenciaMs < unMinuto) {
+      return 'Hace un momento';
+    } else if (diferenciaMs < unaHora) {
+      const minutos = Math.floor(diferenciaMs / unMinuto);
+      return `Hace ${minutos} min`;
+    } else if (diferenciaMs < unDia) {
+      const horas = Math.floor(diferenciaMs / unaHora);
+      return `Hace ${horas} h`;
+    } else if (diferenciaMs < sieteDias) {
+      const dias = Math.floor(diferenciaMs / unDia);
+      return `Hace ${dias} d`;
+    }
+
+    return postDate.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  private navigateToPost(postUuid: string, initialImageIndex: number = 0): void {
+    const slug = this.tenantService.getSlug();
+    this.router.navigate(['/', slug, 'posts', postUuid], {
+      state: { initialImageIndex }
+    });
+  }
+
+  private navigateToPosts(): void {
+    const slug = this.tenantService.getSlug();
+    this.router.navigate(['/', slug, 'posts']);
   }
 }
