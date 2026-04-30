@@ -1,14 +1,10 @@
-// This file can be replaced during build by using the `file
-// Replacements` array.
+// This file can be replaced during build by using the `fileReplacements` array.
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
   //Institution
   INSTITUTION_ID: '93j203b4-f63b-4c4a-be05-eae84cef0c0c',
-
-  //Tenant
-  URL_BASE: 'http://localhost:4200',
 
   // Tenant fallback (development)
   DEFAULT_TENANT_SLUG: 'dpa',

@@ -9,8 +9,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from './../comments/comments.component';
 import { PostComment } from '../../models/post-comment';
 import { UserDetail } from '../../models/user-detail';
-import { TenantService } from '../../../services/tenant.service';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-post',
@@ -23,14 +21,13 @@ export class PostComponent implements OnInit {
   @Output() reactionChanged = new EventEmitter<void>(); // Nuevo Output para emitir eventos de cambio de reacción
   @Input() currentUser!: UserDetail;
   @Input() authenticated: boolean = false;
-  @Input() openInParent: boolean = false;
   comments: PostComment[] = [];
   newComment: string = '';
   showCommentInput: boolean = false;
+  postUrl: string = "https://devpws.cs.umss.edu.bo/post/";
 
   @Output() requestDeletePost = new EventEmitter<string>();
   @Output() requestUpdatePost = new EventEmitter<Post>();
-  @Output() openPostDetail = new EventEmitter<{ post: Post; initialImageIndex: number }>();
   institution!: Institution;
   listMediaPost!: Media[]; // Lista de imagenes videos o documento del post 
   showOptions: WritableSignal<boolean> = signal(false); // Controla la visibilidad de las opciones del post
@@ -53,8 +50,7 @@ export class PostComponent implements OnInit {
   totalComments = signal(0);
 
   constructor(
-    private readonly postService: PostService,
-    private readonly tenantService: TenantService
+    private readonly postService: PostService
   ) {}
   
   ngOnInit() {
@@ -113,10 +109,6 @@ export class PostComponent implements OnInit {
   }
 
   openViewPostComments(post: Post, initialImageIndex: number = 0) {
-    if (this.openInParent) {
-      this.openPostDetail.emit({ post, initialImageIndex });
-      return;
-    }
     const modalRef = this.modalService.open(CommentsComponent, { size: 'lg', centered: true });
     modalRef.componentInstance.institution = this.institution;
     modalRef.componentInstance.post = post;
@@ -359,23 +351,15 @@ export class PostComponent implements OnInit {
   }
 
   onShare() {
-    const shareUrl = this.buildPostUrl(this.post.uuid);
     if (navigator.share) {
       navigator.share({
         title: 'Mira esta publicación',
-        url: shareUrl
+        url: this.postUrl + this.post.uuid
       }).catch(() => { });
     } else {
-      navigator.clipboard.writeText(shareUrl).then(() => {
+      navigator.clipboard.writeText(this.postUrl).then(() => {
         alert('URL copiada al portapapeles');
       });
     }
-  }
-
-  private buildPostUrl(postUuid: string): string {
-    const slug = this.tenantService.getSlug();
-    const base = environment.URL_BASE;
-    const slugSegment = slug ? `/${slug}` : '';
-    return `${base}${slugSegment}/posts/${postUuid}`;
   }
 }

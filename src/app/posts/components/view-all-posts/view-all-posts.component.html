@@ -18,8 +18,6 @@
       [post]="post" 
       [currentUser]="currentUser"
       [authenticated]="authenticated"
-      [openInParent]="true"
-      (openPostDetail)="handleOpenPost($event.post, $event.initialImageIndex)"
       (requestDeletePost)="deletePost($event)"
       (requestUpdatePost)="updatePost($event)" 
       (reactionChanged)="updateReactions(post.uuid)">
