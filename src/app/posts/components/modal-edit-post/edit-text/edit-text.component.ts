@@ -21,7 +21,6 @@ export class EditTextComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     if (this.contentText && this.textarea) {
       this.textarea.nativeElement.value = this.contentText;
-      // this.adjustTextAreaHeight();
       this.currentValue = this.contentText;
       this.currentLength = this.contentText.length;
       this.isExceeded = this.contentText.length > this.maxLength;

@@ -113,7 +113,7 @@ export class PostComponent implements OnInit {
     modalRef.componentInstance.institution = this.institution;
     modalRef.componentInstance.post = post;
     modalRef.componentInstance.postUuid = post.uuid;
-    modalRef.componentInstance.postImages = post.content.media;
+    modalRef.componentInstance.postMedia = post.content.media;
     modalRef.componentInstance.postAuthor = this.institution.name;
     modalRef.componentInstance.postDate = this.calculateTimePost;
     modalRef.componentInstance.postDescription = post.content.text;
