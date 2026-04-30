@@ -23,12 +23,14 @@ export class PostComponent implements OnInit {
   @Output() reactionChanged = new EventEmitter<void>(); // Nuevo Output para emitir eventos de cambio de reacción
   @Input() currentUser!: UserDetail;
   @Input() authenticated: boolean = false;
+  @Input() openInParent: boolean = false;
   comments: PostComment[] = [];
   newComment: string = '';
   showCommentInput: boolean = false;
 
   @Output() requestDeletePost = new EventEmitter<string>();
   @Output() requestUpdatePost = new EventEmitter<Post>();
+  @Output() openPostDetail = new EventEmitter<{ post: Post; initialImageIndex: number }>();
   institution!: Institution;
   listMediaPost!: Media[]; // Lista de imagenes videos o documento del post 
   showOptions: WritableSignal<boolean> = signal(false); // Controla la visibilidad de las opciones del post
@@ -111,6 +113,10 @@ export class PostComponent implements OnInit {
   }
 
   openViewPostComments(post: Post, initialImageIndex: number = 0) {
+    if (this.openInParent) {
+      this.openPostDetail.emit({ post, initialImageIndex });
+      return;
+    }
     const modalRef = this.modalService.open(CommentsComponent, { size: 'lg', centered: true });
     modalRef.componentInstance.institution = this.institution;
     modalRef.componentInstance.post = post;
