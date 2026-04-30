@@ -1,10 +1,4 @@
-import {
-  Component,
-  ViewChild,
-  ElementRef,
-  Input,
-  OnInit,
-} from '@angular/core';
+import { Component, ViewChild, ElementRef, Input, OnInit, ViewChildren, QueryList, AfterViewInit, OnDestroy, } from '@angular/core';
 import { PostService } from '../../services/post.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Comment } from '../../models/comment';
@@ -21,13 +15,14 @@ import moment from 'moment-timezone';
   templateUrl: './comments.component.html',
   styleUrls: ['./comments.component.scss'],
 })
-export class CommentsComponent implements OnInit {
+export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() initialImageIndex: number = 0;
   @ViewChild('commentInput') commentInput!: ElementRef;
+  @ViewChildren('videoPlayer') videos!: QueryList<ElementRef<HTMLVideoElement>>;
   @Input() institution!: Institution;
   @Input() post!: Post;
   @Input() postUuid!: string;
-  @Input() postImages!: Media[];
+  @Input() postMedia!: Media[];
   @Input() postAuthor!: string;
   @Input() postTime!: string;
   @Input() postDescription!: string;
@@ -36,6 +31,9 @@ export class CommentsComponent implements OnInit {
   comments: Comment[] = [];
   authenticated: boolean;
   currentUser: UserDetail | null = null;
+
+  private carouselElement: HTMLElement | null = null;
+  private slideEventHandler: any;
 
   constructor(
     private readonly postService: PostService,
@@ -52,7 +50,49 @@ export class CommentsComponent implements OnInit {
     }
   }
 
-  loadCurrentUser(): void {
+  ngAfterViewInit(): void {
+    // Configurar el control de videos después de que la vista esté lista
+    setTimeout(() => {
+      this.setupVideoControls();
+    });
+  }
+
+  ngOnDestroy(): void {
+    // Limpiar evento cuando el modal se destruye
+    this.cleanupVideoControls();
+  }
+
+  private setupVideoControls(): void {
+    this.carouselElement = document.getElementById('carouselMediaControls');
+    
+    if (this.carouselElement) {
+      this.slideEventHandler = () => this.stopAllVideos();
+      this.carouselElement.addEventListener('slide.bs.carousel', this.slideEventHandler);
+    }
+  }
+
+  private cleanupVideoControls(): void {
+    if (this.carouselElement && this.slideEventHandler) {
+      this.carouselElement.removeEventListener('slide.bs.carousel', this.slideEventHandler);
+    }
+    // También detener videos al destruir el componente
+    this.stopAllVideos();
+  }
+
+  private stopAllVideos(): void {
+    if (this.videos) {
+      this.videos.forEach(videoRef => {
+        const video = videoRef.nativeElement;
+        if (video && !video.paused) {
+          video.pause();
+          // Opcional: reiniciar el video
+          // video.currentTime = 0;
+        }
+      });
+    }
+  }
+
+  private loadCurrentUser(): void {
     this.postService.getUser().subscribe({
       next: (user: UserDetail) => {
         this.currentUser = user || null;
@@ -63,8 +103,6 @@ export class CommentsComponent implements OnInit {
       },
     });
   }
-
-  
 
   toggleCommentInput(): void {
 

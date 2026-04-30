@@ -8,7 +8,6 @@ import { ViewAllPostsConveniosComponent } from './posts/components/view-all-post
 import { ViewAllPostsProyectosComponent } from './posts/components/view-all-posts-proyectos/view-all-posts-proyectos.component';
 import { ViewAllPostsBecasComponent } from './posts/components/view-all-posts-becas/view-all-posts-becas.component';
 import { ViewAllPostsCudieComponent } from './posts/components/view-all-posts-cudie/view-all-posts-cudie.component';
-import { PageComponent } from './posts/components/post-page/page/page.component';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
 import { PageContainerComponent } from './pages/page-container/page-container.component';
 import { SectionResolver } from './resolvers/section.resolver';
@@ -37,6 +36,7 @@ const routes: Routes = [
     component: HomeComponent,
     children: [
       { path: '', redirectTo: 'posts', pathMatch: 'full' },
+      { path: 'posts/:id', component: ViewAllPostsComponent },
       { path: 'posts', component: ViewAllPostsComponent },
       { path: 'fotos', component: PhotosGalleryComponent },
       { path: 'videos', component: VideosGalleryComponent },
@@ -58,11 +58,6 @@ const routes: Routes = [
     ]
   },
 
-  // Post detail prefijado con slug
-  {
-    path: ':slug/posts/:id',
-    component: PageComponent
-  },
 
   // Raíz → redirige al tenant por defecto
   {

@@ -11,7 +11,7 @@
     <div class="char-counter" [class.exceeded]="isExceeded">
         <span>{{ currentLength }}</span> / {{ maxLength }}
         <span *ngIf="isExceeded" class="error-message">
-          Has excedido el límite de {{ maxLength }} caracteres
+          Has alcanzado el límite de {{ maxLength }} caracteres
         </span>
     </div>
 </div>

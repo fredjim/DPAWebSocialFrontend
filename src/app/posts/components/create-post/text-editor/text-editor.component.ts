@@ -101,12 +101,18 @@ export class TextEditorComponent implements OnChanges, AfterViewInit, OnDestroy 
       this.textChangeEvent.emit('');
     }
     this.shouldClearTextarea = false;
+    this.resetTextAreaHeight();
   }
 
   private adjustTextAreaHeight(): void {
     const textareaElement = this.textarea.nativeElement;
     textareaElement.style.height = 'auto'; // Restablece la altura
     textareaElement.style.height = `${textareaElement.scrollHeight}px`; // Ajusta la altura según el contenido
+  }
+
+  private resetTextAreaHeight(): void {
+    const textareaElement = this.textarea.nativeElement;
+    textareaElement.style.height = 'auto'; // Restablece la altura
   }
 
   ngOnDestroy(): void {
