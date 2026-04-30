@@ -58,16 +58,15 @@
 								}
 							</div>
 
-							<!-- Images article -->
-							<div class="media-container" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeImages)" 
-								[ngStyle]="{ width: article.medias.length == 1 ? '70%' : '100%' }">
+							<div class="media-container" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeImages)" >
 								@for(media of article.medias; track media.uuid){
 									@if(media.type.includes('image')){
-										<img [src]="media.path" [alt]="media.name" 
+										<img [src]="media.path" [alt]="media.name"
 											(click)="showModalArticleMedias(article.medias)" (keypress)="showModalArticleMedias(article.medias)">
 									}
 								}
 							</div>
+
 						</div>
 						<div class="edit-info" (click)="editInfo(article.uuid)" (keypress)="editInfo(article.uuid)">
 							<i class="bi bi-pencil-fill"></i>
@@ -100,9 +99,7 @@
 						}
 					</div>
 
-					<!-- Images article -->
-					<div class="media-container" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeImages)" 
-						[ngStyle]="{ width: article.medias.length == 1 ? '70%' : '100%' }">
+					<div class="media-container" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeImages)" >
 						@for(media of article.medias; track media.uuid){
 							@if(media.type.includes('image')){
 								<img [src]="media.path" [alt]="media.name"
