@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, ElementRef, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { PostService } from '../../services/post.service';
 import { Modal } from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { concatMap, of, map, catchError, reduce, tap, concat } from 'rxjs';
+import { concatMap, of, map, catchError, reduce, tap, concat, Subject, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../models/uploaded-media';
 import { CreatePost } from '../../models/create-post';
 import { Institution } from '../../models/institution';
@@ -18,7 +18,9 @@ import imageCompression from 'browser-image-compression';
   templateUrl: './create-post.component.html',
   styleUrl: './create-post.component.scss'
 })
-export class CreatePostComponent implements OnInit, AfterViewInit {
+export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+  private modalHiddenListener!: () => void;
   institution!: Institution;
   commentConfig!: CommentConfig[];
   selectedCommentConfig!: string;
@@ -46,34 +48,39 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    this.tenantService.getInstitution().subscribe({
-      next: (institutionData: Institution) => {
-        this.institution = institutionData;
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
+    this.tenantService.getInstitution()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (institutionData: Institution) => {
+          this.institution = institutionData;
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
     //Obtener la configuracion de comentarios
-    this.postService.getCommentsConfiguration().subscribe({
-      next: (commentsConfiguration: CommentConfig[]) => {
-        this.commentConfig = commentsConfiguration;
-        this.selectedCommentConfig = this.commentConfig[0].uuid;//Por defecto todos comentan
-      },
-      error: (error) => {
-        console.log('Error al obtener la configuracion de comentarios', error)
-      }
-    })
+    this.postService.getCommentsConfiguration()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (commentsConfiguration: CommentConfig[]) => {
+          this.commentConfig = commentsConfiguration;
+          this.selectedCommentConfig = this.commentConfig[0].uuid;//Por defecto todos comentan
+        },
+        error: (error) => {
+          console.log('Error al obtener la configuracion de comentarios', error)
+        }
+      });
     this.getTypeByRol()
     this.buildForm()
   }
 
   ngAfterViewInit(): void {
-    this.modal.nativeElement.addEventListener('hidden.bs.modal', () => {
+    this.modalHiddenListener = () => {
       this.visibleModalCreate = false;
       this.selectedCommentConfig = this.commentConfig[0].uuid;
       this.postForm.get('switchControl')?.setValue(false);
-    });
+    };
+    this.modal.nativeElement.addEventListener('hidden.bs.modal', this.modalHiddenListener);
   }
 
   private buildForm() {
@@ -83,10 +90,11 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
       mediaDoc: [[]],
       switchControl: [false]
     });
-    // Optional: Listen to value changes
-    this.postForm.get('switchControl')?.valueChanges.subscribe(value => {
-      this.onSwitchChange(value);
-    });
+    this.postForm.get('switchControl')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.onSwitchChange(value);
+      });
   }
 
   onSwitchChange(value: boolean) {
@@ -174,18 +182,23 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   }
 
   getTypeByRol() {
-    this.postService.getUser().subscribe({
-      next:(user: UserDetail) => {
-        this.currentUser = user;
-        
-        this.currentPostType = this.determinePostType(this.currentUser.role);
-        
-    },
-    error:(error) => {
-      console.error('Error al obtener el usuario actual', error);
-      }
-    });
-   
+    this.postService.getUser()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next:(user: UserDetail) => {
+          this.currentUser = user;
+          this.currentPostType = this.determinePostType(this.currentUser.role);
+        },
+        error:(error) => {
+          console.error('Error al obtener el usuario actual', error);
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.modal.nativeElement.removeEventListener('hidden.bs.modal', this.modalHiddenListener);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private determinePostType(role: string): string {
