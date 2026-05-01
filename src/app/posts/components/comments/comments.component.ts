@@ -1,4 +1,5 @@
-import { Component, ViewChild, ElementRef, Input, OnInit, ViewChildren, QueryList, AfterViewInit, OnDestroy, } from '@angular/core';
+import { Component, ViewChild, ElementRef, Input, OnInit, ViewChildren, QueryList, AfterViewInit, OnDestroy } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { PostService } from '../../services/post.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Comment } from '../../models/comment';
@@ -32,6 +33,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   authenticated: boolean;
   currentUser: UserDetail | null = null;
 
+  private readonly destroy$ = new Subject<void>();
   private carouselElement: HTMLElement | null = null;
   private slideEventHandler: any;
 
@@ -58,7 +60,8 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Limpiar evento cuando el modal se destruye
+    this.destroy$.next();
+    this.destroy$.complete();
     this.cleanupVideoControls();
   }
 
@@ -93,15 +96,17 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadCurrentUser(): void {
-    this.postService.getUser().subscribe({
-      next: (user: UserDetail) => {
-        this.currentUser = user || null;
-      },
-      error: (error) => {
-        console.error('Error al obtener el usuario actual', error);
-        this.currentUser = null;
-      },
-    });
+    this.postService.getUser()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user: UserDetail) => {
+          this.currentUser = user || null;
+        },
+        error: (error) => {
+          console.error('Error al obtener el usuario actual', error);
+          this.currentUser = null;
+        },
+      });
   }
 
   toggleCommentInput(): void {
@@ -121,7 +126,9 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
       content: this.newComment,
     };
 
-    this.postService.addComment(this.post.uuid, commentData).subscribe({
+    this.postService.addComment(this.post.uuid, commentData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (newComment) => {
         if (this.currentUser) {
           const commentToAdd: Comment = {
@@ -157,9 +164,13 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
       parentReplyUuid: event.isTopLevel ? null : event.parentUuid,
     };
 
-    this.postService.addReply(event.parentUuid, replyData).subscribe({
-      next: (newReply) => {
-        this.postService.getUser().subscribe({
+    this.postService.addReply(event.parentUuid, replyData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (newReply) => {
+          this.postService.getUser()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
           next: (user: UserDetail) => {
             const formattedReply = {
               uuid: newReply.uuid,
@@ -221,14 +232,16 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   // Agregar este método para cargar respuestas
 private loadAllReplies(): void {
   this.comments.forEach(comment => {
-    this.postService.getRepliesByCommentUuid(comment.uuid).subscribe({
-      next: (replies) => {
-        comment.replies = replies.sort(
-          (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
-        );
-      },
-      error: (error) => console.error('Error al obtener respuestas:', error)
-    });
+    this.postService.getRepliesByCommentUuid(comment.uuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (replies) => {
+          comment.replies = replies.sort(
+            (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+          );
+        },
+        error: (error) => console.error('Error al obtener respuestas:', error)
+      });
   });
 }
 
@@ -236,8 +249,10 @@ private loadAllReplies(): void {
 
 // Agrega este método para cargar respuestas de un comentario
 private loadCommentReplies(comment: Comment): void {
-  this.postService.getRepliesByCommentUuid(comment.uuid).subscribe({
-    next: (replies) => {
+  this.postService.getRepliesByCommentUuid(comment.uuid)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (replies) => {
       comment.replies = replies.sort(
         (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
       );
@@ -256,8 +271,10 @@ private loadCommentReplies(comment: Comment): void {
 
 // Método para cargar respuestas de respuestas (anidadas)
 private loadReplyReplies(reply: any): void {
-  this.postService.getRepliesByCommentUuid(reply.uuid).subscribe({
-    next: (nestedReplies) => {
+  this.postService.getRepliesByCommentUuid(reply.uuid)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (nestedReplies) => {
       reply.replies = nestedReplies.sort(
         (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
       );
@@ -268,7 +285,9 @@ private loadReplyReplies(reply: any): void {
 
 // Modifica loadComments para cargar también las respuestas
 loadComments(): void {
-  this.postService.getPostComments(this.postUuid).subscribe({
+  this.postService.getPostComments(this.postUuid)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
     next: (data: Comment[]) => {
       this.comments = data.sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
