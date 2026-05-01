@@ -46,9 +46,9 @@ export class ReplyListComponent implements OnInit, OnDestroy {
   };
 
   constructor(
-    private postService: PostService,
-    private authService: AuthService,
-    private modalService: NgbModal
+    private readonly postService: PostService,
+    private readonly authService: AuthService,
+    private readonly modalService: NgbModal
   ) { }
 
   ngOnInit() {
