@@ -1,9 +1,9 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, Output, EventEmitter } from '@angular/core';
 import moment from 'moment-timezone';
 import { PostService } from '../../../services/post.service';
 import { EmojiType } from '../../../models/emoji-type';
 import { AuthService } from '../../../../authentication/services/auth.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-replies/modal-list-reactions-replies.component'; // Ajusta la ruta si es necesario
 
@@ -12,7 +12,8 @@ import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-repl
   templateUrl: './reply-list.component.html',
   styleUrls: ['./reply-list.component.scss']
 })
-export class ReplyListComponent {
+export class ReplyListComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   @Input() parentUuid: string = '';
   @Input() replies: any[] = [];
   @Input() currentUser: any;
@@ -69,7 +70,9 @@ export class ReplyListComponent {
   }
 
   loadEmojis() {
-    this.postService.getEmojisType().subscribe(emojis => {
+    this.postService.getEmojisType()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(emojis => {
       this.emojis = emojis.map(e => ({
         ...e,
         class: this.emojiClassMap[e.emoji_name] || 'default'
@@ -101,14 +104,18 @@ export class ReplyListComponent {
       emoji_type_id: emojiTypeUuid, // <-- nombre correcto
       reaction_date: new Date().toISOString() // <-- nombre correcto
     };
-    this.postService.reactToReply(replyUuid, body).subscribe(() => {
+    this.postService.reactToReply(replyUuid, body)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
       this.selectedReactions[replyUuid] = emojiTypeUuid;
       this.loadRepliesReactionsCount();
     });
   }
 
   removeReplyReaction(replyUuid: string) {
-    this.postService.deleteReplyReaction(replyUuid).subscribe(() => {
+    this.postService.deleteReplyReaction(replyUuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
       this.selectedReactions[replyUuid] = '';
       this.loadRepliesReactionsCount();
     });
@@ -120,7 +127,9 @@ export class ReplyListComponent {
     const reactionsObservables = this.replies.map(reply =>
       this.postService.getReplyReactions(reply.uuid)
     );
-    forkJoin(reactionsObservables).subscribe(allReactions => {
+    forkJoin(reactionsObservables)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(allReactions => {
       allReactions.forEach((reactions, idx) => {
         const reply = this.replies[idx];
         // Cambia a user_id y emoji_type_id
@@ -137,10 +146,17 @@ export class ReplyListComponent {
   loadRepliesReactionsCount() {
     if (!this.replies) return;
     this.replies.forEach(reply => {
-      this.postService.getReplyReactions(reply.uuid).subscribe(reactions => {
-        this.replyReactionsCount[reply.uuid] = reactions.length;
-      });
+      this.postService.getReplyReactions(reply.uuid)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(reactions => {
+          this.replyReactionsCount[reply.uuid] = reactions.length;
+        });
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getReplyReactionsCount(reply: any): number {
@@ -157,7 +173,9 @@ export class ReplyListComponent {
     return commentDate.fromNow();
   }
   openReplyReactionsModal(replyUuid: string) {
-    this.postService.getReplyReactions(replyUuid).subscribe(reactions => {
+    this.postService.getReplyReactions(replyUuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(reactions => {
       // Mapea los datos para el modal
       const detailReactions = reactions.map((r: any) => ({
         userName: r.userName,
