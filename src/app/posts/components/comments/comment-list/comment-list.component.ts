@@ -1,11 +1,10 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnDestroy, SimpleChanges, OnInit } from '@angular/core';
 import { Comment, Reply } from '../../../models/comment';
 import { UserDetail } from '../../../models/user-detail';
 import moment from 'moment-timezone';
 import { PostService } from '../../../services/post.service';
 import { EmojiType } from '../../../models/emoji-type';
-import { CreateReaction } from '../../../models/create-reaction';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../../../authentication/services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-replies/modal-list-reactions-replies.component'; // Ajusta la ruta si es necesario
@@ -15,7 +14,8 @@ import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-repl
   templateUrl: './comment-list.component.html',
   styleUrls: ['./comment-list.component.scss']
 })
-export class CommentListComponent implements OnInit, OnChanges {
+export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   @Input() comments: Comment[] = [];
   @Input() currentUser: UserDetail | null = null;
   @Input() authenticated: boolean = false;
@@ -63,7 +63,9 @@ export class CommentListComponent implements OnInit, OnChanges {
     }
   }
   loadEmojis() {
-    this.postService.getEmojisType().subscribe(emojis => {
+    this.postService.getEmojisType()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(emojis => {
       // Agrega la clase a cada emoji para usar en el botón
       this.emojis = emojis.map(e => ({
         ...e,
@@ -112,14 +114,18 @@ export class CommentListComponent implements OnInit, OnChanges {
       emojiTypeId: emojiTypeUuid,
       reactionDate: new Date().toISOString()
     };
-    this.postService.reactToComment(commentUuid, body).subscribe(() => {
+    this.postService.reactToComment(commentUuid, body)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
       this.selectedReactions[commentUuid] = emojiTypeUuid;
       this.loadCommentsReactionsCount();
     });
   }
 
   removeReaction(commentUuid: string) {
-    this.postService.deleteCommentReaction(commentUuid).subscribe(() => {
+    this.postService.deleteCommentReaction(commentUuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
       this.selectedReactions[commentUuid] = '';
       this.loadCommentsReactionsCount();
     });
@@ -213,7 +219,9 @@ export class CommentListComponent implements OnInit, OnChanges {
       this.postService.getCommentsReactions(comment.uuid)
     );
 
-    forkJoin(reactionsObservables).subscribe(allReactions => {
+    forkJoin(reactionsObservables)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(allReactions => {
       allReactions.forEach((reactions, idx) => {
         const comment = this.comments[idx];
         const myReaction = reactions.find((r: any) => r.userId === userId);
@@ -227,16 +235,25 @@ export class CommentListComponent implements OnInit, OnChanges {
   loadCommentsReactionsCount() {
     if (!this.comments) return;
     this.comments.forEach(comment => {
-      this.postService.getCommentsReactions(comment.uuid).subscribe(reactions => {
-        this.commentReactionsCount[comment.uuid] = reactions.length;
-      });
+      this.postService.getCommentsReactions(comment.uuid)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(reactions => {
+          this.commentReactionsCount[comment.uuid] = reactions.length;
+        });
     });
   }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   getCommentReactionsCount(comment: Comment): number {
     return this.commentReactionsCount[comment.uuid] || 0;
   }
   openCommentReactionsModal(comment: Comment) {
-    this.postService.getCommentsReactions(comment.uuid).subscribe(reactions => {
+    this.postService.getCommentsReactions(comment.uuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(reactions => {
       // Mapea los datos para el modal
       const detailReactions = reactions.map((r: any) => ({
         userName: r.userName || r.user_name, // Ajusta según tu backend
