@@ -1,4 +1,5 @@
-import { Component, ElementRef, Input, QueryList, signal, ViewChildren, WritableSignal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, signal, ViewChildren, WritableSignal } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { Reactions } from '../../models/reactions';
 import { PostService } from '../../services/post.service';
 import { EmojiType } from '../../models/emoji-type';
@@ -9,7 +10,9 @@ import { ReactionsByType } from '../../models/reactions-by-type';
   templateUrl: './modal-list-reactions.component.html',
   styleUrl: './modal-list-reactions.component.scss'
 })
-export class ModalListReactionsComponent {
+export class ModalListReactionsComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+  private readonly modalListeners: Array<{ el: HTMLElement; fn: () => void }> = [];
   @Input() reactions!: Reactions;
   @Input() postReference!: string; //Uuid del post que sera id del modal
   listEmojiType!: EmojiType[]; //Lista de los tipos de emojis guardados en el back
@@ -18,18 +21,20 @@ export class ModalListReactionsComponent {
 
   public showPopupUser: WritableSignal<boolean> = signal(false);
 
-  constructor(private postService: PostService) { }
+  constructor(private readonly postService: PostService) { }
 
   ngOnInit(){
     //Obtener los tipos de emoji
-    this.postService.getEmojisType().subscribe({
-      next: (response: EmojiType[]) => {
-        this.listEmojiType = response;
-      },
-      error: (error) => {
-        console.log('Error al obtener los tipos de emojis', error);
-      }
-    });
+    this.postService.getEmojisType()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: EmojiType[]) => {
+          this.listEmojiType = response;
+        },
+        error: (error) => {
+          console.log('Error al obtener los tipos de emojis', error);
+        }
+      });
 
     this.listEmojiTypeExisting = this.reactions.reactions_by_type.filter((reactByType) => reactByType.amount > 0 );
   }
@@ -37,11 +42,18 @@ export class ModalListReactionsComponent {
   ngAfterViewInit() {
     this.modalElements.forEach(modalRef => {
       const modalElement = modalRef.nativeElement;
-
-      modalElement.addEventListener('hidden.bs.modal', () => {
-        this.resetTabs(modalElement);
-      });
+      const listener = () => this.resetTabs(modalElement);
+      modalElement.addEventListener('hidden.bs.modal', listener);
+      this.modalListeners.push({ el: modalElement, fn: listener });
     });
+  }
+
+  ngOnDestroy(): void {
+    this.modalListeners.forEach(({ el, fn }) => {
+      el.removeEventListener('hidden.bs.modal', fn);
+    });
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   //Resetear seleccion de tabs al cerrar modal
