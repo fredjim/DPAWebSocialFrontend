@@ -1,20 +1,20 @@
-import { Component, OnInit, Input, inject  } from '@angular/core';
+import { Component, OnDestroy, OnInit, Input, inject } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { PostService } from '../../services/post.service';
 import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
-import { PostComment } from '../../models/post-comment';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from './../comments/comments.component';
 import { TenantService } from '../../../services/tenant.service';
-import moment from 'moment';
 
 @Component({
   selector: 'app-videos-gallery',
   templateUrl: './videos-gallery.component.html',
   styleUrls: ['./videos-gallery.component.scss']
 })
-export class VideosGalleryComponent implements OnInit {
-  private modalService = inject(NgbModal);
+export class VideosGalleryComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+  private readonly modalService = inject(NgbModal);
   @Input() post: any;
   @Input() institution!: Institution;
   videos: any[] = [];
@@ -22,45 +22,50 @@ export class VideosGalleryComponent implements OnInit {
     currentPost !: Post;
 
   constructor(
-    private postService: PostService,
-    private tenantService: TenantService
+    private readonly postService: PostService,
+    private readonly tenantService: TenantService
   ) {}
 
   ngOnInit() {
-    this.tenantService.getInstitution().subscribe({
-      next: (dataInstitution: Institution) => {
-        this.institution = dataInstitution;
-        this.loadVideos();
-      },
-      error: (error) => {
-        console.log(error);
-        this.isLoading = false;
-      }
-    });
+    this.tenantService.getInstitution()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (dataInstitution: Institution) => {
+          this.institution = dataInstitution;
+          this.loadVideos();
+        },
+        error: (error) => {
+          console.log(error);
+          this.isLoading = false;
+        }
+      });
   }
 
   loadVideos() {
     if (this.institution) {
-      this.postService.getInstitutionVideos(this.institution.uuid).subscribe({
-        next: (videos) => {
-          this.videos = videos.map(video => ({
-            ...video,
-            url: `${video.path}`,
-            postUuid: `${video.uuid_post}`
-          }));
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading videos', error);
-          this.isLoading = false;
-        }
-      });
+      this.postService.getInstitutionVideos(this.institution.uuid)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (videos) => {
+            this.videos = videos.map(video => ({
+              ...video,
+              url: `${video.path}`,
+              postUuid: `${video.uuid_post}`
+            }));
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error loading videos', error);
+            this.isLoading = false;
+          }
+        });
     }
   }
 
-    openViewPost(postUuid: string) {
-  
-      this.postService.getPost(postUuid).subscribe({
+  openViewPost(postUuid: string) {
+    this.postService.getPost(postUuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (dataPost: Post) => {
           this.currentPost = dataPost;
           console.log("Post Gallery: "  + JSON.stringify(this.currentPost));
@@ -71,23 +76,24 @@ export class VideosGalleryComponent implements OnInit {
           this.isLoading = false;
         }
       });
-  
-    }
-  
-    openModal() {
-      const modalRef = this.modalService.open(CommentsComponent, { size: 'xl' });
-     
-      modalRef.componentInstance.institution = this.institution;
-      modalRef.componentInstance.post = this.currentPost;
-      modalRef.componentInstance.postUuid = this.currentPost.uuid;
-      modalRef.componentInstance.postImages = this.currentPost.content.media;
-      modalRef.componentInstance.postAuthor = this.institution.name;
-      modalRef.componentInstance.postDate = this.calculateTimePost;
-      modalRef.componentInstance.postDescription = this.currentPost.content.text;
-    }
-  
-    getPost(postUuid: string) {
-      this.postService.getPost(postUuid).subscribe({
+  }
+
+  openModal() {
+    const modalRef = this.modalService.open(CommentsComponent, { size: 'xl' });
+
+    modalRef.componentInstance.institution = this.institution;
+    modalRef.componentInstance.post = this.currentPost;
+    modalRef.componentInstance.postUuid = this.currentPost.uuid;
+    modalRef.componentInstance.postImages = this.currentPost.content.media;
+    modalRef.componentInstance.postAuthor = this.institution.name;
+    modalRef.componentInstance.postDate = this.calculateTimePost;
+    modalRef.componentInstance.postDescription = this.currentPost.content.text;
+  }
+
+  getPost(postUuid: string) {
+    this.postService.getPost(postUuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (dataPost: Post) => {
           this.currentPost = dataPost;
         },
@@ -96,7 +102,12 @@ export class VideosGalleryComponent implements OnInit {
           this.isLoading = false;
         }
       });
-    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
   
     calculateTimePost() {
       const postDate = new Date(this.currentPost.date)

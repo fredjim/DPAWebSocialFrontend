@@ -1,4 +1,5 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output, signal, WritableSignal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, signal, WritableSignal } from '@angular/core';
+import { Subject, takeUntil, concatMap } from 'rxjs';
 import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
 import { CommentConfig } from '../../models/comment-config';
@@ -6,7 +7,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PostService } from '../../services/post.service';
 import { Media } from '../../models/media';
 import { CreatePost } from '../../models/create-post';
-import { concatMap } from 'rxjs';
 import { UploadedMedia } from '../../models/uploaded-media';
 import { FbUploadedMedia } from '../../models/fb-uploaded-media';
 import { Modal } from 'bootstrap';
@@ -20,7 +20,8 @@ import { MessageService } from 'primeng/api';
   templateUrl: './modal-edit-post.component.html',
   styleUrl: './modal-edit-post.component.scss'
 })
-export class ModalEditPostComponent implements OnInit {
+export class ModalEditPostComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   private readonly messageService = inject(MessageService);
 
   @Input({ required: true }) institution!: Institution;
@@ -58,15 +59,17 @@ export class ModalEditPostComponent implements OnInit {
 
   ngOnInit(){
     //Obtener la configuracion de comentarios
-    this.postService.getCommentsConfiguration().subscribe({
-      next: (commentsConfiguration: CommentConfig[])=>{
-        this.commentConfig = commentsConfiguration;
-        this.selectedCommentConfig = this.postToEdit.comment_config_id;//Configuracion de comentarios del post
-      },
-      error: (error)=>{
-        console.log('Error al obtener la configuracion de comentarios', error)
-      }
-    })
+    this.postService.getCommentsConfiguration()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (commentsConfiguration: CommentConfig[])=>{
+          this.commentConfig = commentsConfiguration;
+          this.selectedCommentConfig = this.postToEdit.comment_config_id;//Configuracion de comentarios del post
+        },
+        error: (error)=>{
+          console.log('Error al obtener la configuracion de comentarios', error)
+        }
+      });
     this.getTypeByRol()
     this.buildForm()
     
@@ -199,18 +202,23 @@ export class ModalEditPostComponent implements OnInit {
   getTypeByRol() {
     this.isAuthenticated = this.authService.isAuthenticated();
     if (this.isAuthenticated) {
-        this.postService.getUser().subscribe({
-        next:(user: UserDetail) => {
-          this.currentUser = user;
-          
-          this.currentPostType = this.determinePostType(this.currentUser.role);
-          
-        },
-        error:(error) => {
-          console.error('Error al obtener el usuario actual', error);
+      this.postService.getUser()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next:(user: UserDetail) => {
+            this.currentUser = user;
+            this.currentPostType = this.determinePostType(this.currentUser.role);
+          },
+          error:(error) => {
+            console.error('Error al obtener el usuario actual', error);
           }
         });
-    } 
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private determinePostType(role: string): string {

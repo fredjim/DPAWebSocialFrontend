@@ -1,4 +1,5 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, OnDestroy, OnInit, Output } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { NavItem } from '../../pages/models/nav-item';
 import { UserDetail } from '../../posts/models/user-detail';
 import { AuthService } from '../../authentication/services/auth.service';
@@ -12,7 +13,8 @@ import { ActivatedRoute, Router } from '@angular/router';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   private readonly informationService = inject(InformationService);
   private readonly authService = inject(AuthService);
   private readonly postService = inject(PostService);
@@ -29,21 +31,30 @@ export class NavbarComponent implements OnInit {
   @Output() closeMenuHamburguer = new EventEmitter<void>();
 
   ngOnInit(): void {
-    this.informationService.getAllNavItems().subscribe({
-      next: (resNavItems) => {
-        this.navItems = resNavItems;
-      },
-      error: (error) => {
-        console.log('error al obtener nav items', error)
-      }
-    })
+    this.informationService.getAllNavItems()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (resNavItems) => {
+          this.navItems = resNavItems;
+        },
+        error: (error) => {
+          console.log('error al obtener nav items', error)
+        }
+      });
 
     this.isAuthenticated = this.authService.isAuthenticated();
     if(this.isAuthenticated){
-      this.postService.getUser().subscribe(user => {
-        this.currentUser = user;
-      });
+      this.postService.getUser()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(user => {
+          this.currentUser = user;
+        });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   showDialog() {

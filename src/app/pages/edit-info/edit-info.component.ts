@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Article } from '../models/article';
 import { InformationService } from '../services/information.service';
 import { MessageService } from 'primeng/api';
@@ -15,7 +15,8 @@ import { CreateUpdateArticle } from '../models/create-update-article';
   templateUrl: './edit-info.component.html',
   styleUrl: './edit-info.component.scss'
 })
-export class EditInfoComponent implements OnInit, OnChanges {
+export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
+  private initTimeout?: ReturnType<typeof setTimeout>;
   private readonly messageService = inject(MessageService);
   private readonly postService = inject(PostService);
   @Input() typeForm: 'create' | 'edit' = 'create';
@@ -71,10 +72,16 @@ export class EditInfoComponent implements OnInit, OnChanges {
   ){}
 
   ngOnInit(): void {
-    setTimeout(() => {
+    this.initTimeout = setTimeout(() => {
       this.onComponentReady.emit();
       this.focusInputIfNeeded();
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.initTimeout) {
+      clearTimeout(this.initTimeout);
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {

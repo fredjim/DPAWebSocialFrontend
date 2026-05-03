@@ -6,7 +6,7 @@ import { Post } from '../../models/post';
 import { UserDetail } from '../../models/user-detail';
 import { Institution } from '../../models/institution';
 import { TenantService } from '../../../services/tenant.service';
-import { distinctUntilChanged, fromEvent, Subscription, throttleTime } from 'rxjs';
+import { distinctUntilChanged, fromEvent, Subject, takeUntil, throttleTime } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../comments/comments.component';
 
@@ -26,7 +26,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   pageCounter = 0;
   showScrollButton = false;
   private readonly scrollThreshold = 300;
-  private scrollSubscription!: Subscription;
+  private readonly destroy$ = new Subject<void>();
   private readonly loadThreshold = 100; // Pixeles antes del final para cargar
   private readonly throttleTimeMs = 200; // Tiempo para throttling
 
@@ -43,7 +43,9 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
     this.setupScrollListener();
     this.authenticated = this.authService.isAuthenticated();
 
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
       const postId = params.get('id');
       if (postId) {
         const state = window.history.state as { initialImageIndex?: number };
@@ -52,43 +54,49 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
       }
     });
     // Obtener una cantidad de posts
-    this.postService.getPagedPosts(this.pageCounter).subscribe({
-      next:(data: Post[])=>{
-        this.posts = data;
-        this.postService.getPagedPosts(this.pageCounter++); // Avanza a la siguiente página
-      },
-      error:(error) => {
-        console.error('Error al obtener los posts paginados', error);
-      }
-    });
-
-    this.tenantService.getInstitution().subscribe(institution => {
-      this.currentInstitution = institution;
-    });
-
-    if(this.authenticated === true) {
-      this.postService.getUser().subscribe({
-        next:(user: UserDetail) => {
-          this.currentUser = user;
+    this.postService.getPagedPosts(this.pageCounter)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next:(data: Post[])=>{
+          this.posts = data;
+          this.pageCounter++;
         },
         error:(error) => {
-          console.error('Error al obtener el usuario actual', error);
+          console.error('Error al obtener los posts paginados', error);
         }
       });
+
+    this.tenantService.getInstitution()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(institution => {
+        this.currentInstitution = institution;
+      });
+
+    if(this.authenticated === true) {
+      this.postService.getUser()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next:(user: UserDetail) => {
+            this.currentUser = user;
+          },
+          error:(error) => {
+            console.error('Error al obtener el usuario actual', error);
+          }
+        });
     }
   }
 
   ngOnDestroy(): void {
-    if (this.scrollSubscription) {
-      this.scrollSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private setupScrollListener(): void {
-    this.scrollSubscription = fromEvent(globalThis, 'scroll')
+    fromEvent(globalThis, 'scroll')
       .pipe(
         throttleTime(this.throttleTimeMs, undefined, { leading: true, trailing: true }),
-        distinctUntilChanged()
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
       )
       .subscribe(() => {
         this.handleScroll();
@@ -130,29 +138,32 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
     if (this.loading) return;
     this.loading = true;
 
-    this.postService.getPagedPosts(this.pageCounter).subscribe({
-      next: (data: Post[]) => {
-        this.posts = [...this.posts, ...data]; // Agrega nuevos posts a la lista
-        this.postService.getPagedPosts(this.pageCounter++); // Avanza a la siguiente página
-        this.loading = false;
-      },
-      error: (error) => {
-        console.log('Error al obtener los posts paginados', error)
-      }
-    });
+    this.postService.getPagedPosts(this.pageCounter)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: Post[]) => {
+          this.posts = [...this.posts, ...data];
+          this.pageCounter++;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.log('Error al obtener los posts paginados', error)
+        }
+      });
   }
 
   deletePost(postUuid: string) {
-    this.postService.deletePost(postUuid).subscribe({
-      next: (response) => {
-        // Actualizar la lista localmente
-        console.log('post eliminado');
-        this.posts = this.posts.filter(post => post.uuid !== postUuid);
-      },
-      error: (error) => {
-        console.log('Error al eliminar el post',error);
-      }
-    });
+    this.postService.deletePost(postUuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          console.log('post eliminado');
+          this.posts = this.posts.filter(post => post.uuid !== postUuid);
+        },
+        error: (error) => {
+          console.log('Error al eliminar el post',error);
+        }
+      });
   }
 
   updatePost(postUpdated: Post){
@@ -163,17 +174,19 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   }
 
   updateReactions(postUuid: string) {
-    this.postService.getPost(postUuid).subscribe({
-      next: (post) => {
-        const index = this.posts.findIndex(p => p.uuid === postUuid);
-        if (index !== -1) {
-          this.posts[index].reactions = post.reactions;
+    this.postService.getPost(postUuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (post) => {
+          const index = this.posts.findIndex(p => p.uuid === postUuid);
+          if (index !== -1) {
+            this.posts[index].reactions = post.reactions;
+          }
+        },
+        error: (error) => {
+          console.error('Error al actualizar las reacciones', error);
         }
-      },
-      error: (error) => {
-        console.error('Error al actualizar las reacciones', error);
-      }
-    });
+      });
   }
 
   handleOpenPost(post: Post, initialImageIndex: number = 0): void {
@@ -187,30 +200,34 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.postService.getPost(postUuid).subscribe({
-      next: (post) => this.openPostModal(post, initialImageIndex),
-      error: (error) => console.error('Error al obtener el post', error)
-    });
+    this.postService.getPost(postUuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (post) => this.openPostModal(post, initialImageIndex),
+        error: (error) => console.error('Error al obtener el post', error)
+      });
   }
 
   private openPostModal(post: Post, initialImageIndex: number = 0): void {
-    this.postService.getInstitution(post.institution_id).subscribe({
-      next: (institution) => {
-        const modalRef = this.modalService.open(CommentsComponent, { size: 'lg', centered: true });
-        modalRef.componentInstance.institution = institution;
-        modalRef.componentInstance.post = post;
-        modalRef.componentInstance.postUuid = post.uuid;
-        modalRef.componentInstance.postMedia = post.content.media;
-        modalRef.componentInstance.postAuthor = institution.name;
-        modalRef.componentInstance.postDate = this.calculateTimePost(post);
-        modalRef.componentInstance.postDescription = post.content.text;
-        modalRef.componentInstance.initialImageIndex = initialImageIndex;
+    this.postService.getInstitution(post.institution_id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (institution) => {
+          const modalRef = this.modalService.open(CommentsComponent, { size: 'lg', centered: true });
+          modalRef.componentInstance.institution = institution;
+          modalRef.componentInstance.post = post;
+          modalRef.componentInstance.postUuid = post.uuid;
+          modalRef.componentInstance.postMedia = post.content.media;
+          modalRef.componentInstance.postAuthor = institution.name;
+          modalRef.componentInstance.postDate = this.calculateTimePost(post);
+          modalRef.componentInstance.postDescription = post.content.text;
+          modalRef.componentInstance.initialImageIndex = initialImageIndex;
 
-        modalRef.closed.subscribe(() => this.navigateToPosts());
-        modalRef.dismissed.subscribe(() => this.navigateToPosts());
-      },
-      error: (error) => console.error('Error al obtener la institucion', error)
-    });
+          modalRef.closed.pipe(takeUntil(this.destroy$)).subscribe(() => this.navigateToPosts());
+          modalRef.dismissed.pipe(takeUntil(this.destroy$)).subscribe(() => this.navigateToPosts());
+        },
+        error: (error) => console.error('Error al obtener la institucion', error)
+      });
   }
 
   private calculateTimePost(post: Post): string {

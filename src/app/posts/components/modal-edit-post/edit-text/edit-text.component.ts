@@ -13,6 +13,7 @@ export class EditTextComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() textChangeEvent = new EventEmitter<string>();
   @ViewChild('textareaRef', { static: true }) textarea!: ElementRef<HTMLTextAreaElement>;
   private readonly subscription = new Subscription();
+  private shownModalListener!: () => void;
 
   currentLength: number = 0;
   isExceeded: boolean = false;
@@ -31,14 +32,13 @@ export class EditTextComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(){
     this.setupObservable();
 
-    // Obtén una referencia al modal de Bootstrap
     const modalElement = document.getElementById('edit-'+this.postUuid);
     if (modalElement) {
-      // Escucha el evento 'shown.bs.modal'
-      modalElement.addEventListener('shown.bs.modal', () => {
+      this.shownModalListener = () => {
         if(modalElement.style.display == 'block')
           this.adjustTextAreaHeight();
-      });
+      };
+      modalElement.addEventListener('shown.bs.modal', this.shownModalListener);
     }
   }
 
@@ -102,5 +102,9 @@ export class EditTextComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+    const modalElement = document.getElementById('edit-'+this.postUuid);
+    if (modalElement && this.shownModalListener) {
+      modalElement.removeEventListener('shown.bs.modal', this.shownModalListener);
+    }
   }
 }

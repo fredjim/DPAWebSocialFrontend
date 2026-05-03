@@ -1,8 +1,8 @@
-import { Component, OnInit, Input, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, Input, inject } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { PostService } from '../../services/post.service';
 import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
-import { PostComment } from '../../models/post-comment';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from './../comments/comments.component';
 import { TenantService } from '../../../services/tenant.service';
@@ -12,8 +12,9 @@ import { TenantService } from '../../../services/tenant.service';
   templateUrl: './home-photos-section.component.html',
   styleUrls: ['./home-photos-section.component.scss']
 })
-export class HomePhotosSectionComponent implements OnInit {
-  private modalService = inject(NgbModal);
+export class HomePhotosSectionComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+  private readonly modalService = inject(NgbModal);
   @Input() post: any;
   @Input() institution!: Institution;
   photos: any[] = [];
@@ -21,46 +22,50 @@ export class HomePhotosSectionComponent implements OnInit {
   currentPost !: Post;
 
   constructor(
-    private postService: PostService,
-    private tenantService: TenantService
+    private readonly postService: PostService,
+    private readonly tenantService: TenantService
   ) {}
 
   ngOnInit(){
-    this.tenantService.getInstitution().subscribe({
-      next: (dataInstitution: Institution) => {
-        this.institution = dataInstitution;
-        this.loadPhotos();
-      },
-      error: (error) => {
-        console.log(error);
-        this.isLoading = false;
-      }
-    });
-
+    this.tenantService.getInstitution()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (dataInstitution: Institution) => {
+          this.institution = dataInstitution;
+          this.loadPhotos();
+        },
+        error: (error) => {
+          console.log(error);
+          this.isLoading = false;
+        }
+      });
   }
 
   loadPhotos() {
     if (this.institution) {
-      this.postService.getInstitutionPhotos(this.institution.uuid).subscribe({
-        next: (photos) => {
-          this.photos = photos.slice(-9).map(photo => ({
-            ...photo,
-            url: `${photo.path}`,
-            postUuid: `${photo.uuid_post}`
-          }));
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading photos', error);
-          this.isLoading = false;
-        }
-      });
+      this.postService.getInstitutionPhotos(this.institution.uuid)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (photos) => {
+            this.photos = photos.slice(-9).map(photo => ({
+              ...photo,
+              url: `${photo.path}`,
+              postUuid: `${photo.uuid_post}`
+            }));
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error loading photos', error);
+            this.isLoading = false;
+          }
+        });
     }
   }
 
-    openViewPost(postUuid: string) {
-
-      this.postService.getPost(postUuid).subscribe({
+  openViewPost(postUuid: string) {
+    this.postService.getPost(postUuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (dataPost: Post) => {
           this.currentPost = dataPost;
           console.log("Post Retrieved: "  + this.currentPost);
@@ -71,24 +76,25 @@ export class HomePhotosSectionComponent implements OnInit {
           this.isLoading = false;
         }
       });
-      
-    }
+  }
 
-    openModal() {
-      console.log("Current Post View Modal: "  + this.currentPost);
-      const modalRef = this.modalService.open(CommentsComponent, { size: 'xl' });
-      
-      modalRef.componentInstance.institution = this.institution;
-      modalRef.componentInstance.post = this.currentPost;
-      modalRef.componentInstance.postUuid = this.currentPost.uuid;
-      modalRef.componentInstance.postImages = this.currentPost.content.media;
-      modalRef.componentInstance.postAuthor = this.institution.name;
-      modalRef.componentInstance.postDate = this.calculateTimePost;
-      modalRef.componentInstance.postDescription = this.currentPost.content.text;
-    }
+  openModal() {
+    console.log("Current Post View Modal: "  + this.currentPost);
+    const modalRef = this.modalService.open(CommentsComponent, { size: 'xl' });
 
-    getPost(postUuid: string) {
-      this.postService.getPost(postUuid).subscribe({
+    modalRef.componentInstance.institution = this.institution;
+    modalRef.componentInstance.post = this.currentPost;
+    modalRef.componentInstance.postUuid = this.currentPost.uuid;
+    modalRef.componentInstance.postImages = this.currentPost.content.media;
+    modalRef.componentInstance.postAuthor = this.institution.name;
+    modalRef.componentInstance.postDate = this.calculateTimePost;
+    modalRef.componentInstance.postDescription = this.currentPost.content.text;
+  }
+
+  getPost(postUuid: string) {
+    this.postService.getPost(postUuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
         next: (dataPost: Post) => {
           this.currentPost = dataPost;
         },
@@ -97,7 +103,12 @@ export class HomePhotosSectionComponent implements OnInit {
           this.isLoading = false;
         }
       });
-    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
     calculateTimePost() {
       const postDate = new Date(this.post.date)
       const currentDate = new Date(Date.now());

@@ -1,10 +1,11 @@
-import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PostService } from '../../../posts/services/post.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { UserDetail } from '../../../posts/models/user-detail';
 import { Institution } from '../../../posts/models/institution';
 import { TenantService } from '../../../services/tenant.service';
 import { InstitutionService } from '../../services/institution.service';
+import { Subject, takeUntil } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { UploadedMedia } from '../../../posts/models/uploaded-media';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -14,7 +15,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
   templateUrl: './profile-institution.component.html',
   styleUrl: './profile-institution.component.scss'
 })
-export class ProfileInstitutionComponent implements OnInit {
+export class ProfileInstitutionComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   private readonly postService = inject(PostService);
   private readonly authService = inject(AuthService);
   private readonly institutionService = inject(InstitutionService);
@@ -39,13 +41,17 @@ export class ProfileInstitutionComponent implements OnInit {
     this.initForm();
     this.authenticated = this.authService.isAuthenticated();
     if(this.authenticated){
-      this.postService.getUser().subscribe(user => {
-        this.currentUser = user;
-      });
+      this.postService.getUser()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(user => {
+          this.currentUser = user;
+        });
     }
 
-    this.tenantService.getInstitution().subscribe(institutionData =>{
-      this.institution = institutionData;
+    this.tenantService.getInstitution()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(institutionData =>{
+        this.institution = institutionData;
       this.imageCover = this.institution.background_url || '';
       this.imageLogo = this.institution.logo_url || '';
       this.formInstitution.patchValue({
@@ -76,14 +82,16 @@ export class ProfileInstitutionComponent implements OnInit {
         ...this.institution,
         ...this.formInstitution.value
       };
-      this.institutionService.updateInstitutionData(updatedInstitution).subscribe({
-        next: (institution: Institution) => {
-          this.institution = institution;
-        },
-        error: (error) => {
-          console.error('Error updating institution:', error);
-        }
-      });
+      this.institutionService.updateInstitutionData(updatedInstitution)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (institution: Institution) => {
+            this.institution = institution;
+          },
+          error: (error) => {
+            console.error('Error updating institution:', error);
+          }
+        });
     }
   }
 
@@ -128,7 +136,8 @@ export class ProfileInstitutionComponent implements OnInit {
           const backgroundUrl = uploadedMedia[0].urlResource;
           const updatedInstitution: Institution = { ...this.institution, background_url: backgroundUrl } as Institution;
           return this.institutionService.updateInstitutionData(updatedInstitution);
-        })
+        }),
+        takeUntil(this.destroy$)
       ).subscribe({
         next: (updatedInstitution: Institution) => {
           this.institution = updatedInstitution;
@@ -166,7 +175,8 @@ export class ProfileInstitutionComponent implements OnInit {
           const logoUrl = uploadedMedia[0].urlResource;
           const updatedInstitution: Institution = { ...this.institution, logo_url: logoUrl } as Institution;
           return this.institutionService.updateInstitutionData(updatedInstitution);
-        })
+        }),
+        takeUntil(this.destroy$)
       ).subscribe({
         next: (updatedInstitution: Institution) => {
           this.institution = updatedInstitution;
@@ -177,6 +187,11 @@ export class ProfileInstitutionComponent implements OnInit {
         }
       });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private isValidFileType(file: File): boolean {

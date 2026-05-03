@@ -1,4 +1,4 @@
-import { Component ,ElementRef,inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PostService } from '../../../posts/services/post.service';
 import { UserDetail } from '../../../posts/models/user-detail';
 import { Institution } from '../../../posts/models/institution';
@@ -6,7 +6,7 @@ import { TenantService } from '../../../services/tenant.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
-import { switchMap } from 'rxjs';
+import { Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../posts/models/uploaded-media';
 
 @Component({
@@ -14,7 +14,8 @@ import { UploadedMedia } from '../../../posts/models/uploaded-media';
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   private readonly postService = inject(PostService);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
@@ -37,19 +38,23 @@ export class ProfileComponent implements OnInit {
 
     this.authenticated = this.authService.isAuthenticated();
     if(this.authenticated){
-      this.postService.getUser().subscribe(user => {
-        this.currentUser = user;
-        this.formUser.patchValue({
-          name: this.currentUser.name,
-          lastName: this.currentUser.lastName,
-          phone: this.currentUser.phone,
+      this.postService.getUser()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(user => {
+          this.currentUser = user;
+          this.formUser.patchValue({
+            name: this.currentUser.name,
+            lastName: this.currentUser.lastName,
+            phone: this.currentUser.phone,
+          });
         });
-      });
     }
 
-    this.tenantService.getInstitution().subscribe(institutionData =>{
-      this.institution = institutionData;
-    });
+    this.tenantService.getInstitution()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(institutionData =>{
+        this.institution = institutionData;
+      });
   }
 
   onSubmit(): void {
@@ -63,16 +68,18 @@ export class ProfileComponent implements OnInit {
       phone: this.formUser.value.phone,
     }
 
-    this.userService.updateUserDate(updatedUser).subscribe({
-      next: (userData: UserDetail) => {
-        this.isLoading = false;
-        this.currentUser = userData;
-      },
-      error: (error) => {
-        this.isLoading = false;
-        console.error('Error al editar usuario', error);
-      }
-    });
+    this.userService.updateUserDate(updatedUser)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (userData: UserDetail) => {
+          this.isLoading = false;
+          this.currentUser = userData;
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Error al editar usuario', error);
+        }
+      });
   }
 
   changeInputMediaProfile(event: Event): void {
@@ -98,7 +105,8 @@ export class ProfileComponent implements OnInit {
           const photoProfileUrl = uploadedMedia[0].urlResource;
           const updatedUser: UserDetail = { ...this.currentUser, photo_profile_path: photoProfileUrl } as UserDetail;
           return this.userService.updateUserDate(updatedUser);
-        })
+        }),
+        takeUntil(this.destroy$)
       ).subscribe({
         next: (updatedUser: UserDetail) => {
           this.currentUser = updatedUser;
@@ -111,6 +119,11 @@ export class ProfileComponent implements OnInit {
     }
   }
   
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private isValidFileType(file: File): boolean {
     return file.type.startsWith('image/');
   }
