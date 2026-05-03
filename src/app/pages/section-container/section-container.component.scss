@@ -69,6 +69,9 @@
 
 			.text {
 				align-self: start;
+				word-wrap: break-word;
+				width: 100%;
+				max-width: 720px;
 			}
 
 			.documents {
@@ -194,6 +197,22 @@
 	border-radius: 6px;
 }
 
+@media screen and (max-width: 992px) {
+	.page-container {
+		max-width: 720px;
+
+		.page-section {
+			.section-content {
+				.text {
+					word-wrap: break-word;
+					width: 100%;
+					max-width: 610px;
+				}
+			}
+		}
+	}
+}
+
 @media screen and (max-width: 768px) {
 
 	.page-container {
@@ -213,6 +232,12 @@
 						border-radius: 10px;
 						cursor: pointer;
 					}
+				}
+
+				.text {
+					align-self: start;
+					word-wrap: break-word;
+					width: 100%;
 				}
 			}
 		}
