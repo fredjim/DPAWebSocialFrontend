@@ -1,6 +1,6 @@
 <!-- Area para seleccionar imagenes videos -->
 <div class="area-media" *ngIf="showAreaMedia()">
-  <button type="button" class="btn-close m-0" aria-label="Close" (click)="closeCleanPreviewMedia()"></button>
+  <button type="button" title="Cerrar - Eliminar todo" class="btn-close m-0" aria-label="Close" (click)="closeCleanPreviewMedia()"></button>
   
   <!-- Área vacía para añadir archivos -->
   <div *ngIf="!showPreviewMedia" class="back-media d-flex flex-column align-items-center justify-content-center" (click)="openInputFileMedia($event)" (keypress)="changeInputMedia($event)" (drop)="changeInputMedia($event)" (dragover)="onDragOver($event)">
