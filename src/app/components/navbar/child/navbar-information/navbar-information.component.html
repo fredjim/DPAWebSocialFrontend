@@ -16,7 +16,7 @@
 					<!-- Vista para admins -->
 					<div class="edit-section-pencil">
 						<li>
-							<a [routerLink]="section.path"
+							<a [routerLink]="isMobile ? currentNavItem.path +'/'+ section.path : section.path"
 							routerLinkActive="active"  
 							(click)="closeMobileMenu()"
 							>{{ section.name }}
@@ -32,7 +32,7 @@
 			<!-- Vista para usuarios normales -->
 			@for(section of sections; track section.uuid; let i = $index){
 				<li>
-					<a [routerLink]="section.path" 
+					<a [routerLink]="isMobile ? currentNavItem.path +'/'+ section.path : section.path" 
 					routerLinkActive="active"  
 					(click)="closeMobileMenu()"
 					>{{ section.name }}
