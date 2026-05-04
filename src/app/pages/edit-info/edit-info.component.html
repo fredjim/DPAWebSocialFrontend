@@ -5,7 +5,59 @@
         <input #firstInput type="text" pInputText formControlName="title" class="input-title" placeholder="Título del artículo" />
 
         <!-- Editor de texto -->
-        <p-editor formControlName="text" [style]="{ height: 'auto' }" class="text-editor" placeholder="Texto del artículo" />
+        <p-editor formControlName="text" [style]="{ height: 'auto' }" class="text-editor" placeholder="Texto del artículo">
+            <ng-template pTemplate="header">
+                <!-- Encabezados -->
+                <span class="ql-formats">
+                    <select class="ql-header" title="Estilo de encabezado">
+                        <option value="1">Título 1</option>
+                        <option value="2">Título 2</option>
+                        <option value="3">Título 3</option>
+                        <option value="4">Título 4</option>
+                        <option value="5">Título 5</option>
+                        <option value="6">Título 6</option>
+                        <option selected>Normal</option>
+                    </select>
+                </span>
+
+                <!-- Formato básico de texto -->
+                <span class="ql-formats">
+                    <button type="button" class="ql-bold" title="Negrita (Ctrl+B)"></button>
+                    <button type="button" class="ql-italic" title="Cursiva (Ctrl+I)"></button>
+                    <button type="button" class="ql-underline" title="Subrayado (Ctrl+U)"></button>
+                    <button type="button" class="ql-strike" title="Tachado"></button>
+                </span>
+
+                <!-- Código -->
+                <span class="ql-formats">
+                    <button type="button" class="ql-code-block" title="Bloque de código"></button>
+                </span>
+
+                <!-- Listas -->
+                <span class="ql-formats">
+                    <button type="button" class="ql-list" value="ordered" title="Lista numerada"></button>
+                    <button type="button" class="ql-list" value="bullet" title="Lista con viñetas"></button>
+                </span>
+
+                <!-- Superíndice y subíndice -->
+                <span class="ql-formats">
+                    <button type="button" class="ql-script" value="sub" title="Subíndice"></button>
+                    <button type="button" class="ql-script" value="super" title="Superíndice"></button>
+                </span>
+
+                <!-- Colores: texto y fondo (conservan la paleta por defecto) -->
+                <span class="ql-formats">
+                    <select class="ql-color" title="Color de texto"></select>
+                    <select class="ql-background" title="Color de fondo"></select>
+                </span>
+
+                <!-- Enlaces y limpiar formato -->
+                <span class="ql-formats">
+                    <button type="button" class="ql-link" title="Insertar enlace (Ctrl+K)"></button>
+                    <button type="button" class="ql-clean" title="Limpiar formato"></button>
+                </span>
+            </ng-template>
+        </p-editor>
 
         <!-- Agregar documentos -->
         <div class="documents-section">
