@@ -10,7 +10,12 @@
   <!-- Preview archivo -->
   <div class="preview-doc d-flex flex-row" *ngIf="showPreviewDoc">
     <div class="icon-doc d-flex align-items-center justify-content-center">
-      <img src="assets/{{fileType}}.png" alt="Document">
+      <!-- Spinner mientras carga -->
+      <div *ngIf="isLoadingIcon" class="spinner-border spinner-border-sm text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <!-- Contenedor con background-image (se muestra cuando no está cargando) -->
+      <div *ngIf="!isLoadingIcon" class="pdf-icon"></div>
     </div>
     <div class="name-doc d-flex align-items-center">
       <span *ngIf="fileMediaDoc">{{ fileMediaDoc.name }}</span>
