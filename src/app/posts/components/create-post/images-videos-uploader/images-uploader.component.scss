@@ -12,13 +12,13 @@
   .btn-close {
     border-radius: 50%;
     background-color: #ffffff;
-    border: 1px solid #e0e0e0;
+    border: 2px solid #939393;
     height: 20px;
     width: 20px;
     font-size: 10px;
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 0px;
+    right: 0px;
     z-index: 1;
   }
 
@@ -136,8 +136,8 @@
     
     .btn-delete-media {
       position: absolute;
-      top: 5px;
-      right: 5px;
+      top: 10px;
+      right: 10px;
       background-color: rgba(0, 0, 0, 0.5);
       color: white;
       border: none;
