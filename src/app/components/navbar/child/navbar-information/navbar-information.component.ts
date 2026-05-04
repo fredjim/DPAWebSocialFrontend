@@ -27,6 +27,7 @@ export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy 
   public showButtonNewSection = true;
 
   @Input() currentNavItem!: NavItem;
+  @Input() isMobile: boolean = false;
   @Output() collapse = new EventEmitter<void>(); 
   uuidSectionToEdit: string = '';
 
