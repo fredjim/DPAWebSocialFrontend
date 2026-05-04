@@ -20,15 +20,13 @@ export class UserService {
     private readonly authService: AuthService
   ) {}
 
-  // Update data user
-  updateUserDate(updatedUser: UserDetail): Observable<UserDetail> {
+  updateUserDate(body: Partial<UserDetail>): Observable<UserDetail> {
     const url = `${this.ROOT_URL}/users/me`;
-    return this.http.put<UserDetail>(url, updatedUser, this.reqHeader);
+    return this.http.put<UserDetail>(url, body, this.reqHeader);
   }
 
-  // Update photo user profile
-  postUserPhotoProfile(formData: FormData): Observable<UploadedMedia[]> {
+  postUserPhotoProfile(formData: FormData): Observable<UploadedMedia> {
     const url = `${this.ROOT_URL}/images/user-profile`;
-    return this.http.post<UploadedMedia[]>(url, formData, this.reqHeader);
+    return this.http.post<UploadedMedia>(url, formData, this.reqHeader);
   }
 }

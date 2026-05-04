@@ -5,8 +5,7 @@ import { UserDetail } from '../../../posts/models/user-detail';
 import { Institution } from '../../../posts/models/institution';
 import { TenantService } from '../../../services/tenant.service';
 import { InstitutionService } from '../../services/institution.service';
-import { Subject, takeUntil } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../posts/models/uploaded-media';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
@@ -31,6 +30,8 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   imageFileLogoToCreate!: File;
   imageCover: string = '';
   imageLogo: string = '';
+  currentLogoUuid: string = '';
+  currentBackgroundUuid: string = '';
 
   @ViewChild('fileInputCover') fileInputCover!: ElementRef;
   @ViewChild('fileInputLogo') fileInputLogo!: ElementRef;
@@ -50,19 +51,21 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
 
     this.tenantService.getInstitution()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(institutionData =>{
+      .subscribe(institutionData => {
         this.institution = institutionData;
-      this.imageCover = this.institution.background_url || '';
-      this.imageLogo = this.institution.logo_url || '';
-      this.formInstitution.patchValue({
-        name: this.institution.name,
-        description: this.institution.description,
-        location: this.institution.location,
-        email: this.institution.email,
-        phone: this.institution.phone,
-        url: this.institution.url,
+        this.imageCover = institutionData.background_url || '';
+        this.imageLogo = institutionData.logo_url || '';
+        this.currentLogoUuid = this.extractUuidFromUrl(institutionData.logo_url);
+        this.currentBackgroundUuid = this.extractUuidFromUrl(institutionData.background_url);
+        this.formInstitution.patchValue({
+          name: institutionData.name,
+          description: institutionData.description,
+          location: institutionData.location,
+          email: institutionData.email,
+          phone: institutionData.phone,
+          url: institutionData.url,
+        });
       });
-    });
   }
 
   private initForm(): void {
@@ -78,12 +81,12 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.formInstitution.valid) {
-      const updatedInstitution: Institution = {
+      this.institutionService.updateInstitutionData({
         ...this.institution,
-        ...this.formInstitution.value
-      };
-      this.institutionService.updateInstitutionData(updatedInstitution)
-        .pipe(takeUntil(this.destroy$))
+        ...this.formInstitution.value,
+        logoFileUuid: this.currentLogoUuid,
+        backgroundFileUuid: this.currentBackgroundUuid,
+      }).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (institution: Institution) => {
             this.institution = institution;
@@ -130,22 +133,25 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
         console.error('No institution data available to update.');
         return;
       }
-      // Upload image and then update the institution background_url
       this.institutionService.postInstitutionPhotoCover(formData).pipe(
-        switchMap((uploadedMedia: UploadedMedia[]) => {
-          const backgroundUrl = uploadedMedia[0].urlResource;
-          const updatedInstitution: Institution = { ...this.institution, background_url: backgroundUrl } as Institution;
-          return this.institutionService.updateInstitutionData(updatedInstitution);
+        switchMap((uploadedMedia: UploadedMedia) => {
+          this.currentBackgroundUuid = uploadedMedia.uuid;
+          this.imageCover = uploadedMedia.urlResource;
+          return this.institutionService.updateInstitutionData({
+            ...this.institution,
+            logoFileUuid: this.currentLogoUuid,
+            backgroundFileUuid: this.currentBackgroundUuid,
+          });
         }),
         takeUntil(this.destroy$)
       ).subscribe({
         next: (updatedInstitution: Institution) => {
           this.institution = updatedInstitution;
           this.imageCover = updatedInstitution.background_url || '';
-          console.log('Imagen de portada subida y institución actualizada:', updatedInstitution);
+          this.currentBackgroundUuid = this.extractUuidFromUrl(updatedInstitution.background_url);
         },
         error: (error) => {
-          console.error('Error al subir la imagen de portada o actualizar la institución:', error);
+          console.error('Error al subir la imagen de portada:', error);
         }
       });
       
@@ -169,24 +175,32 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
         console.error('No institution data available to update.');
         return;
       }
-      // Upload image and then update the institution logo_url
       this.institutionService.postInstitutionPhotoProfile(formData).pipe(
-        switchMap((uploadedMedia: UploadedMedia[]) => {
-          const logoUrl = uploadedMedia[0].urlResource;
-          const updatedInstitution: Institution = { ...this.institution, logo_url: logoUrl } as Institution;
-          return this.institutionService.updateInstitutionData(updatedInstitution);
+        switchMap((uploadedMedia: UploadedMedia) => {
+          this.currentLogoUuid = uploadedMedia.uuid;
+          this.imageLogo = uploadedMedia.urlResource;
+          return this.institutionService.updateInstitutionData({
+            ...this.institution,
+            logoFileUuid: this.currentLogoUuid,
+            backgroundFileUuid: this.currentBackgroundUuid,
+          });
         }),
         takeUntil(this.destroy$)
       ).subscribe({
         next: (updatedInstitution: Institution) => {
           this.institution = updatedInstitution;
           this.imageLogo = updatedInstitution.logo_url || '';
+          this.currentLogoUuid = this.extractUuidFromUrl(updatedInstitution.logo_url);
         },
         error: (error) => {
-          console.error('Error al subir la imagen de logo o actualizar la institución:', error);
+          console.error('Error al subir la imagen de logo:', error);
         }
       });
     }
+  }
+
+  private extractUuidFromUrl(url: string): string {
+    return url ? url.split('/').pop() ?? '' : '';
   }
 
   ngOnDestroy(): void {

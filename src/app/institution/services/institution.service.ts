@@ -21,19 +21,18 @@ export class InstitutionService {
     private readonly authService: AuthService
   ) {}
 
-  postInstitutionPhotoProfile(formData: FormData): Observable<UploadedMedia[]> {
+  postInstitutionPhotoProfile(formData: FormData): Observable<UploadedMedia> {
     const url = `${this.ROOT_URL}/images/inst-profile`;
-    return this.http.post<UploadedMedia[]>(url, formData, this.reqHeader);
+    return this.http.post<UploadedMedia>(url, formData, this.reqHeader);
   }
 
-  postInstitutionPhotoCover(formData: FormData): Observable<UploadedMedia[]> {
+  postInstitutionPhotoCover(formData: FormData): Observable<UploadedMedia> {
     const url = `${this.ROOT_URL}/images/inst-cover`;
-    return this.http.post<UploadedMedia[]>(url, formData, this.reqHeader);
+    return this.http.post<UploadedMedia>(url, formData, this.reqHeader);
   }
 
-  updateInstitutionData(updateInstitution: Institution): Observable<Institution> {
-    const institutionId = this.authService.getInstitutionId();
-    const url = `${this.ROOT_URL}/institutions/${institutionId}`;
-    return this.http.put<Institution>(url, updateInstitution, this.reqHeader);
+  updateInstitutionData(body: Partial<Institution>): Observable<Institution> {
+    const url = `${this.ROOT_URL}/institutions`;
+    return this.http.put<Institution>(url, body, this.reqHeader);
   }
 }

@@ -61,14 +61,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if (!this.currentUser || this.formUser.invalid) return;
 
     this.isLoading = true;
-    const updatedUser: UserDetail = {
-      ...this.currentUser,
+    this.userService.updateUserDate({
       name: this.formUser.value.name,
       lastName: this.formUser.value.lastName,
       phone: this.formUser.value.phone,
-    }
-
-    this.userService.updateUserDate(updatedUser)
+    })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (userData: UserDetail) => {
@@ -99,18 +96,20 @@ export class ProfileComponent implements OnInit, OnDestroy {
         console.error('No user data available to update.');
         return;
       }
-      // Upload image and then update the user photo_profile_path
       this.userService.postUserPhotoProfile(formData).pipe(
-        switchMap((uploadedMedia: UploadedMedia[]) => {
-          const photoProfileUrl = uploadedMedia[0].urlResource;
-          const updatedUser: UserDetail = { ...this.currentUser, photo_profile_path: photoProfileUrl } as UserDetail;
-          return this.userService.updateUserDate(updatedUser);
+        switchMap((uploadedMedia: UploadedMedia) => {
+          this.currentUser = { ...this.currentUser, photo_profile_path: uploadedMedia.urlResource };
+          return this.userService.updateUserDate({
+            name: this.currentUser.name,
+            lastName: this.currentUser.lastName,
+            phone: this.currentUser.phone,
+            photoProfileFileUuid: uploadedMedia.uuid,
+          });
         }),
         takeUntil(this.destroy$)
       ).subscribe({
         next: (updatedUser: UserDetail) => {
           this.currentUser = updatedUser;
-          this.imageProfile = updatedUser.photo_profile_path || '';
         },
         error: (error) => {
           console.error('Error al subir la imagen de perfil del usuario:', error);
