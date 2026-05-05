@@ -25,6 +25,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   currentUser!: UserDetail;
   institution!: Institution;
   authenticated: boolean = false;
+  currentSlug: string = '';
   isMobileMenuOpen = false;
   isMenuOpen = false;
   isLoading = false;
@@ -37,6 +38,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   @ViewChild('toast') toast!: CustomToastComponent;
 
   ngOnInit(): void {
+    this.currentSlug = this.tenantService.getSlug();
     this.initForm();
 
     this.authenticated = this.authService.isAuthenticated();

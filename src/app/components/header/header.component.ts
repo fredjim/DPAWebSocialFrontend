@@ -25,7 +25,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   
   user: any
   counterModeratedComments: number = 0;
-
+  currentSlug: string = '';
   private readonly destroy$ = new Subject<void>();
   private modalInstance?: Modal; // Para gestionar el modal
 
@@ -40,6 +40,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.currentSlug = this.tenantService.getSlug();
     this.getInstitution();
     this.getUser();
     this.totalModeratedComments();
