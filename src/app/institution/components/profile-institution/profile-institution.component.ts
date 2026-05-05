@@ -32,6 +32,7 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   imageLogo: string = '';
   currentLogoUuid: string = '';
   currentBackgroundUuid: string = '';
+  currentSlug: string = '';
 
   @ViewChild('fileInputCover') fileInputCover!: ElementRef;
   @ViewChild('fileInputLogo') fileInputLogo!: ElementRef;
@@ -39,6 +40,7 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   formInstitution!: FormGroup;
 
   ngOnInit(): void {
+    this.currentSlug = this.tenantService.getSlug();
     this.initForm();
     this.authenticated = this.authService.isAuthenticated();
     if(this.authenticated){
