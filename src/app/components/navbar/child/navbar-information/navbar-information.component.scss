@@ -3,10 +3,11 @@ nav {
 	ul {
 		padding: 0;
 		list-style: none;
+		margin-right: 10px;
 
 		li {
-			line-height: 2.5rem;
-			width: max-content;
+			line-height: 1.5rem;
+			margin-bottom: 1rem;
 
 			a {
 				text-decoration: none;
@@ -24,13 +25,14 @@ nav {
 
 		div.edit-section-pencil {
 			display: flex;
-			align-items: center;
+			align-items: baseline;
 			color: var(--blue-color);
 		}
 	}
 	.btn-primary.save {
 		background-color: var(--blue-color);
 		font-weight: 500;
+		margin-right: 10px;
 	}
 }
 

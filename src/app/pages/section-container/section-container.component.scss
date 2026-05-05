@@ -290,3 +290,13 @@
 	}
 
 }
+
+@media screen and (max-width: 576px) {
+	.page-container {
+		.page-section {
+			.section-content {
+				width: 95%;
+			}
+		}
+	}
+}
