@@ -8,7 +8,9 @@
     }
     <div class="header-section">
       <div class="data-user">
-        <img *ngIf="currentInstitution" [src]="currentInstitution.logo_url" alt="'Foto de perfil'" class="img-profile">
+        @if (currentInstitution) {
+          <app-institution-avatar [institution]="currentInstitution" size="small"></app-institution-avatar>
+        }
         <div class="info-user">
           <h2>Publicaciones</h2>
         </div>

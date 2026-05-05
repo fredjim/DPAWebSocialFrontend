@@ -39,6 +39,7 @@ import { ViewAllPostsProyectosComponent } from './components/view-all-posts-proy
 import { ViewAllPostsBecasComponent } from './components/view-all-posts-becas/view-all-posts-becas.component';
 import { ViewAllPostsCudieComponent } from './components/view-all-posts-cudie/view-all-posts-cudie.component';
 import { AppRoutingModule } from "../app-routing.module";
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -82,7 +83,8 @@ import { AppRoutingModule } from "../app-routing.module";
     NgbCarouselModule,
     PdfViewerModule,
     OverlayPanelModule,
-    AppRoutingModule
+    AppRoutingModule,
+    SharedModule
 ],
   exports: [
     ViewAllPostsComponent,

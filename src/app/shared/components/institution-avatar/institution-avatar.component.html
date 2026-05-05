@@ -1,0 +1,15 @@
+@if (institution) {
+  @if (hasValidLogo) {
+    <img
+      [src]="institution.logo_url"
+      [alt]="'Logo de ' + institution.name"
+      (error)="onImageError()"
+      [ngClass]="'size-' + size"
+      class="institution-logo"
+    />
+  } @else {
+    <div class="institution-logo-placeholder" [ngClass]="'size-' + size" [attr.aria-label]="'Logo de ' + institution.name">
+      <span>{{ initials }}</span>
+    </div>
+  }
+}
