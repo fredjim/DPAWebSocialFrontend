@@ -3,7 +3,7 @@
         <img src="assets/logo-umss.png" alt="Logo UMSS">
 
         @if (institution) {
-        <img src="{{ institution.logo_url }}" alt="Logo">
+            <app-institution-avatar [institution]="institution" size="small" id="logo-inst-header"></app-institution-avatar>
         }
     </div>
 
@@ -48,22 +48,30 @@
     <div class="header-image">
 
         <div class="banner-container">
-            @if(institution && institution.background_url) {
-                <img [src]="imageCover"  alt="Foto cubierta ususario" class="banner-image">
+            @if(institution) {
+                @if (hasInstitutionCover) {
+                    <img [src]="institutionCoverUrl"  alt="Foto de portada de la institucion" class="banner-image">
+                } @else {
+                    <div class="default-cover">
+                        <h3>Sin foto de portada</h3>
+                    </div>
+                }
                 <input #fileInputCover type="file" id="input-background-inst" (change)="changeInputMediaCover($event)"
                     hidden accept="image/jpg, image/png, image/jpeg">
                 <div class="edit-info" (click)="openInputFileCover()" (keypress)="openInputFileCover()">
                     <i class="bi bi-pencil-fill"></i>
                 </div>
             } @else {
-                <div class="default-cover" (click)="openInputFileCover()" (keypress)="openInputFileCover()">
-                    <h3>Seleccione una foto de portada</h3>
+                <div class="default-cover">
+                    <h3>Cargando portada...</h3>
                 </div>
             }
         </div>
 
         <div class="logo-overlay">
-            <img *ngIf="institution" [src]="institution.logo_url" alt="Foto institucion" class="user-logo">
+            @if (institution) {
+                <app-institution-avatar [institution]="institution" size="large"></app-institution-avatar>
+            }
             <input #fileInputLogo type="file" id="input-logo-inst" (change)="changeInputMediaLogo($event)"
                  hidden accept="image/jpg, image/png, image/jpeg">
             <div class="edit-info" (click)="openInputFileLogo()" (keypress)="openInputFileLogo()">

@@ -6,6 +6,7 @@ import { AppRoutingModule } from "../app-routing.module";
 import { AppModule } from '../app.module';
 import { RouterModule } from '@angular/router';
 import { InstitutionRoutingModule } from './institution-routing.module';
+import { SharedModule } from '../shared/shared.module';
 
 
 
@@ -19,7 +20,8 @@ import { InstitutionRoutingModule } from './institution-routing.module';
     RouterModule,
     InstitutionRoutingModule,
     AppModule,
-    AppRoutingModule
+    AppRoutingModule,
+    SharedModule
   ]
 })
 export class InstitutionModule { }
