@@ -69,7 +69,9 @@
         </div>
 
         <div class="logo-overlay">
-            @if (institution) {
+            @if (imageLogo) {
+                <img [src]="imageLogo" alt="Logo preview" class="user-logo">
+            } @else if (institution) {
                 <app-institution-avatar [institution]="institution" size="large"></app-institution-avatar>
             }
             <input #fileInputLogo type="file" id="input-logo-inst" (change)="changeInputMediaLogo($event)"
@@ -123,3 +125,4 @@
         <p>Dirección de Planificación Académica. &copy; 2025 Todos los derechos reservados.</p>
     </footer>
 </div>
+<app-custom-toast #toast></app-custom-toast>

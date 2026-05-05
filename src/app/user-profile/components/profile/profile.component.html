@@ -51,7 +51,7 @@
         <div class="side-image">
     
             <div class="logo-overlay">
-                <img *ngIf="currentUser" [src]="currentUser.photo_profile_path || 'assets/user-icon.png'" alt="Foto ususario" class="user-logo">
+                <img *ngIf="currentUser" [src]="imageProfile || currentUser.photo_profile_path || 'assets/user-icon.png'" alt="Foto ususario" class="user-logo">
                 <input #fileInputProfile type="file" id="input-photo-profile" (change)="changeInputMediaProfile($event)"
                  hidden accept="image/jpg, image/png, image/jpeg">
                 <div class="edit-info" (click)="openInputFileProfile()" (keypress)="openInputFileProfile()" >
@@ -96,3 +96,4 @@
 <footer>
     <p>Dirección de Planificación Académica. &copy; 2025 Todos los derechos reservados.</p>
 </footer>
+<app-custom-toast #toast></app-custom-toast>
