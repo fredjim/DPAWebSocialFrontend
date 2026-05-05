@@ -205,6 +205,18 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
     return url ? url.split('/').pop() ?? '' : '';
   }
 
+  get institutionLogoUrl(): string {
+    return this.imageLogo || this.institution?.logo_url || '';
+  }
+
+  get institutionCoverUrl(): string {
+    return this.imageCover || this.institution?.background_url || '';
+  }
+
+  get hasInstitutionCover(): boolean {
+    return !!this.institutionCoverUrl && this.institutionCoverUrl.trim().length > 0;
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

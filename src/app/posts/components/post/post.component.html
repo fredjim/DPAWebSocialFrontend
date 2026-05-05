@@ -3,10 +3,9 @@
 	<div class="header-post">
 		@if (institution) {
 		<div class="data-user">
-
-			<div class="img-profile">
-				<img [src]="institution.logo_url" [alt]="'Foto de perfil'" />
-			</div>
+			@if (institution) {
+				<app-institution-avatar [institution]="institution" size="small"></app-institution-avatar>
+			}
 			<div class="info-user">
 				<h2>{{ institution.name }}</h2>
 				<p>{{ calculateTimePost() }} <strong>publicado por:</strong> {{ post.name }} </p>

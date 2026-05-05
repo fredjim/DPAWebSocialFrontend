@@ -1,0 +1,60 @@
+.institution-logo {
+  border-radius: 50%;
+  object-fit: contain;
+
+  &.size-small {
+    width: 40px;
+    height: 40px;
+  }
+
+  &.size-medium {
+    width: 50px;
+    height: 50px;
+  }
+
+  &.size-large {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+.institution-logo-placeholder {
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1d4f8f 0%, #2f80c7 100%);
+  color: #ffffff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &.size-small {
+    width: 40px;
+    height: 40px;
+    font-size: 0.85rem;
+
+    span {
+      line-height: 1;
+    }
+  }
+
+  &.size-medium {
+    width: 50px;
+    height: 50px;
+    font-size: 1rem;
+
+    span {
+      line-height: 1;
+    }
+  }
+
+  &.size-large {
+    width: 80px;
+    height: 80px;
+    font-size: 1.5rem;
+
+    span {
+      line-height: 1;
+    }
+  }
+}
