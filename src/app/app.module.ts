@@ -29,7 +29,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { EditInfoComponent } from './pages/edit-info/edit-info.component';
 import { ToastModule } from 'primeng/toast';
 import { NavbarInformationComponent } from './components/navbar/child/navbar-information/navbar-information.component';
-import { PagesInformationComponent } from './pages/pages-information/pages-information.component';
 import { HeroProfileComponent } from './components/hero-profile/hero-profile.component';
 import { MessageService } from 'primeng/api';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
@@ -52,7 +51,6 @@ import { SharedModule } from './shared/shared.module';
     PagesComponent,
     EditInfoComponent,
     NavbarInformationComponent,
-    PagesInformationComponent,
     HeroProfileComponent,
     SectionContainerComponent,
     FormSectionComponent,
