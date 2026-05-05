@@ -17,54 +17,59 @@ import { authGuard } from './authentication/services/auth.guard';
 import { environment } from '../environments/environment';
 
 const routes: Routes = [
-  // Rutas protegidas — van ANTES del wildcard :slug para que no sean absorbidas
-  {
-    path: 'profile',
-    component: ProfileComponent,
-    canActivate: [authGuard]
-  },
-  {
-    path: 'institution',
-    component: ProfileInstitutionComponent,
-    canActivate: [authGuard],
-    data: { roles: ['ADMIN'] }
-  },
-
-  // Rutas públicas prefijadas con el slug del tenant
+  // Todas las rutas que requieren slug (públicas y protegidas)
   {
     path: ':slug',
-    component: HomeComponent,
     children: [
-      { path: '', redirectTo: 'posts', pathMatch: 'full' },
-      { path: 'posts/:id', component: ViewAllPostsComponent },
-      { path: 'posts', component: ViewAllPostsComponent },
-      { path: 'fotos', component: PhotosGalleryComponent },
-      { path: 'videos', component: VideosGalleryComponent },
-      { path: 'convenios', component: ViewAllPostsConveniosComponent },
-      { path: 'proyectos', component: ViewAllPostsProyectosComponent },
-      { path: 'becas', component: ViewAllPostsBecasComponent },
-      { path: 'cudie', component: ViewAllPostsCudieComponent },
+      // Rutas protegidas
       {
-        path: ':pathNavItem',
-        component: PageContainerComponent,
+        path: 'profile',
+        component: ProfileComponent,
+        canActivate: [authGuard]
+      },
+      {
+        path: 'institution',
+        component: ProfileInstitutionComponent,
+        canActivate: [authGuard],
+        data: { roles: ['ADMIN'] }
+      },
+      
+      // Rutas públicas con layout del tenant
+      {
+        path: '',
+        component: HomeComponent,  // Este componente contiene header/footer del tenant
         children: [
+          { path: '', redirectTo: 'posts', pathMatch: 'full' },
+          { path: 'posts/:id', component: ViewAllPostsComponent },
+          { path: 'posts', component: ViewAllPostsComponent },
+          { path: 'fotos', component: PhotosGalleryComponent },
+          { path: 'videos', component: VideosGalleryComponent },
+          { path: 'convenios', component: ViewAllPostsConveniosComponent },
+          { path: 'proyectos', component: ViewAllPostsProyectosComponent },
+          { path: 'becas', component: ViewAllPostsBecasComponent },
+          { path: 'cudie', component: ViewAllPostsCudieComponent },
           {
-            path: ':pathSection',
-            component: SectionContainerComponent,
-            resolve: { section: SectionResolver }
+            path: ':pathNavItem',
+            component: PageContainerComponent,
+            children: [
+              {
+                path: ':pathSection',
+                component: SectionContainerComponent,
+                resolve: { section: SectionResolver }
+              }
+            ]
           }
         ]
       }
     ]
   },
 
-
   // Raíz → redirige al tenant por defecto
   {
     path: '',
-    redirectTo: environment.DEFAULT_TENANT_SLUG || 'dpa',
+    redirectTo: environment.DEFAULT_TENANT_SLUG,
     pathMatch: 'full'
-  }
+  },
 ];
 
 @NgModule({

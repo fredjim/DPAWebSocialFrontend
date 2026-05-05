@@ -75,6 +75,12 @@ header {
 			color: var(--blue-color);
 			cursor: pointer;
 		}
+		.dropdown-item:active {
+			color: white !important;
+		}
+		.active {
+			color: white;
+		}
 	}
 
 	.name-inst-mobile {

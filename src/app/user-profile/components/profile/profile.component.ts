@@ -24,6 +24,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   currentUser!: UserDetail;
   institution!: Institution;
   authenticated: boolean = false;
+  currentSlug: string = '';
   isMobileMenuOpen = false;
   isMenuOpen = false;
   isLoading = false;
@@ -34,6 +35,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   @ViewChild('fileInputProfile') fileInputProfile!: ElementRef;
 
   ngOnInit(): void {
+    this.currentSlug = this.tenantService.getSlug();
     this.initForm();
 
     this.authenticated = this.authService.isAuthenticated();

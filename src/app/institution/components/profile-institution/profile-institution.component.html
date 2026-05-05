@@ -30,8 +30,8 @@
     @if (isMenuOpen) {
     <div class="dropdown-menu">
         <ng-container *ngIf="authenticated">
-            <a class="dropdown-item" routerLink="/profile">Ver perfil</a>
-            <a *ngIf="currentUser.role === 'ADMIN'" class="dropdown-item" routerLink="/institution">Ver página</a>
+            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['/',currentSlug,'profile']">Ver perfil</a>
+            <a *ngIf="currentUser.role === 'ADMIN'" routerLinkActive="active" class="dropdown-item" [routerLink]="['/',currentSlug,'institution']">Ver página</a>
             <a class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
         </ng-container>
         <ng-container *ngIf="!authenticated">
@@ -106,7 +106,7 @@
             </div>
             <div class="d-flex justify-content-center gap-4">
                 <button class="btn btn-primary save" type="submit">Guardar</button>
-                <button class="btn btn-secondary cancel" type="button" routerLink="/">Cancelar</button>
+                <button class="btn btn-secondary cancel" type="button" [routerLink]="['/',currentSlug]">Cancelar</button>
             </div>
         </form>
     </div>
