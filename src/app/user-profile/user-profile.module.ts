@@ -6,6 +6,7 @@ import { InputTextModule } from "primeng/inputtext";
 import { RouterModule } from '@angular/router';
 import { UserProfileRoutingModule } from './user-profile-routing.module';
 import { AppModule } from '../app.module';
+import { SharedModule } from '../shared/shared.module';
 
 
 @NgModule({
@@ -18,7 +19,8 @@ import { AppModule } from '../app.module';
     InputTextModule,
     RouterModule,
     UserProfileRoutingModule,
-    AppModule
+    AppModule,
+    SharedModule
   ]
 })
 export class UserProfileModule { }

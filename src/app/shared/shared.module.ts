@@ -20,11 +20,13 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { CustomTableComponent } from './components/custom-table/custom-table.component';
 import { InstitutionAvatarComponent } from './components/institution-avatar/institution-avatar.component';
+import { CustomToastComponent } from './components/custom-toast/custom-toast.component';
 
 @NgModule({
   declarations: [
     CustomTableComponent,
-    InstitutionAvatarComponent
+    InstitutionAvatarComponent,
+    CustomToastComponent
   ],
   imports: [
     CommonModule,
@@ -64,7 +66,8 @@ import { InstitutionAvatarComponent } from './components/institution-avatar/inst
     InputGroupModule,
     InputGroupAddonModule,
     CustomTableComponent,
-    InstitutionAvatarComponent
+    InstitutionAvatarComponent,
+    CustomToastComponent
   ]
 })
 export class SharedModule { }
