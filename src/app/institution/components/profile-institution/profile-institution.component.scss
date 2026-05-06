@@ -74,6 +74,18 @@ header {
 			text-decoration: none;
 			color: var(--blue-color);
 			cursor: pointer;
+
+			&:hover {
+				background-color: #bbdbfb;
+				color: var(--blue-color);
+			}
+		}
+		.dropdown-item:active {
+			background-color: #0D6EFD;
+			color: white !important;
+		}
+		.active {
+			color: white;
 		}
 	}
 
@@ -113,11 +125,18 @@ header {
             .default-cover {
                 width: 100%;
                 height: 100%;
-                background-color: #e0e0e0;
+				background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
                 cursor: pointer;
                 display: flex;
                 justify-content: center;
                 align-items: center;
+
+				h3 {
+					margin: 0;
+					color: #334155;
+					font-size: 1rem;
+					font-weight: 600;
+				}
             }
 
             .edit-info {

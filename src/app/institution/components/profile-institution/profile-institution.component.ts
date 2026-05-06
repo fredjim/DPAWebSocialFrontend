@@ -1,11 +1,12 @@
 import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 import { PostService } from '../../../posts/services/post.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { UserDetail } from '../../../posts/models/user-detail';
 import { Institution } from '../../../posts/models/institution';
 import { TenantService } from '../../../services/tenant.service';
 import { InstitutionService } from '../../services/institution.service';
-import { Subject, switchMap, takeUntil } from 'rxjs';
+import { forkJoin, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../posts/models/uploaded-media';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
@@ -26,19 +27,22 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   authenticated: boolean = false;
   isMobileMenuOpen = false;
   isMenuOpen = false;
-  imageFileCoverToCreate!: File;
-  imageFileLogoToCreate!: File;
+  imageFileCoverToCreate?: File;
+  imageFileLogoToCreate?: File;
   imageCover: string = '';
   imageLogo: string = '';
   currentLogoUuid: string = '';
   currentBackgroundUuid: string = '';
+  currentSlug: string = '';
 
   @ViewChild('fileInputCover') fileInputCover!: ElementRef;
   @ViewChild('fileInputLogo') fileInputLogo!: ElementRef;
+  @ViewChild('toast') toast!: CustomToastComponent;
 
   formInstitution!: FormGroup;
 
   ngOnInit(): void {
+    this.currentSlug = this.tenantService.getSlug();
     this.initForm();
     this.authenticated = this.authService.isAuthenticated();
     if(this.authenticated){
@@ -80,22 +84,49 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.formInstitution.valid) {
-      this.institutionService.updateInstitutionData({
-        ...this.institution,
-        ...this.formInstitution.value,
-        logoFileUuid: this.currentLogoUuid,
-        backgroundFileUuid: this.currentBackgroundUuid,
-      }).pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (institution: Institution) => {
-            this.institution = institution;
-          },
-          error: (error) => {
-            console.error('Error updating institution:', error);
-          }
+    if (this.formInstitution.invalid) return;
+
+    this.toast.showInfo('Guardando cambios...', 'Procesando');
+    
+    const uploadLogo$: Observable<UploadedMedia | null> = this.imageFileLogoToCreate 
+      ? this.institutionService.postInstitutionPhotoProfile(this.createFormData(this.imageFileLogoToCreate))
+      : of(null);
+
+    const uploadCover$: Observable<UploadedMedia | null> = this.imageFileCoverToCreate
+      ? this.institutionService.postInstitutionPhotoCover(this.createFormData(this.imageFileCoverToCreate))
+      : of(null);
+
+    forkJoin([uploadLogo$, uploadCover$]).pipe(
+      switchMap(([logoMedia, coverMedia]) => {
+        if (logoMedia) this.currentLogoUuid = logoMedia.uuid;
+        if (coverMedia) this.currentBackgroundUuid = coverMedia.uuid;
+
+        return this.institutionService.updateInstitutionData({
+          ...this.institution,
+          ...this.formInstitution.value,
+          logoFileUuid: this.currentLogoUuid,
+          backgroundFileUuid: this.currentBackgroundUuid,
         });
-    }
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (institution: Institution) => {
+        this.institution = institution;
+        this.imageFileLogoToCreate = undefined;
+        this.imageFileCoverToCreate = undefined;
+        this.toast.showSuccess('Información de la institución actualizada correctamente');
+      },
+      error: (error) => {
+        console.error('Error updating institution:', error);
+        this.toast.showError('Hubo un error al actualizar la información');
+      }
+    });
+  }
+
+  private createFormData(file: File): FormData {
+    const formData = new FormData();
+    formData.append('image', file);
+    return formData;
   }
 
 
@@ -122,39 +153,17 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
 
       // Validaciones
       if(!this.isValidFileType(this.imageFileCoverToCreate)){
-        alert('Por favor, seleccione una imagen');
+        this.toast.showError('Por favor, seleccione una imagen válida');
         this.resetFileInput(this.fileInputCover);
         return;
       }
 
-      const formData = new FormData();
-      formData.append('image', this.imageFileCoverToCreate);
-      if (!this.institution) {
-        console.error('No institution data available to update.');
-        return;
-      }
-      this.institutionService.postInstitutionPhotoCover(formData).pipe(
-        switchMap((uploadedMedia: UploadedMedia) => {
-          this.currentBackgroundUuid = uploadedMedia.uuid;
-          this.imageCover = uploadedMedia.urlResource;
-          return this.institutionService.updateInstitutionData({
-            ...this.institution,
-            logoFileUuid: this.currentLogoUuid,
-            backgroundFileUuid: this.currentBackgroundUuid,
-          });
-        }),
-        takeUntil(this.destroy$)
-      ).subscribe({
-        next: (updatedInstitution: Institution) => {
-          this.institution = updatedInstitution;
-          this.imageCover = updatedInstitution.background_url || '';
-          this.currentBackgroundUuid = this.extractUuidFromUrl(updatedInstitution.background_url);
-        },
-        error: (error) => {
-          console.error('Error al subir la imagen de portada:', error);
-        }
-      });
-      
+      // Preview local
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imageCover = reader.result as string;
+      };
+      reader.readAsDataURL(this.imageFileCoverToCreate);
     }
   }
 
@@ -163,44 +172,34 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
       this.imageFileLogoToCreate = event.target.files[0];
       // Validaciones
       if(!this.isValidFileType(this.imageFileLogoToCreate)){
-        alert('Por favor, seleccione una imagen');
+        this.toast.showError('Por favor, seleccione una imagen válida');
         this.resetFileInput(this.fileInputLogo);
         return;
       }
 
-      const formData = new FormData();
-      formData.append('image', this.imageFileLogoToCreate);
-      // Ensure we have institution loaded before updating
-      if (!this.institution) {
-        console.error('No institution data available to update.');
-        return;
-      }
-      this.institutionService.postInstitutionPhotoProfile(formData).pipe(
-        switchMap((uploadedMedia: UploadedMedia) => {
-          this.currentLogoUuid = uploadedMedia.uuid;
-          this.imageLogo = uploadedMedia.urlResource;
-          return this.institutionService.updateInstitutionData({
-            ...this.institution,
-            logoFileUuid: this.currentLogoUuid,
-            backgroundFileUuid: this.currentBackgroundUuid,
-          });
-        }),
-        takeUntil(this.destroy$)
-      ).subscribe({
-        next: (updatedInstitution: Institution) => {
-          this.institution = updatedInstitution;
-          this.imageLogo = updatedInstitution.logo_url || '';
-          this.currentLogoUuid = this.extractUuidFromUrl(updatedInstitution.logo_url);
-        },
-        error: (error) => {
-          console.error('Error al subir la imagen de logo:', error);
-        }
-      });
+      // Preview local
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imageLogo = reader.result as string;
+      };
+      reader.readAsDataURL(this.imageFileLogoToCreate);
     }
   }
 
   private extractUuidFromUrl(url: string): string {
     return url ? url.split('/').pop() ?? '' : '';
+  }
+
+  get institutionLogoUrl(): string {
+    return this.imageLogo || this.institution?.logo_url || '';
+  }
+
+  get institutionCoverUrl(): string {
+    return this.imageCover || this.institution?.background_url || '';
+  }
+
+  get hasInstitutionCover(): boolean {
+    return !!this.institutionCoverUrl && this.institutionCoverUrl.trim().length > 0;
   }
 
   ngOnDestroy(): void {

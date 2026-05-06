@@ -29,7 +29,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { EditInfoComponent } from './pages/edit-info/edit-info.component';
 import { ToastModule } from 'primeng/toast';
 import { NavbarInformationComponent } from './components/navbar/child/navbar-information/navbar-information.component';
-import { PagesInformationComponent } from './pages/pages-information/pages-information.component';
 import { HeroProfileComponent } from './components/hero-profile/hero-profile.component';
 import { MessageService } from 'primeng/api';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
@@ -41,6 +40,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CarouselModule } from 'primeng/carousel';
 import { UserProfileModule } from './user-profile/user-profile.module';
 import { InstitutionModule } from './institution/institution.module';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -51,7 +51,6 @@ import { InstitutionModule } from './institution/institution.module';
     PagesComponent,
     EditInfoComponent,
     NavbarInformationComponent,
-    PagesInformationComponent,
     HeroProfileComponent,
     SectionContainerComponent,
     FormSectionComponent,
@@ -79,6 +78,7 @@ import { InstitutionModule } from './institution/institution.module';
     DialogModule,
     InputNumberModule,
     CarouselModule,
+    SharedModule,
 ],
   exports: [
     NavbarComponent

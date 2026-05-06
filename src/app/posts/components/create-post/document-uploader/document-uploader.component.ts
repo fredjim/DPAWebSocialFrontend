@@ -13,6 +13,8 @@ export class DocumentUploaderComponent implements OnChanges {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   public readonly SIZE = 100;
   private readonly MAX_FILE_SIZE = this.SIZE * 1024 * 1024; // 100MB en bytes
+  public isLoadingIcon = false;
+  private iconPreloaded = false;
   showPreviewDoc = false;
   fileDoc!: File; //El doc que se selecciona para crear post
   typesDocs = {
@@ -50,6 +52,11 @@ export class DocumentUploaderComponent implements OnChanges {
         //Limpiar el input file
         event.target.files = new DataTransfer().files;
         return;
+      }
+
+      // Si el icono no está precargado, precargarlo
+      if (!this.iconPreloaded) {
+        this.preloadIcon();
       }
 
       this.fileType = this.getTypeFile(this.fileDoc.type);
@@ -99,5 +106,21 @@ export class DocumentUploaderComponent implements OnChanges {
       this.fileInput.nativeElement.value = '';
     }
     this.closeAreaDocEvent.emit(this.showAreaDoc());
+  }
+
+  private preloadIcon() {
+    this.isLoadingIcon = true;
+    
+    const img = new Image();
+    img.onload = () => {
+      // La imagen ya está en caché del navegador
+      this.iconPreloaded = true;
+      this.isLoadingIcon = false;
+    };
+    img.onerror = () => {
+      this.isLoadingIcon = false;
+      console.error('Error cargando el icono');
+    };
+    img.src = '/assets/icon-pdf.png';
   }
 }

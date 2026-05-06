@@ -18,6 +18,8 @@ export class DocumentEditorComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   public readonly SIZE = 100;
   private readonly MAX_FILE_SIZE = this.SIZE * 1024 * 1024; // 100MB en bytes
+  private iconPreloaded = false;
+  public isLoadingIcon = false;
   showPreviewDoc = false;
   typesDocs = {
     pdf : 'application/pdf',
@@ -59,6 +61,11 @@ export class DocumentEditorComponent implements OnInit {
         //Limpiar el input file
         event.target.files = new DataTransfer().files;
         return;
+      }
+
+      // Si el icono no está precargado, precargarlo
+      if (!this.iconPreloaded) {
+        this.preloadIcon();
       }
 
       this.fileType = this.getTypeFile(this.fileDoc.name);
@@ -116,5 +123,21 @@ export class DocumentEditorComponent implements OnInit {
 
     // Emitir que se cerró el área de documentos
     this.closeAreaDocEvent.emit(false);
+  }
+
+  private preloadIcon() {
+    this.isLoadingIcon = true;
+    
+    const img = new Image();
+    img.onload = () => {
+      // La imagen ya está en caché del navegador
+      this.iconPreloaded = true;
+      this.isLoadingIcon = false;
+    };
+    img.onerror = () => {
+      this.isLoadingIcon = false;
+      console.error('Error cargando el icono');
+    };
+    img.src = '/assets/icon-pdf.png';
   }
 }

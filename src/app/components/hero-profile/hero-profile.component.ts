@@ -77,6 +77,31 @@ export class HeroProfileComponent implements OnInit, OnDestroy {
     this.subscriptions.add(dataSubscription);
   }
 
+  get hasBackgroundImage(): boolean {
+    return !!this.institution?.background_url && this.institution.background_url.trim().length > 0;
+  }
+
+  get hasLogoImage(): boolean {
+    return !!this.institution?.logo_url && this.institution.logo_url.trim().length > 0;
+  }
+
+  get institutionInitials(): string {
+    if (!this.institution?.name) {
+      return 'IN';
+    }
+
+    const words = this.institution.name
+      .trim()
+      .split(/\s+/)
+      .filter(word => word.length > 0);
+
+    if (words.length === 1) {
+      return words[0].slice(0, 2).toUpperCase();
+    }
+
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+
   ngOnDestroy() {
     // Limpiar todas las suscripciones
     this.subscriptions.unsubscribe();

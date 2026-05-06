@@ -3,7 +3,7 @@
         <img src="assets/logo-umss.png" alt="Logo UMSS">
 
         @if (institution) {
-        <img src="{{ institution.logo_url }}" alt="Logo" id="logo-inst">
+            <app-institution-avatar [institution]="institution" size="small" id="logo-inst"></app-institution-avatar>
         }
     </div>
 
@@ -37,8 +37,8 @@
     @if (isMenuOpen) {
     <div class="dropdown-menu">
         <ng-container *ngIf="authenticated">
-            <a class="dropdown-item" routerLink="/profile">Ver perfil</a>
-            <a *ngIf="user.role === 'ADMIN'" class="dropdown-item" routerLink="/institution">Ver página</a>
+            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['/',currentSlug,'profile']">Ver perfil</a>
+            <a *ngIf="user.role === 'ADMIN'" routerLinkActive="active" class="dropdown-item" [routerLink]="['/',currentSlug,'institution']">Ver página</a>
             <a class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
         </ng-container>
         <ng-container *ngIf="!authenticated">

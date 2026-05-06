@@ -74,6 +74,18 @@ header {
 			text-decoration: none;
 			color: var(--blue-color);
 			cursor: pointer;
+
+			&:hover {
+				background-color: #bbdbfb;
+				color: var(--blue-color);
+			}
+		}
+		.dropdown-item:active {
+			background-color: #0D6EFD;
+			color: white !important;
+		}
+		.active {
+			color: white;
 		}
 	}
 }
