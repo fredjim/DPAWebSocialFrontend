@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { map } from 'rxjs/operators';
 import { NewUser } from '../models/new-user';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { TenantService } from '../../services/tenant.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,8 @@ export class AuthService {
   public token: any
   constructor(
     private readonly http: HttpClient,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly tenantService: TenantService
   ) {
   }
 
@@ -133,15 +135,28 @@ export class AuthService {
   // Logout usando refresh token
   logout(): void {
     const refreshToken = localStorage.getItem('refreshToken');
+
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
-    globalThis.location.reload();
+
+    const redirect = () => {
+      globalThis.location.href = `/${this.tenantService.getSlug()}`;
+    };
+    
     if (refreshToken) {
       this.http.post(`${this.ROOT_URL}/logout`, {}, {
         headers: {
           Authorization: `Bearer ${refreshToken}`
         }
-      }).subscribe();
+      }).subscribe({
+        next: () => redirect(),
+        error: (error) => {
+          console.log('Error al cerrar sesión', error);
+          redirect();
+        }
+      });
+    }else {
+      redirect();
     }
   }
 
