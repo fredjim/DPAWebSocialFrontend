@@ -50,29 +50,31 @@
 }
 
 .input-password {
-  position: relative;
+  
+  .input-eye {
+    position: relative;
 
-  input {
-    padding-right: 35px;
-  }
-
-  .eye {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #9FB0E7;
-    z-index: 2;
-
-    &:hover {
-      color: var(--blue-color);
+    input {
+      padding-right: 35px;
     }
-  }
-
-  &.has-error .eye,
-  .is-invalid ~ .eye {
-    display: none;
+  
+    .eye {
+      position: absolute;
+      right: 10px;
+      top: 16px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #9FB0E7;
+      z-index: 2;
+  
+      &:hover {
+        color: var(--blue-color);
+      }
+    }
+  
+    .is-invalid ~ .eye {
+      right: 30px;
+    }
   }
 }
 
@@ -83,12 +85,6 @@
 .invalid-feedback {
   color: var(--red-color);
   display: block;
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-}
-
-.hide {
-  display: none !important;
 }
 
 input[type="password"]::-ms-reveal,
@@ -109,21 +105,12 @@ input[type="password"]::-moz-textfield-decoration {
   display: none;
 }
 
-.input-password .is-invalid ~ .eye {
-  display: none;
-}
-
-.invalid-feedback {
-  min-height: 20px;
-  margin-top: 0.25rem;
-}
-
 @media (max-width: 576px) {
   .botones {
     min-width: 100%;
   }
 
-  .input-password input {
+  .input-password > .input-eye > input {
     padding-right: 30px;
   }
 
