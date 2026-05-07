@@ -42,11 +42,38 @@ export class RegisterComponent implements OnInit {
   private passwordValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
+      
       if (!value) return null;
+      
+      const errors: any = {};
+      
+      // Longitud
       if (value.length < 8 || value.length > 20) {
-        return { 'passwordLength': true };
+        errors['passwordLength'] = true;
       }
-      return null;
+      
+      // Al menos una minúscula
+      if (!/[a-z]/.test(value)) {
+        errors['missingLowercase'] = true;
+      }
+      
+      // Al menos una mayúscula
+      if (!/[A-Z]/.test(value)) {
+        errors['missingUppercase'] = true;
+      }
+      
+      // Al menos un número
+      if (!/\d/.test(value)) {
+        errors['missingNumber'] = true;
+      }
+      
+      // Al menos un carácter especial
+      const specialChars = /[!@#$%^&*()_+]/;
+      if (!specialChars.test(value)) {
+        errors['missingSpecialChar'] = true;
+      }
+      
+      return Object.keys(errors).length > 0 ? errors : null;
     };
   }
 
@@ -56,7 +83,7 @@ export class RegisterComponent implements OnInit {
       lastName: ['', [Validators.required, Validators.minLength(3), this.onlyLettersValidator()]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, this.passwordValidator()]],
-      repeat_password: ['', [Validators.required, this.passwordValidator()]]
+      repeat_password: ['', [Validators.required]]
     });
 
     this.registerForm.valueChanges.subscribe(() => this.checkPasswordMatch());
@@ -157,9 +184,7 @@ export class RegisterComponent implements OnInit {
   togglePasswordVisibility() {
     this.hide = !this.hide;
     this.inputType = this.hide ? 'password' : 'text';
-  }
-
-  toggleConfirmPasswordVisibility() {
+    // Para input confirm password tambien
     this.confirmHide = !this.confirmHide;
     this.confirmInputType = this.confirmHide ? 'password' : 'text';
   }
