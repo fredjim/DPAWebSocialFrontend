@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { PostService } from '../../services/post.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Post } from '../../models/post';
@@ -36,7 +37,8 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
     private readonly tenantService: TenantService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly modalService: NgbModal
+    private readonly modalService: NgbModal,
+    private readonly location: Location
   ){}
   
   ngOnInit(){
@@ -190,7 +192,10 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   }
 
   handleOpenPost(post: Post, initialImageIndex: number = 0): void {
-    this.navigateToPost(post.uuid, initialImageIndex);
+    const slug = this.tenantService.getSlug();
+    const url = this.router.createUrlTree(['/', slug, 'posts', post.uuid]).toString();
+    this.location.go(url);
+    this.openPostModal(post, initialImageIndex);
   }
 
   private openPostById(postUuid: string, initialImageIndex: number = 0): void {
@@ -223,8 +228,14 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
           modalRef.componentInstance.postDescription = post.content.text;
           modalRef.componentInstance.initialImageIndex = initialImageIndex;
 
-          modalRef.closed.pipe(takeUntil(this.destroy$)).subscribe(() => this.navigateToPosts());
-          modalRef.dismissed.pipe(takeUntil(this.destroy$)).subscribe(() => this.navigateToPosts());
+          const resetUrl = () => {
+            const slug = this.tenantService.getSlug();
+            const url = this.router.createUrlTree(['/', slug, 'posts']).toString();
+            this.location.go(url);
+          };
+
+          modalRef.closed.pipe(takeUntil(this.destroy$)).subscribe(() => resetUrl());
+          modalRef.dismissed.pipe(takeUntil(this.destroy$)).subscribe(() => resetUrl());
         },
         error: (error) => console.error('Error al obtener la institucion', error)
       });
@@ -259,17 +270,5 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
       hour: '2-digit',
       minute: '2-digit'
     });
-  }
-
-  private navigateToPost(postUuid: string, initialImageIndex: number = 0): void {
-    const slug = this.tenantService.getSlug();
-    this.router.navigate(['/', slug, 'posts', postUuid], {
-      state: { initialImageIndex }
-    });
-  }
-
-  private navigateToPosts(): void {
-    const slug = this.tenantService.getSlug();
-    this.router.navigate(['/', slug, 'posts']);
   }
 }

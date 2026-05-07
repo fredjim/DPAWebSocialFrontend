@@ -309,7 +309,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
                 const isImage = media.mimeType.includes('image');
                 const baseMedia = {
                   number: index + 1,
-                  type: media.mimeType,
+                  type: isImage ? 'image' : 'video',
                   name: media.name,
                   path: media.urlResource,
                   uploaded_file_uuid: media.uuid

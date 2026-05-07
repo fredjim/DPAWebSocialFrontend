@@ -103,8 +103,8 @@ export class AuthInterceptor implements HttpInterceptor {
           this.authService.logout();
           return throwError(() => new Error('Refresh token expired'));
         }
-        // Otros errores de autenticación
-        return throwError(() => new Error('Authentication failed'));
+        // Otros errores HTTP se pasan limpios sin ser envueltos en "Authentication failed"
+        return throwError(() => error);
       })
     );
   }
