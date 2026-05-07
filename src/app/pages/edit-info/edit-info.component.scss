@@ -17,6 +17,30 @@
 		margin: 0.5rem 0;
 	}
 
+	.char-counter {
+		margin-top: 8px;
+		font-size: 12px;
+		color: #666;
+		text-align: right;
+		
+		&.exceeded {
+			color: #f44336;
+			
+			.error-message {
+				display: inline-block;
+				margin-right: 8px;
+				color: #f44336;
+			}
+		}
+	}
+
+	.text-editor.exceeded {
+		::ng-deep .ql-editor {
+			border-color: #f44336;
+			background-color: #fff2f0;
+		}
+	}
+
 	.buttons {
 		display: flex;
 		justify-content: center;

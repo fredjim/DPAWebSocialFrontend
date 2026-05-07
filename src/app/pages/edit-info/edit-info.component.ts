@@ -1,9 +1,9 @@
-import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Article } from '../models/article';
 import { InformationService } from '../services/information.service';
 import { MessageService } from 'primeng/api';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { catchError, forkJoin, from, map, of, switchMap } from 'rxjs';
+import { catchError, debounceTime, forkJoin, from, fromEvent, map, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { PostService } from '../../posts/services/post.service';
 import { MediaArticle } from '../models/media-article';
 import { Link } from '../models/link';
@@ -56,6 +56,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   public buttonsToAdd: { name: string, url: string }[] = []; // Para crear articulo
   // Modal de agregar botones
   public visibleModalAddButton = false;
+  public disableButtonSaveArticle = false;
 
   private modeEdit: 'load' | 'preload' = 'load'; // Modo de edicion de un boton ya guardado en BD o uno pre cargado 
   private indexButton: undefined | number;
@@ -67,8 +68,16 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     url: new FormControl('', [Validators.required])
   });
 
+  public currentLength: number = 0;
+  public isExceeded: boolean = false;
+  public maxLength: number = 3000;
+
+  private quillInstance: any;
+  private readonly destroy$ = new Subject<void>();
+
   constructor(
     private readonly informationService: InformationService,
+    private readonly cdr: ChangeDetectorRef
   ){}
 
   ngOnInit(): void {
@@ -82,6 +91,8 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     if (this.initTimeout) {
       clearTimeout(this.initTimeout);
     }
+    this.destroy$.next(); // Emitir señal para cancelar suscripciones
+    this.destroy$.complete(); // Cerrar el Subject
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -96,7 +107,40 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  onEditorInit(event: any): void {
+    this.quillInstance = event.editor; // Instancia de Quill
+    
+    // Actualizar contador inicial
+    this.updateCharCount();
+    
+    // Usar fromEvent para convertir evento Quill en Observable
+    fromEvent(this.quillInstance, 'text-change')
+      .pipe(
+        debounceTime(500),           // Esperar 500ms de pausa
+        takeUntil(this.destroy$)     // Auto-limpiar al destruir
+      )
+      .subscribe(() => {
+        this.updateCharCount();
+        this.cdr.detectChanges();    // Forzar actualización de vista
+      });
+  }
+
   public onSubmit(): void {
+    // Validar límite (aunque botón esté deshabilitado)
+    if (this.isExceeded) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error de validación',
+        detail: `El texto excede el límite de ${this.maxLength} caracteres. Actual: ${this.currentLength}`
+      });
+      return; 
+    }
+
+    // SOLO AQUÍ obtenemos el HTML definitivo para enviar
+    const htmlContent = this.quillInstance.root.innerHTML;
+    const cleanHtml = this.normalizeSpaces(htmlContent);
+    this.formArticle.patchValue({ text: cleanHtml });
+
     if(this.typeForm === 'edit'){
       this.updatedArticle();
     }else if(this.typeForm === 'create'){
@@ -500,7 +544,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  changeInputDocs(event: Event): void {
+  public changeInputDocs(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
 
@@ -545,7 +589,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     this.docsToCreate.splice(index, 1);
   }
 
-  changeInputMedia(event: Event){
+  public changeInputMedia(event: Event){
     event.preventDefault();
     event.stopPropagation();
     
@@ -684,5 +728,23 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   public closeModalNewButton(): void {
     this.cancelModalNewButton();
     this.buttonsOfArticle = this.currentArticle!.links
+  }
+
+  private updateCharCount(): void {
+    if (!this.quillInstance) return;
+    
+    // Obtener HTML real que se enviará al backend
+    let htmlContent = this.quillInstance.root.innerHTML;
+    // Reiniciar las etiquetas por defecto que usa
+    if (htmlContent === '<p><br></p>') htmlContent = '';
+
+    this.currentLength = htmlContent.length;
+    this.isExceeded = this.currentLength > this.maxLength;
+
+    this.disableButtonSaveArticle = this.isExceeded;
+  }
+
+  private normalizeSpaces(html: string): string {
+    return html.replace(/&nbsp;/g, ' ');
   }
 }
