@@ -7,6 +7,8 @@ import { PostService } from '../../../../posts/services/post.service';
 import { NavItem } from '../../../../pages/models/nav-item';
 import { Subject, takeUntil } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CustomToastComponent } from '../../../../shared/components/custom-toast/custom-toast.component';
+import { ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-navbar-information',
@@ -30,6 +32,7 @@ export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy 
   @Input() isMobile: boolean = false;
   @Output() collapse = new EventEmitter<void>(); 
   uuidSectionToEdit: string = '';
+  @ViewChild('customToast') customToast!: CustomToastComponent;
 
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
@@ -93,16 +96,39 @@ export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy 
     this.collapse.emit();
   }
 
-  onCreatedSection(created: Section): void {
-    this.sections.push(created);
+  onCreatedSection(event: {section?: Section, error?: any}): void {
+    if (event.section) {
+      this.sections.push(event.section);
+      this.customToast.showSuccess('Sección creada exitosamente');
+    } else {
+      if (event.error?.status === 409) {
+        this.customToast.showError('Ya existe una sección con esa ruta.');
+      } else {
+        this.customToast.showError('Error al crear sección');
+      }
+    }
   }
 
-  onDeletedSection(deleted: Section): void {
-    this.sections = this.sections.filter(sec => sec.uuid !== deleted.uuid);
+  onDeletedSection(event: {section?: Section, error?: any}): void {
+    if (event.section) {
+      this.sections = this.sections.filter(sec => sec.uuid !== event.section?.uuid);
+      this.customToast.showSuccess('Sección eliminada exitosamente');
+    } else {
+      this.customToast.showError('Error al eliminar sección');
+    }
   }
 
-  onEditSection(edited: Section): void {
-    this.sections = this.sections.map(sec => sec.uuid === edited.uuid ? edited : sec);
+  onEditSection(event: {section?: Section, error?: any}): void {
+    if (event.section) {
+      this.sections = this.sections.map(sec => sec.uuid === event.section?.uuid ? event.section : sec);
+      this.customToast.showSuccess('Sección actualizada exitosamente');
+    } else {
+      if (event.error?.status === 409) {
+        this.customToast.showError('Ya existe una sección con esa ruta.');
+      } else {
+        this.customToast.showError('Error al actualizar sección');
+      }
+    }
   }
 
   hideButtonNewSection(): void {

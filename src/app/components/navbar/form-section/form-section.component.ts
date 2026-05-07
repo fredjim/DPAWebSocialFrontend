@@ -2,7 +2,6 @@ import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestro
 import { InformationService } from '../../../pages/services/information.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Section } from '../../../pages/models/section';
-import { MessageService } from 'primeng/api';
 import moment from 'moment';
 import { SectionStateService } from '../../../pages/services/sections-state.service';
 import { AuthService } from '../../../authentication/services/auth.service';
@@ -18,7 +17,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class FormSectionComponent implements OnInit, OnChanges, OnDestroy {
   private readonly informationService = inject(InformationService);
-  private readonly messageService = inject(MessageService);
   private readonly sectionStateService = inject(SectionStateService);
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
@@ -30,9 +28,9 @@ export class FormSectionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() currentNavItem!: NavItem;
   @Output() onCloseNew = new EventEmitter<boolean>();
   @Output() onCloseEdit = new EventEmitter<void>();
-  @Output() onEditedSection = new EventEmitter<Section>();
-  @Output() onDeletedSection = new EventEmitter<Section>();
-  @Output() onCreateSection = new EventEmitter<Section>();
+  @Output() onEditedSection = new EventEmitter<{section?: Section, error?: any}>();
+  @Output() onDeletedSection = new EventEmitter<{section?: Section, error?: any}>();
+  @Output() onCreateSection = new EventEmitter<{section?: Section, error?: any}>();
   @ViewChild('firstInput') firstInput!: ElementRef<HTMLInputElement>;
 
   public isLoading = false;
@@ -96,14 +94,13 @@ export class FormSectionComponent implements OnInit, OnChanges, OnDestroy {
     this.informationService.createSection(newSection).subscribe({
       next: (created) => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Sección creada exitosamente' });
-        this.onCreateSection.emit(created);
+        this.onCreateSection.emit({section: created});
         this.closeForm();
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading = false;
         console.log('Error al crear seccion', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear sección' });
+        this.onCreateSection.emit({error});
         this.closeForm();
       }
     })
@@ -124,15 +121,14 @@ export class FormSectionComponent implements OnInit, OnChanges, OnDestroy {
       next: (updated) => {
         this.isLoading = false;
         this.sectionStateService.setSectionToEdit(updated);
-        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Sección actualizada exitosamente' });
-        this.onEditedSection.emit(updated);
+        this.onEditedSection.emit({section: updated});
         this.handleRedirectionAfterEdit(updated);
         this.closeForm();
       },
       error: (error: HttpErrorResponse) => {
         this.isLoading = false;
         console.log('Error al editar seccion', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar sección' });
+        this.onEditedSection.emit({error});
         this.closeForm();
       }
     })
@@ -154,14 +150,13 @@ export class FormSectionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private handleDeleteSuccess(): void {
-    this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Sección eliminada exitosamente' });
-    this.onDeletedSection.emit(this.currentSection);
+    this.onDeletedSection.emit({section: this.currentSection});
     this.onCloseEdit.emit();
   }
 
   private handleDeleteError(err: HttpErrorResponse): void {
     console.log('error', err);
-    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al eliminar sección' });
+    this.onDeletedSection.emit({error: err});
     this.onCloseEdit.emit();
   }
 

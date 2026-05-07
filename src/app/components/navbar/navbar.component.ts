@@ -1,12 +1,12 @@
-import { Component, EventEmitter, inject, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { NavItem } from '../../pages/models/nav-item';
 import { UserDetail } from '../../posts/models/user-detail';
 import { AuthService } from '../../authentication/services/auth.service';
 import { PostService } from '../../posts/services/post.service';
-import { MessageService } from 'primeng/api';
 import { InformationService } from '../../pages/services/information.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CustomToastComponent } from '../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-navbar',
@@ -18,9 +18,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private readonly informationService = inject(InformationService);
   private readonly authService = inject(AuthService);
   private readonly postService = inject(PostService);
-  private readonly messageService = inject(MessageService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+
+  @ViewChild('customToast') customToast!: CustomToastComponent;
 
   public isAuthenticated: boolean = false; 
   public currentUser!: UserDetail;
@@ -75,18 +76,26 @@ export class NavbarComponent implements OnInit, OnDestroy {
   onCreatedNavItem(event: { menus?: NavItem[], error?: any }) {
     if(event.menus){
       this.navItems = structuredClone(event.menus).sort((a, b) => a.orderIndex - b.orderIndex);
-      this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Menú creado exitosamente' });
+      this.customToast.showSuccess('Menú creado exitosamente');
     }else{
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear menú' });
+      if (event.error?.status === 409) {
+        this.customToast.showError('Ya existe un menú con esa ruta.');
+      } else {
+        this.customToast.showError('Error al crear menú');
+      }
     }
   }
 
   onEditedNavItem(event: { menus?: NavItem[], error?: any }) {
     if(event.menus){
       this.navItems = structuredClone(event.menus).sort((a, b) => a.orderIndex - b.orderIndex);
-      this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Menú actualizado exitosamente' });
+      this.customToast.showSuccess('Menú actualizado exitosamente');
     }else{
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar sección' });
+      if (event.error?.status === 409) {
+        this.customToast.showError('Ya existe un menú con esa ruta.');
+      } else {
+        this.customToast.showError('Error al actualizar menú');
+      }
     }
   }
 
@@ -98,9 +107,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
         // Si el nav item eliminado es el que se está visualizando, redirigir al inicio
         this.router.navigate(['/'], { replaceUrl: true });
       }
-      this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Menú eliminado exitosamente' });
+      this.customToast.showSuccess('Menú eliminado exitosamente');
     }else{
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al eliminar sección' });
+      this.customToast.showError('Error al eliminar menú');
     }
   }
 
