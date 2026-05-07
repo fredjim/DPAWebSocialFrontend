@@ -48,7 +48,7 @@ export class RegisterComponent implements OnInit {
       const errors: any = {};
       
       // Longitud
-      if (value.length < 8 || value.length > 20) {
+      if (value.length < 8 || value.length > 80) {
         errors['passwordLength'] = true;
       }
       
@@ -79,9 +79,9 @@ export class RegisterComponent implements OnInit {
 
   private buildForm() {
     this.registerForm = this.formBuilder.group({
-      name: ['', [Validators.required, Validators.minLength(3), this.onlyLettersValidator()]],
-      lastName: ['', [Validators.required, Validators.minLength(3), this.onlyLettersValidator()]],
-      email: ['', [Validators.required, Validators.email]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), this.onlyLettersValidator()]],
+      lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80), this.onlyLettersValidator()]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(50)]],
       password: ['', [Validators.required, this.passwordValidator()]],
       repeat_password: ['', [Validators.required]]
     });

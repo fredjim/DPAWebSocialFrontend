@@ -145,7 +145,7 @@ header {
 	
 			h3 {
 				margin: 0;
-				padding: 20px 0;
+				padding: 10px 0;
 				font-family: var(--secondary-font-family);
 				font-optical-sizing: auto;
 				font-weight: bold;
@@ -174,21 +174,53 @@ header {
 		}
 		.field {
 			display: flex;
-			align-items: center;
+			align-items: flex-start;
 			margin-bottom: 1.2rem;
 
 			label {
 				width: 120px;
 				font-weight: bold;
 				font-size: 1rem;
+				padding-top: 0.3rem; // Alinear con el input
 			}
 
-			input {
+			.input-wrapper {
 				flex: 1;
-				padding: 0.3rem 0.5rem;
-				border: 1px solid #ccc;
-				width: 250px;
-				max-width: 100%;
+				position: relative;
+				
+				input {
+					padding: 0.3rem 0.5rem;
+					border: 1px solid #ccc;
+					width: 250px;
+					max-width: 100%;
+					
+					&.is-invalid {
+						border-color: var(--red-color) !important;
+					}
+
+				}
+				
+				.error-messages {
+					position: absolute;
+					top: 90%;
+					left: 0;
+					width: 100%;
+					z-index: 1000;
+					
+					.invalid-feedback {
+						display: block;
+						margin-top: 0.25rem;
+						font-size: 0.75rem;
+						color: var(--red-color);
+					}
+				}
+				
+				.form-text {
+					display: block;
+					margin-top: 0.25rem;
+					font-size: 0.875em;
+					color: #6c757d;
+				}
 			}
 		}
 
@@ -205,6 +237,11 @@ header {
 
 			.bi {
 				font-size: x-large;
+			}
+			
+			&:disabled {
+				opacity: 0.65;
+				cursor: not-allowed;
 			}
 		}
 

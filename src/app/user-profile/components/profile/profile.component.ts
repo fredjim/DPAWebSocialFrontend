@@ -5,7 +5,7 @@ import { UserDetail } from '../../../posts/models/user-detail';
 import { Institution } from '../../../posts/models/institution';
 import { TenantService } from '../../../services/tenant.service';
 import { AuthService } from '../../../authentication/services/auth.service';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../posts/models/uploaded-media';
@@ -152,9 +152,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   private initForm(): void {
     this.formUser = new FormGroup({
-      name: new FormControl('', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]),
-      lastName: new FormControl(),
-      phone: new FormControl(),
+      name: new FormControl('', [Validators.required, Validators.maxLength(50)]),
+      lastName: new FormControl('', [Validators.required, Validators.maxLength(80)]),
+      phone: new FormControl('', [Validators.maxLength(15), this.numbersOnlyValidator()]),
     });
   }
 
@@ -172,5 +172,28 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   closeMobileMenu() {
     this.isMobileMenuOpen = false;
+  }
+
+  private numbersOnlyValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const value = control.value;
+      
+      if (!value) return null; // El campo es opcional, si está vacío no hay error
+      
+      // Verificar que solo contenga números
+      const numbersOnlyRegex = /^\d+$/;
+      if (!numbersOnlyRegex.test(value)) {
+        return { 'numbersOnly': true };
+      }
+      
+      return null;
+    };
+  }
+
+  // Método helper para verificar errores en los campos
+  hasError(controlName: string, errorName: string): boolean {
+    const control = this.formUser.get(controlName);
+    if (!control) return false;
+    return control.touched && control.hasError(errorName);
   }
 }
