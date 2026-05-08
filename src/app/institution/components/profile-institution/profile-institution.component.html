@@ -89,34 +89,159 @@
 
     <div class="form-institution">
         <h4>Detalles de la unidad</h4>
-        <form [formGroup]="formInstitution" (ngSubmit)="onSubmit()">
+        <form [formGroup]="formInstitution" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+            <!-- Campo: Nombre -->
             <div class="field">
                 <label for="name">Nombre:</label>
-                <input pInputText id="name" formControlName="name" type="text" autocomplete="off">
+                <div class="input-wrapper">
+                    <input pInputText 
+                        id="name" 
+                        class="form-control"
+                        [class.is-invalid]="hasError('name', 'required') || hasError('name', 'maxlength')"
+                        formControlName="name" 
+                        type="text" 
+                        autocomplete="off">
+                    <div class="error-messages">
+                        <div class="invalid-feedback" *ngIf="hasError('name', 'required')">
+                            El nombre de la institución es obligatorio
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('name', 'maxlength')">
+                            El nombre no puede exceder los 150 caracteres
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Campo: Descripción -->
             <div class="field">
                 <label for="description">Descripción:</label>
-                <textarea  id="description" formControlName="description" rows="4" autocomplete="off"></textarea>
+                <div class="input-wrapper">
+                    <textarea id="description" 
+                            class="form-control"
+                            [class.is-invalid]="hasError('description', 'required') || hasError('description', 'maxlength')"
+                            formControlName="description" 
+                            rows="4" 
+                            autocomplete="off"></textarea>
+                    <div class="error-messages">
+                        <div class="invalid-feedback" *ngIf="hasError('description', 'required')">
+                            La descripción es obligatoria
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('description', 'maxlength')">
+                            La descripción no puede exceder los 300 caracteres
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Campo: Ubicación -->
             <div class="field">
                 <label for="location">Ubicación:</label>
-                <input pInputText id="location" formControlName="location" type="text" autocomplete="off">
+                <div class="input-wrapper">
+                    <input pInputText 
+                        id="location" 
+                        class="form-control"
+                        [class.is-invalid]="hasError('location', 'required') || hasError('location', 'maxlength')"
+                        formControlName="location" 
+                        type="text" 
+                        autocomplete="off">
+                    <div class="error-messages">
+                        <div class="invalid-feedback" *ngIf="hasError('location', 'required')">
+                            La ubicación es obligatoria
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('location', 'maxlength')">
+                            La ubicación no puede exceder los 300 caracteres
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Campo: Correo electrónico -->
             <div class="field">
                 <label for="email">Correo electrónico:</label>
-                <input pInputText id="email" formControlName="email" type="email" autocomplete="off">
+                <div class="input-wrapper">
+                    <input pInputText 
+                        id="email" 
+                        class="form-control"
+                        [class.is-invalid]="hasError('email', 'required') || hasError('email', 'email') || hasError('email', 'maxlength')"
+                        formControlName="email" 
+                        type="email" 
+                        autocomplete="off">
+                    <div class="error-messages">
+                        <div class="invalid-feedback" *ngIf="hasError('email', 'required')">
+                            El correo electrónico es obligatorio
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('email', 'email')">
+                            Ingrese un correo electrónico válido (ejemplo&#64;dominio.com)
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('email', 'maxlength')">
+                            El correo no puede exceder los 80 caracteres
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Campo: Teléfono -->
             <div class="field">
                 <label for="phone">Teléfono:</label>
-                <input pInputText id="phone" formControlName="phone" type="tel" autocomplete="off">
+                <div class="input-wrapper">
+                    <input pInputText 
+                        id="phone" 
+                        class="form-control"
+                        [class.is-invalid]="hasError('phone', 'required') || hasError('phone', 'maxlength') || hasError('phone', 'invalidPhone')"
+                        formControlName="phone" 
+                        type="tel" 
+                        autocomplete="off">
+                    <div class="error-messages">
+                        <div class="invalid-feedback" *ngIf="hasError('phone', 'required')">
+                            El teléfono es obligatorio
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('phone', 'maxlength')">
+                            El teléfono no puede exceder los 20 caracteres
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('phone', 'invalidPhone')">
+                            El teléfono solo puede contener números, espacios, guiones y el signo +
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Campo: Sitio web -->
             <div class="field">
                 <label for="url">Sitio web:</label>
-                <input pInputText id="url" formControlName="url" type="url" autocomplete="off">
+                <div class="input-wrapper">
+                    <input pInputText 
+                        id="url" 
+                        class="form-control"
+                        [class.is-invalid]="hasError('url', 'required') || hasError('url', 'maxlength') || hasError('url', 'invalidUrl')"
+                        formControlName="url" 
+                        type="url" 
+                        autocomplete="off">
+                    <div class="error-messages">
+                        <div class="invalid-feedback" *ngIf="hasError('url', 'required')">
+                            El sitio web es obligatorio
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('url', 'maxlength')">
+                            La URL no puede exceder los 80 caracteres
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('url', 'invalidUrl')">
+                            Ingrese una URL válida (ejemplo: https://www.dominio.com)
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="d-flex justify-content-center gap-4">
-                <button class="btn btn-primary save" type="submit">Guardar</button>
-                <button class="btn btn-secondary cancel" type="button" [routerLink]="['/',currentSlug]">Cancelar</button>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-center gap-4 pt-2">
+                <button class="btn btn-primary save" 
+                        type="submit" 
+                        [disabled]="formInstitution.invalid">
+                    Guardar
+                </button>
+                <button class="btn btn-secondary cancel" 
+                        type="button" 
+                        [routerLink]="['/',currentSlug]">
+                    Cancelar
+                </button>
             </div>
         </form>
     </div>

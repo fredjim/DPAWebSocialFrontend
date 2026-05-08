@@ -210,24 +210,60 @@ header {
 		.field {
 			display: flex;
 			flex-direction: row;
-			align-items: center;
-			margin-bottom: 1.2rem;
+			align-items: flex-start; // Cambiado de center para mejor alineación
+			margin-bottom: 1.5rem; // Aumentado para espacio del error
+			position: relative;
 
 			label {
 				width: 160px;
 				font-weight: bold;
 				font-size: 1rem;
+				padding-top: 0.5rem; // Alinear con el padding del input
+				flex-shrink: 0;
 			}
 
-			input,
-			textarea {
+			.input-wrapper {
 				flex: 1;
-				padding: 0.5rem;
-				border: 1px solid #ccc;
-				border-radius: 4px;
-				font-size: 1rem;
-				width: 500px;
-				max-width: 100%;
+				position: relative;
+				
+				input,
+				textarea {
+					padding: 0.5rem;
+					border: 1px solid #ccc;
+					border-radius: 4px;
+					font-size: 1rem;
+					width: 500px;
+					max-width: 100%;
+					
+					&.is-invalid {
+						border-color: var(--red-color) !important;
+					}
+				}
+				
+				textarea {
+					resize: vertical;
+					min-height: 80px;
+					
+					&.is-invalid {
+						background-position: right calc(0.375em + 0.1875rem) top calc(0.375em + 0.1875rem);
+					}
+				}
+				
+				// Contenedor de mensajes de error con posición absoluta
+				.error-messages {
+					position: absolute;
+					top: 100%;
+					left: 0;
+					width: 100%;
+					z-index: 1000;
+					
+					.invalid-feedback {
+						display: block;
+						margin-top: 0.25rem;
+						font-size: 0.75rem;
+						color: var(--red-color);
+					}
+				}
 			}
 		}
 	}
