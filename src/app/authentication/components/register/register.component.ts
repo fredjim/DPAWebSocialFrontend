@@ -48,7 +48,7 @@ export class RegisterComponent implements OnInit {
       const errors: any = {};
       
       // Longitud
-      if (value.length < 8 || value.length > 80) {
+      if (value.length < 8 || value.length > 16) {
         errors['passwordLength'] = true;
       }
       
