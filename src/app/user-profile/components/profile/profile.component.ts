@@ -152,8 +152,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   private initForm(): void {
     this.formUser = new FormGroup({
-      name: new FormControl('', [Validators.required, Validators.maxLength(50)]),
-      lastName: new FormControl('', [Validators.required, Validators.maxLength(80)]),
+      name: new FormControl('', [Validators.required, Validators.maxLength(50), this.onlyLettersValidator()]),
+      lastName: new FormControl('', [Validators.required, Validators.maxLength(80), this.onlyLettersValidator()]),
       phone: new FormControl('', [Validators.maxLength(15), this.numbersOnlyValidator()]),
     });
   }
@@ -187,6 +187,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
       }
       
       return null;
+    };
+  }
+
+  private onlyLettersValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      if (!control.value) return null;
+      const lettersRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/;
+      return lettersRegex.test(control.value) ? null : { 'onlyLetters': true };
     };
   }
 

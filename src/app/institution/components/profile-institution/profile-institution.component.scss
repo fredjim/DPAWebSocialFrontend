@@ -210,15 +210,14 @@ header {
 		.field {
 			display: flex;
 			flex-direction: row;
-			align-items: flex-start; // Cambiado de center para mejor alineación
-			margin-bottom: 1.5rem; // Aumentado para espacio del error
+			align-items: center;
+			margin-bottom: 2.5rem; // Aumentado para espacio del error
 			position: relative;
 
 			label {
 				width: 160px;
 				font-weight: bold;
 				font-size: 1rem;
-				padding-top: 0.5rem; // Alinear con el padding del input
 				flex-shrink: 0;
 			}
 
@@ -237,6 +236,7 @@ header {
 					
 					&.is-invalid {
 						border-color: var(--red-color) !important;
+						padding-right: 30px;
 					}
 				}
 				
@@ -259,7 +259,7 @@ header {
 					
 					.invalid-feedback {
 						display: block;
-						margin-top: 0.25rem;
+						margin-top: 0.1rem;
 						font-size: 0.75rem;
 						color: var(--red-color);
 					}
@@ -344,11 +344,11 @@ footer {
 	.form-institution {
 		flex-direction: column;
 		align-items: flex-start;
-		width: 100% !important;
+		width: 100%;
 		padding: 10px 25px;
 
 		form {
-			width: 100% !important;
+			width: 100%;
 			.field {
 				flex-direction: column !important;
 				align-items: flex-start !important;
@@ -357,10 +357,14 @@ footer {
 					width: auto;
 					margin-bottom: 0.5rem;
 				}
+
+				.input-wrapper {
+					width: 100%;
+				}
 	
 				input,
 				textarea {
-					width: 100% !important;
+					width: 100%;
 				}
 			}
 		}
