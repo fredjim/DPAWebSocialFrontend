@@ -26,7 +26,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   institution!: Institution;
   authenticated: boolean = false;
   currentSlug: string = '';
-  isMobileMenuOpen = false;
   isMenuOpen = false;
   isLoading = false;
   formUser!: FormGroup;
@@ -164,14 +163,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   logout() {
     this.authService.logout();
-  }
-
-  toggleMobileMenu(): void {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
-  }
-
-  closeMobileMenu() {
-    this.isMobileMenuOpen = false;
   }
 
   private numbersOnlyValidator(): ValidatorFn {

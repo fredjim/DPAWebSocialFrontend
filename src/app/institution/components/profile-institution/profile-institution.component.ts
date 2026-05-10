@@ -25,7 +25,6 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   currentUser!: UserDetail;
   institution!: Institution;
   authenticated: boolean = false;
-  isMobileMenuOpen = false;
   isMenuOpen = false;
   imageFileCoverToCreate?: File;
   imageFileLogoToCreate?: File;
@@ -217,14 +216,6 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
 
   logout() {
     this.authService.logout();
-  }
-
-  toggleMobileMenu(): void {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
-  }
-
-  closeMobileMenu() {
-    this.isMobileMenuOpen = false;
   }
 
   private phoneValidator(): ValidatorFn {
