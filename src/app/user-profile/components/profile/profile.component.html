@@ -22,10 +22,7 @@
             <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
         }
 		
-        <div class="burger-menu" (click)="toggleMobileMenu()" (keypress)="toggleMobileMenu()">
-			<i class="material-icons">{{ isMobileMenuOpen ? "close" : "menu" }}</i>
-		</div>
-
+        <span class="back-home" title="Volver a inicio" [routerLink]="['/', currentSlug]"><i class="bi bi-arrow-left"></i></span>
     </div>
 
     @if (isMenuOpen) {
@@ -42,8 +39,6 @@
     </div>
     }
 </header>
-
-<app-navbar class="submenu" [class.open]="isMobileMenuOpen" (closeMenuHamburguer)="closeMobileMenu()"></app-navbar>
 
 <div class="section-container">
     

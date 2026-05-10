@@ -3,7 +3,7 @@ header {
 	display: flex;
 	justify-content: space-between;
 	margin: 0 15px;
-	padding: 15px 100px;
+	padding: 15px 50px 15px 100px;
 	width: inherit;
 	height: 80px;
 	border-bottom: 2px solid var(--blue-color);
@@ -24,6 +24,7 @@ header {
 
 	.user-profile {
 		display: flex;
+		gap: 1rem;
 
 		.user-image {
 			transition: transform 0.3s ease;
@@ -38,20 +39,17 @@ header {
 			}
 		}
 
-		.burger-menu {
-			display: none;
+		span.back-home {
+			display: flex;
+			align-items: center;
+			font-size: 30px;
+			color: var(--blue-color);
+			cursor: pointer;
 			width: 50px;
-			height: 50px;
-
-			.material-icons {
-				padding-top: 5px;
-				font-size: 40px;
-				font-weight: 100;
-				color: var(--blue-color);
-			}
+			transition: transform 0.3s ease;
 
 			&:hover {
-				cursor: pointer;
+				transform: scale(1.05);
 			}
 		}
 	}
@@ -91,9 +89,6 @@ header {
 
 }
 
-.submenu {
-	display: none;
-}
 
 .header-container {
 	margin: 0 auto;
@@ -308,12 +303,6 @@ footer {
 }
 
 @media screen and (max-width: 768px) {
-	.submenu {	
-		display: none;
-		&.open {
-			display: block;	
-		}
-	}
 
 	header {
 		margin: 0;
@@ -333,10 +322,6 @@ footer {
 
 		.user-profile {
 			gap: 15px;
-
-			.burger-menu {
-				display: block;
-			}
 		}
 
 	}
