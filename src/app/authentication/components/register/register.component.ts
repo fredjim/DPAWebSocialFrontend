@@ -21,6 +21,12 @@ export class RegisterComponent implements OnInit {
   public passwordMismatch: boolean = false;
   public isRegistering: boolean = false;
 
+  public readonly MAX_LENGTH_NAME = 50;
+  public readonly MAX_LENGTH_LASTNAME = 80;
+  public readonly MAX_LENGTH_EMAIL = 50;
+  public readonly MAX_LENGTH_PASSWORD = 16;
+  public readonly MIN_LENGTH_PASSWORD = 8;
+
   constructor(
     private readonly formBuilder: FormBuilder,
     private readonly authService: AuthService,
@@ -48,7 +54,7 @@ export class RegisterComponent implements OnInit {
       const errors: any = {};
       
       // Longitud
-      if (value.length < 8 || value.length > 16) {
+      if (value.length < this.MIN_LENGTH_PASSWORD || value.length > this.MAX_LENGTH_PASSWORD) {
         errors['passwordLength'] = true;
       }
       
@@ -79,9 +85,9 @@ export class RegisterComponent implements OnInit {
 
   private buildForm() {
     this.registerForm = this.formBuilder.group({
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), this.onlyLettersValidator()]],
-      lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80), this.onlyLettersValidator()]],
-      email: ['', [Validators.required, Validators.email, Validators.maxLength(50)]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(this.MAX_LENGTH_NAME), this.onlyLettersValidator()]],
+      lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(this.MAX_LENGTH_LASTNAME), this.onlyLettersValidator()]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(this.MAX_LENGTH_EMAIL)]],
       password: ['', [Validators.required, this.passwordValidator()]],
       repeat_password: ['', [Validators.required]]
     });

@@ -8,6 +8,19 @@
 		margin-bottom: 1rem;
 	}
 
+    .input-form.form-control.is-invalid {
+        border-color: var(--red-color) !important;
+        padding-right: 30px !important;
+        margin-bottom: 0;
+    }
+
+    .invalid-feedback {
+        color: var(--red-color);
+        display: block;
+        margin-top: 0;
+        margin-bottom: 5px;
+    }
+
     //Estilos botones
     .btn {
         --bs-btn-border-color: none;
