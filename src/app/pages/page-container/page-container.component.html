@@ -1,15 +1,17 @@
-<div class="container">
-	<div class="submenu-pages">
-		<div class="submenu-title">
-			<h2 *ngIf="currentNavItem">{{ currentNavItem.label }}</h2>
+<div class="root-container-sections">
+	<div class="container">
+		<div class="submenu-pages">
+			<div class="submenu-title">
+				<h2 *ngIf="currentNavItem">{{ currentNavItem.label }}</h2>
+			</div>
+			<app-navbar-information [currentNavItem]="currentNavItem"></app-navbar-information>
 		</div>
-		<app-navbar-information [currentNavItem]="currentNavItem"></app-navbar-information>
+	
+		<div class="main-container">
+			<router-outlet></router-outlet>
+		</div>
 	</div>
-
-	<div class="main-container">
-		<router-outlet></router-outlet>
-	</div>
+	<footer>
+		<p>Dirección de Planificación Académica. &copy; 2026 Todos los derechos reservados.</p>
+	</footer>
 </div>
-<footer>
-	<p>Dirección de Planificación Académica. &copy; 2025 Todos los derechos reservados.</p>
-</footer>
