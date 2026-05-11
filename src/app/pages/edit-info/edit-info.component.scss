@@ -229,6 +229,10 @@
 .btn.save {
 	background-color: var(--blue-color);
 	--bs-btn-border-color: none;
+
+	&:hover {
+		background-color: var(--primary-hover);
+	}
 }
 
 .btn.delete {
@@ -238,9 +242,7 @@
 		font-size: large;
 	}
 }
-.btn.cancel {
-	border-color: var(--blue-color);
-}
+
 // Estilos modal nuevo boton
 ::ng-deep .p-dialog-header {
     justify-content: center;

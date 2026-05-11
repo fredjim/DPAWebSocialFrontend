@@ -22,10 +22,7 @@
             <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
         }
 		
-        <div class="burger-menu" (click)="toggleMobileMenu()" (keypress)="toggleMobileMenu()">
-			<i class="material-icons">{{ isMobileMenuOpen ? "close" : "menu" }}</i>
-		</div>
-
+        <span class="back-home" title="Volver a inicio" [routerLink]="['/', currentSlug]"><i class="bi bi-arrow-left"></i></span>
     </div>
 
     @if (isMenuOpen) {
@@ -42,8 +39,6 @@
     </div>
     }
 </header>
-
-<app-navbar class="submenu" [class.open]="isMobileMenuOpen" (closeMenuHamburguer)="closeMobileMenu()"></app-navbar>
 
 <div class="section-container">
     
@@ -74,13 +69,16 @@
                 <label for="name">Nombre:</label>
                 <div class="input-wrapper">
                     <input type="text" pInputText class="form-control" id="name" formControlName="name" autocomplete="off"
-                        [class.is-invalid]="hasError('name', 'required') || hasError('name', 'maxlength')">
+                        [class.is-invalid]="hasError('name', 'required') || hasError('name', 'maxlength') || hasError('name', 'onlyLetters')">
                     <div class="error-messages">
                         <div class="invalid-feedback" *ngIf="hasError('name', 'required')">
                             El nombre es obligatorio
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('name', 'maxlength')">
                             El nombre no puede exceder los 50 caracteres
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('name', 'onlyLetters')">
+                            El nombre solo puede contener letras y espacios
                         </div>
                     </div>
                 </div>
@@ -90,13 +88,16 @@
                 <label for="lastName">Apellido:</label>
                 <div class="input-wrapper">
                     <input type="text" pInputText class="form-control" id="lastName" formControlName="lastName" autocomplete="off"
-                        [class.is-invalid]="hasError('lastName', 'required') || hasError('lastName', 'maxlength')">
+                        [class.is-invalid]="hasError('lastName', 'required') || hasError('lastName', 'maxlength') || hasError('lastName', 'onlyLetters')">
                     <div class="error-messages">
                         <div class="invalid-feedback" *ngIf="hasError('lastName', 'required')">
                             El apellido es obligatorio
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('lastName', 'maxlength')">
                             El apellido no puede exceder los 80 caracteres
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('lastName', 'onlyLetters')">
+                            El apellido solo puede contener letras y espacios
                         </div>
                     </div>
                 </div>
@@ -128,7 +129,7 @@
                     <button class="btn btn-primary save" type="submit" [disabled]="formUser.invalid">
                         Guardar
                     </button>
-                    <button class="btn btn-secondary cancel" type="button" [routerLink]="['/',currentSlug]">
+                    <button class="btn btn-secondary" type="button" [routerLink]="['/',currentSlug]">
                         Cancelar
                     </button>
                 }
@@ -137,7 +138,4 @@
     </div>
 </div>
 
-<footer>
-    <p>Dirección de Planificación Académica. &copy; 2025 Todos los derechos reservados.</p>
-</footer>
 <app-custom-toast #toast></app-custom-toast>

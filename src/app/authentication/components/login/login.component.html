@@ -47,14 +47,40 @@
                   <div *ngIf="!hasErrors('password', 'required') && correctCredentials && !credentialsAnotherInstitution" style="min-height: 25px;"></div>
                 </div>
               </div>
+
+            <!-- Aviso email no verificado -->
+            <div *ngIf="emailNotVerified" class="alert alert-warning py-2 mb-3" role="alert">
+              <i class="pi pi-envelope me-1"></i>
+              Debes verificar tu email antes de iniciar sesión. Revisa tu bandeja de entrada.
+            </div>
+
+            <!-- Link olvidé contraseña -->
+            <div class="text-end mb-3">
+              <a
+                href="javascript:void(0)"
+                class="text-decoration-none small"
+                data-bs-dismiss="modal"
+                (click)="openForgotPassword()"
+              >¿Olvidaste tu contraseña?</a>
+            </div>
+
             <div class="botones d-grid gap-md-5 gap-3 d-md-flex justify-content-md-center">
-              <button type="submit" class="btn btn-primary w-50 boton" [disabled]="isLoading">
-                Entrar
-                <span *ngIf="isLoading" class="spinner-border spinner-border-sm ms-2" aria-hidden="true"></span>
-              </button>
-              <button type="button" class="btn btn-primary w-50 boton" data-bs-dismiss="modal" (click)="loginReset()">
-                Cancelar
-              </button>
+              <ui-button
+                type="submit"
+                label="Entrar"
+                icon="pi pi-sign-in"
+                [loading]="isLoading"
+                [fullWidth]="true"
+              ></ui-button>
+              <ui-button
+                type="button"
+                label="Cancelar"
+                severity="secondary"
+                variant="outlined"
+                [fullWidth]="true"
+                bsDismiss="modal"
+                (clicked)="loginReset()"
+              ></ui-button>
             </div>
           </form>
         </div>
@@ -62,3 +88,6 @@
     </div>
   </div>
 </div>
+
+<!-- Dialog recuperar contraseña -->
+<app-forgot-password #forgotPasswordRef></app-forgot-password>

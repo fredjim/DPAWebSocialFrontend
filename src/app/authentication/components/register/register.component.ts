@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { NewUser } from '../../models/new-user';
 import { MessageService } from 'primeng/api';
 import { Modal } from 'bootstrap';
 import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-register',
@@ -13,6 +15,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   providers: [MessageService]
 })
 export class RegisterComponent implements OnInit {
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
+
   public registerForm!: FormGroup;
   public hide = true;
   public confirmHide = true;
@@ -21,10 +25,15 @@ export class RegisterComponent implements OnInit {
   public passwordMismatch: boolean = false;
   public isRegistering: boolean = false;
 
+  public readonly MAX_LENGTH_NAME = 50;
+  public readonly MAX_LENGTH_LASTNAME = 80;
+  public readonly MAX_LENGTH_EMAIL = 50;
+  public readonly MAX_LENGTH_PASSWORD = 16;
+  public readonly MIN_LENGTH_PASSWORD = 8;
+
   constructor(
     private readonly formBuilder: FormBuilder,
-    private readonly authService: AuthService,
-    private readonly messageService: MessageService
+    private readonly authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -48,7 +57,7 @@ export class RegisterComponent implements OnInit {
       const errors: any = {};
       
       // Longitud
-      if (value.length < 8 || value.length > 80) {
+      if (value.length < this.MIN_LENGTH_PASSWORD || value.length > this.MAX_LENGTH_PASSWORD) {
         errors['passwordLength'] = true;
       }
       
@@ -79,9 +88,9 @@ export class RegisterComponent implements OnInit {
 
   private buildForm() {
     this.registerForm = this.formBuilder.group({
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), this.onlyLettersValidator()]],
-      lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80), this.onlyLettersValidator()]],
-      email: ['', [Validators.required, Validators.email, Validators.maxLength(50)]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(this.MAX_LENGTH_NAME), this.onlyLettersValidator()]],
+      lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(this.MAX_LENGTH_LASTNAME), this.onlyLettersValidator()]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(this.MAX_LENGTH_EMAIL)]],
       password: ['', [Validators.required, this.passwordValidator()]],
       repeat_password: ['', [Validators.required]]
     });
@@ -96,54 +105,38 @@ export class RegisterComponent implements OnInit {
   }
 
   register() {
-    if (this.registerForm.valid && !this.passwordMismatch) {
-      const newUser: NewUser = this.registerForm.value;
+    this.registerForm.markAllAsTouched();
+    if (!this.registerForm.valid || this.passwordMismatch) return;
 
-      this.authService.register(newUser).subscribe({
+    const newUser: NewUser = this.registerForm.value;
+    this.isRegistering = true;
+
+    this.authService.register(newUser)
+      .pipe(finalize(() => this.isRegistering = false))
+      .subscribe({
         next: () => {
-          this.showLoading();
-          this.isRegistering = true;
-          setTimeout(() => {
-            this.hideLoading();
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Registro exitoso',
-              detail: 'El usuario ha sido registrado con éxito. Inicie sesión',
-              sticky: true
-            });
-          }, 2000);
-          setTimeout(() => {
-            this.isRegistering = false;
-            this.resetForm();
-            this.closeModalRegister();
-            this.showModalLogin();
-          }, 5000);
+          this.resetForm();
+          this.closeModalRegister();
+          this.toastRef.showSuccess(
+            'Te enviamos un email para verificar tu cuenta. Revisa tu bandeja de entrada antes de iniciar sesión.',
+            'Registro exitoso',
+            6000
+          );
         },
         error: (error: HttpErrorResponse) => {
-          this.isRegistering = false;
           console.error('Error al registrar', error);
 
-          const backendMessage = error?.error?.message || error?.error?.detail || 'Inténtelo más tarde.';
+          const backendMessage = error?.error?.message || error?.error?.detail || '';
 
-          if (backendMessage.includes("The user email is already registered")) {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error al registrar',
-              detail: 'El correo ya esta registrado.',
-              sticky: true
-            });
+          if (backendMessage.includes('The user email is already registered')) {
             const emailControl = this.registerForm.get('email');
             if (emailControl) {
               emailControl.setErrors({ backend: 'Este correo ya está registrado' });
               emailControl.markAsTouched();
             }
-          }else{
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error al registrar',
-              detail: 'Inténtelo más tarde.',
-              sticky: true
-            });
+            this.toastRef.showError('El correo ya está registrado.', 'Error al registrar', 5000);
+          } else {
+            this.toastRef.showError('Inténtelo más tarde.', 'Error al registrar', 5000);
           }
 
           if (error?.error?.errors) {
@@ -158,7 +151,6 @@ export class RegisterComponent implements OnInit {
           }
         }
       });
-    }
   }
 
   hasErrors(controlName: string, errorType: string) {
@@ -215,13 +207,5 @@ export class RegisterComponent implements OnInit {
     const modalLogin = document.getElementById('loginModal') as HTMLElement;
     const modal = new Modal(modalLogin);
     modal?.show();
-  }
-
-  showLoading() {
-    document.getElementById('loadingBackdrop')!.style.display = 'flex';
-  }
-
-  hideLoading() {
-    document.getElementById('loadingBackdrop')!.style.setProperty('display', 'none', 'important');
   }
 }

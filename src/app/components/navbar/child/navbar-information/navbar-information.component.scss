@@ -33,6 +33,9 @@ nav {
 		background-color: var(--blue-color);
 		font-weight: 500;
 		margin-right: 10px;
+		&:hover {
+			background-color: var(--primary-hover);
+		}
 	}
 }
 

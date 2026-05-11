@@ -7,7 +7,7 @@ import { Post } from '../../models/post';
 import { UserDetail } from '../../models/user-detail';
 import { Institution } from '../../models/institution';
 import { TenantService } from '../../../services/tenant.service';
-import { distinctUntilChanged, fromEvent, Subject, takeUntil, throttleTime } from 'rxjs';
+import { delay, distinctUntilChanged, fromEvent, Subject, takeUntil, throttleTime } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../comments/comments.component';
 
@@ -26,6 +26,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   loading = false;
   pageCounter = 0;
   showScrollButton = false;
+  hasMorePosts = true;
   private readonly scrollThreshold = 300;
   private readonly destroy$ = new Subject<void>();
   private readonly loadThreshold = 100; // Pixeles antes del final para cargar
@@ -55,18 +56,8 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
         this.openPostById(postId, initialImageIndex);
       }
     });
-    // Obtener una cantidad de posts
-    this.postService.getPagedPosts(this.pageCounter)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next:(data: Post[])=>{
-          this.posts = data;
-          this.pageCounter++;
-        },
-        error:(error) => {
-          console.error('Error al obtener los posts paginados', error);
-        }
-      });
+    // Cargar primera página, carga inicial
+    this.loadPosts(true);
 
     this.tenantService.getInstitution()
       .pipe(takeUntil(this.destroy$))
@@ -115,15 +106,16 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   }
 
   private checkForMorePosts(): void {
-    // Si ya está cargando, no hacer nada
-    if (this.loading) return;
+    // Si ya está cargando, no hay más posts, o estamos en carga inicial - no hacer nada
+    if (this.loading || !this.hasMorePosts) return;
     
     // Calcular posición actual
     const scrollPosition = window.innerHeight + window.scrollY;
-    const documentHeight = document.body.offsetHeight;
+    // Usar el elemento scrollable correcto
+    const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
     
     // Verificar si estamos cerca del final
-    if (scrollPosition >= documentHeight - this.loadThreshold) {
+    if (scrollPosition >= scrollHeight - this.loadThreshold) {
       this.loadPosts();
     }
   }
@@ -136,20 +128,49 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadPosts(): void {
-    if (this.loading) return;
+  loadPosts(reset: boolean = false): void {
+    // No cargar si ya está cargando o no hay más posts (excepto cuando se resetea)
+    if (this.loading || (!this.hasMorePosts && !reset)) return;
+    
     this.loading = true;
 
+    // Si es reset, reiniciamos pageCounter
+    if (reset) {
+      this.pageCounter = 0;
+      this.hasMorePosts = true;
+    }
+
     this.postService.getPagedPosts(this.pageCounter)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        // Pequeño delay para evitar múltiples llamadas consecutivas
+        delay(100)
+      )
       .subscribe({
         next: (data: Post[]) => {
-          this.posts = [...this.posts, ...data];
-          this.pageCounter++;
+          // VERIFICAR DUPLICADOS: Si hay posts nuevos, evitar duplicados por ID
+          if (reset) {
+            this.posts = data;
+          } else {
+            // Filtrar posts que ya existen para evitar duplicados
+            const existingUuids = new Set(this.posts.map(p => p.uuid));
+            const newPosts = data.filter(post => !existingUuids.has(post.uuid));
+            this.posts = [...this.posts, ...newPosts];
+          }
+          
+          // Verificar si hay más posts (si recibimos menos de 5, asumimos que es el final)
+          this.hasMorePosts = data.length === 5; // Asumiendo que size=5
+          
+          this.pageCounter = reset ? 1 : this.pageCounter + 1;
           this.loading = false;
         },
         error: (error) => {
-          console.log('Error al obtener los posts paginados', error)
+          console.error('Error al obtener los posts paginados', error);
+          this.loading = false;
+          // Deshabilitar más intentos si el error es 404 o similar
+          if (error.status === 404) {
+            this.hasMorePosts = false;
+          }
         }
       });
   }

@@ -34,10 +34,12 @@ export class FormSectionComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('firstInput') firstInput!: ElementRef<HTMLInputElement>;
 
   public isLoading = false;
+  public readonly MAX_LENGTH_NAME = 50;
+  public readonly MAX_LENGTH_PATH = 50;
 
   public formSection = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.maxLength(40), Validators.minLength(2)]),
-    path: new FormControl('', [Validators.required, Validators.maxLength(40), Validators.minLength(2)])
+    name: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LENGTH_NAME)]),
+    path: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LENGTH_PATH)])
   });
 
   ngOnInit(): void {
@@ -80,7 +82,7 @@ export class FormSectionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private createSection(): void {
-    if(!this.currentNavItem) return;
+    if(!this.currentNavItem || this.formSection.invalid) return;
 
     this.isLoading = true;
     const newSection: Omit<Section, 'uuid' | 'user_id' | 'articles'> = {
@@ -107,7 +109,7 @@ export class FormSectionComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private updateSection(): void {
-    if(!this.currentSection) return;
+    if(!this.currentSection || this.formSection.invalid) return;
 
     this.isLoading = true;
     const updatedSection: Section = {
@@ -245,5 +247,10 @@ export class FormSectionComponent implements OnInit, OnChanges, OnDestroy {
     }
     
     return path;
+  }
+
+  hasErrors(controlName: string, errorType: string) {
+    const control = this.formSection.get(controlName);
+    return control?.hasError(errorType) && control?.touched;
   }
 }

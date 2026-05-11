@@ -1,0 +1,51 @@
+.verify-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-ground, #f8f9fa);
+  padding: 1rem;
+}
+
+::ng-deep .verify-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+
+  .p-card-body {
+    padding: 2.5rem 2rem;
+  }
+}
+
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem 0;
+  gap: 1.25rem;
+}
+
+.state-icon {
+  font-size: 3.5rem;
+}
+
+.success-icon { color: #22c55e; }
+.error-icon   { color: #ef4444; }
+
+.state-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.state-message {
+  color: var(--text-color-secondary, #6c757d);
+  margin: 0;
+}
+
+.state-label {
+  color: var(--text-color-secondary, #6c757d);
+  margin: 0;
+}

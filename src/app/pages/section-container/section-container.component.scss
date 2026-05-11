@@ -171,7 +171,10 @@
 
 		.btn-primary.save {
 			background-color: var(--blue-color);
-			font-weight: 500;
+			
+			&:hover {
+				background-color: var(--primary-hover);
+			}
 		}
 	}
 
