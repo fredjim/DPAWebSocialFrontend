@@ -25,6 +25,12 @@ export class RegisterComponent implements OnInit {
   public passwordMismatch: boolean = false;
   public isRegistering: boolean = false;
 
+  public readonly MAX_LENGTH_NAME = 50;
+  public readonly MAX_LENGTH_LASTNAME = 80;
+  public readonly MAX_LENGTH_EMAIL = 50;
+  public readonly MAX_LENGTH_PASSWORD = 16;
+  public readonly MIN_LENGTH_PASSWORD = 8;
+
   constructor(
     private readonly formBuilder: FormBuilder,
     private readonly authService: AuthService
@@ -45,21 +51,48 @@ export class RegisterComponent implements OnInit {
   private passwordValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       const value = control.value;
+      
       if (!value) return null;
-      if (value.length < 8 || value.length > 20) {
-        return { 'passwordLength': true };
+      
+      const errors: any = {};
+      
+      // Longitud
+      if (value.length < this.MIN_LENGTH_PASSWORD || value.length > this.MAX_LENGTH_PASSWORD) {
+        errors['passwordLength'] = true;
       }
-      return null;
+      
+      // Al menos una minúscula
+      if (!/[a-z]/.test(value)) {
+        errors['missingLowercase'] = true;
+      }
+      
+      // Al menos una mayúscula
+      if (!/[A-Z]/.test(value)) {
+        errors['missingUppercase'] = true;
+      }
+      
+      // Al menos un número
+      if (!/\d/.test(value)) {
+        errors['missingNumber'] = true;
+      }
+      
+      // Al menos un carácter especial
+      const specialChars = /[!@#$%^&*()_+]/;
+      if (!specialChars.test(value)) {
+        errors['missingSpecialChar'] = true;
+      }
+      
+      return Object.keys(errors).length > 0 ? errors : null;
     };
   }
 
   private buildForm() {
     this.registerForm = this.formBuilder.group({
-      name: ['', [Validators.required, Validators.minLength(3), this.onlyLettersValidator()]],
-      lastName: ['', [Validators.required, Validators.minLength(3), this.onlyLettersValidator()]],
-      email: ['', [Validators.required, Validators.email]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(this.MAX_LENGTH_NAME), this.onlyLettersValidator()]],
+      lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(this.MAX_LENGTH_LASTNAME), this.onlyLettersValidator()]],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(this.MAX_LENGTH_EMAIL)]],
       password: ['', [Validators.required, this.passwordValidator()]],
-      repeat_password: ['', [Validators.required, this.passwordValidator()]]
+      repeat_password: ['', [Validators.required]]
     });
 
     this.registerForm.valueChanges.subscribe(() => this.checkPasswordMatch());
@@ -143,9 +176,7 @@ export class RegisterComponent implements OnInit {
   togglePasswordVisibility() {
     this.hide = !this.hide;
     this.inputType = this.hide ? 'password' : 'text';
-  }
-
-  toggleConfirmPasswordVisibility() {
+    // Para input confirm password tambien
     this.confirmHide = !this.confirmHide;
     this.confirmInputType = this.confirmHide ? 'password' : 'text';
   }

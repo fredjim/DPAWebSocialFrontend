@@ -81,7 +81,7 @@ header {
 			}
 		}
 		.dropdown-item:active {
-			background-color: #0D6EFD;
+			background-color: var(--clear-blue);
 			color: white !important;
 		}
 		.active {

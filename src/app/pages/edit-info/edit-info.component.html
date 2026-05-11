@@ -5,7 +5,7 @@
         <input #firstInput type="text" pInputText formControlName="title" class="input-title" placeholder="Título del artículo" />
 
         <!-- Editor de texto -->
-        <p-editor formControlName="text" [style]="{ height: 'auto' }" class="text-editor" placeholder="Texto del artículo">
+        <p-editor (onInit)="onEditorInit($event)" formControlName="text" [style]="{ height: 'auto' }" class="text-editor" [class.exceeded]="isExceeded" placeholder="Texto del artículo">
             <ng-template pTemplate="header">
                 <!-- Encabezados -->
                 <span class="ql-formats">
@@ -58,6 +58,12 @@
                 </span>
             </ng-template>
         </p-editor>
+        <div class="char-counter" [class.exceeded]="isExceeded">
+            <span *ngIf="isExceeded" class="error-message">
+            Has alcanzado el límite de caracteres
+            </span>
+            <span>{{ currentLength }}</span> / {{ maxLength }}
+        </div>
 
         <!-- Agregar documentos -->
         <div class="documents-section">
@@ -159,9 +165,9 @@
 
         
         <div class="d-flex gap-3 justify-content-center m-3" *ngIf="!isLoading">
-            <button type="submit" class="btn btn-primary save"><i class="bi bi-check"></i> Guardar</button>
+            <button type="submit" [disabled]="disableButtonSaveArticle" class="btn btn-primary save"><i class="bi bi-check"></i> Guardar</button>
             <button type="button" *ngIf="typeForm === 'edit'" class="btn btn-danger delete" (click)="deleteArticle()"><i class="bi bi-trash-fill"></i> Eliminar</button>
-            <button type="button" class="btn btn-outline-primary" (click)="closeEdit()"><i class="bi bi-x"></i> Cancelar</button>
+            <button type="button" class="btn btn-secondary" (click)="closeEdit()"><i class="bi bi-x"></i> Cancelar</button>
         </div>
         <!-- Spinner de carga -->
         <div *ngIf="isLoading" class="loading-overlay w-100 d-flex flex-column align-items-center">
@@ -190,7 +196,7 @@
             <button type="button" *ngIf="typeModalButton === 'edit'" class="btn btn-danger delete" (click)="deleteButtonInModal()" >
                 <i class="bi bi-trash-fill"></i> Eliminar
             </button>
-            <button type="button" class="btn btn-outline-primary" (click)="cancelModalNewButton()">
+            <button type="button" class="btn btn-secondary" (click)="cancelModalNewButton()">
                 <i class="bi bi-x"></i> Cancelar
             </button>
         </div>

@@ -18,8 +18,11 @@
 	--nav-width: 1020px;
 	--container-width: 1020px;
 
-	--blue-color: #003770;
-	--red-color: #E30613;
+	--blue-color: #003770; //primary
+	--primary-hover: #004c9e;
+	--clear-blue: #0D6EFD;
+	--red-color: #E30613; // delete
+	--secondary: #6c757d; // cancel o class: btn.secondary
 	--blue-color-25: rgba(0, 54, 112, 0.25);
 
 	--primary-font-family: "Montserrat", serif;
@@ -119,6 +122,7 @@ div.p-toast.p-component {
 	
 	&:hover {
 		background-color: #F2F2F2;
+		color: var(--primary-hover);
 	}
 }
 

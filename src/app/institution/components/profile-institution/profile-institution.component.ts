@@ -8,7 +8,7 @@ import { TenantService } from '../../../services/tenant.service';
 import { InstitutionService } from '../../services/institution.service';
 import { forkJoin, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../posts/models/uploaded-media';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-profile-institution',
@@ -25,7 +25,6 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   currentUser!: UserDetail;
   institution!: Institution;
   authenticated: boolean = false;
-  isMobileMenuOpen = false;
   isMenuOpen = false;
   imageFileCoverToCreate?: File;
   imageFileLogoToCreate?: File;
@@ -74,12 +73,12 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
 
   private initForm(): void {
     this.formInstitution = new FormGroup({
-      name: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]),
-      description: new FormControl(),
-      location: new FormControl(),
-      email: new FormControl('', [Validators.email]),
-      phone: new FormControl(),
-      url: new FormControl(),
+      name: new FormControl('', [Validators.required, Validators.maxLength(150)]),
+      description: new FormControl('', [Validators.required, Validators.maxLength(300)]),
+      location: new FormControl('', [Validators.required, Validators.maxLength(300)]),
+      email: new FormControl('', [Validators.required, Validators.email, Validators.maxLength(80)]),
+      phone: new FormControl('', [Validators.required, Validators.maxLength(20), this.phoneValidator()]),
+      url: new FormControl('', [Validators.required, Validators.maxLength(80), this.urlValidator()]),
     });
   }
 
@@ -219,11 +218,37 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
     this.authService.logout();
   }
 
-  toggleMobileMenu(): void {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  private phoneValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const value = control.value;
+      if (!value) return null;
+      
+      // Solo números, espacios y guiones
+      const phoneRegex = /^[\d\s\-+]+$/;
+      if (!phoneRegex.test(value)) {
+        return { 'invalidPhone': true };
+      }
+      return null;
+    };
   }
 
-  closeMobileMenu() {
-    this.isMobileMenuOpen = false;
+  private urlValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const value = control.value;
+      if (!value) return null;
+      
+      // URL válida (http, https, o sin protocolo)
+      const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+      if (!urlRegex.test(value)) {
+        return { 'invalidUrl': true };
+      }
+      return null;
+    };
+  }
+
+  hasError(controlName: string, errorName: string): boolean {
+    const control = this.formInstitution.get(controlName);
+    if (!control) return false;
+    return control.touched && control.hasError(errorName);
   }
 }

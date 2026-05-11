@@ -1,14 +1,29 @@
 <div class="form-section">
-    <form [formGroup]="formSection" (ngSubmit)="onSubmit()">
+    <form [formGroup]="formSection" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
     
         <!-- Nombre de seccion -->
-        <input #firstInput type="text" pInputText formControlName="name" class="input-form" placeholder="Nombre de sección"/>
-        <input type="text" pInputText formControlName="path" class="input-form" placeholder="Ruta de sección"/>
-    
+        <input #firstInput type="text" pInputText formControlName="name" 
+            class="input-form form-control" placeholder="Nombre de sección"
+            [class.is-invalid]="hasErrors('name', 'required') || hasErrors('name', 'maxlength')"/>
+        <div class="invalid-feedback" *ngIf="hasErrors('name', 'required')">
+            El nombre es obligatorio
+        </div>
+        <div class="invalid-feedback" *ngIf="hasErrors('name', 'maxlength')">
+            El nombre no puede exceder los {{ MAX_LENGTH_NAME }} caracteres
+        </div>
+        <input type="text" pInputText formControlName="path" 
+            class="input-form form-control" placeholder="Ruta de sección"
+            [class.is-invalid]="hasErrors('path', 'required') || hasErrors('path', 'maxlength')"/>
+        <div class="invalid-feedback" *ngIf="hasErrors('path', 'required')">
+            La ruta es obligatoria
+        </div>
+        <div class="invalid-feedback" *ngIf="hasErrors('path', 'maxlength')">
+            La ruta no puede exceder los {{ MAX_LENGTH_PATH }} caracteres
+        </div>
         <div class="d-flex flex-column gap-3 justify-content-center m-1" *ngIf="!isLoading">
-            <button type="submit" class="btn btn-primary save"><i class="bi bi-check"></i> Guardar</button>
+            <button type="submit" [disabled]="formSection.invalid" class="btn btn-primary save"><i class="bi bi-check"></i> Guardar</button>
             <button type="button" *ngIf="typeForm === 'edit'" class="btn btn-danger delete" (click)="deleteSection()"><i class="bi bi-trash-fill"></i> Eliminar</button>
-            <button type="button" class="btn btn-outline-primary" (click)="closeForm()"><i class="bi bi-x"></i> Cancelar</button>
+            <button type="button" class="btn btn-secondary" (click)="closeForm()"><i class="bi bi-x"></i> Cancelar</button>
         </div>
         <!-- Spinner de carga -->
         <div *ngIf="isLoading" class="loading-overlay w-100 d-flex flex-column align-items-center">
