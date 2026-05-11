@@ -1,0 +1,185 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// UiButton styles
+//
+// Architecture:
+//   @use 'sass:map'  — for map.get() at compile time
+//   @use 'tokens'    — project-wide SCSS design tokens (includePaths: src/styles)
+//   @each loops      — generate severity + size classes with zero duplication
+//
+// WHY @each instead of manually writing each severity:
+//   Adding a new severity = one line in _tokens.scss, zero CSS changes here.
+//   Renaming a color = one change in _tokens.scss, propagates everywhere.
+// ─────────────────────────────────────────────────────────────────────────────
+
+@use 'sass:map';
+@use 'tokens' as t;
+
+// ── Host ──────────────────────────────────────────────────────────────────────
+:host {
+  // Default: shrink-wrap around content.
+  // When [fullWidth] is set, TS @HostBinding changes this to 'block'.
+  display: inline-block;
+  // Prevent host element from receiving pointer events directly
+  // (the inner <button> handles them)
+  line-height: 0;
+}
+
+// ── Base button ───────────────────────────────────────────────────────────────
+.ui-btn {
+  // Reset browser defaults
+  appearance: none;
+  border: none;
+  background: none;
+
+  // Layout
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%; // fills host; host controls actual rendered width
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+
+  // Typography
+  font-family: t.$font-primary;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+
+  // Shape & motion
+  border-radius: t.$radius-sm;
+  transition:
+    background-color t.$transition,
+    border-color     t.$transition,
+    color            t.$transition,
+    transform        t.$transition,
+    box-shadow       t.$transition,
+    opacity          t.$transition;
+
+  // Focus ring — accessible, matches design system
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  // Hover lift — only for filled/outlined, not text
+  &:not(.ui-btn--text):hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
+
+  // ── Icon & label children ──────────────────────────────────────────────────
+  &__icon {
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  &__label {
+    line-height: 1.2;
+  }
+
+  // ── Size scale (generated from token map) ──────────────────────────────────
+  @each $name, $props in t.$btn-sizes {
+    &--#{$name} {
+      padding:   map.get($props, padding);
+      font-size: map.get($props, font);
+      gap:       map.get($props, gap);
+
+      .ui-btn__icon {
+        font-size: map.get($props, icon);
+      }
+    }
+  }
+
+  // ── Rounded modifier ──────────────────────────────────────────────────────
+  &--rounded {
+    border-radius: t.$radius-full;
+  }
+
+  // ── State modifiers ───────────────────────────────────────────────────────
+  &--disabled,
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none; // belt-and-suspenders with [disabled] attr
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  &--loading {
+    cursor: wait;
+  }
+
+  // ── Severity × Variant matrix (generated from token map) ──────────────────
+  //
+  // Generates classes like: .ui-btn--primary.ui-btn--filled
+  //                         .ui-btn--danger.ui-btn--outlined
+  //                         .ui-btn--success.ui-btn--text
+  //
+  @each $sev, $palette in t.$severities {
+    $base:  map.get($palette, base);
+    $hover: map.get($palette, hover);
+    $ring:  map.get($palette, ring);
+
+    // ·· Filled ··············································
+    &--#{$sev}.ui-btn--filled {
+      background: $base;
+      border: 1.5px solid $base;
+      color: #fff;
+
+      &:hover:not(:disabled) {
+        background:  $hover;
+        border-color: $hover;
+        box-shadow: 0 4px 14px $ring;
+      }
+
+      &:focus-visible {
+        outline-color: $base;
+        box-shadow: 0 0 0 4px $ring;
+      }
+    }
+
+    // ·· Outlined ············································
+    &--#{$sev}.ui-btn--outlined {
+      background: transparent;
+      border: 1.5px solid $base;
+      color: $base;
+
+      &:hover:not(:disabled) {
+        background:   $base;
+        color:        #fff;
+        box-shadow:   0 4px 14px $ring;
+      }
+
+      &:focus-visible {
+        outline-color: $base;
+        box-shadow: 0 0 0 4px $ring;
+      }
+    }
+
+    // ·· Text ················································
+    &--#{$sev}.ui-btn--text {
+      background:   transparent;
+      border:       1.5px solid transparent;
+      color:        $base;
+      // No lift on hover for text buttons — feels too heavy
+      &:hover:not(:disabled) {
+        transform:  none;
+        background: rgba($base, .08);
+      }
+
+      &:focus-visible {
+        outline-color: $base;
+      }
+    }
+  }
+
+  // ── Loading spinner animation ─────────────────────────────────────────────
+  &__spinner {
+    // PrimeNG's pi-spin class already handles rotation,
+    // but we ensure sizing is correct via the __icon class above
+  }
+}
