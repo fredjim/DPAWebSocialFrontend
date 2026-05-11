@@ -50,6 +50,7 @@ header {
 
 			&:hover {
 				transform: scale(1.05);
+				color: var(--primary-hover);
 			}
 		}
 	}
@@ -139,9 +140,17 @@ header {
                 right: 5px;
                 bottom: 5px;
                 background-color: white;
+				border: solid 2px var(--blue-color);
                 i {
                     color: var(--blue-color);
                 }
+
+				&:hover {
+					border: solid 2px var(--primary-hover);
+					i {
+						color: var(--primary-hover);
+					}
+				}
             }
 		}
 
@@ -168,6 +177,13 @@ header {
                 i {
                     color: var(--blue-color);
                 }
+
+				&:hover {
+					border: solid 2px var(--primary-hover);
+					i {
+						color: var(--primary-hover);
+					}
+				}
             }
 		}
 	}
@@ -282,10 +298,10 @@ header {
 .btn.save {
 	background-color: var(--blue-color);
 	--bs-btn-border-color: none;
-}
 
-.btn.cancel {
-	border-color: var(--blue-color);
+	&:hover {
+		background-color: var(--primary-hover);
+	}
 }
 
 @media screen and (max-width: 768px) {

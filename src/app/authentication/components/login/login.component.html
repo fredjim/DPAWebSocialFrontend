@@ -47,12 +47,12 @@
                   <div *ngIf="!hasErrors('password', 'required') && correctCredentials && !credentialsAnotherInstitution" style="min-height: 25px;"></div>
                 </div>
               </div>
-            <div class="botones d-grid gap-md-5 gap-3 d-md-flex justify-content-md-center">
-              <button type="submit" class="btn btn-primary w-50 boton" [disabled]="isLoading">
+            <div class="buttons d-grid gap-md-5 gap-3 d-md-flex justify-content-md-center">
+              <button type="submit" class="btn btn-primary w-50 save" [disabled]="isLoading">
                 Entrar
                 <span *ngIf="isLoading" class="spinner-border spinner-border-sm ms-2" aria-hidden="true"></span>
               </button>
-              <button type="button" class="btn btn-primary w-50 boton" data-bs-dismiss="modal" (click)="loginReset()">
+              <button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal" (click)="loginReset()">
                 Cancelar
               </button>
             </div>

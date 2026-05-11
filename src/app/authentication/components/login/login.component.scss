@@ -9,11 +9,14 @@
     padding: 2rem 1rem;
 }
 
-.btn {
+.btn.save {
     background-color: var(--blue-color);
+    &:hover {
+        background-color: var(--primary-hover);
+    }
 }
 
-.botones {
+.buttons {
     justify-items: center;
     padding: 1rem 0;
 }
