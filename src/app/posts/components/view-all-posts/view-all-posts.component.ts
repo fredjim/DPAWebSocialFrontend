@@ -51,7 +51,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
       .subscribe(params => {
       const postId = params.get('id');
       if (postId) {
-        const state = window.history.state as { initialImageIndex?: number };
+        const state = globalThis.history.state as { initialImageIndex?: number };
         const initialImageIndex = state?.initialImageIndex ?? 0;
         this.openPostById(postId, initialImageIndex);
       }
