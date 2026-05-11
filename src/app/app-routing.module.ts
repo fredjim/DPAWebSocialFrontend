@@ -13,10 +13,16 @@ import { PageContainerComponent } from './pages/page-container/page-container.co
 import { SectionResolver } from './resolvers/section.resolver';
 import { ProfileComponent } from './user-profile/components/profile/profile.component';
 import { ProfileInstitutionComponent } from './institution/components/profile-institution/profile-institution.component';
+import { VerifyEmailComponent } from './authentication/components/verify-email/verify-email.component';
+import { ResetPasswordComponent } from './authentication/components/reset-password/reset-password.component';
 import { authGuard } from './authentication/services/auth.guard';
 import { environment } from '../environments/environment';
 
 const routes: Routes = [
+  // Rutas públicas standalone (sin slug — llegan desde links de email)
+  { path: 'verify-email', component: VerifyEmailComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
+
   // Todas las rutas que requieren slug (públicas y protegidas)
   {
     path: ':slug',

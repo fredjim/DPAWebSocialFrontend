@@ -8,7 +8,7 @@ import { AuthService } from "../services/auth.service";
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   private isRefreshing = false;
-  private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  private readonly refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   // Verifica manualmente si el JWT ha expirado
   private isJwtExpired(token: string | null): boolean {
     if (!token) return true;
@@ -21,11 +21,11 @@ export class AuthInterceptor implements HttpInterceptor {
     }
   }
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private readonly authService: AuthService, private router: Router) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     // Excluir login, refresh y registro del manejo de token y refresh
-    const isAuthRequest = request.url.includes('/login') || request.url.includes('/refresh') || request.url.includes('/register') || request.url.includes('/logout');
+    const isAuthRequest = request.url.includes('/login') || request.url.includes('/refresh') || request.url.includes('/register') || request.url.includes('/logout') || request.url.includes('/verify-email') || request.url.includes('/forgot-password') || request.url.includes('/reset-password');
     if (isAuthRequest) {
       return next.handle(request);
     }

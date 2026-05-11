@@ -1,0 +1,29 @@
+<div class="verify-page">
+  <p-card styleClass="verify-card">
+
+    <ng-container [ngSwitch]="status">
+
+      <div *ngSwitchCase="'loading'" class="state-container">
+        <p-progressSpinner strokeWidth="4" animationDuration=".8s"></p-progressSpinner>
+        <p class="state-label">Verificando tu email...</p>
+      </div>
+
+      <div *ngSwitchCase="'success'" class="state-container">
+        <i class="pi pi-check-circle state-icon success-icon"></i>
+        <h2 class="state-title">¡Email verificado!</h2>
+        <p class="state-message">{{ message }}</p>
+        <ui-button label="Ir al inicio" icon="pi pi-home" (clicked)="goHome()" [fullWidth]="true"></ui-button>
+      </div>
+
+      <div *ngSwitchCase="'error'" class="state-container">
+        <i class="pi pi-times-circle state-icon error-icon"></i>
+        <h2 class="state-title">Error de verificación</h2>
+        <p class="state-message">{{ message }}</p>
+        <ui-button label="Ir al inicio" icon="pi pi-home" severity="secondary" variant="outlined" (clicked)="goHome()"
+          [fullWidth]="true"></ui-button>
+      </div>
+
+    </ng-container>
+
+  </p-card>
+</div>
