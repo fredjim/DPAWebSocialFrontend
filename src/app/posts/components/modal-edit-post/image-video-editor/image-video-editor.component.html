@@ -16,11 +16,10 @@
     <span class="visually-hidden">Cargando...</span>
   </div>
 
-  <!-- Preview de imagenes videos del post -->
+  <!-- Preview de imagenes videos DEL POST -->
   <div class="images-videos" *ngIf="showPreviewMedia && !isLoadingMedia" [ngClass]="getGridClass()">
     <!-- Iterar imagenes y videos del post existente-->
     <ng-container *ngFor="let media of listFileMediaPost; let i = index"> 
-      <!-- Mostrar las primeras 4 imágenes o videos directamente -->
       <div class="media-container">
         <!-- Botón para eliminar este medio -->
         <button type="button" class="btn-delete-media" aria-label="Eliminar" (click)="deleteExistingMedia(i)">
@@ -39,43 +38,29 @@
       </div>
     </ng-container>
 
-    <!-- Iterar imagenes y videos añadidos -->
+    <!-- Iterar imagenes y videos AGREGADOS (tipo File) -->
     <ng-container *ngFor="let media of mediaListPreviewAdded; let i = index"> 
-      <!-- Calcular índice absoluto para determinar posición en el grid -->
-      <ng-container *ngIf="shouldShowDirectly(i + listFileMediaPost.length)">
-        <!-- Contenedor para imagen/video con botón de eliminar -->
-        <div class="media-container">
-          <!-- Botón para eliminar este medio -->
-          <button type="button" class="btn-delete-media" aria-label="Eliminar" (click)="deleteNewMedia(i)">
-            <i class="bi bi-x"></i>
-          </button>
-          
-          <!-- Mostrar <img> si es una imagen -->
-          <img *ngIf="isImage(media.type); else mostrarVideoNuevo" [src]="media.url" alt="post" [ngClass]="{'three': getAmountMedia() == 3 && i + listFileMediaPost.length === 0}">
-          
-          <!-- Mostrar <video> si no es una imagen -->
-          <ng-template #mostrarVideoNuevo>
-            <video aria-labelledby="video-description" *ngIf="media.url" [src]="media.url" controls [ngClass]="{'three': getAmountMedia() == 3 && i + listFileMediaPost.length === 0}">
-              <track kind="captions" src="" default>
-            </video>
-          </ng-template>
-        </div>
-      </ng-container>
-      
-      <!-- Quinta imagen/video: Con superposición si hay más media -->
-      <div *ngIf="shouldShowWithOverlay(i + listFileMediaPost.length)" class="more">
-        <img *ngIf="isImage(media.type); else mostrarVideoNuevo" [src]="media.url" alt="post">
+      <!-- Contenedor para imagen/video con botón de eliminar -->
+      <div class="media-container">
+        <!-- Botón para eliminar esta media -->
+        <button type="button" class="btn-delete-media" aria-label="Eliminar" (click)="deleteNewMedia(i)">
+          <i class="bi bi-x"></i>
+        </button>
+        
+        <!-- Mostrar <img> si es una imagen -->
+        <img *ngIf="isImage(media.type); else mostrarVideoNuevo" [src]="media.url" alt="post" [ngClass]="{'three': getAmountMedia() == 3 && i + listFileMediaPost.length === 0}">
+        
+        <!-- Mostrar <video> si no es una imagen -->
         <ng-template #mostrarVideoNuevo>
-          <video [src]="media.url" controls aria-labelledby="video-description">
+          <video aria-labelledby="video-description" *ngIf="media.url" [src]="media.url" controls [ngClass]="{'three': getAmountMedia() == 3 && i + listFileMediaPost.length === 0}">
             <track kind="captions" src="" default>
           </video>
         </ng-template>
-        <div class="overlay">+{{ getAmountMedia() - 4 }}</div>
       </div>
     </ng-container>
     
     <!-- Elemento visual para añadir más imágenes/videos integrado en el grid -->
-    <div class="media-container add-more-tile" (click)="openInputFileMedia($event)" (keypress)="openInputFileMedia($event)">
+    <div class="media-container add-more-file" (click)="openInputFileMedia($event)" (keypress)="openInputFileMedia($event)">
       <div class="add-more-content">
         <i class="bi bi-plus-lg"></i>
       </div>

@@ -18,10 +18,10 @@
   <div class="images-videos" *ngIf="showPreviewMedia && !isLoadingMedia" [ngClass]="getGridClass()">
     <!-- Iterar imagenes y videos -->
     <ng-container *ngFor="let media of mediaListPreview; let i = index"> 
-      <!-- Mostrar las primeras 4 imágenes o videos directamente -->
+
       <!-- Contenedor para imagen/video con botón de eliminar -->
       <div class="media-container">
-        <!-- Botón para eliminar este medio -->
+        <!-- Botón para eliminar esta media -->
         <button type="button" class="btn-delete-media" aria-label="Eliminar" (click)="deletePreviewMedia(i)">
           <i class="bi bi-x"></i>
         </button>
@@ -39,7 +39,7 @@
     </ng-container>
     
     <!-- Elemento visual para añadir más imágenes/videos integrado en el grid -->
-    <div class="media-container add-more-tile" (click)="openInputFileMedia($event)" (keypress)="openInputFileMedia($event)">
+    <div class="media-container add-more-file" (click)="openInputFileMedia($event)" (keypress)="openInputFileMedia($event)">
       <div class="add-more-content">
         <i class="bi bi-plus-lg"></i>
       </div>

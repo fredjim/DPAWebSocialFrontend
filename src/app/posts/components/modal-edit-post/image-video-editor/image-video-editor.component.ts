@@ -242,16 +242,6 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
       }
     }
   }
-
-  // Determinar si debe mostrar directamente (primeras 3 posiciones o exactamente 4 elementos)
-  shouldShowDirectly(absoluteIndex: number): boolean {
-    return absoluteIndex < 3 || this.getAmountMedia() === 4;
-  }
-
-  // Determinar si debe mostrar con overlay (posición 3 y hay más de 4 elementos)
-  shouldShowWithOverlay(absoluteIndex: number): boolean {
-    return absoluteIndex === 3 && this.getAmountMedia() > 4;
-  }
   
   private cleanUpMediaPreviews(): void {
     for(const media of this.mediaListPreviewAdded){
