@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule } from 'primeng/dropdown';
@@ -18,15 +19,19 @@ import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+
+// Shared components
 import { CustomTableComponent } from './components/custom-table/custom-table.component';
 import { InstitutionAvatarComponent } from './components/institution-avatar/institution-avatar.component';
 import { CustomToastComponent } from './components/custom-toast/custom-toast.component';
+import { UiButtonComponent } from './components/ui-button/ui-button.component';
 
 @NgModule({
   declarations: [
     CustomTableComponent,
     InstitutionAvatarComponent,
-    CustomToastComponent
+    CustomToastComponent,
+    UiButtonComponent
   ],
   imports: [
     CommonModule,
@@ -34,6 +39,7 @@ import { CustomToastComponent } from './components/custom-toast/custom-toast.com
     TableModule,
     InputTextModule,
     ButtonModule,
+    RippleModule,
     TooltipModule,
     MultiSelectModule,
     DropdownModule,
@@ -53,6 +59,7 @@ import { CustomToastComponent } from './components/custom-toast/custom-toast.com
     TableModule,
     InputTextModule,
     ButtonModule,
+    RippleModule,
     TooltipModule,
     MultiSelectModule,
     DropdownModule,
@@ -65,6 +72,8 @@ import { CustomToastComponent } from './components/custom-toast/custom-toast.com
     ProgressSpinnerModule,
     InputGroupModule,
     InputGroupAddonModule,
+    // Design-system components
+    UiButtonComponent,
     CustomTableComponent,
     InstitutionAvatarComponent,
     CustomToastComponent

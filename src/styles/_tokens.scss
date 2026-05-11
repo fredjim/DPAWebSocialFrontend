@@ -1,0 +1,59 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Design Tokens — SCSS layer
+//
+// WHY this file exists:
+//   CSS custom properties (defined in :root) give us runtime theming.
+//   SCSS variables & maps give us compile-time power: loops, calculations,
+//   conditionals, @each generators.  This file bridges both worlds:
+//   define values once here, generate CSS vars + utility classes from them.
+//
+// HOW to use in a component:
+//   @use 'sass:map';
+//   @use 'tokens' as t;
+//   color: map.get(map.get(t.$severities, primary), base);
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Typography ────────────────────────────────────────────────────────────────
+$font-primary:   "Montserrat", sans-serif;
+$font-secondary: "Roboto", sans-serif;
+
+// ── Motion ────────────────────────────────────────────────────────────────────
+$transition:       200ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow:  350ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-fast:  100ms cubic-bezier(0.4, 0, 0.2, 1);
+
+// ── Radius ────────────────────────────────────────────────────────────────────
+$radius-xs:   4px;
+$radius-sm:   8px;
+$radius-md:   12px;
+$radius-lg:   16px;
+$radius-full: 9999px;
+
+// ── Surfaces ──────────────────────────────────────────────────────────────────
+$surface-ground:  #f8fafc;
+$surface-raised:  #ffffff;
+$border-color:    #e2e8f0;
+$border-subtle:   #f1f5f9;
+
+// ── Text ──────────────────────────────────────────────────────────────────────
+$text-primary:   #0f172a;
+$text-secondary: #64748b;
+$text-muted:     #94a3b8;
+
+// ── Severity palette ──────────────────────────────────────────────────────────
+// Each entry: base color, hover color, focus ring rgba
+$severities: (
+  primary:   (base: #4f46e5, hover: #4338ca, ring: rgba(79,  70, 229, .18)),
+  secondary: (base: #64748b, hover: #475569, ring: rgba(100,116, 139, .18)),
+  success:   (base: #10b981, hover: #059669, ring: rgba(16,  185, 129, .18)),
+  danger:    (base: #ef4444, hover: #dc2626, ring: rgba(239, 68,  68,  .18)),
+  warning:   (base: #f59e0b, hover: #d97706, ring: rgba(245,158,  11,  .18)),
+  info:      (base: #3b82f6, hover: #2563eb, ring: rgba(59, 130, 246,  .18)),
+);
+
+// ── Button size scale ─────────────────────────────────────────────────────────
+$btn-sizes: (
+  sm: (padding: .375rem .85rem, font: .8125rem, icon: .8rem,   gap: .35rem),
+  md: (padding: .58rem  1.25rem,font: .875rem,  icon: .875rem, gap: .45rem),
+  lg: (padding: .75rem  1.6rem, font: 1rem,     icon: 1rem,    gap: .5rem),
+);

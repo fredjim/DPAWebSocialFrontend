@@ -1,0 +1,37 @@
+<!--
+  Native <button> + pRipple directive.
+
+  WHY not <p-button>:
+    Using the directive form gives us:
+    - Full DOM ownership  → predictable styling, no ::ng-deep wars
+    - ng-content support → rich label projection (chips, badges, icons)
+    - Zero markup from PrimeNG → we control every span and class
+
+  Structure:
+    [spinner]  visible only when @loading=true
+    [icon]     visible only when @icon is set AND NOT loading
+    [label]    visible only when @label Input is provided
+    [content]  ng-content slot — always rendered (empty if nothing projected)
+-->
+<button
+  class="ui-btn"
+  [ngClass]="cssClasses"
+  [type]="type"
+  [disabled]="isDisabled"
+  [attr.aria-busy]="loading || null"
+  [attr.data-bs-dismiss]="bsDismiss || null"
+  pRipple
+  (click)="handleClick($event)"
+>
+  <!-- Loading spinner — replaces icon when active -->
+  <i *ngIf="loading" class="ui-btn__icon ui-btn__spinner pi pi-spin pi-spinner"></i>
+
+  <!-- PrimeIcons icon — hidden during loading -->
+  <i *ngIf="icon && !loading" class="ui-btn__icon" [ngClass]="icon"></i>
+
+  <!-- Text label via @Input -->
+  <span *ngIf="label" class="ui-btn__label">{{ label }}</span>
+
+  <!-- Content projection for rich markup (badges, custom layout, etc.) -->
+  <ng-content></ng-content>
+</button>
