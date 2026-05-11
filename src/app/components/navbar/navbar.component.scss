@@ -45,6 +45,10 @@ nav {
 				top: -2px;
 				right: 0;
 				color: var(--blue-color);
+
+				&:hover {
+					color: var(--primary-hover);
+				}
 			}
 		}
 	}
@@ -64,6 +68,9 @@ nav {
         background-color: var(--blue-color);
         --bs-btn-border-color: none;
 		font-size: 12px;
+		&:hover {
+			background-color: var(--primary-hover);
+		}
     }
 }
 

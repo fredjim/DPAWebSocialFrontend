@@ -36,17 +36,16 @@
   z-index: 10;
 }
 
-.btn {
-  background-color: #003770;
-}
+.btn.save {
+  background-color: var(--blue-color);
 
-.botones {
-  justify-items: center;
-  padding: 1rem 0;
+  &:hover {
+    background-color: var(--primary-hover);
+  }
 }
 
 .form-control {
-  border: 1px solid #003770 !important; 
+  border: 1px solid var(--blue-color) !important; 
 }
 
 .input-password {
@@ -106,9 +105,6 @@ input[type="password"]::-moz-textfield-decoration {
 }
 
 @media (max-width: 576px) {
-  .botones {
-    min-width: 100%;
-  }
 
   .input-password > .input-eye > input {
     padding-right: 30px;
