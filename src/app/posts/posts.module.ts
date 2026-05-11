@@ -34,10 +34,6 @@ import { ReplyListComponent } from './components/comments/reply-list/reply-list.
 import { ReplyItemComponent } from './components/comments/reply-item/reply-item.component';
 import { CommentInputComponent } from './components/comments/comment-input/comment-input.component';
 import { ModalListReactionsRepliesComponent } from './components/comments/modal-list-reactions-replies/modal-list-reactions-replies.component';
-import { ViewAllPostsConveniosComponent } from './components/view-all-posts-convenios/view-all-posts-convenios.component';
-import { ViewAllPostsProyectosComponent } from './components/view-all-posts-proyectos/view-all-posts-proyectos.component';
-import { ViewAllPostsBecasComponent } from './components/view-all-posts-becas/view-all-posts-becas.component';
-import { ViewAllPostsCudieComponent } from './components/view-all-posts-cudie/view-all-posts-cudie.component';
 import { AppRoutingModule } from "../app-routing.module";
 import { SharedModule } from '../shared/shared.module';
 
@@ -70,10 +66,6 @@ import { SharedModule } from '../shared/shared.module';
     ReplyItemComponent,
     CommentInputComponent,
     ModalListReactionsRepliesComponent,
-    ViewAllPostsConveniosComponent,
-    ViewAllPostsProyectosComponent,
-    ViewAllPostsBecasComponent,
-    ViewAllPostsCudieComponent,
   ],
   imports: [
     CommonModule,
