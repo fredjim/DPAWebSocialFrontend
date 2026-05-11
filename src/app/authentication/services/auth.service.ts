@@ -52,6 +52,18 @@ export class AuthService {
     return this.http.post<{ message: string }>(this.ROOT_URL + '/register', newUser);
   }
 
+  verifyEmail(token: string) {
+    return this.http.get<{ message: string }>(`${this.ROOT_URL}/verify-email`, { params: { token } });
+  }
+
+  forgotPassword(email: string) {
+    return this.http.post<{ message: string }>(`${this.ROOT_URL}/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, newPassword: string) {
+    return this.http.post<{ message: string }>(`${this.ROOT_URL}/reset-password`, { token, newPassword });
+  }
+
   getToken() {
     return localStorage.getItem('token');
   }
