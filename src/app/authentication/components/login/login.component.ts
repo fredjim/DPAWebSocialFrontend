@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { finalize } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
+import { ForgotPasswordComponent } from '../forgot-password/forgot-password.component';
 
 @Component({
   selector: 'app-login',
@@ -18,8 +19,11 @@ export class LoginComponent implements OnInit {
   public errorMessage!: string;
   @ViewChild('userFocus', { static: true })
   public usernameField!: ElementRef;
+  @ViewChild('forgotPasswordRef')
+  public forgotPasswordComp!: ForgotPasswordComponent;
   public correctCredentials: boolean = true;
   public credentialsAnotherInstitution = false;
+  public emailNotVerified = false;
   public isLoggedIn = false;
   public isLoading = false;
 
@@ -57,8 +61,17 @@ export class LoginComponent implements OnInit {
           globalThis.location.reload();
         },
         error: (error: HttpErrorResponse) => {
-          console.log('Error al iniciar sesión',error);
-          if(error.status === 400 && error.error.message.includes('El usuario no pertenece a esta institución.')){
+          console.log('Error al iniciar sesión', error);
+          const msg: string = error?.error?.message ?? '';
+          if (msg === 'Debes verificar tu email antes de iniciar sesión.') {
+            this.emailNotVerified = true;
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Email no verificado',
+              detail: 'Revisa tu bandeja de entrada y verifica tu email para poder iniciar sesión.',
+              sticky: true
+            });
+          } else if (error.status === 400 && msg.includes('El usuario no pertenece a esta institución.')) {
             this.credentialsAnotherInstitution = true;
             this.messageService.add({
               severity: 'error',
@@ -66,7 +79,7 @@ export class LoginComponent implements OnInit {
               detail: 'El usuario no pertenece a esta institución',
               sticky: true
             });
-          }else if(error.status === 401){
+          } else if (error.status === 401) {
             this.correctCredentials = false;
           }
         }
@@ -85,9 +98,14 @@ export class LoginComponent implements OnInit {
   }
 
   loginReset(){
-    this.loginForm.reset()
+    this.loginForm.reset();
     this.correctCredentials = true;
     this.credentialsAnotherInstitution = false;
+    this.emailNotVerified = false;
+  }
+
+  openForgotPassword(): void {
+    this.forgotPasswordComp?.show();
   }
 
 }

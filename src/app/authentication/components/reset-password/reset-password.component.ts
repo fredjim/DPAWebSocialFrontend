@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../../environments/environment';
+import { finalize } from 'rxjs';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-reset-password',
@@ -12,6 +14,8 @@ import { environment } from '../../../../environments/environment';
   providers: [MessageService]
 })
 export class ResetPasswordComponent implements OnInit {
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
+
   form!: FormGroup;
   token = '';
   isLoading = false;
@@ -20,8 +24,7 @@ export class ResetPasswordComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly authService: AuthService,
-    private readonly messageService: MessageService
+    private readonly authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -61,27 +64,26 @@ export class ResetPasswordComponent implements OnInit {
     if (this.form.invalid || !this.token) return;
 
     this.isLoading = true;
-    this.authService.resetPassword(this.token, this.form.value.newPassword).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Contraseña actualizada',
-          detail: 'Tu contraseña fue actualizada correctamente. Inicia sesión.',
-          life: 3500
-        });
-        setTimeout(() => this.router.navigate(['/', environment.DEFAULT_TENANT_SLUG]), 3500);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: err?.error?.message || 'Ha ocurrido un error. Inténtalo de nuevo.',
-          sticky: true
-        });
-      }
-    });
+
+    this.authService.resetPassword(this.token, this.form.value.newPassword)
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: () => {
+          this.toastRef.showSuccess(
+            'Tu contraseña fue actualizada correctamente. Ya puedes iniciar sesión.',
+            'Contraseña actualizada',
+            4000
+          );
+          setTimeout(() => this.router.navigate(['/', environment.DEFAULT_TENANT_SLUG]), 4000);
+        },
+        error: (err) => {
+          this.toastRef.showError(
+            err?.error?.message || 'Ha ocurrido un error. Inténtalo de nuevo.',
+            'Error al actualizar',
+            5000
+          );
+        }
+      });
   }
 
   goHome(): void {
