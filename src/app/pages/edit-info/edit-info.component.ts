@@ -1,10 +1,11 @@
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Article } from '../models/article';
 import { InformationService } from '../services/information.service';
-import { MessageService } from 'primeng/api';
+import { CustomToastComponent } from '../../shared/components/custom-toast/custom-toast.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { catchError, debounceTime, forkJoin, from, fromEvent, map, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { PostService } from '../../posts/services/post.service';
+import { UploadedMedia } from '../../posts/models/uploaded-media';
 import { MediaArticle } from '../models/media-article';
 import { Link } from '../models/link';
 import imageCompression from 'browser-image-compression';
@@ -17,7 +18,6 @@ import { CreateUpdateArticle } from '../models/create-update-article';
 })
 export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   private initTimeout?: ReturnType<typeof setTimeout>;
-  private readonly messageService = inject(MessageService);
   private readonly postService = inject(PostService);
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() currentArticle!: Article | undefined;
@@ -31,6 +31,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('fileInputImg') fileInputImage!: ElementRef;
   @ViewChild('firstInput') firstInput!: ElementRef<HTMLInputElement>;
   @ViewChild('fileInputDocument') fileInputDoc!: ElementRef;
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
 
   public imgsPreview: {name: string, type: string, url: string}[] = [];
   public imagesOfArticle: MediaArticle[] = []; // imagenes del articulo actual para renderizar
@@ -128,11 +129,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   public onSubmit(): void {
     // Validar límite (aunque botón esté deshabilitado)
     if (this.isExceeded) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error de validación',
-        detail: `El texto excede el límite de ${this.maxLength} caracteres. Actual: ${this.currentLength}`
-      });
+      this.toastRef.showError(`El texto excede el límite de ${this.maxLength} caracteres. Actual: ${this.currentLength}`, 'Error de validación');
       return; 
     }
 
@@ -167,7 +164,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
             });
             return this.postService.uploadImages(formData);
           }),
-          map(uploadResponse => 
+          map((uploadResponse: UploadedMedia[]) =>
             uploadResponse.map((media, index) => ({
               number: index + 1,
               type: media.mimeType,
@@ -225,17 +222,12 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe({
       next: (articleCreated) => {
         this.isLoading = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Exitoso',
-          detail: 'Artículo creado exitosamente'
-        });
         this.onCreateArticle.emit(articleCreated);
         this.closeEdit();
       },
       error: (error) => {
         this.isLoading = false;
-        
+
         // Mensaje de error específico
         let errorDetail = 'Error al crear artículo';
         if (error.message === 'IMAGE_UPLOAD_FAILED') {
@@ -243,14 +235,9 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
         } else if (error.message === 'DOC_UPLOAD_FAILED') {
           errorDetail = 'Error al subir los documentos';
         }
-        
+
         console.error('Error al crear artículo:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: errorDetail
-        });
-        this.closeEdit();
+        this.toastRef.showError(errorDetail, 'Error');
       }
     });
   }
@@ -269,15 +256,13 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     this.informationService.createArticle(newArticle).subscribe({
       next: (created) => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Artículo creado exitosamente' });
         this.onCreateArticle.emit(created);
         this.closeEdit();
       },
       error: (err) => {
         this.isLoading = false;
         console.log('Error al crear articulo', err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear artículo' });
-        this.closeEdit();
+        this.toastRef.showError('Error al crear artículo', 'Error');
       }
     })
   }
@@ -350,7 +335,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
             });
             return this.postService.uploadImages(formData);
           }),
-          map(uploadResponse => 
+          map((uploadResponse: UploadedMedia[]) =>
             uploadResponse.map((media, index) => ({
               number: index + 1,
               file_name: media.name,
@@ -409,23 +394,13 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe({
       next: (articleUpdatedResult) => {
         this.isLoading = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Exitoso',
-          detail: 'Artículo editado exitosamente'
-        });
         this.onEditedArticle.emit(articleUpdatedResult);
         this.closeEdit();
       },
       error: (error) => {
         this.isLoading = false;
         console.error('Error al actualizar artículo:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Error al editar artículo'
-        });
-        this.closeEdit();
+        this.toastRef.showError('Error al editar artículo', 'Error');
       }
     });
   }
@@ -445,15 +420,13 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     this.informationService.updateArticle(this.currentArticle.uuid, articleEdited).subscribe({
       next: (edited) => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo editado exitosamente' });
         this.onEditedArticle.emit(edited);
         this.closeEdit();
       },
       error: (err) => {
         this.isLoading = false;
         console.log('Error al editar articulo sin nuevas imagenes', err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al editar artículo' });
-        this.closeEdit();
+        this.toastRef.showError('Error al editar artículo', 'Error');
       }
     })
   }
@@ -501,15 +474,13 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     this.informationService.deleteArticle(this.currentArticle.uuid).subscribe({
       next: () => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo eliminado exitosamente' });
         this.onDeletedArticle.emit(this.currentArticle);
         this.onCloseEdit.emit();
         this.currentArticle = undefined;
       },
       error: () => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al eliminar artículo' });
-        this.onCloseEdit.emit();
+        this.toastRef.showError('Error al eliminar artículo', 'Error');
       }
     });
   }
