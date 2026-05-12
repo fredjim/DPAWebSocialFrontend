@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InformationService } from '../services/information.service';
 import { Section } from '../models/section';
@@ -14,6 +14,7 @@ import { Institution } from '../../posts/models/institution';
 import { Link } from '../models/link';
 import { MediaArticle } from '../models/media-article';
 import { NavItem } from '../models/nav-item';
+import { CustomToastComponent } from '../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-section-container',
@@ -48,6 +49,8 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
   public typeImages = ['image', 'image/webp', 'image/jpg', 'image/jpeg', 'image/png'];
   public typeDocs = ['document', 'application/pdf'];
   public currentNavItemPath!: string | null;
+
+  @ViewChild('sectionToastRef') private readonly sectionToastRef!: CustomToastComponent;
 
   ngOnInit() {
     this.isAuthenticated = this.authService.isAuthenticated();
@@ -149,14 +152,17 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
 
   public onUpdateArticle(updatedArticle: Article): void {
     this.articles = this.articles.map(art => art.uuid === updatedArticle.uuid ? updatedArticle : art);
+    this.sectionToastRef.showSuccess('Artículo editado exitosamente', 'Exitoso');
   }
 
   public onDeleteArticle(deletedArticle: Article): void {
     this.articles = this.articles.filter(art => art.uuid !== deletedArticle.uuid);
+    this.sectionToastRef.showSuccess('Artículo eliminado exitosamente', 'Exitoso');
   }
 
   public onCreateArticle(createdArticle: Article): void {
     this.articles.push(createdArticle);
+    this.sectionToastRef.showSuccess('Artículo creado exitosamente', 'Exitoso');
   }
 
   onEditComponentReady() {
