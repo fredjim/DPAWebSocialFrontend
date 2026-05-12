@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, signal, WritableSignal } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal, ViewChild, WritableSignal } from '@angular/core';
 import { Subject, takeUntil, concatMap } from 'rxjs';
 import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
@@ -13,7 +13,7 @@ import { Modal } from 'bootstrap';
 import { UserDetail } from '../../models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
 import imageCompression from 'browser-image-compression';
-import { MessageService } from 'primeng/api';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-modal-edit-post',
@@ -22,7 +22,7 @@ import { MessageService } from 'primeng/api';
 })
 export class ModalEditPostComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
-  private readonly messageService = inject(MessageService);
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
 
   @Input({ required: true }) institution!: Institution;
   @Input({ required: true }) postToEdit!: Post;
@@ -355,11 +355,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
             globalThis.location.reload();
           },
           error: (error) => {
-            this.messageService.add({
-              severity: 'error', 
-              summary: 'Error', 
-              detail: 'Error al actualizar publicación' 
-            });
+            this.toastRef.showError('Error al actualizar publicación', 'Error');
             console.log('Error al actualizar el post con contenido media (imagenes y/o videos)', error)
           }
         })
@@ -390,11 +386,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
             globalThis.location.reload();
           },
           error: (error) => {
-            this.messageService.add({
-              severity: 'error', 
-              summary: 'Error', 
-              detail: 'Error al actualizar publicación' 
-            });
+            this.toastRef.showError('Error al actualizar publicación', 'Error');
             console.log('Error al actualizar el post con archivo',error)
           }
         })      
@@ -409,11 +401,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
             globalThis.location.reload();
           },
           error: (error) => {
-            this.messageService.add({
-              severity: 'error', 
-              summary: 'Error', 
-              detail: 'Error al actualizar publicación' 
-            });
+            this.toastRef.showError('Error al actualizar publicación', 'Error');
             console.log('Error al actualizar post', error)
           }
         })
