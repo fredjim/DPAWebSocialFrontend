@@ -45,7 +45,8 @@ const routes: Routes = [
           { path: 'posts/:id', component: ViewAllPostsComponent },
           { path: 'posts', component: ViewAllPostsComponent },
           { path: 'fotos', component: PhotosGalleryComponent },
-          { path: 'videos', component: VideosGalleryComponent },
+          { path: 'videos', component: PhotosGalleryComponent },
+          { path: 'documentos', component: PhotosGalleryComponent },
           {
             path: ':pathNavItem',
             component: PageContainerComponent,
