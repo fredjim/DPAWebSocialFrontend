@@ -25,6 +25,10 @@
     position: relative;
 }
 
+#passwordLG {
+    padding-right: 30px;
+}
+
 input[type=password]::-ms-reveal,
 input[type=password]::-ms-clear {
     display: none;    
@@ -38,10 +42,18 @@ input {
     color: var(--red-color);
 }
 
+#passwordLG.is-invalid {
+    padding-right: 50px;
+}
+
+#passwordLG.is-invalid ~ .eye > .bi {
+    right: 30px;
+}
+
 .bi {
     cursor: pointer;
     position: absolute;
-    right: 10px; //35px is-invalid
+    right: 10px;
     color: #9FB0E7; 
     transform: translateY(-150%);
     transition: .4s ease all;
