@@ -16,7 +16,7 @@
               />
               <div>
                 <p class="fw-bold fs-6">{{ institution.name }}</p>
-                <select id="option-comment" *ngIf="commentConfig" [(ngModel)]="selectedCommentConfig">
+                <select id="option-comment" *ngIf="commentConfig" [(ngModel)]="selectedCommentConfig" (ngModelChange)="changedSelectConfigComment()">
                   <option *ngFor="let config of commentConfig" [value]="config.uuid">{{config.name}}</option>
                 </select>
               </div>
