@@ -95,6 +95,7 @@ export class LoginComponent implements OnInit {
   }
 
   openForgotPassword(): void {
+    this.loginForm.reset();
     this.forgotPasswordComp?.show();
   }
 
