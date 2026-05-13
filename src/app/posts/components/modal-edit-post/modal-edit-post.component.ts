@@ -30,6 +30,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   @Output() postUpdatedEvent = new EventEmitter<Post>();
   public commentConfig!: CommentConfig[];
   public selectedCommentConfig!: string;
+  public changedSelectComment: boolean = false;
   public maxLegthTextPost = 1200;
   public visibleAreaMedia = signal(false); //Mostrar seleccion y prevista de imagenes
   public visibleAreaMediaDoc = signal(false); //Mostrar seleccion y prevista de documentos
@@ -160,11 +161,17 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   private checkDisableSaveButton(){
     const textPost: string = this.postForm.get('contentPost')?.value ?? '';
     if((textPost === '' || textPost.length > this.maxLegthTextPost) && this.listNewMediaFile.length === 0 
-      && this.listOldMediaFile.length === 0 && !this.fileNewDoc){
+      && this.listOldMediaFile.length === 0 && !this.fileNewDoc || 
+      !this.changedSelectComment){
       this.disabledSaveButton.set(true);
     }else{
       this.disabledSaveButton.set(false);
     }
+  }
+
+  public changedSelectConfigComment(): void {
+    this.changedSelectComment = true;
+    this.checkDisableSaveButton();
   }
 
   //Cerrar modal sin guardar cambios
