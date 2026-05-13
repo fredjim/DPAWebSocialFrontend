@@ -19,6 +19,13 @@ const routes: Routes = [
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
 
+     // ROOT dashboard — lazy loaded, debe ir ANTES del wildcard :slug
+  {
+    path: 'root',
+    loadChildren: () =>
+      import('./root-dashboard/root-dashboard.module').then(m => m.RootDashboardModule)
+  },
+  
   // Todas las rutas que requieren slug (públicas y protegidas)
   {
     path: ':slug',

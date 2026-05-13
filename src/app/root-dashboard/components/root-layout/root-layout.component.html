@@ -1,0 +1,31 @@
+<div class="root-layout" [class.collapsed]="isCollapsed()">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-content">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span class="brand-name">ROOT</span>
+      </div>
+      <button class="toggle-btn" (click)="toggleSidebar()">
+        <i class="fa-solid fa-chevron-left" [class.rotated]="isCollapsed()"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/root/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }" pTooltip="Instituciones" [tooltipDisabled]="!isCollapsed()" tooltipPosition="right">
+        <i class="fa-solid fa-building"></i>
+        <span class="nav-label">Instituciones</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn btn-logout" (click)="logout()" pTooltip="Cerrar sesión" [tooltipDisabled]="!isCollapsed()" tooltipPosition="right">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span class="btn-label">Cerrar sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

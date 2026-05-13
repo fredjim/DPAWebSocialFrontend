@@ -1,0 +1,44 @@
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--rd-surface) 0%, #eef0ff 100%);
+  padding: 24px;
+}
+
+.login-card {
+  background: var(--rd-surface-raised);
+  border-radius: var(--rd-radius-lg);
+  padding: 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--rd-shadow-md);
+  border: 1px solid var(--rd-border);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--rd-text);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    color: var(--rd-text-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.field label {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--rd-text);
+}

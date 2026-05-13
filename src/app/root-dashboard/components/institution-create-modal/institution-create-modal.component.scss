@@ -1,0 +1,38 @@
+.form-label {
+  font-weight: 600;
+  color: var(--rd-text-secondary);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-bottom: 0.4rem;
+}
+
+.text-danger-msg {
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.text-muted-info {
+  color: var(--rd-text-muted);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.p-inputgroup-addon {
+  background: var(--rd-border-subtle);
+  border: 1px solid var(--rd-border);
+  color: var(--rd-text-secondary);
+  font-size: 0.875rem;
+}
+
+:host ::ng-deep .custom-create-dialog {
+  .p-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+}

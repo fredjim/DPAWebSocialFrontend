@@ -1,0 +1,200 @@
+<div class="demo-page">
+  <h1 class="demo-title">UiButton — Demo de variaciones</h1>
+  <p class="demo-subtitle">Ruta de desarrollo: <code>/root/ui-button-demo</code></p>
+
+  <!-- ── 1. Matriz Severidad × Variante ─────────────────────────────────── -->
+  <section class="demo-section">
+    <h2 class="demo-section__title">Severidad × Variante</h2>
+    <div class="demo-matrix">
+      <!-- Header de columnas -->
+      <div class="demo-matrix__header"></div>
+      <div class="demo-matrix__header" *ngFor="let v of variants">{{ v }}</div>
+
+      <!-- Filas por severidad -->
+      <ng-container *ngFor="let s of severities">
+        <div class="demo-matrix__label">{{ s }}</div>
+        <div class="demo-matrix__cell" *ngFor="let v of variants">
+          <ui-button
+            [label]="s"
+            [severity]="s"
+            [variant]="v"
+          ></ui-button>
+        </div>
+      </ng-container>
+    </div>
+  </section>
+
+  <!-- ── 2. Tamaños ─────────────────────────────────────────────────────── -->
+  <section class="demo-section">
+    <h2 class="demo-section__title">Tamaños</h2>
+    <div class="demo-row">
+      <ui-button *ngFor="let s of sizes"
+        [label]="s"
+        [size]="s"
+        icon="pi pi-check"
+      ></ui-button>
+    </div>
+  </section>
+
+  <!-- ── 3. Spinner / Loading ───────────────────────────────────────────── -->
+  <section class="demo-section">
+    <h2 class="demo-section__title">Estado Loading</h2>
+    <p class="demo-hint">El spinner reemplaza el icono y bloquea el click automáticamente.</p>
+    <div class="demo-row">
+      <ui-button label="Sin loading"   icon="pi pi-save" [loading]="false"></ui-button>
+      <ui-button label="Con loading"   icon="pi pi-save" [loading]="true"></ui-button>
+      <ui-button label="Loading outlined" severity="success" variant="outlined" icon="pi pi-upload" [loading]="true"></ui-button>
+      <ui-button label="Loading text"  severity="info"    variant="text"     icon="pi pi-refresh"  [loading]="true"></ui-button>
+    </div>
+  </section>
+
+  <!-- ── 4. Disabled ───────────────────────────────────────────────────── -->
+  <section class="demo-section">
+    <h2 class="demo-section__title">Estado Disabled</h2>
+    <div class="demo-row">
+      <ui-button label="Habilitado"   icon="pi pi-check"></ui-button>
+      <ui-button label="Deshabilitado" icon="pi pi-check" [disabled]="true"></ui-button>
+      <ui-button label="Disabled outlined" severity="danger" variant="outlined" [disabled]="true"></ui-button>
+      <ui-button label="Disabled text"     severity="warning" variant="text"   [disabled]="true"></ui-button>
+    </div>
+  </section>
+
+  <!-- ── 5. Rounded ────────────────────────────────────────────────────── -->
+  <section class="demo-section">
+    <h2 class="demo-section__title">Rounded (pastilla)</h2>
+    <div class="demo-row">
+      <ui-button *ngFor="let s of severities"
+        [label]="s"
+        [severity]="s"
+        [rounded]="true"
+        size="sm"
+      ></ui-button>
+    </div>
+  </section>
+
+  <!-- ── 6. Con iconos ─────────────────────────────────────────────────── -->
+  <section class="demo-section">
+    <h2 class="demo-section__title">Con iconos PrimeIcons</h2>
+    <div class="demo-row">
+      <ui-button label="Guardar"   icon="pi pi-save"     severity="success"></ui-button>
+      <ui-button label="Eliminar"  icon="pi pi-trash"    severity="danger"></ui-button>
+      <ui-button label="Editar"    icon="pi pi-pencil"   severity="warning" variant="outlined"></ui-button>
+      <ui-button label="Ver más"   icon="pi pi-eye"      severity="info"    variant="text" size="sm"></ui-button>
+      <ui-button label="Exportar"  icon="pi pi-download" severity="primary" variant="outlined"></ui-button>
+      <ui-button label="Entrar"    icon="pi pi-sign-in"  severity="primary"></ui-button>
+    </div>
+  </section>
+
+  <!-- ── 7. Full Width ─────────────────────────────────────────────────── -->
+  <section class="demo-section">
+    <h2 class="demo-section__title">Full Width</h2>
+    <div class="demo-full-width-container">
+      <ui-button label="Botón ancho completo (filled)" [fullWidth]="true"></ui-button>
+      <ui-button label="Botón ancho completo (outlined)" variant="outlined" severity="secondary" [fullWidth]="true"></ui-button>
+    </div>
+  </section>
+
+  <!-- ── 8. ng-content (contenido enriquecido) ─────────────────────────── -->
+  <section class="demo-section">
+    <h2 class="demo-section__title">Contenido enriquecido via ng-content</h2>
+    <div class="demo-row">
+      <ui-button type="button" severity="secondary" variant="outlined">
+        <span class="demo-rich-label">
+          <i class="pi pi-google"></i>
+          Continuar con Google
+        </span>
+      </ui-button>
+      <ui-button type="button" severity="danger">
+        <span class="demo-rich-label">
+          <i class="pi pi-trash"></i>
+          Eliminar
+          <span class="badge bg-light text-danger ms-1">3</span>
+        </span>
+      </ui-button>
+    </div>
+  </section>
+
+  <!-- ── 9. Playground interactivo ─────────────────────────────────────── -->
+  <section class="demo-section demo-section--playground">
+    <h2 class="demo-section__title">Playground interactivo</h2>
+
+    <div class="playground">
+      <!-- Controles -->
+      <div class="playground__controls">
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">Severity</label>
+          <div class="ctrl-options">
+            <button
+              *ngFor="let s of severities"
+              class="ctrl-chip"
+              [class.ctrl-chip--active]="playSeverity === s"
+              (click)="playSeverity = s"
+            >{{ s }}</button>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">Variant</label>
+          <div class="ctrl-options">
+            <button
+              *ngFor="let v of variants"
+              class="ctrl-chip"
+              [class.ctrl-chip--active]="playVariant === v"
+              (click)="playVariant = v"
+            >{{ v }}</button>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">Size</label>
+          <div class="ctrl-options">
+            <button
+              *ngFor="let s of sizes"
+              class="ctrl-chip"
+              [class.ctrl-chip--active]="playSize === s"
+              (click)="playSize = s"
+            >{{ s }}</button>
+          </div>
+        </div>
+
+        <div class="ctrl-group ctrl-group--row">
+          <button class="ctrl-toggle" [class.ctrl-toggle--on]="playLoading"  (click)="toggleLoading()">
+            <i class="pi" [ngClass]="playLoading ? 'pi-check-square' : 'pi-stop'"></i>
+            Loading
+          </button>
+          <button class="ctrl-toggle" [class.ctrl-toggle--on]="playDisabled" (click)="toggleDisabled()">
+            <i class="pi" [ngClass]="playDisabled ? 'pi-check-square' : 'pi-stop'"></i>
+            Disabled
+          </button>
+          <button class="ctrl-toggle" [class.ctrl-toggle--on]="playRounded"  (click)="toggleRounded()">
+            <i class="pi" [ngClass]="playRounded ? 'pi-check-square' : 'pi-stop'"></i>
+            Rounded
+          </button>
+        </div>
+      </div>
+
+      <!-- Vista previa -->
+      <div class="playground__preview">
+        <ui-button
+          label="Probar"
+          icon="pi pi-bolt"
+          [severity]="playSeverity"
+          [variant]="playVariant"
+          [size]="playSize"
+          [loading]="playLoading"
+          [disabled]="playDisabled"
+          [rounded]="playRounded"
+          (clicked)="onClicked()"
+        ></ui-button>
+
+        <p class="playground__counter">
+          Clicks recibidos: <strong>{{ clickCount }}</strong>
+          <span class="playground__hint" *ngIf="playLoading || playDisabled">
+            (bloqueado — no incrementa)
+          </span>
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
