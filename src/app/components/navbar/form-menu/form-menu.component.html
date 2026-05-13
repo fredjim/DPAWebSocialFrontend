@@ -14,15 +14,29 @@
         </div>
     </div>
     <div *ngIf="!isLoading" class="modal-footer">
-        <button type="submit" class="btn btn-primary save" [disabled]="formNavItem.invalid">
-        <i class="bi bi-check"></i> Guardar
-        </button>
-        <button type="button" *ngIf="typeForm === 'edit'" class="btn btn-danger delete" (click)="deleteNavItem()">
-        <i class="bi bi-trash-fill"></i> Eliminar
-        </button>
-        <button type="button" class="btn btn-secondary" (click)="onCloseModal()">
-        <i class="bi bi-x"></i> Cancelar
-        </button>
+        <ui-button
+            label="Guardar"
+            icon="pi pi-check"
+            type="submit"
+            severity="success"
+            [disabled]="formNavItem.invalid"
+        ></ui-button>
+        <ui-button
+            *ngIf="typeForm === 'edit'"
+            label="Eliminar"
+            icon="pi pi-trash"
+            type="button"
+            severity="danger"
+            (clicked)="deleteNavItem()"
+        ></ui-button>
+        <ui-button
+            label="Cancelar"
+            icon="pi pi-times"
+            type="button"
+            severity="secondary"
+            variant="outlined"
+            (clicked)="onCloseModal()"
+        ></ui-button>
     </div>
     <!-- Spinner de carga -->
     <div *ngIf="isLoading" class="loading-overlay w-100 d-flex flex-column align-items-center mb-2">
