@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { ViewAllPostsComponent } from './posts/components/view-all-posts/view-all-posts.component';
 import { PhotosGalleryComponent } from './posts/components/photos-gallery/photos-gallery.component';
-import { VideosGalleryComponent } from './posts/components/videos-gallery/videos-gallery.component';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
 import { PageContainerComponent } from './pages/page-container/page-container.component';
 import { SectionResolver } from './resolvers/section.resolver';

@@ -21,7 +21,6 @@ import { ModalListReactionsComponent } from './components/modal-list-reactions/m
 import { DocumentEditorComponent } from './components/modal-edit-post/document-editor/document-editor.component';
 import { ViewPostDetailComponent } from './components/view-post-detail/view-post-detail.component';
 import { PhotosGalleryComponent } from './components/photos-gallery/photos-gallery.component';
-import { VideosGalleryComponent } from './components/videos-gallery/videos-gallery.component';
 import { HomePhotosSectionComponent} from './components/home-photos-section/home-photos-section.component';
 import { CommentsModule } from '../comments/comments.module';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
@@ -58,7 +57,6 @@ import { TabViewModule } from 'primeng/tabview';
     DocumentEditorComponent,
     ViewPostDetailComponent,
     PhotosGalleryComponent,
-    VideosGalleryComponent,
     HomePhotosSectionComponent,
     PopupInfoUserComponent,
     CommentListComponent,
