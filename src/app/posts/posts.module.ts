@@ -36,6 +36,7 @@ import { CommentInputComponent } from './components/comments/comment-input/comme
 import { ModalListReactionsRepliesComponent } from './components/comments/modal-list-reactions-replies/modal-list-reactions-replies.component';
 import { AppRoutingModule } from "../app-routing.module";
 import { SharedModule } from '../shared/shared.module';
+import { TabViewModule } from 'primeng/tabview';
 
 @NgModule({
   declarations: [
@@ -76,7 +77,8 @@ import { SharedModule } from '../shared/shared.module';
     PdfViewerModule,
     OverlayPanelModule,
     AppRoutingModule,
-    SharedModule
+    SharedModule,
+    TabViewModule
 ],
   exports: [
     ViewAllPostsComponent,
