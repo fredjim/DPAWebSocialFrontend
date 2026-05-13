@@ -33,6 +33,7 @@
     "moment-timezone": "^0.5.47",
     "ng2-pdf-viewer": "^10.4.0",
     "pdfjs-dist": "^5.1.91",
+    "primeicons": "^6.0.1",
     "primeng": "^17.18.15",
     "quill": "^2.0.3",
     "rxjs": "~7.8.0",
