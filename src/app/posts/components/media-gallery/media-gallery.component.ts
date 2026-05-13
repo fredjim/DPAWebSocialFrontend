@@ -4,18 +4,18 @@ import { PostService } from '../../services/post.service';
 import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommentsComponent } from './../comments/comments.component';
+import { CommentsComponent } from '../comments/comments.component';
 import { TenantService } from '../../../services/tenant.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { MediaInstitution } from '../../models/media-institution';
 
 @Component({
-  selector: 'app-photos-gallery',
-  templateUrl: './photos-gallery.component.html',
-  styleUrls: ['./photos-gallery.component.scss'],
+  selector: 'app-media-gallery',
+  templateUrl: './media-gallery.component.html',
+  styleUrls: ['./media-gallery.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PhotosGalleryComponent implements OnInit, OnDestroy {
+export class MediaGalleryComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly modalService = inject(NgbModal);
   institution!: Institution;
