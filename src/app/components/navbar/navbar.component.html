@@ -23,7 +23,11 @@
       }
     }
     @if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
-      <button type="button" class="btn btn-primary save" (click)="showDialog()"><i class="bi bi-plus-lg"></i></button>
+      <ui-button
+        icon="pi pi-plus"
+        type="button"
+        (clicked)="showDialog()"
+      ></ui-button>
     }
   </ul>
 </nav>

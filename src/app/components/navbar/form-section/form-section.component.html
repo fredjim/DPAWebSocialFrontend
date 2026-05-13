@@ -21,9 +21,29 @@
             La ruta no puede exceder los {{ MAX_LENGTH_PATH }} caracteres
         </div>
         <div class="d-flex flex-column gap-3 justify-content-center m-1" *ngIf="!isLoading">
-            <button type="submit" [disabled]="formSection.invalid" class="btn btn-primary save"><i class="bi bi-check"></i> Guardar</button>
-            <button type="button" *ngIf="typeForm === 'edit'" class="btn btn-danger delete" (click)="deleteSection()"><i class="bi bi-trash-fill"></i> Eliminar</button>
-            <button type="button" class="btn btn-secondary" (click)="closeForm()"><i class="bi bi-x"></i> Cancelar</button>
+            <ui-button
+                label="Guardar"
+                icon="pi pi-check"
+                type="submit"
+                severity="success"
+                [disabled]="formSection.invalid"
+            ></ui-button>
+            <ui-button
+                *ngIf="typeForm === 'edit'"
+                label="Eliminar"
+                icon="pi pi-trash"
+                type="button"
+                severity="danger"
+                (clicked)="deleteSection()"
+            ></ui-button>
+            <ui-button
+                label="Cancelar"
+                icon="pi pi-times"
+                type="button"
+                severity="secondary"
+                variant="outlined"
+                (clicked)="closeForm()"
+            ></ui-button>
         </div>
         <!-- Spinner de carga -->
         <div *ngIf="isLoading" class="loading-overlay w-100 d-flex flex-column align-items-center">

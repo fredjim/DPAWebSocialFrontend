@@ -112,7 +112,11 @@
 		}
 		@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
 			@if(showButtonNewArticle){
-				<button class="btn btn-primary save" (click)="hideButtonNewArticle()" (keypress)="hideButtonNewArticle()"><i class="bi bi-plus-lg"></i> Agregar artículo</button>
+				<ui-button
+					label="Agregar artículo"
+					icon="pi pi-plus"
+					(clicked)="hideButtonNewArticle()"
+				></ui-button>
 			}@else{
 				<app-edit-info
 					typeForm="create"
