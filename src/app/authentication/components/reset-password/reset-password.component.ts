@@ -7,6 +7,14 @@ import { environment } from '../../../../environments/environment';
 import { finalize } from 'rxjs';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
+interface PasswordValidationErrors {
+  passwordLength?: true;
+  missingLowercase?: true;
+  missingUppercase?: true;
+  missingNumber?: true;
+  missingSpecialChar?: true;
+}
+
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.component.html',
@@ -20,6 +28,9 @@ export class ResetPasswordComponent implements OnInit {
   token = '';
   isLoading = false;
 
+  public readonly MAX_LENGTH_PASSWORD = 16;
+  public readonly MIN_LENGTH_PASSWORD = 8;
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly route: ActivatedRoute,
@@ -30,17 +41,33 @@ export class ResetPasswordComponent implements OnInit {
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
     this.form = this.fb.group({
-      newPassword: ['', [Validators.required, this.passwordLengthValidator()]],
+      newPassword: ['', [Validators.required, this.passwordValidator()]],
       confirmPassword: ['', [Validators.required]]
     });
     this.form.valueChanges.subscribe(() => this.syncMatchError());
   }
 
-  private passwordLengthValidator(): ValidatorFn {
-    return (control: AbstractControl) => {
-      const v = control.value as string;
-      if (!v) return null;
-      return v.length >= 8 && v.length <= 20 ? null : { passwordLength: true };
+  private passwordValidator(): ValidatorFn {
+    return (control: AbstractControl): PasswordValidationErrors | null => {
+      const value = control.value as string;
+
+      if (!value) return null;
+
+      const errors: PasswordValidationErrors = {};
+
+      const validations: Array<[keyof PasswordValidationErrors, boolean]> = [
+        ['passwordLength', value.length < this.MIN_LENGTH_PASSWORD || value.length > this.MAX_LENGTH_PASSWORD],
+        ['missingLowercase', !/[a-z]/.test(value)],
+        ['missingUppercase', !/[A-Z]/.test(value)],
+        ['missingNumber',    !/\d/.test(value)],
+        ['missingSpecialChar', !/[!@#$%^&*()_+]/.test(value)],
+      ];
+
+      for (const [key, failed] of validations) {
+        if (failed) errors[key] = true;
+      }
+
+      return Object.keys(errors).length > 0 ? errors : null;
     };
   }
 
