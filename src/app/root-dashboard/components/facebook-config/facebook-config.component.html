@@ -1,0 +1,101 @@
+<div *ngIf="isLoading()" class="loader-container">
+  <p-progressSpinner strokeWidth="4" styleClass="spinner-sm" />
+</div>
+
+<div *ngIf="!isLoading()" class="px-2">
+
+  <!-- Estado actual -->
+  <div class="status-banner mb-4" [class.success]="config?.configured && config!.enabled" [class.warning]="config?.configured && !config!.enabled" [class.danger]="!config?.configured">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex align-items-center">
+        <i class="fa-brands fa-facebook fs-4 me-3"></i>
+        <div>
+          <h6 class="mb-0 fw-bold">Integración con Facebook</h6>
+          <p class="mb-0 small opacity-75">
+            {{ config?.configured ? (config!.enabled ? 'Conexión activa y funcionando' : 'Conexión pausada') : 'Sin configurar' }}
+          </p>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <p-tag
+          *ngIf="config?.configured"
+          [value]="config!.enabled ? 'Activa' : 'Deshabilitada'"
+          [severity]="config!.enabled ? 'success' : 'warning'"
+        />
+        <p-tag *ngIf="!config?.configured" value="No configurada" severity="danger" />
+      </div>
+    </div>
+    
+    <div class="mt-3 pt-3 border-top border-white border-opacity-10 d-flex flex-wrap gap-4" *ngIf="config?.configured">
+       <div class="detail-item">
+         <span class="label">ID de Página:</span>
+         <span class="value">{{ config!.page_id }}</span>
+       </div>
+       <div class="detail-item">
+         <span class="label">Token:</span>
+         <span class="value"><code>{{ config!.token_hint }}</code></span>
+       </div>
+    </div>
+  </div>
+
+  <!-- Formulario -->
+  <form [formGroup]="form" (ngSubmit)="save()" class="config-form">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <label class="form-label">Page ID de Facebook <span class="text-danger">*</span></label>
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon"><i class="fa-solid fa-fingerprint"></i></span>
+          <input pInputText formControlName="page_id" class="w-100" placeholder="Ej: 1029384756..." />
+        </div>
+        <small class="text-danger-msg" *ngIf="hasError('page_id', 'required')">Obligatorio</small>
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">
+          Access Token de la Página <span class="text-danger">*</span>
+          <small class="text-muted ms-1" *ngIf="config?.configured">(dejalo vacío si no quieres cambiarlo)</small>
+        </label>
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon"><i class="fa-solid fa-key"></i></span>
+          <textarea
+            pInputText
+            formControlName="access_token"
+            class="w-100"
+            rows="3"
+            placeholder="Introduce el token de acceso de largo plazo..."
+          ></textarea>
+        </div>
+        <small class="text-danger-msg" *ngIf="hasError('access_token', 'required')">Obligatorio para la primera configuración</small>
+      </div>
+
+      <div class="col-12 d-flex gap-3 flex-wrap pt-2">
+        <button type="submit" class="btn btn-primary px-4" [disabled]="isSaving()">
+          <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2"></span>
+          <i class="fa-solid fa-save me-2" *ngIf="!isSaving()"></i>
+          {{ isSaving() ? 'Guardando...' : (config?.configured ? 'Actualizar integración' : 'Configurar conexión') }}
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline-warning px-4"
+          *ngIf="config?.configured && config!.enabled"
+          (click)="disable()"
+        >
+          <i class="fa-solid fa-pause me-2"></i> Pausar integración
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-link text-danger text-decoration-none px-2 ms-auto"
+          *ngIf="config?.configured"
+          (click)="confirmDelete()"
+        >
+          <i class="fa-solid fa-trash-can me-2"></i> Eliminar integración
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<p-confirmDialog />
+<app-custom-toast #toastRef key="facebookConfigToast" position="top-right"></app-custom-toast>

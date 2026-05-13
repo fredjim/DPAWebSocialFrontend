@@ -1,0 +1,115 @@
+<div class="inner-table-wrapper">
+  <app-custom-table
+    title="Administradores"
+    [data]="admins"
+    [columns]="columns"
+    [loading]="isLoading()"
+    [globalFilterFields]="globalFilterFields"
+    [hasActions]="true"
+    searchPlaceholder="Buscar administradores..."
+  >
+    <!-- Botón de añadir en el toolbar -->
+    <p-button
+      extraActions
+      label="Nuevo Admin"
+      styleClass="p-button-primary p-button-sm"
+      (onClick)="openCreateDialog()"
+    >
+      <i class="fa-solid fa-user-plus me-2"></i>
+    </p-button>
+
+    <!-- Template para acciones de cada fila -->
+    <ng-template #actions let-admin>
+      <div class="d-flex justify-content-center gap-2">
+        <button
+          pButton
+          icon="fa-solid fa-pen-to-square"
+          class="p-button-text p-button-info p-button-rounded"
+          pTooltip="Editar administrador"
+          tooltipPosition="top"
+          (click)="openEditDialog(admin)"
+        ></button>
+        <button
+          pButton
+          icon="fa-solid fa-trash-can"
+          class="p-button-text p-button-danger p-button-rounded"
+          pTooltip="Eliminar"
+          tooltipPosition="top"
+          (click)="confirmDelete(admin)"
+        ></button>
+      </div>
+    </ng-template>
+  </app-custom-table>
+</div>
+
+<!-- Dialog crear / editar -->
+<p-dialog
+  [visible]="showDialog()"
+  (visibleChange)="showDialog.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [header]="dialogTitle"
+  [style]="{ width: '480px' }"
+>
+  <form [formGroup]="form" (ngSubmit)="saveUser()" id="adminUserForm">
+    <div class="form-grid pt-2">
+      <div class="field-group row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Nombre <span class="text-danger">*</span></label>
+          <input pInputText formControlName="name" class="w-100" placeholder="Ej: Juan" />
+          <small class="text-danger-msg" *ngIf="hasError('name', 'required')">Obligatorio</small>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Apellido <span class="text-danger">*</span></label>
+          <input pInputText formControlName="lastName" class="w-100" placeholder="Ej: Pérez" />
+          <small class="text-danger-msg" *ngIf="hasError('lastName', 'required')">Obligatorio</small>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Email <span class="text-danger">*</span></label>
+          <div class="p-inputgroup">
+            <span class="p-inputgroup-addon"><i class="fa-solid fa-envelope"></i></span>
+            <input pInputText type="email" formControlName="email" class="w-100" placeholder="juan.perez@ejemplo.com" />
+          </div>
+          <small class="text-danger-msg" *ngIf="hasError('email', 'email')">Email inválido</small>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">
+            Contraseña
+            <span class="text-danger" *ngIf="!isEditMode()">*</span>
+            <small class="text-muted ms-1" *ngIf="isEditMode()">(dejar vacío para no cambiar)</small>
+          </label>
+          <div class="p-inputgroup">
+            <span class="p-inputgroup-addon"><i class="fa-solid fa-key"></i></span>
+            <input pInputText type="password" formControlName="password" class="w-100" placeholder="••••••••" />
+          </div>
+          <small class="text-danger-msg" *ngIf="hasError('password', 'minlength')">Mínimo 8 caracteres</small>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Teléfono <small class="text-muted">(opcional)</small></label>
+          <div class="p-inputgroup">
+            <span class="p-inputgroup-addon"><i class="fa-solid fa-phone"></i></span>
+            <input pInputText formControlName="phone" class="w-100" placeholder="76543210" />
+          </div>
+          <small class="text-danger-msg" *ngIf="hasError('phone', 'pattern')">8 dígitos requeridos</small>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn-secondary me-2" (click)="showDialog.set(false)" [disabled]="isSaving()">
+      Cancelar
+    </button>
+    <button type="submit" form="adminUserForm" class="btn btn-primary" [disabled]="isSaving()">
+      <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2"></span>
+      {{ isSaving() ? 'Guardando...' : (isEditMode() ? 'Actualizar' : 'Crear') }}
+    </button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog />
+<app-custom-toast #toastRef key="adminUsersToast" position="top-right"></app-custom-toast>

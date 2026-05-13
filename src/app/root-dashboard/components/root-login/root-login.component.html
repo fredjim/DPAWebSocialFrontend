@@ -1,0 +1,55 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Panel ROOT</h2>
+      <p>Acceso exclusivo para administradores del sistema</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="field mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input
+          id="email"
+          type="email"
+          pInputText
+          formControlName="email"
+          class="w-100"
+          placeholder="root@system.local"
+          [class.is-invalid]="hasError('email', 'required') || hasError('email', 'email')"
+        />
+        <small class="text-danger" *ngIf="hasError('email', 'required')">El email es requerido</small>
+        <small class="text-danger" *ngIf="hasError('email', 'email')">Formato de email inválido</small>
+      </div>
+
+      <div class="field mb-4">
+        <label for="password" class="form-label">Contraseña</label>
+        <div class="input-group">
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            pInputText
+            formControlName="password"
+            class="form-control"
+            placeholder="••••••••"
+            [class.is-invalid]="hasError('password', 'required')"
+          />
+          <button type="button" class="btn btn-outline-secondary" (click)="showPassword = !showPassword">
+            <i class="fa-solid" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+          </button>
+        </div>
+        <small class="text-danger" *ngIf="hasError('password', 'required')">La contraseña es requerida</small>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary w-100"
+        [disabled]="isLoading"
+      >
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+        {{ isLoading ? 'Ingresando...' : 'Ingresar' }}
+      </button>
+    </form>
+  </div>
+</div>
+
+<app-custom-toast #toastRef key="rootLoginToast" position="top-right"></app-custom-toast>
