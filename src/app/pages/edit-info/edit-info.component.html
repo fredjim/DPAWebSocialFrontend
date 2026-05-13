@@ -62,7 +62,7 @@
             <span *ngIf="isExceeded" class="error-message">
             Has alcanzado el límite de caracteres
             </span>
-            <span>{{ currentLength }}</span> / {{ maxLength }}
+            <span>{{ currentLength }}</span> / {{ maxLengthTextArticle }}
         </div>
 
         <!-- Agregar documentos -->
@@ -76,7 +76,7 @@
                             severity="danger"
                             variant="text"
                             size="sm"
-                            (clicked)="selectDocumentDeleteOfArticle(i, doc)"
+                            (clicked)="selectDocumentDeleteOfArticle(i)"
                         ></ui-button>
                     </div>
                 }
@@ -118,7 +118,7 @@
                         <div class="edit-info" (click)="showModalNewButton('edit','load', undefined, button, i)" (keypress)="showModalNewButton('edit','load', undefined,button, i)">
                             <i class="bi bi-pencil-fill"></i>
                         </div>
-                        <div class="edit-info delete" (click)="deleteButton(button, i)" (keypress)="deleteButton(button, i)">
+                        <div class="edit-info delete" (click)="deleteButton(i)" (keypress)="deleteButton(i)">
                             <i class="bi bi-trash-fill"></i>
                         </div>
                     </div>
@@ -161,7 +161,7 @@
                             severity="danger"
                             variant="text"
                             size="sm"
-                            (clicked)="selectImageDeleteOfArticle(i, img)"
+                            (clicked)="selectImageDeleteOfArticle(i)"
                         ></ui-button>
                     </div>
                 }
