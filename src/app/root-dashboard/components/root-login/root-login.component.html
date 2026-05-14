@@ -33,21 +33,26 @@
             placeholder="••••••••"
             [class.is-invalid]="hasError('password', 'required')"
           />
-          <button type="button" class="btn btn-outline-secondary" (click)="showPassword = !showPassword">
+          <ui-button
+            type="button"
+            severity="secondary"
+            variant="outlined"
+            (clicked)="showPassword = !showPassword"
+          >
             <i class="fa-solid" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
-          </button>
+          </ui-button>
         </div>
         <small class="text-danger" *ngIf="hasError('password', 'required')">La contraseña es requerida</small>
       </div>
 
-      <button
+      <ui-button
+        [label]="isLoading ? 'Ingresando...' : 'Ingresar'"
         type="submit"
-        class="btn btn-primary w-100"
+        severity="primary"
+        [loading]="isLoading"
         [disabled]="isLoading"
-      >
-        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-        {{ isLoading ? 'Ingresando...' : 'Ingresar' }}
-      </button>
+        [fullWidth]="true"
+      ></ui-button>
     </form>
   </div>
 </div>

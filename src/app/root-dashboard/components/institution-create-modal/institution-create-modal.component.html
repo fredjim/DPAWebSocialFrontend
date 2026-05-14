@@ -1,14 +1,6 @@
-<p-dialog
-  [visible]="visible"
-  (visibleChange)="visibleChange.emit($event)"
-  [modal]="true"
-  [closable]="true"
-  [draggable]="false"
-  header="Nueva Institución"
-  [style]="{ width: '700px' }"
-  (onHide)="close()"
-  styleClass="custom-create-dialog"
->
+<p-dialog [visible]="visible" (visibleChange)="visibleChange.emit($event)" [modal]="true" [closable]="true"
+  [draggable]="false" header="Nueva Institución" [style]="{ width: '700px' }" (onHide)="close()"
+  styleClass="custom-create-dialog">
   <form [formGroup]="form" (ngSubmit)="save()" id="createInstForm" class="pt-2">
     <div class="row g-4">
       <div class="col-12">
@@ -35,13 +27,8 @@
 
       <div class="col-12">
         <label class="form-label">Descripción <span class="text-danger">*</span></label>
-        <textarea
-          pInputText
-          formControlName="description"
-          class="w-100"
-          rows="3"
-          placeholder="Escribe una breve descripción de la institución..."
-        ></textarea>
+        <textarea pInputText formControlName="description" class="w-100" rows="3"
+          placeholder="Escribe una breve descripción de la institución..."></textarea>
       </div>
 
       <div class="col-12">
@@ -80,14 +67,10 @@
   </form>
 
   <ng-template pTemplate="footer">
-    <button type="button" class="btn btn-outline-secondary px-4" (click)="close()" [disabled]="isSaving">
-      Cancelar
-    </button>
-    <button type="submit" form="createInstForm" class="btn btn-primary px-4" [disabled]="isSaving">
-      <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
-      <i class="fa-solid fa-plus me-2" *ngIf="!isSaving"></i>
-      {{ isSaving ? 'Creando...' : 'Crear Institución' }}
-    </button>
+    <ui-button label="Cancelar" type="button" severity="secondary" variant="outlined" [disabled]="isSaving"
+      (clicked)="close()"></ui-button>
+    <ui-button [label]="isSaving ? 'Creando...' : 'Crear Institución'" type="submit" form="createInstForm"
+      severity="success" icon="pi pi-plus" [loading]="isSaving" [disabled]="isSaving"></ui-button>
   </ng-template>
 </p-dialog>
 

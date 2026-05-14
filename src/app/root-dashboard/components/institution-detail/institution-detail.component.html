@@ -100,11 +100,14 @@
 
         <div class="form-actions row">
           <div class="col-12 d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm" [disabled]="isSaving()">
-              <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2"></span>
-              <i class="fa-solid fa-floppy-disk me-2" *ngIf="!isSaving()"></i>
-              {{ isSaving() ? 'Guardando...' : 'Guardar cambios' }}
-            </button>
+            <ui-button
+              [label]="isSaving() ? 'Guardando...' : 'Guardar cambios'"
+              type="submit"
+              severity="success"
+              size="lg"
+              [loading]="isSaving()"
+              [disabled]="isSaving()"
+            ></ui-button>
           </div>
         </div>
       </form>
