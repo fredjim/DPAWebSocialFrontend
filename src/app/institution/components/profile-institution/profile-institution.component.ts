@@ -113,6 +113,9 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
         this.institution = institution;
         this.imageFileLogoToCreate = undefined;
         this.imageFileCoverToCreate = undefined;
+        // Invalidar caché del TenantService para que header y hero-profile
+        // obtengan datos actualizados cuando el usuario vuelva a la página principal
+        this.tenantService.clearCache();
         this.toast.showSuccess('Información de la institución actualizada correctamente');
       },
       error: (error) => {
