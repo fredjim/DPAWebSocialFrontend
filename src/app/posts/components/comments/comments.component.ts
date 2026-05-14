@@ -17,7 +17,7 @@ import moment from 'moment-timezone';
   styleUrls: ['./comments.component.scss'],
 })
 export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input() initialImageIndex: number = 0;
+  @Input() initialMediaIndex: number = 0; // image-video
   @ViewChild('commentInput') commentInput!: ElementRef;
   @ViewChildren('videoPlayer') videos!: QueryList<ElementRef<HTMLVideoElement>>;
   @Input() institution!: Institution;

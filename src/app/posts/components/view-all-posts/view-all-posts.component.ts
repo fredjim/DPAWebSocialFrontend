@@ -212,11 +212,11 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleOpenPost(post: Post, initialImageIndex: number = 0): void {
+  handleOpenPost(post: Post, initialMediaIndex: number = 0): void {
     const slug = this.tenantService.getSlug();
     const url = this.router.createUrlTree(['/', slug, 'posts', post.uuid]).toString();
     this.location.go(url);
-    this.openPostModal(post, initialImageIndex);
+    this.openPostModal(post, initialMediaIndex);
   }
 
   private openPostById(postUuid: string, initialImageIndex: number = 0): void {
@@ -234,7 +234,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
       });
   }
 
-  private openPostModal(post: Post, initialImageIndex: number = 0): void {
+  private openPostModal(post: Post, initialMediaIndex: number = 0): void {
     this.postService.getInstitution(post.institution_id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -247,7 +247,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
           modalRef.componentInstance.postAuthor = institution.name;
           modalRef.componentInstance.postDate = this.calculateTimePost(post);
           modalRef.componentInstance.postDescription = post.content.text;
-          modalRef.componentInstance.initialImageIndex = initialImageIndex;
+          modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
 
           const resetUrl = () => {
             const slug = this.tenantService.getSlug();
