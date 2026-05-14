@@ -34,7 +34,8 @@
 .modal-footer {
     gap: 10px;
     margin: 10px;
-    //Estilos botones
+    justify-content: center;
+
     .btn {
         --bs-btn-border-color: none;
         width: auto;
