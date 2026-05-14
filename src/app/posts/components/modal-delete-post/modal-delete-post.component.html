@@ -10,8 +10,21 @@
           <p>¿Esta seguro que desea eliminar la publicación de forma permanente?</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn fw-semibold btn-cancel text-primary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary fw-semibold btn-delete" data-bs-dismiss="modal" (click)="deletePost()">Eliminar</button>
+          <ui-button
+            label="Cancelar"
+            type="button"
+            severity="secondary"
+            variant="outlined"
+            [bsDismiss]="'modal'"
+          ></ui-button>
+          <ui-button
+            label="Eliminar"
+            icon="pi pi-trash"
+            type="button"
+            severity="danger"
+            [bsDismiss]="'modal'"
+            (clicked)="deletePost()"
+          ></ui-button>
         </div>
       </div>
     </div>

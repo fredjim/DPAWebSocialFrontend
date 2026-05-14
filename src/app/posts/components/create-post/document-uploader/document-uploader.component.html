@@ -4,7 +4,13 @@
   <div class="back-doc d-flex flex-column px-3 py-3" *ngIf="!showPreviewDoc">
     <span>Subir un archivo</span>
     <p>Los archivos deben ocupar un máximo de {{SIZE}}MB</p>
-    <button type="button" class="btn" (click)="openInputFileDoc($event)">Elegir archivo</button>
+    <ui-button
+      label="Elegir archivo"
+      type="button"
+      severity="secondary"
+      variant="outlined"
+      (clicked)="openInputFileDoc($event)"
+    ></ui-button>
   </div>
 
   <!-- Preview archivo -->
