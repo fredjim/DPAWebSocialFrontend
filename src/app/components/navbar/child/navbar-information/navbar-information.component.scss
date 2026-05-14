@@ -25,6 +25,7 @@ nav {
 
 		div.edit-section-pencil {
 			display: flex;
+			justify-content: space-between;
 			align-items: baseline;
 			color: var(--blue-color);
 		}
