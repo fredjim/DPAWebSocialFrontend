@@ -25,7 +25,7 @@ $font-size-large: 1.2rem;
 .modal-container {
   display: flex;
   flex-direction: column;
-  height: 95vh;
+  height: 90vh;
   min-height: 600px;
   max-height: 1200px;
   width: 80vw;
@@ -35,8 +35,10 @@ $font-size-large: 1.2rem;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   
-  // Para pantallas pequeñas en vertical
-  @media (max-height: 700px) {
+}
+// Para pantallas pequeñas en vertical
+@media screen and (max-height: 700px) {
+  .modal-container{
     height: 90vh;
     min-height: auto;
   }
@@ -175,13 +177,20 @@ $font-size-large: 1.2rem;
 
 .carousel-item {
   width: fit-content;
-  height: 390px;
+  min-height: 200px;
   margin: 0;
 }
 
 .carousel-inner {
   display: flex;
   justify-content: center;
+}
+
+button.carousel-control-next,
+button.carousel-control-prev {
+  height: 30%;
+  width: 20%;
+  align-self: center;
 }
 
 .carousel-control-prev-icon,
@@ -206,58 +215,6 @@ $font-size-large: 1.2rem;
   content: '<';
 }
 
-// Comments popup
-.comments-popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  max-width: 900px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  padding: 20px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-
-  .close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-  }
-
-  .post-medias {
-    display: grid;
-    gap: 10px;
-    grid-template-columns: repeat(2, minmax(100px, 1fr));
-    overflow: hidden;
-    border-radius: 8px;
-    margin: auto;
-
-    .media-post {
-      width: 80%;
-      height: 80%;
-      display: block;
-      border-radius: 8px;
-      object-fit: cover;
-      border: 1px solid $border-color;
-
-      video, img {
-        width: 100%;
-        height: auto;
-        border-radius: 8px;
-        border: 1px solid $border-color;
-        object-fit: contain;
-      }
-    }
-  }
-}
 
 // Comments section
 .comment-section {

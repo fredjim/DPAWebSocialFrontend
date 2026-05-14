@@ -30,7 +30,7 @@ export class PostComponent implements OnInit {
 
   @Output() requestDeletePost = new EventEmitter<string>();
   @Output() requestUpdatePost = new EventEmitter<Post>();
-  @Output() openPostDetail = new EventEmitter<{ post: Post; initialImageIndex: number }>();
+  @Output() openPostDetail = new EventEmitter<{ post: Post; initialMediaIndex: number }>();
   institution!: Institution;
   listMediaPost!: Media[]; // Lista de imagenes videos o documento del post 
   showOptions: WritableSignal<boolean> = signal(false); // Controla la visibilidad de las opciones del post
@@ -112,9 +112,9 @@ export class PostComponent implements OnInit {
     return copyPost;
   }
 
-  openViewPostComments(post: Post, initialImageIndex: number = 0) {
+  openViewPostComments(post: Post, initialMediaIndex: number = 0) {
     if (this.openInParent) {
-      this.openPostDetail.emit({ post, initialImageIndex });
+      this.openPostDetail.emit({ post, initialMediaIndex });
       return;
     }
     const modalRef = this.modalService.open(CommentsComponent, { size: 'lg', centered: true });
@@ -125,7 +125,7 @@ export class PostComponent implements OnInit {
     modalRef.componentInstance.postAuthor = this.institution.name;
     modalRef.componentInstance.postDate = this.calculateTimePost;
     modalRef.componentInstance.postDescription = post.content.text;
-    modalRef.componentInstance.initialImageIndex = initialImageIndex;
+    modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
     modalRef.dismissed.subscribe(() => {
       this.totalComments.set(modalRef.componentInstance.comments.length);
     });

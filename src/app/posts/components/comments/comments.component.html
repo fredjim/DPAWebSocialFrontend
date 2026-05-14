@@ -25,9 +25,9 @@
           <!-- Imagen o contenido multimedia -->
           <div class="object-fit-md-contain border rounded">
             <ng-container *ngIf="postMedia">
-              <div id="carouselMediaControls" class="carousel slide">
+              <div id="carouselMediaControls" class="carousel">
                 <div class="carousel-inner image-box text-center">
-                  <div *ngFor="let media of postMedia; let i = index" class="carousel-item" [ngClass]="{ 'active': i === initialImageIndex }">
+                  <div *ngFor="let media of postMedia; let i = index" class="carousel-item" [ngClass]="{ 'active': i === initialMediaIndex }">
                     <ng-container *ngIf="media.type.includes('image')">
                       <img [src]="media.path" class="" alt="" />
                     </ng-container>

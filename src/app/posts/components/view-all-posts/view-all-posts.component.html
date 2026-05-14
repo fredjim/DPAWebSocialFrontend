@@ -21,7 +21,7 @@
       [currentUser]="currentUser"
       [authenticated]="authenticated"
       [openInParent]="true"
-      (openPostDetail)="handleOpenPost($event.post, $event.initialImageIndex)"
+      (openPostDetail)="handleOpenPost($event.post, $event.initialMediaIndex)"
       (requestDeletePost)="deletePost($event)"
       (requestUpdatePost)="updatePost($event)" 
       (reactionChanged)="updateReactions(post.uuid)">

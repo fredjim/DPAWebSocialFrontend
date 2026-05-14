@@ -46,6 +46,7 @@
 		aspect-ratio: 1;
     transition: transform 0.3s ease;
     border: 1px solid var(--blue-color-25);
+    cursor: pointer;
 
     &:hover {
         transform: scale(1.05);
