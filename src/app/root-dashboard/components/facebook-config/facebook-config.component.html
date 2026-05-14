@@ -69,29 +69,32 @@
       </div>
 
       <div class="col-12 d-flex gap-3 flex-wrap pt-2">
-        <button type="submit" class="btn btn-primary px-4" [disabled]="isSaving()">
-          <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2"></span>
-          <i class="fa-solid fa-save me-2" *ngIf="!isSaving()"></i>
-          {{ isSaving() ? 'Guardando...' : (config?.configured ? 'Actualizar integración' : 'Configurar conexión') }}
-        </button>
+        <ui-button
+          [label]="isSaving() ? 'Guardando...' : (config?.configured ? 'Actualizar integración' : 'Configurar conexión')"
+          type="submit"
+          severity="success"
+          [loading]="isSaving()"
+          [disabled]="isSaving()"
+        ></ui-button>
 
-        <button
-          type="button"
-          class="btn btn-outline-warning px-4"
+        <ui-button
           *ngIf="config?.configured && config!.enabled"
-          (click)="disable()"
-        >
-          <i class="fa-solid fa-pause me-2"></i> Pausar integración
-        </button>
-
-        <button
+          label="Pausar integración"
           type="button"
-          class="btn btn-link text-danger text-decoration-none px-2 ms-auto"
+          severity="warning"
+          variant="outlined"
+          (clicked)="disable()"
+        ></ui-button>
+
+        <ui-button
           *ngIf="config?.configured"
-          (click)="confirmDelete()"
-        >
-          <i class="fa-solid fa-trash-can me-2"></i> Eliminar integración
-        </button>
+          label="Eliminar integración"
+          icon="pi pi-trash"
+          type="button"
+          severity="danger"
+          variant="text"
+          (clicked)="confirmDelete()"
+        ></ui-button>
       </div>
     </div>
   </form>

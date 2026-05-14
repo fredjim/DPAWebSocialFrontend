@@ -101,13 +101,22 @@
   </form>
 
   <ng-template pTemplate="footer">
-    <button type="button" class="btn btn-secondary me-2" (click)="showDialog.set(false)" [disabled]="isSaving()">
-      Cancelar
-    </button>
-    <button type="submit" form="adminUserForm" class="btn btn-primary" [disabled]="isSaving()">
-      <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2"></span>
-      {{ isSaving() ? 'Guardando...' : (isEditMode() ? 'Actualizar' : 'Crear') }}
-    </button>
+    <ui-button
+      label="Cancelar"
+      type="button"
+      severity="secondary"
+      variant="outlined"
+      [disabled]="isSaving()"
+      (clicked)="showDialog.set(false)"
+    ></ui-button>
+    <ui-button
+      [label]="isSaving() ? 'Guardando...' : (isEditMode() ? 'Actualizar' : 'Crear')"
+      type="submit"
+      form="adminUserForm"
+      severity="success"
+      [loading]="isSaving()"
+      [disabled]="isSaving()"
+    ></ui-button>
   </ng-template>
 </p-dialog>
 

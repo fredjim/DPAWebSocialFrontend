@@ -53,7 +53,14 @@
                 <span class="d-flex align-items-center" [ngClass]="{'disabled': disableLoadDoc()}" (click)="!disableLoadDoc() && showAreaDoc()" (keypress)="!disableLoadDoc() && showAreaDoc()"><i class="bi bi-file-earmark-text-fill fs-5"></i></span>
               </div>
             </div>
-            <button type="button" class="btn btn-primary fw-semibold" [disabled]="disabledSaveButton()" data-bs-dismiss="modal" (click)="updatePost()">Guardar</button>
+            <ui-button
+              label="Guardar"
+              type="button"
+              severity="success"
+              [disabled]="disabledSaveButton()"
+              [bsDismiss]="'modal'"
+              (clicked)="updatePost()"
+            ></ui-button>
           </form>
         </div>
       </div>
@@ -72,8 +79,20 @@
         ¿Estás seguro de que quieres cerrar? Se perderán los cambios.
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Seguir editando</button>
-        <button type="button" class="btn btn-primary fw-semibold" data-bs-dismiss="modal" (click)="closeResetModalEdit(postToEdit.uuid)">Cerrar sin guardar</button>
+        <ui-button
+          label="Seguir editando"
+          type="button"
+          severity="secondary"
+          variant="outlined"
+          [bsDismiss]="'modal'"
+        ></ui-button>
+        <ui-button
+          label="Cerrar sin guardar"
+          type="button"
+          severity="primary"
+          [bsDismiss]="'modal'"
+          (clicked)="closeResetModalEdit(postToEdit.uuid)"
+        ></ui-button>
       </div>
     </div>
   </div>

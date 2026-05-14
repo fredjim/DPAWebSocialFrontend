@@ -225,18 +225,22 @@
                 </div>
             </div>
 
-            <!-- Botones -->
             <div class="d-flex justify-content-center gap-4 pt-2">
-                <button class="btn btn-primary save" 
-                        type="submit" 
-                        [disabled]="formInstitution.invalid">
-                    Guardar
-                </button>
-                <button class="btn btn-secondary" 
-                        type="button" 
-                        [routerLink]="['/',currentSlug]">
-                    Cancelar
-                </button>
+                <ui-button
+                  label="Guardar"
+                  icon="pi pi-check"
+                  type="submit"
+                  severity="success"
+                  [disabled]="formInstitution.invalid"
+                ></ui-button>
+                <ui-button
+                  label="Cancelar"
+                  icon="pi pi-times"
+                  type="button"
+                  severity="secondary"
+                  variant="outlined"
+                  [routerLink]="['/',currentSlug]"
+                ></ui-button>
             </div>
         </form>
     </div>
