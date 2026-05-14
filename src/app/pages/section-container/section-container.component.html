@@ -112,7 +112,11 @@
 		}
 		@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
 			@if(showButtonNewArticle){
-				<button class="btn btn-primary save" (click)="hideButtonNewArticle()" (keypress)="hideButtonNewArticle()"><i class="bi bi-plus-lg"></i> Agregar artículo</button>
+				<ui-button
+					label="Agregar artículo"
+					icon="pi pi-plus"
+					(clicked)="hideButtonNewArticle()"
+				></ui-button>
 			}@else{
 				<app-edit-info
 					typeForm="create"
@@ -126,6 +130,8 @@
 	</div>
 
 </div>
+<app-custom-toast #sectionToastRef key="sectionToast" position="top-right"></app-custom-toast>
+
 <p-dialog
 	[modal]="true"
 	[(visible)]="visibleModalImagesArticle"
@@ -143,4 +149,3 @@
             </ng-template>
     </p-carousel>
 </p-dialog>
-<p-toast>

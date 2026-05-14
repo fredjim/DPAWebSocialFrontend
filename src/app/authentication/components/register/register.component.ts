@@ -8,6 +8,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
+interface PasswordValidationErrors {
+  passwordLength?: true;
+  missingLowercase?: true;
+  missingUppercase?: true;
+  missingNumber?: true;
+  missingSpecialChar?: true;
+}
+
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -49,39 +57,25 @@ export class RegisterComponent implements OnInit {
   }
 
   private passwordValidator(): ValidatorFn {
-    return (control: AbstractControl): { [key: string]: any } | null => {
-      const value = control.value;
-      
+    return (control: AbstractControl): PasswordValidationErrors | null => {
+      const value = control.value as string;
+
       if (!value) return null;
-      
-      const errors: any = {};
-      
-      // Longitud
-      if (value.length < this.MIN_LENGTH_PASSWORD || value.length > this.MAX_LENGTH_PASSWORD) {
-        errors['passwordLength'] = true;
+
+      const errors: PasswordValidationErrors = {};
+
+      const validations: Array<[keyof PasswordValidationErrors, boolean]> = [
+        ['passwordLength', value.length < this.MIN_LENGTH_PASSWORD || value.length > this.MAX_LENGTH_PASSWORD],
+        ['missingLowercase', !/[a-z]/.test(value)],
+        ['missingUppercase', !/[A-Z]/.test(value)],
+        ['missingNumber',    !/\d/.test(value)],
+        ['missingSpecialChar', !/[!@#$%^&*()_+]/.test(value)],
+      ];
+
+      for (const [key, failed] of validations) {
+        if (failed) errors[key] = true;
       }
-      
-      // Al menos una minúscula
-      if (!/[a-z]/.test(value)) {
-        errors['missingLowercase'] = true;
-      }
-      
-      // Al menos una mayúscula
-      if (!/[A-Z]/.test(value)) {
-        errors['missingUppercase'] = true;
-      }
-      
-      // Al menos un número
-      if (!/\d/.test(value)) {
-        errors['missingNumber'] = true;
-      }
-      
-      // Al menos un carácter especial
-      const specialChars = /[!@#$%^&*()_+]/;
-      if (!specialChars.test(value)) {
-        errors['missingSpecialChar'] = true;
-      }
-      
+
       return Object.keys(errors).length > 0 ? errors : null;
     };
   }

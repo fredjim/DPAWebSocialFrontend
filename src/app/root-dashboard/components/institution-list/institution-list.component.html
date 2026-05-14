@@ -1,0 +1,26 @@
+<div class="container-fluid p-0">
+  <app-custom-table title="Instituciones" [data]="institutions" [columns]="columns" [loading]="isLoading()"
+    [globalFilterFields]="globalFilterFields" [hasActions]="true" searchPlaceholder="Buscar instituciones...">
+    <!-- Botón de añadir en el toolbar -->
+    <p-button extraActions label="Nueva Institución" styleClass="p-button-primary p-button-sm"
+      (onClick)="showCreateModal.set(true)">
+      <i class="fa-solid fa-plus me-2"></i>
+    </p-button>
+
+    <!-- Template para acciones de cada fila -->
+    <ng-template #actions let-inst>
+      <div class="d-flex justify-content-center gap-2">
+        <button pButton icon="fa-solid fa-pen-to-square" class="p-button-text p-button-info p-button-rounded"
+          pTooltip="Editar detalles" tooltipPosition="top" (click)="goToDetail(inst.uuid)"></button>
+        <button pButton icon="fa-solid fa-trash-can" class="p-button-text p-button-danger p-button-rounded"
+          pTooltip="Eliminar" tooltipPosition="top" (click)="confirmDelete(inst)"></button>
+      </div>
+    </ng-template>
+  </app-custom-table>
+</div>
+
+<app-institution-create-modal [(visible)]="showCreateModal"
+  (saved)="onInstitutionCreated($event)"></app-institution-create-modal>
+
+<p-confirmDialog />
+<app-custom-toast #toastRef key="institutionListToast" position="top-right"></app-custom-toast>

@@ -1,9 +1,22 @@
-.video-gallery {
+.media-gallery {
   margin: 50px auto;
   width: var(--container-width);
 }
 
-.gallery-title {
+::ng-deep ul.p-tabview-nav {
+  margin-top: 1rem;
+  gap: 10px;
+
+  a.p-tabview-nav-link {
+    padding-bottom: 1px;
+    font-family: var(--secondary-font-family);
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+  }
+}
+
+.media-title {
   padding-bottom: 20px;
   font-family: var(--secondary-font-family);
   font-size: 20px;
@@ -11,29 +24,47 @@
   color: var(--blue-color);
 }
 
-.gallery-container {
+.media-container {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 20px;
 }
 
-.video {
+.photo, .video, .document {
   width: 200px;
   height: 200px;
   object-fit: cover;
   transition: transform 0.3s ease;
   border-radius: 8px;
   border: 1px solid var(--blue-color-25);
+  cursor: pointer;
 
   &:hover {
     transform: scale(1.05);
   }
 }
 
-.no-videos {
+.document {
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.no-media {
   font-family: var(--primary-font-family);
   font-size: 14px;
   text-align: center;
   color: var(--red-color);
   margin-top: 20px;
+}
+
+footer {
+	text-align: center;
+	padding: 5px;
+	background-color: var(--blue-color);
+	color: white;
+	width: 100%;
+
+	p {
+		margin: 0;
+	}
 }

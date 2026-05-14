@@ -1,134 +1,371 @@
 
 /* Importing Bootstrap SCSS file. */
 @import 'bootstrap/scss/bootstrap';
-
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-
 /* Estilos base de PrimeNG */
 @import "primeng/resources/themes/lara-light-blue/theme.css";
 @import "primeng/resources/primeng.css";
-
 // Quill styles editor de texto 
 @import "../node_modules/quill/dist/quill.core.css";
 @import "../node_modules/quill/dist/quill.snow.css";
-
 :root {
-	--main-width: 1440px;
-	--nav-width: 1020px;
-	--container-width: 1020px;
-
-	--blue-color: #003770; //primary
-	--primary-hover: #004c9e;
-	--clear-blue: #0D6EFD;
-	--red-color: #E30613; // delete
-	--secondary: #6c757d; // cancel o class: btn.secondary
-	--blue-color-25: rgba(0, 54, 112, 0.25);
-
-	--primary-font-family: "Montserrat", serif;
-	--secondary-font-family: "Roboto", serif;
+  --main-width: 1440px;
+  --nav-width: 1020px;
+  --container-width: 1020px;
+  --blue-color: #003770;
+  --red-color: #E30613;
+  --blue-color-25: rgba(0, 54, 112, 0.25);
+  --primary-font-family: "Montserrat", sans-serif;
+  --secondary-font-family: "Roboto", sans-serif;
+  // ROOT Dashboard design tokens
+  --rd-primary: #1a1a2e;
+  --rd-accent: #4f46e5;
+  --rd-accent-hover: #4338ca;
+  --rd-surface: #f8fafc;
+  --rd-surface-raised: #ffffff;
+  --rd-border: #e2e8f0;
+  --rd-border-subtle: #f1f5f9;
+  --rd-text: #0f172a;
+  --rd-text-secondary: #64748b;
+  --rd-text-muted: #94a3b8;
+  --rd-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --rd-shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --rd-radius-sm: 8px;
+  --rd-radius-md: 12px;
+  --rd-radius-lg: 16px;
+  --rd-transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 * {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-
 body {
-	font-family: var(--primary-font-family);
-	font-optical-sizing: auto;
-	font-style: normal;
-	font-size: 14px;
+  font-family: var(--primary-font-family);
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-size: 14px;
+  background-color: var(--rd-surface);
+  color: var(--rd-text);
+  -webkit-font-smoothing: antialiased;
 }
-
-div.p-toast.p-component {
-    .p-toast-message-content {
-		  padding: 10px 5px 10px 0;
-
-        .p-toast-message-icon {
-			      display: flex;
-            margin: 5px 10px 0 !important;
-
-            .p-icon {
-              width: 1.5rem !important;
-              height: 1.5rem !important;
-            }
-        }
-
-        .p-toast-icon-close {
-          border-radius: 50%;
-        }
+// Global scrollbar styling
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--rd-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rd-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rd-text-muted);
+}
+// Buttons refinement
+.btn {
+  border-radius: var(--rd-radius-sm);
+  font-weight: 600;
+  padding: 0.6rem 1.25rem;
+  transition: var(--rd-transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  &:active {
+    transform: translateY(0);
+  }
+  &.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8125rem;
+  }
+}
+.btn-primary {
+  background-color: var(--rd-accent);
+  border-color: var(--rd-accent);
+  &:hover {
+    background-color: var(--rd-accent-hover);
+    border-color: var(--rd-accent-hover);
+  }
+}
+// PrimeNG Overrides for Premium Look
+.p-inputtext, 
+.p-inputtextarea {
+  background: var(--rd-surface-raised) !important;
+  border: 1px solid var(--rd-border) !important;
+  color: var(--rd-text) !important;
+  border-radius: var(--rd-radius-sm) !important;
+  padding: 0.625rem 0.875rem !important;
+  font-size: 0.875rem !important;
+  transition: var(--rd-transition) !important;
+  box-shadow: none !important;
+  &:hover {
+    border-color: var(--rd-text-muted) !important;
+  }
+  &:focus {
+    border-color: var(--rd-accent) !important;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+  }
+  &.ng-invalid.ng-dirty {
+    border-color: #ef4444 !important;
+  }
+}
+// Table refinement
+.p-datatable {
+  .p-datatable-header {
+    background: transparent;
+    border: none;
+    padding: 1.5rem 0;
+  }
+  .p-datatable-thead > tr > th {
+    background: var(--rd-border-subtle);
+    color: var(--rd-text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--rd-border);
+    padding: 1rem 1.25rem;
+  }
+  .p-datatable-tbody > tr {
+    background: var(--rd-surface-raised);
+    transition: var(--rd-transition);
+    &:hover {
+      background: var(--rd-border-subtle) !important;
     }
+    > td {
+      border: none;
+      border-bottom: 1px solid var(--rd-border-subtle);
+      padding: 1rem 1.25rem;
+      color: var(--rd-text);
+      font-size: 0.875rem;
+    }
+  }
+  // Paginator
+  .p-paginator {
+    background: transparent;
+    border: none;
+    padding: 1.5rem 0;
+    
+    .p-paginator-pages .p-paginator-page {
+      border-radius: 8px;
+      min-width: 32px;
+      height: 32px;
+      margin: 0 4px;
+      transition: var(--rd-transition);
+      &.p-highlight {
+        background: var(--rd-accent);
+        color: white;
+      }
+    }
+  }
 }
-
-// Popup sobre imagenes de usuarios
-.p-overlaypanel.p-component {
-	z-index: 1060 !important;
-
-	.p-overlaypanel-close {
-		border-radius: 50%;
-		background-color: #fff;
-		color: #7e7e7e;
-		top: 5px;
-		right: 5px;
-
-		&:hover {
-			background-color: #c9c7c7;
-		}
-	}
-
+// Dialog refinement
+.p-dialog {
+  border-radius: var(--rd-radius-lg);
+  box-shadow: var(--rd-shadow-md);
+  
+  .p-dialog-header {
+    background: var(--rd-surface-raised);
+    border-bottom: 1px solid var(--rd-border-subtle);
+    padding: 1.5rem 2rem;
+    border-top-left-radius: var(--rd-radius-lg);
+    border-top-right-radius: var(--rd-radius-lg);
+    .p-dialog-title {
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: var(--rd-text);
+    }
+  }
+  .p-dialog-content {
+    background: var(--rd-surface-raised);
+    padding: 2rem;
+    color: var(--rd-text-secondary);
+    line-height: 1.6;
+  }
+  .p-dialog-footer {
+    background: var(--rd-surface-raised);
+    border-top: 1px solid var(--rd-border-subtle);
+    padding: 1.25rem 2rem;
+    border-bottom-left-radius: var(--rd-radius-lg);
+    border-bottom-right-radius: var(--rd-radius-lg);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    // Override PrimeNG internal button styles in footer
+    .p-button {
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--rd-radius-sm);
+      font-weight: 600;
+      font-family: var(--primary-font-family);
+      font-size: 0.875rem;
+      transition: var(--rd-transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: none;
+      .p-button-icon {
+        margin-right: 0; // Reset PrimeNG margin
+        font-size: 0.9rem;
+      }
+      &.p-button-secondary {
+        background: transparent;
+        border: 1px solid var(--rd-border);
+        color: var(--rd-text-secondary);
+        &:hover {
+          background: var(--rd-border-subtle);
+          color: var(--rd-text);
+        }
+      }
+      &.p-button-danger {
+        background: #ef4444;
+        border: 1px solid #ef4444;
+        color: #fff;
+        &:hover {
+          background: #dc2626;
+          border-color: #dc2626;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+      }
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+      }
+    }
+  }
+  &.p-confirm-dialog {
+    .p-dialog-content {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 2.5rem 2rem;
+      .p-confirm-dialog-icon {
+        font-size: 2rem;
+        color: #ef4444;
+      }
+      .p-confirm-dialog-message {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--rd-text);
+      }
+    }
+  }
 }
-
-.section-content {
-	position: relative;
-	
-	.content {
-		display: flex;
-		gap: 5px;
-		h3 {
-			height: 30px;
-			align-content: center;
-		}
-		.text {
-			white-space: pre-wrap;
-			word-wrap: break-word; 
-			word-break: normal; 
-			min-width: 100%; 
-			text-align: justify;
-			p {
-
-				text-align: justify;
-				white-space: wrap;
-			}
-			ul {
-				text-align: start;
-			}
-		}
-	}
+.p-component-overlay {
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
 }
-.edit-info {
-	cursor: pointer;
-	width: 30px; 
-	height: 30px; 
-	flex-shrink: 0;
-	border-radius: 50%; 
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 1;
-	
-	&:hover {
-		background-color: #F2F2F2;
-		color: var(--primary-hover);
-	}
+// Toast styling
+.p-toast {
+  .p-toast-message {
+    border-radius: var(--rd-radius-md);
+    box-shadow: var(--rd-shadow-md);
+    border-left: 4px solid;
+    
+    &.p-toast-message-success {
+      border-left-color: #10b981;
+    }
+    &.p-toast-message-info {
+      border-left-color: #3b82f6;
+    }
+    &.p-toast-message-warn {
+      border-left-color: #f59e0b;
+    }
+    &.p-toast-message-error {
+      border-left-color: #ef4444;
+    }
+  }
 }
-
-.media {
-	position: absolute;
-	top: 0;
-  	right: 0;
-  	background-color: white;
+// Utility: Badges
+.badge-slug {
+  background: var(--rd-border-subtle);
+  color: var(--rd-text-secondary);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--rd-border);
+  font-family: 'Courier New', monospace;
+}
+// Column Filter Menu Refinement
+.p-column-filter-overlay {
+  background: var(--rd-surface-raised) !important;
+  border-radius: var(--rd-radius-md) !important;
+  box-shadow: var(--rd-shadow-md) !important;
+  border: 1px solid var(--rd-border) !important;
+  padding: 0.5rem !important;
+  .p-column-filter-row-items {
+    padding: 0.5rem 0 !important;
+    .p-column-filter-row-item {
+      padding: 0.75rem 1rem !important;
+      transition: var(--rd-transition);
+      border-radius: 6px;
+      margin: 0 0.25rem;
+      
+      &:hover {
+        background: var(--rd-border-subtle) !important;
+      }
+      &.p-highlight {
+        background: var(--rd-border-subtle) !important;
+        color: var(--rd-accent) !important;
+        font-weight: 600;
+      }
+    }
+  }
+  .p-column-filter-operator {
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid var(--rd-border-subtle) !important;
+  }
+  .p-column-filter-constraints {
+    padding: 1rem !important;
+  }
+  .p-column-filter-footer {
+    display: flex;
+    justify-content: space-between !important;
+    padding: 0.75rem 1rem !important;
+    border-top: 1px solid var(--rd-border-subtle) !important;
+    gap: 8px;
+    .p-button {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8125rem;
+      flex: 1;
+      &.p-button-outlined {
+        color: var(--rd-text-secondary);
+        border-color: var(--rd-border);
+      }
+    }
+  }
+}
+// Global PrimeNG button consistency
+.p-button {
+  &.p-button-sm {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.8125rem !important;
+  }
+  &.p-button-primary {
+    background: var(--rd-accent) !important;
+    border-color: var(--rd-accent) !important;
+    color: #fff !important;
+    &:hover {
+      background: var(--rd-accent-hover) !important;
+      border-color: var(--rd-accent-hover) !important;
+    }
+  }
+  &.p-button-outlined {
+    background: transparent !important;
+    &.p-button-secondary {
+       color: var(--rd-text-secondary) !important;
+       border-color: var(--rd-border) !important;
+       &:hover {
+         background: var(--rd-border-subtle) !important;
+       }
+    }
+  }
 }

@@ -20,8 +20,7 @@ import { ImageVideoEditorComponent } from './components/modal-edit-post/image-vi
 import { ModalListReactionsComponent } from './components/modal-list-reactions/modal-list-reactions.component';
 import { DocumentEditorComponent } from './components/modal-edit-post/document-editor/document-editor.component';
 import { ViewPostDetailComponent } from './components/view-post-detail/view-post-detail.component';
-import { PhotosGalleryComponent } from './components/photos-gallery/photos-gallery.component';
-import { VideosGalleryComponent } from './components/videos-gallery/videos-gallery.component';
+import { MediaGalleryComponent } from './components/media-gallery/media-gallery.component';
 import { HomePhotosSectionComponent} from './components/home-photos-section/home-photos-section.component';
 import { CommentsModule } from '../comments/comments.module';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
@@ -36,6 +35,7 @@ import { CommentInputComponent } from './components/comments/comment-input/comme
 import { ModalListReactionsRepliesComponent } from './components/comments/modal-list-reactions-replies/modal-list-reactions-replies.component';
 import { AppRoutingModule } from "../app-routing.module";
 import { SharedModule } from '../shared/shared.module';
+import { TabViewModule } from 'primeng/tabview';
 
 @NgModule({
   declarations: [
@@ -56,8 +56,7 @@ import { SharedModule } from '../shared/shared.module';
     ModalListReactionsComponent,
     DocumentEditorComponent,
     ViewPostDetailComponent,
-    PhotosGalleryComponent,
-    VideosGalleryComponent,
+    MediaGalleryComponent,
     HomePhotosSectionComponent,
     PopupInfoUserComponent,
     CommentListComponent,
@@ -76,7 +75,8 @@ import { SharedModule } from '../shared/shared.module';
     PdfViewerModule,
     OverlayPanelModule,
     AppRoutingModule,
-    SharedModule
+    SharedModule,
+    TabViewModule
 ],
   exports: [
     ViewAllPostsComponent,

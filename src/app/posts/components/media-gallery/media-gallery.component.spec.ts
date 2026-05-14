@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PhotosGalleryComponent } from './photos-gallery.component';
+import { PhotosGalleryComponent } from './media-gallery.component';
 
 describe('PhotosGalleryComponent', () => {
   let component: PhotosGalleryComponent;

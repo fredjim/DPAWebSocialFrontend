@@ -43,7 +43,11 @@
 	</ul>
 	@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
 		@if(showButtonNewSection){
-			<button class="btn btn-primary save" (click)="hideButtonNewSection()" (keypress)="hideButtonNewSection()" ><i class="bi bi-plus-lg"></i> Agregar sección</button>
+			<ui-button
+				label="Agregar sección"
+				icon="pi pi-plus"
+				(clicked)="hideButtonNewSection()"
+			></ui-button>
 		}@else {
 			<app-form-section
 				typeForm="create"

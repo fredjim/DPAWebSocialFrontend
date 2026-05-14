@@ -9,7 +9,7 @@ import { TenantService } from '../../../services/tenant.service';
 export class DepartmentDetailsComponent implements OnInit {
   institution: any;
 
-  constructor(private tenantService: TenantService) {}
+  constructor(private readonly tenantService: TenantService) {}
 
   ngOnInit(): void {
     this.tenantService.getInstitution().subscribe({

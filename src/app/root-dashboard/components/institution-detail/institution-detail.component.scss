@@ -1,0 +1,150 @@
+.detail-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.btn-back {
+  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  border-color: var(--rd-border);
+  color: var(--rd-text-secondary);
+  
+  &:hover {
+    background-color: var(--rd-surface-raised);
+    color: var(--rd-text);
+  }
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--rd-text);
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.page-subtitle {
+  color: var(--rd-text-secondary);
+  font-size: 0.9375rem;
+  margin: 0.25rem 0 0;
+}
+
+.detail-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.form-section {
+  background: var(--rd-surface-raised);
+  border: 1px solid var(--rd-border);
+  border-radius: var(--rd-radius-lg);
+  padding: 2rem;
+  box-shadow: var(--rd-shadow-sm);
+}
+
+.section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--rd-text);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rd-border-subtle);
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--rd-text-secondary);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  margin-bottom: 0.5rem;
+}
+
+.text-danger-msg {
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.p-inputgroup-addon {
+  background: var(--rd-border-subtle);
+  border: 1px solid var(--rd-border);
+  color: var(--rd-text-secondary);
+  font-size: 0.875rem;
+}
+
+.tab-section-wrap {
+  padding: 1rem 0;
+}
+
+// Tabs Customization
+:host ::ng-deep .custom-tabs {
+  .p-tabview-nav-container {
+    margin-bottom: 2rem;
+  }
+  
+  .p-tabview-nav {
+    background: transparent;
+    border: none;
+    gap: 1.5rem;
+    padding: 0;
+
+    li {
+      .p-tabview-nav-link {
+        background: transparent;
+        border: none;
+        padding: 0.75rem 0;
+        font-weight: 600;
+        color: var(--rd-text-secondary);
+        font-size: 1rem;
+        transition: var(--rd-transition);
+        border-bottom: 2px solid transparent;
+        box-shadow: none !important;
+
+        &:hover {
+          color: var(--rd-text);
+        }
+      }
+
+      &.p-highlight .p-tabview-nav-link {
+        color: var(--rd-accent);
+        border-bottom-color: var(--rd-accent);
+      }
+    }
+  }
+
+  .p-tabview-panels {
+    background: transparent;
+    padding: 0;
+  }
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  padding: 5rem 0;
+}
+
+@media (max-width: 768px) {
+  .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .form-section {
+    padding: 1.25rem;
+  }
+}

@@ -2,8 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { ViewAllPostsComponent } from './posts/components/view-all-posts/view-all-posts.component';
-import { PhotosGalleryComponent } from './posts/components/photos-gallery/photos-gallery.component';
-import { VideosGalleryComponent } from './posts/components/videos-gallery/videos-gallery.component';
+import { MediaGalleryComponent } from './posts/components/media-gallery/media-gallery.component';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
 import { PageContainerComponent } from './pages/page-container/page-container.component';
 import { SectionResolver } from './resolvers/section.resolver';
@@ -19,6 +18,13 @@ const routes: Routes = [
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
 
+     // ROOT dashboard — lazy loaded, debe ir ANTES del wildcard :slug
+  {
+    path: 'root',
+    loadChildren: () =>
+      import('./root-dashboard/root-dashboard.module').then(m => m.RootDashboardModule)
+  },
+  
   // Todas las rutas que requieren slug (públicas y protegidas)
   {
     path: ':slug',
@@ -44,8 +50,9 @@ const routes: Routes = [
           { path: '', redirectTo: 'posts', pathMatch: 'full' },
           { path: 'posts/:id', component: ViewAllPostsComponent },
           { path: 'posts', component: ViewAllPostsComponent },
-          { path: 'fotos', component: PhotosGalleryComponent },
-          { path: 'videos', component: VideosGalleryComponent },
+          { path: 'fotos', component: MediaGalleryComponent },
+          { path: 'videos', component: MediaGalleryComponent },
+          { path: 'documentos', component: MediaGalleryComponent },
           {
             path: ':pathNavItem',
             component: PageContainerComponent,

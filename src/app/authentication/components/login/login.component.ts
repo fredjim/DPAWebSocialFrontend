@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { finalize } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MessageService } from 'primeng/api';
 import { ForgotPasswordComponent } from '../forgot-password/forgot-password.component';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +21,7 @@ export class LoginComponent implements OnInit {
   public usernameField!: ElementRef;
   @ViewChild('forgotPasswordRef')
   public forgotPasswordComp!: ForgotPasswordComponent;
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
   public correctCredentials: boolean = true;
   public credentialsAnotherInstitution = false;
   public emailNotVerified = false;
@@ -31,7 +32,6 @@ export class LoginComponent implements OnInit {
     private readonly formBuilder: FormBuilder,
     private readonly auth: AuthService,
     private readonly router: Router,
-    private readonly messageService: MessageService
   ) { }
 
   ngOnInit(): void {
@@ -65,20 +65,10 @@ export class LoginComponent implements OnInit {
           const msg: string = error?.error?.message ?? '';
           if (msg === 'Debes verificar tu email antes de iniciar sesión.') {
             this.emailNotVerified = true;
-            this.messageService.add({
-              severity: 'warn',
-              summary: 'Email no verificado',
-              detail: 'Revisa tu bandeja de entrada y verifica tu email para poder iniciar sesión.',
-              sticky: true
-            });
+            this.toastRef.showWarn('Revisa tu bandeja de entrada y verifica tu email para poder iniciar sesión.', 'Email no verificado');
           } else if (error.status === 400 && msg.includes('El usuario no pertenece a esta institución.')) {
             this.credentialsAnotherInstitution = true;
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error al iniciar sesión',
-              detail: 'El usuario no pertenece a esta institución',
-              sticky: true
-            });
+            this.toastRef.showError('El usuario no pertenece a esta institución', 'Error al iniciar sesión');
           } else if (error.status === 401) {
             this.correctCredentials = false;
           }
@@ -105,6 +95,7 @@ export class LoginComponent implements OnInit {
   }
 
   openForgotPassword(): void {
+    this.loginForm.reset();
     this.forgotPasswordComp?.show();
   }
 

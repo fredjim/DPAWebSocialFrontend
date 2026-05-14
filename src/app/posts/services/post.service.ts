@@ -15,6 +15,7 @@ import { EmojiType } from '../models/emoji-type';
 import { PostComment } from '../models/post-comment';
 import { FbUploadedMedia } from '../models/fb-uploaded-media';
 import { UserDetail } from '../models/user-detail';
+import { MediaInstitution } from '../models/media-institution';
 
 @Injectable({
   providedIn: 'root'
@@ -223,15 +224,20 @@ export class PostService {
   }
 
   //Obtener todas las fotos de la institucion 
-  getInstitutionPhotos(uuid: string): Observable<any[]> {
+  getInstitutionPhotos(uuid: string): Observable<MediaInstitution[]> {
     const url = `${this.ROOT_URL}/institutions/${uuid}/photos`;
-    return this.http.get<any[]>(url);
+    return this.http.get<MediaInstitution[]>(url);
   }
 
   //Obtener todos los videos de la institucion 
-  getInstitutionVideos(uuid: string): Observable<any[]> {
+  getInstitutionVideos(uuid: string): Observable<MediaInstitution[]> {
     const url = `${this.ROOT_URL}/institutions/${uuid}/videos`;
-    return this.http.get<any[]>(url);
+    return this.http.get<MediaInstitution[]>(url);
+  }
+
+  getInstitutionDocuments(uuid: string): Observable<MediaInstitution[]> {
+    const url = `${this.ROOT_URL}/institutions/${uuid}/documents`;
+    return this.http.get<MediaInstitution[]>(url);
   }
 
 

@@ -20,6 +20,7 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
   photos: any[] = [];
   isLoading: boolean = true;
   currentPost !: Post;
+  currentSlug: string = '';
 
   constructor(
     private readonly postService: PostService,
@@ -27,6 +28,7 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(){
+    this.currentSlug = this.tenantService.getSlug();
     this.tenantService.getInstitution()
       .pipe(takeUntil(this.destroy$))
       .subscribe({

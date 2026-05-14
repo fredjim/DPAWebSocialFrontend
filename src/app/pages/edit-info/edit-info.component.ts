@@ -1,10 +1,11 @@
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Article } from '../models/article';
 import { InformationService } from '../services/information.service';
-import { MessageService } from 'primeng/api';
+import { CustomToastComponent } from '../../shared/components/custom-toast/custom-toast.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { catchError, debounceTime, forkJoin, from, fromEvent, map, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { PostService } from '../../posts/services/post.service';
+import { UploadedMedia } from '../../posts/models/uploaded-media';
 import { MediaArticle } from '../models/media-article';
 import { Link } from '../models/link';
 import imageCompression from 'browser-image-compression';
@@ -17,7 +18,6 @@ import { CreateUpdateArticle } from '../models/create-update-article';
 })
 export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   private initTimeout?: ReturnType<typeof setTimeout>;
-  private readonly messageService = inject(MessageService);
   private readonly postService = inject(PostService);
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() currentArticle!: Article | undefined;
@@ -31,16 +31,15 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('fileInputImg') fileInputImage!: ElementRef;
   @ViewChild('firstInput') firstInput!: ElementRef<HTMLInputElement>;
   @ViewChild('fileInputDocument') fileInputDoc!: ElementRef;
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
 
   public imgsPreview: {name: string, type: string, url: string}[] = [];
   public imagesOfArticle: MediaArticle[] = []; // imagenes del articulo actual para renderizar
   private imageFilesToCreate: File[] = []; //imagenes para subir al articulo
-  private imagesToDelete: MediaArticle[] = []; //imagenes del articulo para eliminar
   
   public docsPreview: {name: string, type: string, url: string}[] = [];
   public docsOfArticle: MediaArticle[] = []; // docs del articulo para renderizar
   private docsToCreate: File[] = [];
-  private docsToDelete: MediaArticle[] = [];
 
   public typeDocs = ['document', 'application/pdf'];
   
@@ -52,11 +51,11 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   });
 
   public buttonsOfArticle: Link[] = [];
-  public buttonsToDelete: Link[]= [];
   public buttonsToAdd: { name: string, url: string }[] = []; // Para crear articulo
   // Modal de agregar botones
   public visibleModalAddButton = false;
   public disableButtonSaveArticle = false;
+  private isArticleEmpty = true;
 
   private modeEdit: 'load' | 'preload' = 'load'; // Modo de edicion de un boton ya guardado en BD o uno pre cargado 
   private indexButton: undefined | number;
@@ -68,9 +67,9 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     url: new FormControl('', [Validators.required])
   });
 
+  public maxLengthTextArticle: number = 3000;
   public currentLength: number = 0;
   public isExceeded: boolean = false;
-  public maxLength: number = 3000;
 
   private quillInstance: any;
   private readonly destroy$ = new Subject<void>();
@@ -128,13 +127,12 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   public onSubmit(): void {
     // Validar límite (aunque botón esté deshabilitado)
     if (this.isExceeded) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error de validación',
-        detail: `El texto excede el límite de ${this.maxLength} caracteres. Actual: ${this.currentLength}`
-      });
+      this.toastRef.showError(`El texto excede el límite de ${this.maxLengthTextArticle} caracteres. Actual: ${this.currentLength}`, 'Error de validación');
       return; 
     }
+
+    this.checkArticleEmpty();
+    if(this.isArticleEmpty) return;
 
     // SOLO AQUÍ obtenemos el HTML definitivo para enviar
     const htmlContent = this.quillInstance.root.innerHTML;
@@ -150,7 +148,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
 
   private createArticle(): void {
     if (this.imageFilesToCreate.length === 0 && this.docsToCreate.length === 0) {
-      this.createArticleWithoutImages();
+      this.createArticleWithoutImagesDocs();
       return;
     }
 
@@ -167,7 +165,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
             });
             return this.postService.uploadImages(formData);
           }),
-          map(uploadResponse => 
+          map((uploadResponse: UploadedMedia[]) =>
             uploadResponse.map((media, index) => ({
               number: index + 1,
               type: media.mimeType,
@@ -214,8 +212,8 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
         const newArticle = {
           section_id: this.currentSectionUuid,
           date: '',
-          title: this.formArticle.value.title ?? '',
-          text: this.formArticle.value.text ?? '',
+          title: this.formArticle.value.title?.trim() ?? '',
+          text: this.formArticle.value.text?.trim() ?? '',
           medias: mediasToArticle,
           links: this.buttonsToAdd
         };
@@ -225,17 +223,12 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe({
       next: (articleCreated) => {
         this.isLoading = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Exitoso',
-          detail: 'Artículo creado exitosamente'
-        });
         this.onCreateArticle.emit(articleCreated);
         this.closeEdit();
       },
       error: (error) => {
         this.isLoading = false;
-        
+
         // Mensaje de error específico
         let errorDetail = 'Error al crear artículo';
         if (error.message === 'IMAGE_UPLOAD_FAILED') {
@@ -243,25 +236,20 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
         } else if (error.message === 'DOC_UPLOAD_FAILED') {
           errorDetail = 'Error al subir los documentos';
         }
-        
+
         console.error('Error al crear artículo:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: errorDetail
-        });
-        this.closeEdit();
+        this.toastRef.showError(errorDetail, 'Error');
       }
     });
   }
 
-  private createArticleWithoutImages(): void {
+  private createArticleWithoutImagesDocs(): void {
     this.isLoading = true;
     const newArticle: Omit<Article, 'uuid' | 'user_id' | 'links'> & {links: Array<Omit<Link, 'uuid'>> } = {
       section_id: this.currentSectionUuid,
       date: '',
-      title: this.formArticle.value.title ?? '',
-      text: this.formArticle.value.text ?? '',
+      title: this.formArticle.value.title?.trim() ?? '',
+      text: this.formArticle.value.text?.trim() ?? '',
       medias: [],
       links: this.buttonsToAdd
     }
@@ -269,15 +257,13 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     this.informationService.createArticle(newArticle).subscribe({
       next: (created) => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Artículo creado exitosamente' });
         this.onCreateArticle.emit(created);
         this.closeEdit();
       },
       error: (err) => {
         this.isLoading = false;
         console.log('Error al crear articulo', err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear artículo' });
-        this.closeEdit();
+        this.toastRef.showError('Error al crear artículo', 'Error');
       }
     })
   }
@@ -332,7 +318,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.currentArticle) return;
 
     if (this.imageFilesToCreate.length === 0 && this.docsToCreate.length === 0) {
-      this.updateArticleWithoutNewImages();
+      this.updateArticleWithoutNewImagesDocs();
       return;
     }
 
@@ -350,7 +336,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
             });
             return this.postService.uploadImages(formData);
           }),
-          map(uploadResponse => 
+          map((uploadResponse: UploadedMedia[]) =>
             uploadResponse.map((media, index) => ({
               number: index + 1,
               file_name: media.name,
@@ -398,8 +384,8 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
         // Construir el artículo actualizado
         const articleUpdated: CreateUpdateArticle = {
           ...this.currentArticle!,
-          title: this.formArticle.value.title ?? '',
-          text: this.formArticle.value.text ?? '',
+          title: this.formArticle.value.title?.trim() ?? '',
+          text: this.formArticle.value.text?.trim() ?? '',
           medias: [...this.imagesOfArticle, ...images, ...this.docsOfArticle, ...docs],
           links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
         };
@@ -409,35 +395,25 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe({
       next: (articleUpdatedResult) => {
         this.isLoading = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Exitoso',
-          detail: 'Artículo editado exitosamente'
-        });
         this.onEditedArticle.emit(articleUpdatedResult);
         this.closeEdit();
       },
       error: (error) => {
         this.isLoading = false;
         console.error('Error al actualizar artículo:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Error al editar artículo'
-        });
-        this.closeEdit();
+        this.toastRef.showError('Error al editar artículo', 'Error');
       }
     });
   }
 
-  private updateArticleWithoutNewImages(): void {
+  private updateArticleWithoutNewImagesDocs(): void {
     if(!this.currentArticle) return;
 
     this.isLoading = true;
     const articleEdited: Article = {
       ...this.currentArticle,
-      title: this.formArticle.value.title ?? '',
-      text: this.formArticle.value.text ?? '',
+      title: this.formArticle.value.title?.trim() ?? '',
+      text: this.formArticle.value.text?.trim() ?? '',
       medias: [...this.imagesOfArticle, ...this.docsOfArticle],
       links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
     }
@@ -445,15 +421,13 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     this.informationService.updateArticle(this.currentArticle.uuid, articleEdited).subscribe({
       next: (edited) => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo editado exitosamente' });
         this.onEditedArticle.emit(edited);
         this.closeEdit();
       },
       error: (err) => {
         this.isLoading = false;
         console.log('Error al editar articulo sin nuevas imagenes', err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al editar artículo' });
-        this.closeEdit();
+        this.toastRef.showError('Error al editar artículo', 'Error');
       }
     })
   }
@@ -462,9 +436,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     this.clearImagesPreview();
     this.clearDocsPreview();
     this.imageFilesToCreate = [];
-    this.imagesToDelete = [];
     this.docsToCreate = [];
-    this.docsToDelete = [];
     if(this.typeForm === 'edit'){
       this.buttonsOfArticle = [];
       this.currentArticle = undefined;
@@ -501,15 +473,13 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     this.informationService.deleteArticle(this.currentArticle.uuid).subscribe({
       next: () => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'success', summary: 'Exitoso', detail: 'Articulo eliminado exitosamente' });
         this.onDeletedArticle.emit(this.currentArticle);
         this.onCloseEdit.emit();
         this.currentArticle = undefined;
       },
       error: () => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al eliminar artículo' });
-        this.onCloseEdit.emit();
+        this.toastRef.showError('Error al eliminar artículo', 'Error');
       }
     });
   }
@@ -579,8 +549,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     return files.every(file => this.typeDocs.includes(file.type));
   }
 
-  public selectDocumentDeleteOfArticle(index: number, doc: MediaArticle): void {
-    this.docsToDelete.push(doc);
+  public selectDocumentDeleteOfArticle(index: number): void {
     this.docsOfArticle.splice(index, 1);
   }
 
@@ -627,8 +596,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  public selectImageDeleteOfArticle(index: number, image: MediaArticle): void {
-    this.imagesToDelete.push(image);
+  public selectImageDeleteOfArticle(index: number): void {
     this.imagesOfArticle.splice(index, 1);
   }
 
@@ -646,8 +614,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // Eliminar boton (BD) desde le icono (sin abrir modal)
-  public deleteButton(button: Link, index: number): void {
-    this.buttonsToDelete.push(button);
+  public deleteButton(index: number): void {
     this.buttonsOfArticle.splice(index, 1);
   }
 
@@ -707,9 +674,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   public deleteButtonInModal(): void {
     // modeEdit = load -> Boton guardado en BD
     if(this.modeEdit === 'load' && this.indexButton){
-      const buttonToDelete = this.buttonsOfArticle[this.indexButton];
       this.buttonsOfArticle.splice(this.indexButton,1);
-      this.buttonsToDelete.push(buttonToDelete);
 
       // modeEdit = preload -> Boton local 
     }else if(this.modeEdit === 'preload' && this.indexButton){
@@ -739,7 +704,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     if (htmlContent === '<p><br></p>') htmlContent = '';
 
     this.currentLength = htmlContent.length;
-    this.isExceeded = this.currentLength > this.maxLength;
+    this.isExceeded = this.currentLength > this.maxLengthTextArticle;
 
     this.disableButtonSaveArticle = this.isExceeded;
   }
@@ -747,4 +712,33 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   private normalizeSpaces(html: string): string {
     return html.replace(/&nbsp;/g, ' ');
   }
+
+  private checkArticleEmpty(): void {
+    const contentArticleEmpty = this.formArticle.get('title')?.value === '' && 
+                                (this.formArticle.get('text')?.value === '' ||
+                                 this.formArticle.get('text')?.value === '<p><br></p>' ||
+                                 this.formArticle.get('text')?.value === '<p></p>')&&
+                                this.imageFilesToCreate.length === 0 && 
+                                this.docsToCreate.length === 0 && 
+                                this.buttonsToAdd.length === 0;
+
+    if(this.typeForm === 'create'){
+      if(contentArticleEmpty){
+        this.isArticleEmpty = true;
+        this.toastRef.showError('No se puede crear un artículo vacío', 'Error de validación');
+      }else{
+        this.isArticleEmpty = false;
+      }
+    }else { // typeForm === edit
+      if(contentArticleEmpty && this.imagesOfArticle.length === 0 &&
+        this.docsOfArticle.length === 0 && this.buttonsOfArticle.length === 0){
+
+        this.toastRef.showError('No se puede guardar un artículo vacío', 'Error de validación');
+        this.isArticleEmpty = true;
+      }else{
+        this.isArticleEmpty = false;
+      }
+    }
+  }
+
 }

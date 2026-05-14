@@ -28,6 +28,9 @@ export class TenantService {
 
     const firstSegment = segments[0] ?? '';
 
+    // Root dashboard never belongs to a tenant
+    if (firstSegment === 'root') return '';
+
     if (firstSegment && !this.RESERVED_PATHS.includes(firstSegment)) {
       return firstSegment;
     }
