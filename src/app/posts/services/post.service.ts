@@ -204,7 +204,7 @@ export class PostService {
   }
 
   // Método para agregar un comentario a un post usando uuid
-  addComment(uuid: string, commentData: PostComment): Observable<PostComment> {
+  addComment(uuid: string, commentData: { content: string }): Observable<any> {
     const endpoint = `post/${uuid}/comments`;
     const token = localStorage.getItem('token');
 
@@ -220,7 +220,7 @@ export class PostService {
 
     const fullUrl = `${this.ROOT_URL}/${endpoint}`;
 
-    return this.http.post<PostComment>(fullUrl, commentData, { headers });
+    return this.http.post<any>(fullUrl, commentData, { headers });
   }
 
   //Obtener todas las fotos de la institucion 

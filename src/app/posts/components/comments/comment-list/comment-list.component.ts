@@ -207,8 +207,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   calculateTimeFromNow(date: string): string {
-    let commentDate = moment(date,'YYYY-MM-DDTHH:mm:ss.SSS');
-    return commentDate.fromNow();
+    return moment.utc(date).local().fromNow();
   }
 
   loadUserReactionsForComments() {

@@ -169,8 +169,7 @@ export class ReplyListComponent implements OnInit, OnDestroy {
 
   // Calcula el tiempo desde la fecha
   calculateTimeFromNow(date: string): string {
-    let commentDate = moment(date,'YYYY-MM-DDTHH:mm:ss.SSS');
-    return commentDate.fromNow();
+    return moment.utc(date).local().fromNow();
   }
   openReplyReactionsModal(replyUuid: string) {
     this.postService.getReplyReactions(replyUuid)
