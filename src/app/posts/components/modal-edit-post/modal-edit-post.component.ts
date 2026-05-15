@@ -58,6 +58,11 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   ){}
 
   ngOnInit(){
+    if(this.postToEdit.content.media.length > 0) { 
+      this.postToEdit.content.media[0].type === 'document' ?
+        this.disableLoadImage.set(true) :
+        this.disableLoadDoc.set(true)
+    }
     //Obtener la configuracion de comentarios
     this.postService.getCommentsConfiguration()
       .pipe(takeUntil(this.destroy$))
