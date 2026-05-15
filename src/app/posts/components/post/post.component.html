@@ -103,10 +103,10 @@
 	</ng-container>
 	
 	<!-- Botones de reaccionar, comentar y compartir -->
-	<div class="bottuns" [hidden]="!authenticated">
+	<div class="bottuns" *ngIf="authenticated">
 		<!-- Boton de Reaccionar -->
-		<button type="button" class="btn icon-btn" [ngClass]="myReaction.class" id="btn-like" [hidden]="!authenticated"
-			[disabled]="!authenticated" (click)="reactUserBoton(post.uuid)">
+		<button type="button" class="btn icon-btn" [ngClass]="myReaction.class" id="btn-like"
+			(click)="reactUserBoton(post.uuid)">
 			<i class="{{ myReaction.emoji }}"
 				*ngIf="myReaction.class == 'thumbs-up' || myReaction.class == 'red-heart' || myReaction.class == 'default'"></i>
 			<img src="assets/{{myReaction.class}}.png" class="{{myReaction.class}}"
@@ -122,17 +122,16 @@
 					(click)="clickReaction(post.uuid, 'angry-face', $event)">
 			</div>
 		</button>
-
-		<button type="button" class="btn icon-btn" id="btn-comment" [hidden]="!authenticated"
-			[disabled]="!authenticated" (click)="openViewPostComments(post)">
-			<i class="bi bi-chat-left-text"></i>
-			Comentar</button>
+		<!-- Boton de Comentar -->
+		@if(post.comment_config_id !== '587d7d7f-5g3n-4b77-cf98-77a9h46759d0'){
+			<button type="button" class="btn icon-btn" id="btn-comment" (click)="openViewPostComments(post)">
+				<i class="bi bi-chat-left-text"></i>
+				Comentar</button>
+		}
 		<!-- Boton de Compartir -->
-		<button type="button" class="btn icon-btn" id="btn-share" (click)="onShare()" [hidden]="!authenticated">
+		<button type="button" class="btn icon-btn" id="btn-share" (click)="onShare()">
 			<i class="fa-solid fa-share"></i>
 			Compartir</button>
 	</div>
 
-
-	<!-- Boton de Comentar -->
 </div>

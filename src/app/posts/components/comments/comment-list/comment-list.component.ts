@@ -19,6 +19,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() comments: Comment[] = [];
   @Input() currentUser: UserDetail | null = null;
   @Input() authenticated: boolean = false;
+  @Input() commentConfigId: string = '';
   @Output() onAddReply = new EventEmitter<{ parentUuid: string, replyText: string, isTopLevel: boolean }>();
   commentReactionsCount: { [commentUuid: string]: number } = {};
   replyInputVisible: { [key: string]: boolean } = {};

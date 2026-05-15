@@ -401,7 +401,6 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
 
         this.postService.updatePost(this.postToEdit.uuid, editedPost).subscribe({
           next: (responseUpdatedPost) => {
-            console.log('post actualizado',responseUpdatedPost);
             globalThis.location.reload();
           },
           error: (error) => {
