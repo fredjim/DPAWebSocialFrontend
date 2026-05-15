@@ -3,7 +3,7 @@ import { Article } from '../models/article';
 import { InformationService } from '../services/information.service';
 import { CustomToastComponent } from '../../shared/components/custom-toast/custom-toast.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { catchError, debounceTime, forkJoin, from, fromEvent, map, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { catchError, debounceTime, forkJoin, from, fromEvent, map, of, Subject, switchMap, takeUntil, throwError } from 'rxjs';
 import { PostService } from '../../posts/services/post.service';
 import { UploadedMedia } from '../../posts/models/uploaded-media';
 import { MediaArticle } from '../models/media-article';
@@ -172,12 +172,17 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
               file_name: media.name,
               uploaded_file_uuid: media.uuid,
             }))
-          )
+          ),
+          catchError(error => {
+            console.error('Error en imágenes:', error);
+            // throwError mensaje + error identificable en subscribe
+            return throwError(() => Object.assign(new Error('IMAGE_UPLOAD_FAILED'), { cause: error }));
+          })
         )
       : of([]);
 
     const uploadDocs$ = this.docsToCreate.length > 0
-      ? from(Promise.resolve(this.docsToCreate)).pipe(
+      ? of(this.docsToCreate).pipe(
           switchMap(docs => {
             const formDataDocs = new FormData();
             docs.forEach(file => {
@@ -192,32 +197,28 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
               file_name: media.name,
               uploaded_file_uuid: media.uuid,
             }))
-          )
+          ),
+          catchError(error => {
+            console.error('Error en documentos:', error);
+            // throwError mensaje + error identificable en subscribe
+            return throwError(() => Object.assign(new Error('DOC_UPLOAD_FAILED'), { cause: error }));
+          })
         )
       : of([]);
 
     forkJoin({
-      images: uploadImages$.pipe(catchError(error => {
-        console.error('Error en imágenes:', error);
-        throw new Error('IMAGE_UPLOAD_FAILED');
-      })),
-      docs: uploadDocs$.pipe(catchError(error => {
-        console.error('Error en documentos:', error);
-        throw new Error('DOC_UPLOAD_FAILED');
-      }))
+      images: uploadImages$,
+      docs: uploadDocs$
     }).pipe(
       switchMap(({ images, docs }) => {
-        const mediasToArticle = [...images, ...docs];
-        
         const newArticle = {
           section_id: this.currentSectionUuid,
           date: '',
           title: this.formArticle.value.title?.trim() ?? '',
           text: this.formArticle.value.text?.trim() ?? '',
-          medias: mediasToArticle,
+          medias: [...images, ...docs],
           links: this.buttonsToAdd
         };
-        
         return this.informationService.createArticle(newArticle);
       })
     ).subscribe({
@@ -236,8 +237,8 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
         } else if (error.message === 'DOC_UPLOAD_FAILED') {
           errorDetail = 'Error al subir los documentos';
         }
-
-        console.error('Error al crear artículo:', error);
+        // Acceder al error HTTP original via error.cause
+        console.error('Error al crear artículo:', error.cause ?? error);
         this.toastRef.showError(errorDetail, 'Error');
       }
     });
@@ -287,7 +288,6 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
 
       // Si ya es WebP y es pequeño, no optimizar
       if (file.type === 'image/webp' && file.size < 1024 * 500) { // < 500KB
-        console.log(`Imagen ${file.name} ya es WebP y pequeña, omitiendo optimización`);
         return file;
       }
 
@@ -346,13 +346,14 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
           ),
           catchError(error => {
             console.error('Error al subir imágenes:', error);
-            return of([]); // Retornar array vacío en caso de error
+            //Propagar el error
+            return throwError(() => error);
           })
         )
       : of([]);
 
     const uploadDocs$ = this.docsToCreate.length > 0
-      ? from(Promise.resolve(this.docsToCreate)).pipe(
+      ? of(this.docsToCreate).pipe(
           switchMap(docs => {
             const formDataDocs = new FormData();
             docs.forEach(file => {
@@ -370,7 +371,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
           ),
           catchError(error => {
             console.error('Error al subir documentos:', error);
-            return of([]);
+            return throwError(() => error);
           })
         )
       : of([]);
