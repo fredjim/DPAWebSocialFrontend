@@ -3,7 +3,7 @@
         <img src="assets/logo-umss.png" alt="Logo UMSS">
 
         @if (institution) {
-        <img src="{{ institution.logo_url }}" alt="Logo">
+        <app-institution-avatar [institution]="institution" size="small" id="logo-inst-header"></app-institution-avatar>
         }
     </div>
 
