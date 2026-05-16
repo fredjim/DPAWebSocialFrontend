@@ -5,6 +5,12 @@
 	margin: 0 auto;
 	padding: 50px 0 0;
 	width: 1020px;
+	.detail-photos {
+		position: sticky;
+		align-self: start;
+		height: fit-content;
+		padding-right: 15px; /* Un poco de espacio antes de la línea roja */
+	}
 
 	.main-container {
 		display: flex;
@@ -107,7 +113,7 @@
 			}
 		}
 	}
-	.details-photos {
+	.detail-photos {
 		display: none;
 	}
 }
