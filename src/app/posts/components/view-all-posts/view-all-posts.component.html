@@ -1,5 +1,5 @@
 <div class="container">
-  <div class="detail-photos">
+  <div class="detail-photos" #sidebar [ngStyle]="sidebarStyle">
     <app-department-details></app-department-details>
   </div>
   <div *ngIf="posts" class="main-container">
