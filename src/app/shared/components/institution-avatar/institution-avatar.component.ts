@@ -8,7 +8,7 @@ import { Institution } from '../../../posts/models/institution';
 })
 export class InstitutionAvatarComponent implements OnInit, OnChanges {
   @Input() institution!: Institution;
-  @Input() size: 'small' | 'medium' | 'large' = 'medium';
+  @Input() size: 'small' | 'medium' | 'large' | 'xlarge' = 'medium';
 
   imageError = false;
 

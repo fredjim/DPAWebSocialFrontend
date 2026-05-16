@@ -56,8 +56,6 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(institutionData => {
         this.institution = institutionData;
-        this.imageCover = institutionData.background_url || '';
-        this.imageLogo = institutionData.logo_url || '';
         this.currentLogoUuid = this.extractUuidFromUrl(institutionData.logo_url);
         this.currentBackgroundUuid = this.extractUuidFromUrl(institutionData.background_url);
         this.formInstitution.patchValue({
@@ -164,6 +162,7 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
       const reader = new FileReader();
       reader.onload = () => {
         this.imageCover = reader.result as string;
+        this.coverImageError = false;
       };
       reader.readAsDataURL(this.imageFileCoverToCreate);
     }
@@ -196,12 +195,21 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
     return this.imageLogo || this.institution?.logo_url || '';
   }
 
+  coverImageError = false;
+
   get institutionCoverUrl(): string {
     return this.imageCover || this.institution?.background_url || '';
   }
 
   get hasInstitutionCover(): boolean {
-    return !!this.institutionCoverUrl && this.institutionCoverUrl.trim().length > 0;
+    return !!this.institutionCoverUrl && 
+           this.institutionCoverUrl.trim().length > 0 && 
+           this.institutionCoverUrl !== 'null' && 
+           !this.coverImageError;
+  }
+
+  onCoverError() {
+    this.coverImageError = true;
   }
 
   ngOnDestroy(): void {
