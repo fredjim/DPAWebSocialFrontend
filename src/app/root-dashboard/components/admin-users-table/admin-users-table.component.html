@@ -55,44 +55,57 @@
     <div class="form-grid pt-2">
       <div class="field-group row g-3">
         <div class="col-md-6">
-          <label class="form-label">Nombre <span class="text-danger">*</span></label>
-          <input pInputText formControlName="name" class="w-100" placeholder="Ej: Juan" />
+          <label class="form-label" for="name">Nombre <span class="text-danger">*</span></label>
+          <input pInputText id="name" formControlName="name" class="w-100" placeholder="Ej: Juan" />
           <small class="text-danger-msg" *ngIf="hasError('name', 'required')">Obligatorio</small>
         </div>
 
         <div class="col-md-6">
-          <label class="form-label">Apellido <span class="text-danger">*</span></label>
-          <input pInputText formControlName="lastName" class="w-100" placeholder="Ej: Pérez" />
+          <label class="form-label" for="lastName">Apellido <span class="text-danger">*</span></label>
+          <input pInputText id="lastName" formControlName="lastName" class="w-100" placeholder="Ej: Pérez" />
           <small class="text-danger-msg" *ngIf="hasError('lastName', 'required')">Obligatorio</small>
         </div>
 
         <div class="col-12">
-          <label class="form-label">Email <span class="text-danger">*</span></label>
+          <label class="form-label" for="email">Email <span class="text-danger">*</span></label>
           <div class="p-inputgroup">
             <span class="p-inputgroup-addon"><i class="fa-solid fa-envelope"></i></span>
-            <input pInputText type="email" formControlName="email" class="w-100" placeholder="juan.perez@ejemplo.com" />
+            <input pInputText id="email" type="email" formControlName="email" class="w-100" placeholder="juan.perez@ejemplo.com" />
           </div>
           <small class="text-danger-msg" *ngIf="hasError('email', 'email')">Email inválido</small>
         </div>
 
         <div class="col-12">
-          <label class="form-label">
+          <label class="form-label" for="password">
             Contraseña
             <span class="text-danger" *ngIf="!isEditMode()">*</span>
             <small class="text-muted ms-1" *ngIf="isEditMode()">(dejar vacío para no cambiar)</small>
           </label>
           <div class="p-inputgroup">
             <span class="p-inputgroup-addon"><i class="fa-solid fa-key"></i></span>
-            <input pInputText type="password" formControlName="password" class="w-100" placeholder="••••••••" />
+            <input pInputText 
+                  id="password"
+                  type="password" 
+                  formControlName="password" 
+                  class="w-100" 
+                  [type]="showPassword ? 'text' : 'password'"
+                  placeholder="••••••••" />
+            <ui-button
+              type="button"
+              severity="secondary"
+              variant="outlined"
+              (clicked)="showPassword = !showPassword">
+                <i class="fa-solid" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+            </ui-button>
           </div>
           <small class="text-danger-msg" *ngIf="hasError('password', 'minlength')">Mínimo 8 caracteres</small>
         </div>
 
         <div class="col-12">
-          <label class="form-label">Teléfono <small class="text-muted">(opcional)</small></label>
+          <label class="form-label" for="phone">Teléfono <small class="text-muted">(opcional)</small></label>
           <div class="p-inputgroup">
             <span class="p-inputgroup-addon"><i class="fa-solid fa-phone"></i></span>
-            <input pInputText formControlName="phone" class="w-100" placeholder="76543210" />
+            <input pInputText id="phone" formControlName="phone" class="w-100" placeholder="76543210" />
           </div>
           <small class="text-danger-msg" *ngIf="hasError('phone', 'pattern')">8 dígitos requeridos</small>
         </div>
