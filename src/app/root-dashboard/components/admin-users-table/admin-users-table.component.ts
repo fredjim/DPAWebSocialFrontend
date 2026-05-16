@@ -25,6 +25,7 @@ export class AdminUsersTableComponent implements OnInit {
   isSaving = signal(false);
   isEditMode = signal(false);
   selectedUuid: string | null = null;
+  showPassword = false;
 
   columns: TableColumn[] = [
     { field: 'name', header: 'Nombre', sortable: true, type: 'text' },
