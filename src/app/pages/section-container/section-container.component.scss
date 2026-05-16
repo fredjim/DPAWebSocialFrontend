@@ -184,14 +184,27 @@
 		border: none;
 	}
 }
-.container-img {
-	margin: 5px;
+::ng-deep {
+    .p-carousel-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 62vh;
+    }
 }
+.container-img {
+    margin: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
 .image-modal {
-	width: 100%;
-	height: auto;
-	max-height: 80vh;
-	object-fit: contain;
+    width: 100%;
+    height: auto;
+    max-height: 60vh;
+    object-fit: contain;
 }
 
 ::ng-deep button.p-dialog-header-icon.p-dialog-header-close {
@@ -293,6 +306,14 @@
 		}
 	}
 
+	::ng-deep .p-carousel-item {
+        height: 35vh;
+    }
+
+	.image-modal {
+		max-height: 25vh;
+	}
+
 }
 
 @media screen and (max-width: 576px) {
@@ -302,5 +323,13 @@
 				width: 95%;
 			}
 		}
+	}
+
+	::ng-deep .p-carousel-item {
+        height: 30vh;
+    }
+
+	.image-modal {
+		max-height: 30vh;
 	}
 }
