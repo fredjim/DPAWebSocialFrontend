@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Institution } from '../models/institution.model';
 
@@ -15,16 +16,25 @@ export class InstitutionAdminService {
     return this.http.get<Institution[]>(this.BASE_URL);
   }
 
+  // API has no GET /institutions/{uuid} — filter from the full list
   getById(uuid: string): Observable<Institution> {
-    return this.http.get<Institution>(`${this.BASE_URL}/${uuid}`);
+    return this.getAll().pipe(
+      map(list => {
+        const found = list.find(i => i.uuid === uuid);
+        if (!found) throw new Error(`Institution ${uuid} not found`);
+        return found;
+      })
+    );
   }
 
   create(dto: Institution): Observable<Institution> {
     return this.http.post<Institution>(this.BASE_URL, dto);
   }
 
-  update(uuid: string, dto: Institution): Observable<Institution> {
-    return this.http.put<Institution>(`${this.BASE_URL}/${uuid}`, { ...dto, uuid });
+  // PUT /api/v1/institutions — uuid in body, NOT in the path
+  update(dto: Institution): Observable<Institution> {
+    const { logo_url, background_url, ...fields } = dto as any;
+    return this.http.put<Institution>(this.BASE_URL, fields);
   }
 
   delete(uuid: string): Observable<Institution> {
