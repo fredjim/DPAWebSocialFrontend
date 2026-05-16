@@ -56,6 +56,12 @@ export class UiButtonComponent {
   /** Native button type — critical for form submit behavior. */
   @Input() type: ButtonType = 'button';
 
+  /**
+   * Associates the internal <button> with a form by id.
+   * Useful when the button lives outside the <form> element.
+   */
+  @Input() form?: string;
+
   /** Replaces the icon with a spinner and suppresses the click event. */
   @Input() loading = false;
 

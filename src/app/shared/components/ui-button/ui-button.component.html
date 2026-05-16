@@ -17,6 +17,7 @@
   class="ui-btn"
   [ngClass]="cssClasses"
   [type]="type"
+  [attr.form]="form || null"
   [disabled]="isDisabled"
   [attr.aria-busy]="loading || null"
   [attr.data-bs-dismiss]="bsDismiss || null"

@@ -16,6 +16,11 @@
     width: 80px;
     height: 80px;
   }
+
+  &.size-xlarge {
+    width: 150px;
+    height: 150px;
+  }
 }
 
 .institution-logo-placeholder {
@@ -52,6 +57,16 @@
     width: 80px;
     height: 80px;
     font-size: 1.5rem;
+
+    span {
+      line-height: 1;
+    }
+  }
+
+  &.size-xlarge {
+    width: 150px;
+    height: 150px;
+    font-size: 3rem;
 
     span {
       line-height: 1;
