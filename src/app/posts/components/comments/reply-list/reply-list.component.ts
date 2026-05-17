@@ -198,4 +198,8 @@ export class ReplyListComponent implements OnInit, OnDestroy {
       modalRef.componentInstance.reactionsCount = reactionsCount; 
     });
   }
+
+  onImgError(event: Event): void {
+    (event.target as HTMLImageElement).src = 'assets/default-avatar.png';
+  }
 }
