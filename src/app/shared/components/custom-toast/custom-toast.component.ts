@@ -13,7 +13,7 @@ export class CustomToastComponent {
   // Posición del toast en la pantalla
   @Input() position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center' | 'center' = 'top-right';
 
-  constructor(private messageService: MessageService) { }
+  constructor(private readonly messageService: MessageService) { }
 
   /**
    * Muestra un mensaje de éxito
