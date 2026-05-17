@@ -72,7 +72,7 @@ export class InstitutionDetailComponent implements OnInit {
     };
 
     this.isSaving.set(true);
-    this.institutionService.update(this.uuid, dto)
+    this.institutionService.update(dto)
       .pipe(finalize(() => this.isSaving.set(false)))
       .subscribe({
         next: updated => {

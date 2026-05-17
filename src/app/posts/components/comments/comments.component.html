@@ -12,7 +12,11 @@
         <!-- Información del autor -->
         <div class="d-flex flex-column">
           <div class="d-flex flex-row justify-content-start" *ngIf="institution">
-            <img [src]="institution.logo_url" alt="Foto de perfil" class="img-profile" />
+            <app-institution-avatar 
+              [institution]="institution" 
+              size="medium" 
+              class="img-profile">
+            </app-institution-avatar>
             <div class="info-user">
               <h2>{{ institution.name }}</h2>
               <p>{{ calculateTimePost() }}</p>
