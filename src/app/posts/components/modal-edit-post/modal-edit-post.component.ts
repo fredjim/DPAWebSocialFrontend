@@ -8,7 +8,6 @@ import { PostService } from '../../services/post.service';
 import { Media } from '../../models/media';
 import { CreatePost } from '../../models/create-post';
 import { UploadedMedia } from '../../models/uploaded-media';
-import { FbUploadedMedia } from '../../models/fb-uploaded-media';
 import { Modal } from 'bootstrap';
 import { UserDetail } from '../../models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
@@ -42,7 +41,6 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   private listNewMediaFile: File[] = []; //Lista de media editada obtenida de 'image-video-editor' component
   private listOldMediaFile!: Media[]; //Lista de media editada que existe en el post
   private fileNewDoc: File | null = null;  //Doc añadido en edicion
-  private readonly fbMediaResponse!: FbUploadedMedia;
   private currentUser!: UserDetail;
   private currentPostType!: string;
   private isAuthenticated: boolean = false;
@@ -303,7 +301,6 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
         text: valueFormPost.contentPost,
         media: []
       },
-      is_fb_posted: false,
       fb_post_enable: false
     }
 
@@ -338,11 +335,9 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
 
               responseMedia.push({
                 number: index + 1 + amountImagesPost,
-                type: media.mimeType,
-                name: media.name,
-                uploaded_file_uuid: media.uuid,
-                path: media.urlResource,
-                fb_media_id: this.fbMediaResponse ? this.fbMediaResponse.id : ''
+                type: media.mimeType.includes('image') ? 'image' : 'video',
+                file_name: media.name,
+                uploaded_file_uuid: media.uuid
               });
             });
 
@@ -377,15 +372,12 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   
             responseDoc = {
               number: 1,
-              type: 'document',//uploadResponse.mimeType,
-              name: uploadResponse.name,
-              path: uploadResponse.urlResource,
-              uploaded_file_uuid: uploadResponse.uuid,
-              fb_media_id: ''
-            }
-            
+              type: 'document',
+              file_name: uploadResponse.name,
+              uploaded_file_uuid: uploadResponse.uuid
+            };
+
             editedPost.content.media.push(responseDoc);
-            editedPost.is_fb_posted = false;
             editedPost.fb_post_enable = false;
             return this.postService.updatePost(this.postToEdit.uuid, editedPost);
           })
