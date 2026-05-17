@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, signal, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 import { finalize } from 'rxjs';
@@ -9,6 +9,13 @@ import { TableColumn } from '../../../shared/components/custom-table/custom-tabl
 
 const ONLY_LETTERS = /^[a-zA-Z\s]+$/;
 const PHONE_8_DIGITS = /^\d{8}$/;
+interface PasswordValidationErrors {
+  passwordLength?: true;
+  missingLowercase?: true;
+  missingUppercase?: true;
+  missingNumber?: true;
+  missingSpecialChar?: true;
+}
 
 @Component({
   selector: 'app-admin-users-table',
@@ -26,6 +33,9 @@ export class AdminUsersTableComponent implements OnInit {
   isEditMode = signal(false);
   selectedUuid: string | null = null;
   showPassword = false;
+
+  public readonly MAX_LENGTH_PASSWORD = 16;
+  public readonly MIN_LENGTH_PASSWORD = 8;
 
   columns: TableColumn[] = [
     { field: 'name', header: 'Nombre', sortable: true, type: 'text' },
@@ -55,7 +65,7 @@ export class AdminUsersTableComponent implements OnInit {
       name:     ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(ONLY_LETTERS)]],
       lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(ONLY_LETTERS)]],
       email:    ['', [Validators.required, Validators.email, Validators.maxLength(50)]],
-      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
+      password: ['', [this.passwordValidator()]],
       phone:    ['', [Validators.pattern(PHONE_8_DIGITS)]]
     });
   }
@@ -78,19 +88,14 @@ export class AdminUsersTableComponent implements OnInit {
     this.isEditMode.set(false);
     this.selectedUuid = null;
     this.form.reset();
-    this.form.get('password')!.setValidators([Validators.required, Validators.minLength(8), Validators.maxLength(20)]);
-    this.form.get('password')!.updateValueAndValidity();
     this.showDialog.set(true);
   }
 
   openEditDialog(admin: AdminUser): void {
     this.isEditMode.set(true);
     this.selectedUuid = admin.uuid;
+    this.form.reset();
     this.form.patchValue({ name: admin.name, lastName: admin.lastName, email: admin.email, phone: admin.phone ?? '' });
-    // Password not required on edit
-    this.form.get('password')!.clearValidators();
-    this.form.get('password')!.setValue('');
-    this.form.get('password')!.updateValueAndValidity();
     this.showDialog.set(true);
   }
 
@@ -155,12 +160,40 @@ export class AdminUsersTableComponent implements OnInit {
     });
   }
 
-  hasError(control: string, error: string): boolean {
-    const c = this.form.get(control);
-    return !!(c?.hasError(error) && c.touched);
+  hasError(controlName: string, errorType: string) {
+    const control = this.form.get(controlName);
+    return control?.hasError(errorType) && control?.touched;
   }
 
   get dialogTitle(): string {
     return this.isEditMode() ? 'Editar administrador' : 'Nuevo administrador';
+  }
+
+  private passwordValidator(): ValidatorFn {
+    return (control: AbstractControl): PasswordValidationErrors | null => {
+      const value = control.value as string;
+
+      // En modo editar, si está vacío es válido (no cambia password)
+      if (!value && this.isEditMode()) return null;
+
+      // En modo crear, si está vacío es requerido
+      if (!value) return { required: true } as any;
+
+      const errors: PasswordValidationErrors = {};
+
+      const validations: Array<[keyof PasswordValidationErrors, boolean]> = [
+        ['passwordLength', value.length < this.MIN_LENGTH_PASSWORD || value.length > this.MAX_LENGTH_PASSWORD],
+        ['missingLowercase', !/[a-z]/.test(value)],
+        ['missingUppercase', !/[A-Z]/.test(value)],
+        ['missingNumber',    !/\d/.test(value)],
+        ['missingSpecialChar', !/[!@#$%^&*()_+]/.test(value)],
+      ];
+
+      for (const [key, failed] of validations) {
+        if (failed) errors[key] = true;
+      }
+
+      return Object.keys(errors).length > 0 ? errors : null;
+    };
   }
 }

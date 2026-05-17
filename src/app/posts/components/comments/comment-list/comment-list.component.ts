@@ -277,4 +277,8 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
       modalRef.componentInstance.reactionsCount = reactionsCount;
     });
   }
+
+  onImgError(event: Event): void {
+    (event.target as HTMLImageElement).src = 'assets/default-avatar.png';
+  }
 }

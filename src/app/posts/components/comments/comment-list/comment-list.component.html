@@ -4,7 +4,7 @@
       <!-- Cabecera del comentario -->
       <div class="d-flex align-items-start comment-row">
         <!-- Avatar -->
-        <img [src]="comment.user_photo || 'assets/default-avatar.png'" alt="Foto de perfil" class="comment-img" />
+        <img [src]="comment.user_photo || 'assets/default-avatar.png'" (error)="onImgError($event)" alt="Foto de perfil" class="comment-img" />
 
         <!-- Burbuja del comentario -->
         <div class="comment-bubble">
