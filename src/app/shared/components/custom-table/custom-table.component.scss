@@ -1,0 +1,116 @@
+.table-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+.table-title {
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+    color: var(--rd-header-color, #1e293b);
+}
+.table-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.search-input-group {
+    width: 260px;
+    transition: width 0.3s ease;
+    
+    &:focus-within {
+    width: 320px;
+    }
+
+    ::ng-deep {
+    .p-inputgroup-addon {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        color: #64748b;
+    }
+    input {
+        border-color: #e2e8f0;
+        background: #f8fafc;
+        font-size: 0.875rem;
+        &:focus {
+        background: #fff;
+        box-shadow: none;
+        border-color: var(--primary-color, #3b82f6);
+        }
+    }
+    }
+}
+.extra-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+::ng-deep .p-dropdown-items {
+    padding-left: 0;
+
+    .p-dropdown-item > span {
+    margin-left: 5px;
+    }
+}
+
+:host ::ng-deep {
+    .custom-premium-table {
+    border: none;
+    
+    .p-datatable-header {
+        background: #fff;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1.5rem 2rem;
+    }
+    
+    .p-datatable-thead > tr > th {
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .p-datatable-tbody > tr {
+        transition: background 0.2s;
+        &:hover {
+        background: #fcfdfe !important;
+        }
+        
+        > td {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        font-size: 0.9rem;
+        }
+    }
+
+    .p-paginator {
+        background: #fff;
+        border-top: 1px solid #f1f5f9;
+        padding: 1rem;
+    }
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .table-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    }
+    .table-actions-group {
+    width: 100%;
+    justify-content: space-between;
+    }
+    .search-input-group {
+    width: 100% !important;
+    order: 3;
+    }
+}
