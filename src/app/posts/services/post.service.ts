@@ -13,7 +13,6 @@ import { CommentConfig } from '../models/comment-config';
 import { map } from 'rxjs/operators';
 import { EmojiType } from '../models/emoji-type';
 import { PostComment } from '../models/post-comment';
-import { FbUploadedMedia } from '../models/fb-uploaded-media';
 import { UserDetail } from '../models/user-detail';
 import { MediaInstitution } from '../models/media-institution';
 
@@ -23,10 +22,6 @@ import { MediaInstitution } from '../models/media-institution';
 export class PostService {
 
   private readonly ROOT_URL = `${environment.BACK_END_HOST_DEV}`;
-  private readonly GRAPH_API_URL = `${environment.GRAPH_FACEBOOK_API_URL}`;
-  private readonly FACEBOOK_PAGE_ID = `${environment.FACEBOOK_PAGE_ID}`;
-  private readonly FACEBOOK_PAGE_ACCESS_TOKEN = `${environment.FACEBOOK_PAGE_ACCESS_TOKEN}`;
-
   private readonly reqHeader = { 
     headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }),
     withCredentials: true
@@ -97,25 +92,6 @@ export class PostService {
   uploadVideos(formData: FormData): Observable<UploadedMedia[]> {
     const uploadImgs = 'videos/posts'
     return this.http.post<UploadedMedia[]>(`${this.ROOT_URL}/${uploadImgs}`, formData, this.reqHeader)
-  }
-
-  //Método para subir imagenes a facebook
-  uploadPhotoToFacebook(formData: FormData): Observable<FbUploadedMedia> {
-    const uploadImgs = 'photos';
-    const publishedStatus = 'false';
-    return this.http.post<FbUploadedMedia>(`${this.GRAPH_API_URL}/${this.FACEBOOK_PAGE_ID}/${uploadImgs}?published=${publishedStatus}&access_token=${this.FACEBOOK_PAGE_ACCESS_TOKEN}`, formData);
-  }
-
-  //Método para subir imagenes a facebook
-  publishVideoToFacebook(formData: FormData, description: string): Observable<FbUploadedMedia> {
-    const resource = 'videos';
-    return this.http.post<FbUploadedMedia>(`${this.GRAPH_API_URL}/${this.FACEBOOK_PAGE_ID}/${resource}?description=${description}&access_token=${this.FACEBOOK_PAGE_ACCESS_TOKEN}`, formData);
-  }
-
-  //Método para subir documentos a facebook
-  publishDocumentToFacebook(formData: FormData, description: string, linkDoc: string): Observable<FbUploadedMedia> {
-    const resource = 'feed';
-    return this.http.post<FbUploadedMedia>(`${this.GRAPH_API_URL}/${this.FACEBOOK_PAGE_ID}/${resource}?message=${description}&link=${linkDoc}&access_token=${this.FACEBOOK_PAGE_ACCESS_TOKEN}`, formData);
   }
 
   //Método para subir media (imagenes y videos)
