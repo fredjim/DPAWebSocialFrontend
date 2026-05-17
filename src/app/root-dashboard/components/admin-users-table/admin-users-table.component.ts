@@ -34,8 +34,13 @@ export class AdminUsersTableComponent implements OnInit {
   selectedUuid: string | null = null;
   showPassword = false;
 
-  public readonly MAX_LENGTH_PASSWORD = 16;
+  public readonly MIN_LENGTH_NAME = 3;
+  public readonly MAX_LENGTH_NAME = 50;
+  public readonly MIN_LENGTH_LASTNAME = 3;
+  public readonly MAX_LENGTH_LASTNAME = 50;
   public readonly MIN_LENGTH_PASSWORD = 8;
+  public readonly MAX_LENGTH_PASSWORD = 16;
+  public readonly MAX_LENGTH_EMAIL = 50;
 
   columns: TableColumn[] = [
     { field: 'name', header: 'Nombre', sortable: true, type: 'text' },
@@ -62,9 +67,9 @@ export class AdminUsersTableComponent implements OnInit {
 
   private buildForm(): void {
     this.form = this.fb.group({
-      name:     ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(ONLY_LETTERS)]],
-      lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50), Validators.pattern(ONLY_LETTERS)]],
-      email:    ['', [Validators.required, Validators.email, Validators.maxLength(50)]],
+      name:     ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_NAME), Validators.maxLength(this.MAX_LENGTH_NAME), Validators.pattern(ONLY_LETTERS)]],
+      lastName: ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_LASTNAME), Validators.maxLength(this.MAX_LENGTH_LASTNAME), Validators.pattern(ONLY_LETTERS)]],
+      email:    ['', [Validators.required, Validators.email, Validators.maxLength(this.MAX_LENGTH_EMAIL)]],
       password: ['', [this.passwordValidator()]],
       phone:    ['', [Validators.pattern(PHONE_8_DIGITS)]]
     });

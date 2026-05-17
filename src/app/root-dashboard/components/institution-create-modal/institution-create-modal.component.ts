@@ -19,7 +19,7 @@ export class InstitutionCreateModalComponent implements OnInit {
   @Output() saved = new EventEmitter<Institution>();
 
   public readonly MIN_LENGTH_SLUG = 2;
-  public readonly MAX_LENGTH_SLUG = 100;
+  public readonly MAX_LENGTH_SLUG = 5;
   public readonly MIN_LENGTH_NAME = 3;
   public readonly MAX_LENGTH_NAME = 150;
   public readonly MIN_LENGTH_DESCRIPTION = 3;
