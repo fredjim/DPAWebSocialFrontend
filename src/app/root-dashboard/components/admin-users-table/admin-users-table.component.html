@@ -57,13 +57,13 @@
         <div class="col-md-6">
           <label class="form-label" for="name">Nombre <span class="text-danger">*</span></label>
           <input pInputText id="name" formControlName="name" class="w-100" placeholder="Ej: Juan" />
-          <small class="text-danger-msg" *ngIf="hasError('name', 'required')">Obligatorio</small>
+          <small class="text-danger" *ngIf="hasError('name', 'required')">Obligatorio</small>
         </div>
 
         <div class="col-md-6">
           <label class="form-label" for="lastName">Apellido <span class="text-danger">*</span></label>
           <input pInputText id="lastName" formControlName="lastName" class="w-100" placeholder="Ej: Pérez" />
-          <small class="text-danger-msg" *ngIf="hasError('lastName', 'required')">Obligatorio</small>
+          <small class="text-danger" *ngIf="hasError('lastName', 'required')">Obligatorio</small>
         </div>
 
         <div class="col-12">
@@ -72,7 +72,8 @@
             <span class="p-inputgroup-addon"><i class="fa-solid fa-envelope"></i></span>
             <input pInputText id="email" type="email" formControlName="email" class="w-100" placeholder="juan.perez@ejemplo.com" />
           </div>
-          <small class="text-danger-msg" *ngIf="hasError('email', 'email')">Email inválido</small>
+          <small class="text-danger" *ngIf="hasError('email', 'required')">Obligatorio</small>
+          <small class="text-danger" *ngIf="hasError('email', 'email')">Email inválido</small>
         </div>
 
         <div class="col-12">
@@ -89,7 +90,13 @@
                   formControlName="password" 
                   class="w-100" 
                   [type]="showPassword ? 'text' : 'password'"
-                  placeholder="••••••••" />
+                  placeholder="••••••••" 
+                  [class.ng-invalid]="hasError('password', 'required') || 
+                      hasError('password', 'passwordLength') ||
+                      hasError('password', 'missingLowercase') ||
+                      hasError('password', 'missingUppercase') ||
+                      hasError('password', 'missingNumber') ||
+                      hasError('password', 'missingSpecialChar')"/>
             <ui-button
               type="button"
               severity="secondary"
@@ -98,7 +105,12 @@
                 <i class="fa-solid" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
             </ui-button>
           </div>
-          <small class="text-danger-msg" *ngIf="hasError('password', 'minlength')">Mínimo 8 caracteres</small>
+          <small class="text-danger" *ngIf="hasError('password', 'required')">Obligatoria</small>
+          <small class="text-danger msg-error" *ngIf="hasError('password', 'passwordLength')">Entre {{ MIN_LENGTH_PASSWORD }} y {{ MAX_LENGTH_PASSWORD }} caracteres</small>
+          <small class="text-danger msg-error" *ngIf="hasError('password', 'missingLowercase')">Al menos una letra minúscula</small>
+          <small class="text-danger msg-error" *ngIf="hasError('password', 'missingUppercase')">Al menos una letra mayúscula</small>
+          <small class="text-danger msg-error" *ngIf="hasError('password', 'missingNumber')">Al menos un número</small>
+          <small class="text-danger msg-error" *ngIf="hasError('password', 'missingSpecialChar')">Al menos un caracter especial !&#64;#$%^&amp;*()_+</small>
         </div>
 
         <div class="col-12">
@@ -107,7 +119,7 @@
             <span class="p-inputgroup-addon"><i class="fa-solid fa-phone"></i></span>
             <input pInputText id="phone" formControlName="phone" class="w-100" placeholder="76543210" />
           </div>
-          <small class="text-danger-msg" *ngIf="hasError('phone', 'pattern')">8 dígitos requeridos</small>
+          <small class="text-danger" *ngIf="hasError('phone', 'pattern')">8 dígitos requeridos</small>
         </div>
       </div>
     </div>
@@ -124,11 +136,12 @@
     ></ui-button>
     <ui-button
       [label]="isSaving() ? 'Guardando...' : (isEditMode() ? 'Actualizar' : 'Crear')"
-      type="submit"
+      type="button"
       form="adminUserForm"
       severity="success"
       [loading]="isSaving()"
       [disabled]="isSaving()"
+      (clicked)="saveUser()"
     ></ui-button>
   </ng-template>
 </p-dialog>
