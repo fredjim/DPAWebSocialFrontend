@@ -11,9 +11,9 @@
     <ng-template #actions let-inst>
       <div class="d-flex justify-content-center gap-2">
         <button pButton icon="fa-solid fa-pen-to-square" class="p-button-text p-button-info p-button-rounded"
-          pTooltip="Editar detalles" tooltipPosition="top" (click)="goToDetail(inst.uuid)"></button>
+          pTooltip="Editar detalles" title="" tooltipPosition="top" (click)="goToDetail(inst.uuid)"></button>
         <button pButton icon="fa-solid fa-trash-can" class="p-button-text p-button-danger p-button-rounded"
-          pTooltip="Eliminar" tooltipPosition="top" (click)="confirmDelete(inst)"></button>
+          pTooltip="Eliminar" title="" tooltipPosition="top" (click)="confirmDelete(inst)"></button>
       </div>
     </ng-template>
   </app-custom-table>

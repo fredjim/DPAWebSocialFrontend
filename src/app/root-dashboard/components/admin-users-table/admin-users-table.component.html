@@ -27,6 +27,7 @@
           class="p-button-text p-button-info p-button-rounded"
           pTooltip="Editar administrador"
           tooltipPosition="top"
+          title=""
           (click)="openEditDialog(admin)"
         ></button>
         <button
@@ -35,6 +36,7 @@
           class="p-button-text p-button-danger p-button-rounded"
           pTooltip="Eliminar"
           tooltipPosition="top"
+          title=""
           (click)="confirmDelete(admin)"
         ></button>
       </div>
@@ -58,12 +60,16 @@
           <label class="form-label" for="name">Nombre <span class="text-danger">*</span></label>
           <input pInputText id="name" formControlName="name" class="w-100" placeholder="Ej: Juan" />
           <small class="text-danger" *ngIf="hasError('name', 'required')">Obligatorio</small>
+          <small class="text-danger-msg" *ngIf="hasError('name', 'minlength')">Mínimo {{ MIN_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger-msg" *ngIf="hasError('name', 'maxlength')">Máximo {{ MAX_LENGTH_NAME }} caracteres</small>
         </div>
 
         <div class="col-md-6">
           <label class="form-label" for="lastName">Apellido <span class="text-danger">*</span></label>
           <input pInputText id="lastName" formControlName="lastName" class="w-100" placeholder="Ej: Pérez" />
           <small class="text-danger" *ngIf="hasError('lastName', 'required')">Obligatorio</small>
+          <small class="text-danger-msg" *ngIf="hasError('lastName', 'minlength')">Mínimo {{ MIN_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger-msg" *ngIf="hasError('lastName', 'maxlength')">Máximo {{ MAX_LENGTH_NAME }} caracteres</small>
         </div>
 
         <div class="col-12">
@@ -74,6 +80,7 @@
           </div>
           <small class="text-danger" *ngIf="hasError('email', 'required')">Obligatorio</small>
           <small class="text-danger" *ngIf="hasError('email', 'email')">Email inválido</small>
+          <small class="text-danger" *ngIf="hasError('email', 'maxlength')">Máximo {{ MAX_LENGTH_EMAIL }} caracteres</small>
         </div>
 
         <div class="col-12">

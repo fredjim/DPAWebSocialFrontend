@@ -22,6 +22,22 @@ export class InstitutionDetailComponent implements OnInit {
   isSaving = signal(false);
   @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
 
+  public readonly MIN_LENGTH_SLUG = 2;
+  public readonly MAX_LENGTH_SLUG = 5;
+  public readonly MIN_LENGTH_NAME = 3;
+  public readonly MAX_LENGTH_NAME = 150;
+  public readonly MIN_LENGTH_DESCRIPTION = 3;
+  public readonly MAX_LENGTH_DESCRIPTION = 300;
+  public readonly MIN_LENGTH_LOCATION = 3;
+  public readonly MAX_LENGTH_LOCATION = 300;
+  public readonly MIN_LENGTH_CATEGORY = 3;
+  public readonly MAX_LENGTH_CATEGORY = 100;
+  public readonly MAX_LENGTH_EMAIL = 50;
+  public readonly MIN_LENGTH_PHONE = 7;
+  public readonly MAX_LENGTH_PHONE = 15;
+  public readonly MIN_LENGTH_URL = 3;
+  public readonly MAX_LENGTH_URL = 80;
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly fb: FormBuilder,
@@ -36,14 +52,14 @@ export class InstitutionDetailComponent implements OnInit {
 
   private buildForm(): void {
     this.form = this.fb.group({
-      slug:        ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100), Validators.pattern(SLUG_PATTERN)]],
-      name:        ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
-      description: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
-      location:    ['', [Validators.required, Validators.minLength(3), Validators.maxLength(300)]],
-      category:    ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
-      email:       ['', [Validators.required, Validators.email, Validators.maxLength(50)]],
-      phone:       ['', [Validators.required, Validators.minLength(7), Validators.maxLength(15)]],
-      url:         ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80)]]
+      slug:        ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_SLUG), Validators.maxLength(this.MAX_LENGTH_SLUG), Validators.pattern(SLUG_PATTERN)]],
+      name:        ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_NAME), Validators.maxLength(this.MAX_LENGTH_NAME)]],
+      description: ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_DESCRIPTION), Validators.maxLength(this.MAX_LENGTH_DESCRIPTION)]],
+      location:    ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_LOCATION), Validators.maxLength(this.MAX_LENGTH_LOCATION)]],
+      category:    ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_CATEGORY), Validators.maxLength(this.MAX_LENGTH_CATEGORY)]],
+      email:       ['', [Validators.required, Validators.email, Validators.maxLength(this.MAX_LENGTH_EMAIL)]],
+      phone:       ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_PHONE), Validators.maxLength(this.MAX_LENGTH_PHONE)]],
+      url:         ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_URL), Validators.maxLength(this.MAX_LENGTH_URL)]]
     });
   }
 
