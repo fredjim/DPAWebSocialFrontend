@@ -171,6 +171,14 @@ export interface TableColumn {
       gap: 0.5rem;
     }
 
+    ::ng-deep .p-dropdown-items {
+      padding-left: 0;
+
+      .p-dropdown-item > span {
+        margin-left: 5px;
+      }
+    }
+
     :host ::ng-deep {
       .custom-premium-table {
         border: none;
