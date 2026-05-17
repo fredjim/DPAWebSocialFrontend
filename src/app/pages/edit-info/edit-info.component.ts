@@ -382,12 +382,13 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
       docs: uploadDocs$
     }).pipe(
       switchMap(({ images, docs }) => {
+        const combined = [...this.imagesOfArticle, ...images, ...this.docsOfArticle, ...docs];
         // Construir el artículo actualizado
         const articleUpdated: CreateUpdateArticle = {
           ...this.currentArticle!,
           title: this.formArticle.value.title?.trim() ?? '',
           text: this.formArticle.value.text?.trim() ?? '',
-          medias: [...this.imagesOfArticle, ...images, ...this.docsOfArticle, ...docs],
+          medias: combined.map((m, i) => ({ ...m, number: i + 1 })),
           links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
         };
         // Actualizar artículo
@@ -411,11 +412,12 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     if(!this.currentArticle) return;
 
     this.isLoading = true;
+    const combined = [...this.imagesOfArticle, ...this.docsOfArticle];
     const articleEdited: Article = {
       ...this.currentArticle,
       title: this.formArticle.value.title?.trim() ?? '',
       text: this.formArticle.value.text?.trim() ?? '',
-      medias: [...this.imagesOfArticle, ...this.docsOfArticle],
+      medias: combined.map((m, i) => ({ ...m, number: i + 1 })),
       links: [...this.buttonsOfArticle, ...this.buttonsToAdd]
     }
 
