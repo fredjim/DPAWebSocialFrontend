@@ -77,9 +77,9 @@ export class PostService {
   }
 
   //Método para crear un post
-  createPost(dataPost: CreatePost): Observable<CreatePost> {
+  createPost(dataPost: CreatePost): Observable<Post> {
     const createPost = 'posts'
-    return this.http.post<CreatePost>(`${this.ROOT_URL}/${createPost}`, dataPost, this.reqHeader)
+    return this.http.post<Post>(`${this.ROOT_URL}/${createPost}`, dataPost, this.reqHeader)
   }
 
   //Método para subir imagenes

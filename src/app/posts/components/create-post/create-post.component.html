@@ -87,8 +87,10 @@
 	</div>
 </div>
 
-<div class="d-flex justify-content-center align-items-center bg-dark bg-opacity-50 position-fixed top-0 start-0 w-100 h-100" id="loadingBackdrop" style="z-index: 1080; display: none !important;">
+<div *ngIf="isLoading" class="d-flex justify-content-center align-items-center bg-dark bg-opacity-50 position-fixed top-0 start-0 w-100 h-100" id="loadingBackdrop" style="z-index: 1080; display: none !important;">
   <div class="spinner-border text-primary" aria-live="polite" aria-label="Cargando">
     <span class="visually-hidden">Cargando...</span>
   </div>
 </div>
+
+<app-custom-toast #toastRef key="newPostToast" position="top-right"></app-custom-toast>

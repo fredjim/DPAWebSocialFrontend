@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { PostService } from '../../services/post.service';
 import { Modal } from 'bootstrap';
+import * as bootstrap from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { concatMap, Subject, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../models/uploaded-media';
@@ -11,6 +12,9 @@ import { CommentConfig } from '../../models/comment-config';
 import { TenantService } from '../../../services/tenant.service';
 import { UserDetail } from '../../models/user-detail';
 import imageCompression from 'browser-image-compression';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
+import { Post } from '../../models/post';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-create-post',
@@ -34,9 +38,13 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   isFbSwitchOn: boolean = false;
   currentUser!: UserDetail;
   currentPostType!: string;
-  @ViewChild('modalCreatePost') modal!: ElementRef;
+  @ViewChild('modalCreatePost') modalCreatePost!: ElementRef;
+  private modalInstance: bootstrap.Modal | null = null;
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
   public visibleModalCreate: boolean = false;
   public maxLengthText = 1200;
+  public isLoading: boolean = false;
+  @Output() onCreatePost = new EventEmitter<Post>();
 
   constructor(
     private readonly postService: PostService,
@@ -77,7 +85,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
       this.selectedCommentConfig = this.commentConfig[0].uuid;
       this.postForm.get('switchControl')?.setValue(false);
     };
-    this.modal.nativeElement.addEventListener('hidden.bs.modal', this.modalHiddenListener);
+    this.modalCreatePost.nativeElement.addEventListener('hidden.bs.modal', this.modalHiddenListener);
   }
 
   private buildForm() {
@@ -99,13 +107,14 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openModalCreatePost() {
-    const modalElement = document.getElementById('modalCreatePost');
-    if (modalElement) {
-      const modal = new Modal(modalElement);
-      modal.show();
-      this.visibleModalCreate = true;
-      this.disabledPublishButton.set(true);
-    }
+    this.modalInstance = new bootstrap.Modal(this.modalCreatePost.nativeElement);
+    this.modalInstance.show();
+    this.visibleModalCreate = true;
+    this.disabledPublishButton.set(true);
+  }
+
+  closeModalCreatePost() {
+    this.modalInstance?.hide();
   }
 
   //Deshabilitar el boton de publicar si no hay texto
@@ -163,6 +172,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     contentPost != '' || this.fileDoc ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
   }
 
+  // Cerrar modal con boton X (data-bs-dismiss="modal")
   closeModal(): void {
     this.postForm.reset();
     this.listFile = [];
@@ -171,11 +181,11 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   showLoading() {
-    document.getElementById('loadingBackdrop')!.style.display = 'flex';
+    this.isLoading = true;
   }
 
   hideLoading() {
-    document.getElementById('loadingBackdrop')!.classList.add('hide');
+    this.isLoading = false
   }
 
   getTypeByRol() {
@@ -193,7 +203,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.modal.nativeElement.removeEventListener('hidden.bs.modal', this.modalHiddenListener);
+    this.modalCreatePost.nativeElement.removeEventListener('hidden.bs.modal', this.modalHiddenListener);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -295,8 +305,8 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
             return this.postService.createPost(post);
           })
         ).subscribe({
-          next: () => { this.hideLoading(); globalThis.location.reload(); },
-          error: (error) => { this.hideLoading(); console.log('Error al crear el post con media', error); }
+          next: (createdPost) => this.createSuccessPost(createdPost),
+          error: (error: HttpErrorResponse) => this.createErrorPost('Error al crear publicación con media', error)
         });
 
       } else if (this.fileDoc && this.fileDoc.size > 0) {
@@ -313,16 +323,29 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
             return this.postService.createPost(post);
           })
         ).subscribe({
-          next: () => { this.hideLoading(); globalThis.location.reload(); },
-          error: (error) => { this.hideLoading(); console.log('Error al crear el post con archivo', error); }
+          next: (createdPost) => this.createSuccessPost(createdPost),
+          error: (error: HttpErrorResponse) => this.createErrorPost('Error al crear el publicación con archivo', error)
         });
 
       } else if (valueFormPost.contentPost != '') {
         this.postService.createPost(post).subscribe({
-          next: () => { this.hideLoading(); globalThis.location.reload(); },
-          error: (error) => { this.hideLoading(); console.log('Error al subir post solo texto', error); }
+          next: (createdPost) => this.createSuccessPost(createdPost),
+          error: (error: HttpErrorResponse) => this.createErrorPost('Error al subir publicación solo texto', error)
         });
       }
     }
+  }
+
+  private createSuccessPost(createdPost: Post): void {
+    this.hideLoading();
+    this.closeModalCreatePost();
+    this.onCreatePost.emit(createdPost)
+    this.toastRef.showSuccess('Publicación creada exitosamente', 'Exitoso');
+  }
+
+  private createErrorPost(errorMsg: string, error: HttpErrorResponse): void {
+    this.hideLoading(); 
+    this.toastRef.showError(errorMsg, 'Error');
+    console.log(errorMsg, error); 
   }
 }

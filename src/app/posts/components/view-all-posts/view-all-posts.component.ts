@@ -236,6 +236,10 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
       });
   }
 
+  createdNewPost(newPost: Post): void {
+    this.posts.unshift(newPost);
+  }
+
   updatePost(postUpdated: Post){
     // Actualizar el post en la lista local
     this.posts = this.posts.map(post => 
