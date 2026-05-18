@@ -21,10 +21,10 @@
           <div class="media-container" *ngIf="photos.length > 0">
             @for (photo of photos; track photo.url) {
               <img [src]="photo.url" 
-                   alt="" 
-                   class="photo" 
-                   (click)="openViewPost(photo.postUuid, photo.url)" 
-                   (keypress)="openViewPost(photo.postUuid, photo.url)" />
+                alt="" 
+                class="photo" 
+                (click)="openViewPost(photo.postUuid, photo.url)" 
+                (keypress)="openViewPost(photo.postUuid, photo.url)" />
             }
           </div>
           <div class="no-media" *ngIf="photos.length === 0">
