@@ -170,7 +170,9 @@ export class RegisterComponent implements OnInit {
   togglePasswordVisibility() {
     this.hide = !this.hide;
     this.inputType = this.hide ? 'password' : 'text';
-    // Para input confirm password tambien
+  }
+
+  toggleConfirmPasswordVisibility() {
     this.confirmHide = !this.confirmHide;
     this.confirmInputType = this.confirmHide ? 'password' : 'text';
   }
