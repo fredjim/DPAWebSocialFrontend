@@ -114,6 +114,12 @@
 				right: 5px;
 				z-index: 5;
 				
+				::ng-deep button.ui-btn--danger.ui-btn--text.ui-btn--sm {
+					border-radius: 50% !important;
+					width: 30px !important;
+					height: 30px !important;
+				}
+				
 				::ng-deep button.ui-btn--danger.ui-btn--text.ui-btn--sm:hover:not(:disabled) {
 					background: #dc2626 !important;
 					color: white !important;
