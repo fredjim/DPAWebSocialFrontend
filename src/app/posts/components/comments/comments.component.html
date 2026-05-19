@@ -29,33 +29,35 @@
           <!-- Imagen o contenido multimedia -->
           <div class="object-fit-md-contain border rounded">
             <ng-container *ngIf="postMedia">
-              <div id="carouselMediaControls" class="carousel">
-                <div class="carousel-inner image-box text-center">
-                  <div *ngFor="let media of postMedia; let i = index" class="carousel-item" [ngClass]="{ 'active': i === initialMediaIndex }">
+              <p-carousel [value]="postMedia" 
+                          [numVisible]="1" 
+                          [numScroll]="1" 
+                          [circular]="true"
+                          [showIndicators]="false" 
+                          [showNavigators]="postMedia.length > 1"
+                          [page]="initialMediaIndex">
+                <ng-template pTemplate="item" let-media>
+                  <div class="image-box text-center">
+
                     <ng-container *ngIf="media.type.includes('image')">
-                      <img [src]="media.path" class="" alt="" />
+                      <img [src]="media.path" alt="" />
                     </ng-container>
+
                     <ng-container *ngIf="media.type.includes('video')">
-                      <video #videoPlayer [src]="media.path" controls class="video"></video>
+                      <video [src]="media.path" controls class="video"></video>
                     </ng-container>
+
                     <ng-container *ngIf="media.type === 'document'">
                       <div class="d-flex justify-content-center">
-                        <pdf-viewer [src]="media.path" [render-text]="true" [original-size]="false" class="pdf-viewer"></pdf-viewer>
+                        <pdf-viewer [src]="media.path" [render-text]="true" 
+                                    [original-size]="false" class="pdf-viewer">
+                        </pdf-viewer>
                       </div>
                     </ng-container>
+
                   </div>
-                </div>
-                <ng-container *ngIf="postMedia.length > 1">
-                  <button class="carousel-control-prev" type="button" data-bs-target="#carouselMediaControls" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                  </button>
-                  <button class="carousel-control-next" type="button" data-bs-target="#carouselMediaControls" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                  </button>
-                </ng-container>
-              </div>
+                </ng-template>
+              </p-carousel>
             </ng-container>
           </div>
 
