@@ -242,7 +242,6 @@ $font-size-large: 1.2rem;
 // COMENTARIOS
 .comment-section {
   @include flex-center(row, 10px);
-  padding-top: 16px;
   width: 100%;
   display: flex;
   justify-content: center;
