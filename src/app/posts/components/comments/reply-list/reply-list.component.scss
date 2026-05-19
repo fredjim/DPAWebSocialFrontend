@@ -63,6 +63,24 @@
   min-width: 120px;
   box-shadow: none;
   display: inline-block;
+
+  .comment-bubble-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+
+    .icon-delete-comment {
+      color: #bcc0c4;
+      font-size: 15px;
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: #e4606d;
+      }
+    }
+  }
 }
 
 .comment-actions {

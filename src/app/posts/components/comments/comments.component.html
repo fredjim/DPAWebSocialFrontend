@@ -63,6 +63,7 @@
 
           <!-- Lista de comentarios -->
           <app-comment-list [comments]="comments" 
+            [postUuid]="postUuid"
             [currentUser]="currentUser" 
             [authenticated]="authenticated" 
             [commentConfigId]="post.comment_config_id"

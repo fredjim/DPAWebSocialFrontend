@@ -7,7 +7,7 @@ export interface Comment {
     user_name: string;
     user_photo: string;
     userId: string;
-    reply_count: number;
+    replyCount: number;
     reactions?: any[];
     totalReactions?: number;
     replies?: Reply[]; 
