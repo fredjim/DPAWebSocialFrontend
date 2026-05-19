@@ -81,11 +81,8 @@ header {
 			}
 		}
 		.dropdown-item:active {
-			background-color: var(--clear-blue);
-			color: white !important;
-		}
-		.active {
-			color: white;
+			background-color: #bbdbfb;
+			color: var(--blue-color);
 		}
 	}
 }
