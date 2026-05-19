@@ -1,4 +1,4 @@
-// Variables
+// VARIABLES
 $primary-color: #003770;
 $secondary-color: #007bff;
 $background-color: #f0f2f5;
@@ -9,94 +9,7 @@ $font-size-small: 0.9rem;
 $font-size-medium: 1rem;
 $font-size-large: 1.2rem;
 
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1050; 
-}
-
-.modal-container {
-  display: flex;
-  flex-direction: column;
-  height: 90vh;
-  min-height: 600px;
-  max-height: 1200px;
-  width: 80vw;
-  max-width: 900px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  
-}
-// Para pantallas pequeñas en vertical
-@media screen and (max-height: 700px) {
-  .modal-container{
-    height: 90vh;
-    min-height: auto;
-  }
-}
-
-.modal-header {
-  padding: 1rem;
-  border-bottom: 1px solid #dee2e6;
-  flex-shrink: 0; 
-  background-color: #f8f9fa;
-  position: relative;
-  
-  .btn-close {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-}
-
-.modal-body {
-  flex: 1; 
-  overflow-y: auto; 
-  padding: 1rem;
-  
-  // Estilos específicos para el contenido del modal
-  .post-details {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    
-    .object-fit-md-contain {
-      margin-bottom: 1rem;
-    }
-  }
-}
-
-.modal-footer {
-  height: 80px; 
-  border-top: 0px solid #dee2e6;
-  flex-shrink: 0;
-  background-color: #f8f9fa;
-  display: flex; 
-  justify-content: center;
-  align-items: center;
-  margin: 0;
-  padding: 0px;
-
-  .comment-section {
-    width: 100%;
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    padding: 5px;
-    
-  }
-}
-// Mixins
+// MIXINS
 @mixin flex-center($direction: row, $gap: 0) {
   display: flex;
   flex-direction: $direction;
@@ -119,8 +32,96 @@ $font-size-large: 1.2rem;
   }
 }
 
-// General styles
-.img-profile, .comment-img, .reply-img {
+// MODAL
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.modal-container {
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  min-height: 600px;
+  max-height: 1200px;
+  width: 80vw;
+  max-width: 900px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+
+  // Móvil
+  @media screen and (max-width: 576px) {
+    width: 95vw;
+    height: auto;  
+    min-height: unset;
+    max-height: 90vh; 
+  }
+}
+
+@media screen and (max-height: 700px) {
+  .modal-container {
+    height: 90vh;
+    min-height: auto;
+  }
+}
+
+.modal-header {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  flex-shrink: 0;
+  background-color: #f8f9fa;
+  position: relative;
+
+  .btn-close {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+
+  .post-details {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .object-fit-md-contain {
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+.modal-footer {
+  height: 80px;
+  border-top: 0px solid #dee2e6;
+  flex-shrink: 0;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+// AVATARS E IMÁGENES
+.img-profile,
+.comment-img,
+.reply-img {
   border-radius: 50%;
   border: 1px solid $border-color;
   object-fit: cover;
@@ -141,14 +142,13 @@ $font-size-large: 1.2rem;
   height: 28px;
 }
 
-// Post description
+// POST
 .post-description {
   margin-bottom: 20px;
   color: $primary-color;
   font-size: $font-size-medium;
 }
 
-// User info
 .info-user {
   h2 {
     font-size: $font-size-medium;
@@ -167,77 +167,90 @@ $font-size-large: 1.2rem;
   }
 }
 
-// Carousel styles
-.carousel-inner > .carousel-item > img,
-.carousel-inner > .carousel-item > video {
+// PRIMENG CAROUSEL
+::ng-deep .p-carousel {
   width: 100%;
-  height: 100%;
-  object-fit: cover !important;
-}
 
-.carousel-item {
-  width: fit-content;
-  min-height: 200px;
-  margin: 0;
-}
+  // Contenedor de items
+  .p-carousel-content {
+    width: 100%;
+  }
 
-.carousel-inner {
-  display: flex;
-  justify-content: center;
-}
+  // Item
+  .p-carousel-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: none !important;
+  }
 
-button.carousel-control-next,
-button.carousel-control-prev {
-  height: 30%;
-  width: 20%;
-  align-self: center;
-}
-
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-  height: 100px;
-  width: 100px;
-  border-radius: 50%;
-  background-image: none;
-  border: 0.5px solid ghostwhite;
-
-  &:after {
-    font-size: 55px;
+  // Botones de navegación
+  .p-carousel-prev,
+  .p-carousel-next {
+    width: 2rem;
+    height: 2rem;
     color: rgb(90, 90, 90);
-  }
-}
-
-.carousel-control-next-icon:after {
-  content: '>';
-}
-
-.carousel-control-prev-icon:after {
-  content: '<';
-}
-
-
-// Comments section
-.comment-section {
-  @include flex-center(row, 10px); // Espaciado entre elementos
-  padding-top: 16px;
-
-  .comment-img {
-    width: 40px;
-    height: 40px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 0.5px solid ghostwhite;
     border-radius: 50%;
-    border: 1px solid $border-color;
-  }
+    flex-shrink: 0;
 
-  .comment-button {
-    @include button-style($background-color, $text-color, $hover-color);
+    &:hover {
+      background: rgba(255, 255, 255, 1);
+    }
 
-    i {
-      font-size: 1.2rem;
+    .p-icon {
+      width: 1rem;
+      height: 1rem;
     }
   }
+}
+
+// Imagen y video dentro del carousel
+.image-box {
+  width: 100%;
+
+  img {
+    max-width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+  }
+
+  video {
+    max-width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+  }
+}
+
+// PDF viewer
+::ng-deep .pdf-viewer {
+  width: 90vw;
+  max-width: 700px;
+  height: 500px;
+
+  @media (max-width: 768px) {
+    height: 400px;
+  }
+
+  @media (max-width: 480px) {
+    width: 95vw;
+    height: 350px;
+  }
+}
+
+// COMENTARIOS
+.comment-section {
+  @include flex-center(row, 10px);
+  padding-top: 16px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
 
   .comment-box {
-    @include flex-center(row, 8px); // Espaciado entre input y botón
+    @include flex-center(row, 8px);
     background: $background-color;
     border-radius: 20px;
     padding: 8px 12px;
@@ -273,7 +286,7 @@ button.carousel-control-prev {
   }
 }
 
-// Reply styles
+// RESPUESTAS (REPLIES)
 .reply-container {
   @include flex-center(row, 10px);
   margin-left: 50px;
@@ -325,20 +338,10 @@ button.carousel-control-prev {
   }
 }
 
-// Responsive styles
+// RESPONSIVE
 @media (max-width: 768px) {
-  .carousel-inner > .carousel-item > img {
-    width: 75%;
-    height: auto;
-    object-fit: cover;
-  }
-
-  .comments-popup {
-    width: 95%;
-  }
-
   .comment-section {
-    @include flex-center(column, 10px); 
+    @include flex-center(column, 10px);
     align-items: flex-start;
 
     .comment-img {
@@ -346,29 +349,18 @@ button.carousel-control-prev {
       height: 35px;
     }
 
-    .comment-button {
-      width: 100%;
-      justify-content: center;
-    }
-
     .comment-box {
-      width: 100%; 
+      width: 100%;
     }
   }
 }
 
-::ng-deep .modal-content .pdf-viewer {
-  width: 90vw;  // Base: 90% del viewport
-  max-width: 700px;  // Máximo: 700px
-  height: 500px;
-  
-  // Móviles: reducir altura también
-  @media (max-width: 768px) {
-    height: 400px;
-  }
-  
-  @media (max-width: 480px) {
-    width: 95vw;
-    height: 350px;
+@media screen and (max-width: 576px) {
+  ::ng-deep .p-carousel-item {
+    height: auto;     
+
+    img, video {
+      max-height: 250px;
+    }
   }
 }
