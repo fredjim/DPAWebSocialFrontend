@@ -1,3 +1,11 @@
 .inner-table-wrapper {
   margin-top: 1rem;
 }
+
+::ng-deep .ui-btn.ui-btn--secondary.ui-btn--outlined.ui-btn--md {
+  height: 100%;
+}
+
+.msg-error {
+  display: block;
+}

@@ -23,8 +23,8 @@
               <img [src]="photo.url" 
                    alt="" 
                    class="photo" 
-                   (click)="openViewPost(photo.postUuid)" 
-                   (keypress)="openViewPost(photo.postUuid)" />
+                   (click)="openViewPost(photo.postUuid, photo.url)" 
+                   (keypress)="openViewPost(photo.postUuid, photo.url)" />
             }
           </div>
           <div class="no-media" *ngIf="photos.length === 0">
@@ -55,9 +55,8 @@
               <video [src]="video.url" 
                      muted playsinline 
                      class="video" 
-                     controls  
-                     (click)="openViewPost(video.postUuid)"
-                     (keypress)="openViewPost(video.postUuid)">
+                     (click)="openViewPost(video.postUuid, video.url)"
+                     (keypress)="openViewPost(video.postUuid, video.url)">
               </video>
             }
           </div>

@@ -1,5 +1,5 @@
 <div class="container">
-  <div class="detail-photos">
+  <div class="detail-photos" #sidebar [ngStyle]="sidebarStyle">
     <app-department-details></app-department-details>
   </div>
   <div *ngIf="posts" class="main-container">
@@ -21,7 +21,7 @@
       [currentUser]="currentUser"
       [authenticated]="authenticated"
       [openInParent]="true"
-      (openPostDetail)="handleOpenPost($event.post, $event.initialImageIndex)"
+      (openPostDetail)="handleOpenPost($event.post, $event.initialMediaIndex)"
       (requestDeletePost)="deletePost($event)"
       (requestUpdatePost)="updatePost($event)" 
       (reactionChanged)="updateReactions(post.uuid)">

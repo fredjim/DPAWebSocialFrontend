@@ -12,7 +12,11 @@
         <!-- Información del autor -->
         <div class="d-flex flex-column">
           <div class="d-flex flex-row justify-content-start" *ngIf="institution">
-            <img [src]="institution.logo_url" alt="Foto de perfil" class="img-profile" />
+            <app-institution-avatar 
+              [institution]="institution" 
+              size="medium" 
+              class="img-profile">
+            </app-institution-avatar>
             <div class="info-user">
               <h2>{{ institution.name }}</h2>
               <p>{{ calculateTimePost() }}</p>
@@ -25,9 +29,9 @@
           <!-- Imagen o contenido multimedia -->
           <div class="object-fit-md-contain border rounded">
             <ng-container *ngIf="postMedia">
-              <div id="carouselMediaControls" class="carousel slide">
+              <div id="carouselMediaControls" class="carousel">
                 <div class="carousel-inner image-box text-center">
-                  <div *ngFor="let media of postMedia; let i = index" class="carousel-item" [ngClass]="{ 'active': i === initialImageIndex }">
+                  <div *ngFor="let media of postMedia; let i = index" class="carousel-item" [ngClass]="{ 'active': i === initialMediaIndex }">
                     <ng-container *ngIf="media.type.includes('image')">
                       <img [src]="media.path" class="" alt="" />
                     </ng-container>
@@ -56,17 +60,21 @@
           </div>
 
           <!-- Lista de comentarios -->
-          <app-comment-list [comments]="comments" [currentUser]="currentUser" [authenticated]="authenticated" (onAddReply)="handleAddReply($event)">
+          <app-comment-list [comments]="comments" 
+            [currentUser]="currentUser" 
+            [authenticated]="authenticated" 
+            [commentConfigId]="post.comment_config_id"
+            (onAddReply)="handleAddReply($event)">
           </app-comment-list>
         </div>
       </div>
     </div>
 
     <!-- Modal Footer -->
-    <div class="modal-footer">
+    <div class="modal-footer" *ngIf="authenticated && post.comment_config_id !== '587d7d7f-5g3n-4b77-cf98-77a9h46759d0'">
       <div class="comment-section d-flex flex-row align-items-center">
         <img *ngIf="currentUser" [src]="currentUser.photo_profile_path || 'assets/default-avatar.png'" alt="Foto de perfil" class="comment-img" />
-        <div *ngIf="authenticated" class="comment-box d-flex align-items-center">
+        <div class="comment-box d-flex align-items-center">
           <input #commentInput [(ngModel)]="newComment" placeholder="Escribe un comentario..." class="comment-input" (keydown.enter)="addComment()" />
           <button (click)="addComment()" class="send-comment-button">
             <i class="bi bi-send"></i>

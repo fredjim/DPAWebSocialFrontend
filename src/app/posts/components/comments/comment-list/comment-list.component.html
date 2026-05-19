@@ -4,7 +4,7 @@
       <!-- Cabecera del comentario -->
       <div class="d-flex align-items-start comment-row">
         <!-- Avatar -->
-        <img [src]="comment.user_photo || 'assets/default-avatar.png'" alt="Foto de perfil" class="comment-img" />
+        <img [src]="comment.user_photo || 'assets/default-avatar.png'" (error)="onImgError($event)" alt="Foto de perfil" class="comment-img" />
 
         <!-- Burbuja del comentario -->
         <div class="comment-bubble">
@@ -14,7 +14,11 @@
             <span class="comment-time">{{ calculateTimeFromNow(comment.date) }}</span>
             <span class="mx-1">·</span>
             <ng-container *ngIf="authenticated">
-              <button class="reply-btn" (click)="toggleReplyInput(comment.uuid)">Responder</button>
+
+              @if (authenticated && commentConfigId !== '587d7d7f-5g3n-4b77-cf98-77a9h46759d0') {
+                <button  class="reply-btn" (click)="toggleReplyInput(comment.uuid)">Responder</button>
+              }
+
               <!-- Reaccionar y mostrar opciones de tipos de mojis -->
               <div class="fb-reaction-btn-wrapper" (mouseenter)="showEmojiOptions[comment.uuid]=true"
                 (mouseleave)="showEmojiOptions[comment.uuid]=false">

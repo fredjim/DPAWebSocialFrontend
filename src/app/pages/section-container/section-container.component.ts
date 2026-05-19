@@ -46,6 +46,7 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
   public buttonsOfArticle: Link[] | Omit<Link, 'uuid'>[] = [];
   public visibleModalImagesArticle = false;
   public mediasToModal: MediaArticle[] = [];
+  public initialImageModal: number = 0;
   public typeImages = ['image', 'image/webp', 'image/jpg', 'image/jpeg', 'image/png'];
   public typeDocs = ['document', 'application/pdf'];
   public currentNavItemPath!: string | null;
@@ -173,8 +174,9 @@ export class SectionContainerComponent implements OnInit, OnDestroy {
     this.showButtonNewArticle = false
   }
 
-  showModalArticleMedias(mediasArticle: MediaArticle[]): void {
+  showModalArticleMedias(mediasArticle: MediaArticle[], imgUuid: string): void {
     this.mediasToModal = mediasArticle.filter(media => media.type.includes('image'));
+    this.initialImageModal = this.mediasToModal.findIndex((media) => media.uuid === imgUuid)
     this.visibleModalImagesArticle = true;
   }
   

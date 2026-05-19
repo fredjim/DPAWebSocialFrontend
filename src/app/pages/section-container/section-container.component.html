@@ -62,7 +62,7 @@
 								@for(media of article.medias; track media.uuid){
 									@if(media.type.includes('image')){
 										<img [src]="media.path" [alt]="media.name"
-											(click)="showModalArticleMedias(article.medias)" (keypress)="showModalArticleMedias(article.medias)">
+											(click)="showModalArticleMedias(article.medias, media.uuid)" (keypress)="showModalArticleMedias(article.medias, media.uuid)">
 									}
 								}
 							</div>
@@ -103,7 +103,7 @@
 						@for(media of article.medias; track media.uuid){
 							@if(media.type.includes('image')){
 								<img [src]="media.path" [alt]="media.name"
-									(click)="showModalArticleMedias(article.medias)" (keypress)="showModalArticleMedias(article.medias)">
+									(click)="showModalArticleMedias(article.medias, media.uuid)" (keypress)="showModalArticleMedias(article.medias, media.uuid)">
 							}
 						}
 					</div>
@@ -135,13 +135,15 @@
 <p-dialog
 	[modal]="true"
 	[(visible)]="visibleModalImagesArticle"
+	[style]="{ width: '60rem' }" 
 	(onHide)="closeModalArticleMedias()"
 >
 	<p-carousel 
         [value]="mediasToModal" 
         [numVisible]="1" 
-        [numScroll]="1" 
-        [circular]="false">
+        [numScroll]="1"
+		[page]="initialImageModal" 
+        [circular]="true">
             <ng-template let-image pTemplate="item">
                 <div class="container-img">
 					<img [src]="image.path" alt="" class="image-modal">

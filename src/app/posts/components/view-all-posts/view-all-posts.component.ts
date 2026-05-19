@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { PostService } from '../../services/post.service';
@@ -17,6 +17,11 @@ import { CommentsComponent } from '../comments/comments.component';
   styleUrl: './view-all-posts.component.scss'
 })
 export class ViewAllPostsComponent implements OnInit, OnDestroy {
+  @ViewChild('sidebar') sidebarRef!: ElementRef;
+  sidebarStyle: any = { top: '80px' };
+  private sidebarTopOffset = 80;
+  private lastScrollTop = 0;
+
   authenticated: boolean = false;
   posts: Post[] = [];
   currentUser!: UserDetail;
@@ -85,6 +90,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   }
 
   private setupScrollListener(): void {
+    // Listener original para carga de posts y botón "ir arriba" (con throttle)
     fromEvent(globalThis, 'scroll')
       .pipe(
         throttleTime(this.throttleTimeMs, undefined, { leading: true, trailing: true }),
@@ -92,8 +98,49 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(() => {
-        this.handleScroll();
+        const yOffset = window.pageYOffset || document.documentElement.scrollTop;
+        this.showScrollButton = yOffset > this.scrollThreshold;
+        this.checkForMorePosts();
       });
+
+    fromEvent(globalThis, 'scroll')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        // Calculamos cuánto se movió el scroll (positivo si bajó, negativo si subió)
+        const scrollDelta = currentScrollTop - this.lastScrollTop;
+        this.lastScrollTop = currentScrollTop;
+        
+        this.updateSidebarPosition(scrollDelta);
+      });
+  }
+
+  /* Metodo para el sidebar scrolling en ver todos los posts*/
+  private updateSidebarPosition(scrollDelta: number): void {
+    if (!this.sidebarRef) return;
+    
+    const sidebarElement = this.sidebarRef.nativeElement;
+    const sidebarHeight = sidebarElement.offsetHeight;
+    const viewportHeight = window.innerHeight;
+    const HEADER_HEIGHT = 80; 
+    const BOTTOM_PADDING = 20; 
+
+    if (sidebarHeight <= viewportHeight - HEADER_HEIGHT) {
+      this.sidebarTopOffset = HEADER_HEIGHT;
+    } else {
+      this.sidebarTopOffset -= scrollDelta;
+      
+      if (this.sidebarTopOffset > HEADER_HEIGHT) {
+        this.sidebarTopOffset = HEADER_HEIGHT;
+      }
+
+      const minTop = viewportHeight - sidebarHeight - BOTTOM_PADDING;
+      if (this.sidebarTopOffset < minTop) {
+        this.sidebarTopOffset = minTop;
+      }
+    }
+
+    this.sidebarStyle = { top: `${this.sidebarTopOffset}px` };
   }
 
   private handleScroll(): void {
@@ -212,11 +259,11 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleOpenPost(post: Post, initialImageIndex: number = 0): void {
+  handleOpenPost(post: Post, initialMediaIndex: number = 0): void {
     const slug = this.tenantService.getSlug();
     const url = this.router.createUrlTree(['/', slug, 'posts', post.uuid]).toString();
     this.location.go(url);
-    this.openPostModal(post, initialImageIndex);
+    this.openPostModal(post, initialMediaIndex);
   }
 
   private openPostById(postUuid: string, initialImageIndex: number = 0): void {
@@ -234,7 +281,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
       });
   }
 
-  private openPostModal(post: Post, initialImageIndex: number = 0): void {
+  private openPostModal(post: Post, initialMediaIndex: number = 0): void {
     this.postService.getInstitution(post.institution_id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -247,7 +294,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
           modalRef.componentInstance.postAuthor = institution.name;
           modalRef.componentInstance.postDate = this.calculateTimePost(post);
           modalRef.componentInstance.postDescription = post.content.text;
-          modalRef.componentInstance.initialImageIndex = initialImageIndex;
+          modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
 
           const resetUrl = () => {
             const slug = this.tenantService.getSlug();

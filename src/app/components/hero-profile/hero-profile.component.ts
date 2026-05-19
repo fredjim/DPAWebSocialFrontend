@@ -14,21 +14,22 @@ export class HeroProfileComponent implements OnInit, OnDestroy {
   institution!: Institution;
   screenWidth!: number;
   showHero = true;
+  coverImageError = false;
   private readonly subscriptions = new Subscription();
 
   constructor(
     private readonly postService: PostService,
     private readonly tenantService: TenantService,
     private readonly router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.screenWidth = window.innerWidth;
     this.getInstitutionData();
-    
+
     // Suscribirse a cambios de ruta
     this.subscribeToRouteChanges();
-    
+
     // Evaluar condiciones iniciales
     this.showHero = this.checkConditions();
   }
@@ -47,7 +48,7 @@ export class HeroProfileComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.updateShowHero();
       });
-    
+
     this.subscriptions.add(routeSubscription);
   }
 
@@ -68,6 +69,7 @@ export class HeroProfileComponent implements OnInit, OnDestroy {
     const dataSubscription = this.tenantService.getInstitution().subscribe({
       next: (dataInstitution: Institution) => {
         this.institution = dataInstitution;
+        this.coverImageError = false;
       },
       error: (error) => {
         console.log(error);
@@ -78,7 +80,14 @@ export class HeroProfileComponent implements OnInit, OnDestroy {
   }
 
   get hasBackgroundImage(): boolean {
-    return !!this.institution?.background_url && this.institution.background_url.trim().length > 0;
+    return !!this.institution?.background_url && 
+           this.institution.background_url.trim().length > 0 && 
+           this.institution.background_url !== 'null' && 
+           !this.coverImageError;
+  }
+
+  onCoverError() {
+    this.coverImageError = true;
   }
 
   get hasLogoImage(): boolean {

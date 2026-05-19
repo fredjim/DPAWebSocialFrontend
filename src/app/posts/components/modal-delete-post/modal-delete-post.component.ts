@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Post } from '../../models/post';
 
 @Component({
   selector: 'app-modal-delete-post',

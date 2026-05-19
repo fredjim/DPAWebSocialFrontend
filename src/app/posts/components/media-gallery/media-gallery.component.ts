@@ -172,13 +172,14 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
       });
   }
 
-  openViewPost(postUuid: string) {
+  openViewPost(postUuid: string, mediaUrl: string) {
     this.postService.getPost(postUuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (dataPost: Post) => {
           this.currentPost = dataPost;
-          this.openModal();
+          const indexMedia = this.currentPost.content.media.findIndex( (media) => media.path === mediaUrl)
+          this.openModal(indexMedia);
         },
         error: (error) => {
           console.log(error);
@@ -230,16 +231,17 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     this.loadDocumentos();
   }
 
-  openModal() {
+  openModal(initialMediaIndex: number = 0) {
     const modalRef = this.modalService.open(CommentsComponent, { size: 'xl' });
 
     modalRef.componentInstance.institution = this.institution;
     modalRef.componentInstance.post = this.currentPost;
     modalRef.componentInstance.postUuid = this.currentPost.uuid;
-    modalRef.componentInstance.postImages = this.currentPost.content.media;
+    modalRef.componentInstance.postMedia = this.currentPost.content.media;
     modalRef.componentInstance.postAuthor = this.institution.name;
     modalRef.componentInstance.postDate = this.calculateTimePost;
     modalRef.componentInstance.postDescription = this.currentPost.content.text;
+    modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
   }
 
   ngOnDestroy(): void {

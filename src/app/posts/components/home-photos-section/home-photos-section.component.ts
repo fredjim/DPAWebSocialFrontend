@@ -6,6 +6,7 @@ import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from './../comments/comments.component';
 import { TenantService } from '../../../services/tenant.service';
+import { MediaInstitution } from '../../models/media-institution';
 
 @Component({
   selector: 'home-photos-section',
@@ -15,9 +16,9 @@ import { TenantService } from '../../../services/tenant.service';
 export class HomePhotosSectionComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly modalService = inject(NgbModal);
-  @Input() post: any;
+  @Input() post!: Post;
   @Input() institution!: Institution;
-  photos: any[] = [];
+  photos: {url: string, postUuid: string}[] = [];
   isLoading: boolean = true;
   currentPost !: Post;
   currentSlug: string = '';
@@ -50,7 +51,6 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (photos) => {
             this.photos = photos.slice(-9).map(photo => ({
-              ...photo,
               url: `${photo.path}`,
               postUuid: `${photo.uuid_post}`
             }));
@@ -64,14 +64,14 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
     }
   }
 
-  openViewPost(postUuid: string) {
+  openViewPost(postUuid: string, photoUrl: string) {
     this.postService.getPost(postUuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (dataPost: Post) => {
           this.currentPost = dataPost;
-          console.log("Post Retrieved: "  + this.currentPost);
-          this.openModal();
+          const indexImage = this.currentPost.content.media.findIndex( (media) => media.path === photoUrl)
+          this.openModal(indexImage);
         },
         error: (error) => {
           console.log(error);
@@ -80,17 +80,17 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
       });
   }
 
-  openModal() {
-    console.log("Current Post View Modal: "  + this.currentPost);
+  openModal(initialMediaIndex: number) {
     const modalRef = this.modalService.open(CommentsComponent, { size: 'xl' });
 
     modalRef.componentInstance.institution = this.institution;
     modalRef.componentInstance.post = this.currentPost;
     modalRef.componentInstance.postUuid = this.currentPost.uuid;
-    modalRef.componentInstance.postImages = this.currentPost.content.media;
+    modalRef.componentInstance.postMedia = this.currentPost.content.media;
     modalRef.componentInstance.postAuthor = this.institution.name;
     modalRef.componentInstance.postDate = this.calculateTimePost;
     modalRef.componentInstance.postDescription = this.currentPost.content.text;
+    modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
   }
 
   getPost(postUuid: string) {

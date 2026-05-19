@@ -9,11 +9,11 @@
         <div class="modal-body user-post-container">
           <div class="info-user d-flex gap-3 mb-3">
             @if (institution) {
-              <img
-                [src]="institution.logo_url"
-                [alt]="'Foto de perfil'"
-                class="img-profile"
-              />
+              <app-institution-avatar 
+                [institution]="institution" 
+                size="medium" 
+                class="img-profile">
+              </app-institution-avatar>
               <div>
                 <p class="fw-bold fs-6">{{ institution.name }}</p>
                 <select id="option-comment" *ngIf="commentConfig" [(ngModel)]="selectedCommentConfig" (ngModelChange)="changedSelectConfigComment()">

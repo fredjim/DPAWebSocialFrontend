@@ -17,7 +17,7 @@ import moment from 'moment-timezone';
   styleUrls: ['./comments.component.scss'],
 })
 export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input() initialImageIndex: number = 0;
+  @Input() initialMediaIndex: number = 0; // image-video
   @ViewChild('commentInput') commentInput!: ElementRef;
   @ViewChildren('videoPlayer') videos!: QueryList<ElementRef<HTMLVideoElement>>;
   @Input() institution!: Institution;
@@ -119,28 +119,25 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   addComment(): void {
     if (!this.newComment.trim() || !this.post?.uuid) return;
 
-    const commentData: PostComment = {
-      date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
-      postId: this.post.uuid,
-      id_user: this.authService.getUserId(),
+    const commentData = {
       content: this.newComment,
     };
 
     this.postService.addComment(this.post.uuid, commentData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: (newComment) => {
+      next: (newComment: any) => {
         if (this.currentUser) {
           const commentToAdd: Comment = {
             uuid: newComment.uuid || '',
             content: newComment.content,
             date: newComment.date,
-            user_name: `${this.currentUser.name} ${this.currentUser.lastName}`,
-            user_photo: this.currentUser.photo_profile_path,
-            userId: this.currentUser.uuid,
-            moderated: false,
-            state: '',
-            reply_count: 0,
+            user_name: newComment.user_name || `${this.currentUser.name} ${this.currentUser.lastName}`,
+            user_photo: newComment.user_photo || this.currentUser.photo_profile_path,
+            userId: newComment.userId || this.currentUser.uuid,
+            moderated: newComment.moderated || false,
+            state: newComment.state || 'VISIBLE',
+            reply_count: newComment.replyCount || 0,
             replies: [],
             reactions: [],
           };
@@ -159,45 +156,38 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const replyData = {
       content: event.replyText,
-      userId: this.authService.getUserId(),
-      date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
       parentReplyUuid: event.isTopLevel ? null : event.parentUuid,
     };
 
     this.postService.addReply(event.parentUuid, replyData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (newReply) => {
-          this.postService.getUser()
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-          next: (user: UserDetail) => {
-            const formattedReply = {
-              uuid: newReply.uuid,
-              content: newReply.content,
-              createdDate: newReply.date || newReply.createdDate,
-              name: user.name,
-              lastName: user.lastName,
-              user_photo: user.photo_profile_path,
-              replies: [],
-            };
+        next: (newReply: any) => {
+          // El nuevo response del backend ya incluye name, lastName y user_photo,
+          // por lo tanto, no necesitamos llamar a getUser() nuevamente.
+          const formattedReply = {
+            uuid: newReply.uuid,
+            content: newReply.content,
+            createdDate: newReply.createdDate,
+            name: newReply.name || this.currentUser?.name,
+            lastName: newReply.lastName || this.currentUser?.lastName,
+            user_photo: newReply.user_photo || this.currentUser?.photo_profile_path,
+            replies: newReply.replies || [],
+          };
 
-            if (event.isTopLevel) {
-              const parentComment = this.comments.find(
-                (c) => c.uuid === event.parentUuid
-              );
-              if (parentComment) {
-                parentComment.replies = parentComment.replies || [];
-                parentComment.replies.unshift(formattedReply);
-              }
-            } else {
-              this.updateNestedReplies(this.comments, event.parentUuid, formattedReply);
+          if (event.isTopLevel) {
+            const parentComment = this.comments.find(
+              (c) => c.uuid === event.parentUuid
+            );
+            if (parentComment) {
+              parentComment.replies = parentComment.replies || [];
+              parentComment.replies.unshift(formattedReply);
             }
-          },
-          error: (error) => console.error('Error al obtener el usuario:', error),
-        });
-      },
-      error: (error) => console.error('Error al agregar respuesta:', error),
+          } else {
+            this.updateNestedReplies(this.comments, event.parentUuid, formattedReply);
+          }
+        },
+        error: (error) => console.error('Error al agregar respuesta:', error),
     });
   }
 

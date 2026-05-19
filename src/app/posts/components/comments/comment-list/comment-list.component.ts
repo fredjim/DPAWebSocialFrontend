@@ -19,6 +19,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() comments: Comment[] = [];
   @Input() currentUser: UserDetail | null = null;
   @Input() authenticated: boolean = false;
+  @Input() commentConfigId: string = '';
   @Output() onAddReply = new EventEmitter<{ parentUuid: string, replyText: string, isTopLevel: boolean }>();
   commentReactionsCount: { [commentUuid: string]: number } = {};
   replyInputVisible: { [key: string]: boolean } = {};
@@ -206,8 +207,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   calculateTimeFromNow(date: string): string {
-    let commentDate = moment(date,'YYYY-MM-DDTHH:mm:ss.SSS');
-    return commentDate.fromNow();
+    return moment.utc(date).local().fromNow();
   }
 
   loadUserReactionsForComments() {
@@ -276,5 +276,9 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
       modalRef.componentInstance.commentOrReplyUuid = comment.uuid;
       modalRef.componentInstance.reactionsCount = reactionsCount;
     });
+  }
+
+  onImgError(event: Event): void {
+    (event.target as HTMLImageElement).src = 'assets/default-avatar.png';
   }
 }

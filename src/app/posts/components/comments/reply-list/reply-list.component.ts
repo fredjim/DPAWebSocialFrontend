@@ -169,8 +169,7 @@ export class ReplyListComponent implements OnInit, OnDestroy {
 
   // Calcula el tiempo desde la fecha
   calculateTimeFromNow(date: string): string {
-    let commentDate = moment(date,'YYYY-MM-DDTHH:mm:ss.SSS');
-    return commentDate.fromNow();
+    return moment.utc(date).local().fromNow();
   }
   openReplyReactionsModal(replyUuid: string) {
     this.postService.getReplyReactions(replyUuid)
@@ -198,5 +197,9 @@ export class ReplyListComponent implements OnInit, OnDestroy {
       modalRef.componentInstance.commentOrReplyUuid = replyUuid;
       modalRef.componentInstance.reactionsCount = reactionsCount; 
     });
+  }
+
+  onImgError(event: Event): void {
+    (event.target as HTMLImageElement).src = 'assets/default-avatar.png';
   }
 }

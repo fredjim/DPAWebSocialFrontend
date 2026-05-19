@@ -42,3 +42,7 @@
   font-size: 0.875rem;
   color: var(--rd-text);
 }
+
+::ng-deep .ui-btn.ui-btn--secondary.ui-btn--outlined.ui-btn--md {
+  height: 100%;
+}

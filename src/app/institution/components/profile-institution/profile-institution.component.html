@@ -3,32 +3,36 @@
         <img src="assets/logo-umss.png" alt="Logo UMSS">
 
         @if (institution) {
-            <app-institution-avatar [institution]="institution" size="small" id="logo-inst-header"></app-institution-avatar>
+        <app-institution-avatar [institution]="institution" size="small" id="logo-inst-header"></app-institution-avatar>
         }
     </div>
 
     <img src="assets/logo-umss-horizontal.jpg" alt="Logo UMSS" class="main-logo">
 
     <div class="user-profile">
-       
+
         @if (authenticated && currentUser) {
-            @if (currentUser.photo_profile_path){
-                <img [src]="currentUser.photo_profile_path" alt="Foto de perfil" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
-            } @else {
-                <img src="assets/user-icon.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
-            }
+        @if (currentUser.photo_profile_path){
+        <img [src]="currentUser.photo_profile_path" alt="Foto de perfil" (click)="toggleMenu()"
+            (keypress)="toggleMenu()" class="logo user-image">
         } @else {
-            <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
+        <img src="assets/user-icon.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
         }
-		
-        <span class="back-home" title="Volver a inicio" [routerLink]="['/', currentSlug]"><i class="bi bi-arrow-left"></i></span>
+        } @else {
+        <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()"
+            class="logo user-image">
+        }
+
+        <span class="back-home" title="Volver a inicio" [routerLink]="['/', currentSlug]"><i
+                class="bi bi-arrow-left"></i></span>
     </div>
 
     @if (isMenuOpen) {
     <div class="dropdown-menu">
         <ng-container *ngIf="authenticated">
             <a class="dropdown-item" routerLinkActive="active" [routerLink]="['/',currentSlug,'profile']">Ver perfil</a>
-            <a *ngIf="currentUser.role === 'ADMIN'" routerLinkActive="active" class="dropdown-item" [routerLink]="['/',currentSlug,'institution']">Ver página</a>
+            <a *ngIf="currentUser.role === 'ADMIN'" routerLinkActive="active" class="dropdown-item"
+                [routerLink]="['/',currentSlug,'institution']">Ver página</a>
             <a class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
         </ng-container>
         <ng-container *ngIf="!authenticated">
@@ -44,33 +48,33 @@
 
         <div class="banner-container">
             @if(institution) {
-                @if (hasInstitutionCover) {
-                    <img [src]="institutionCoverUrl"  alt="Foto de portada de la institucion" class="banner-image">
-                } @else {
-                    <div class="default-cover">
-                        <h3>Sin foto de portada</h3>
-                    </div>
-                }
-                <input #fileInputCover type="file" id="input-background-inst" (change)="changeInputMediaCover($event)"
-                    hidden accept="image/jpg, image/png, image/jpeg">
-                <div class="edit-info" (click)="openInputFileCover()" (keypress)="openInputFileCover()">
-                    <i class="bi bi-pencil-fill"></i>
-                </div>
+            @if (hasInstitutionCover) {
+            <img [src]="institutionCoverUrl" alt="Foto de portada de la institucion" class="banner-image" (error)="onCoverError()">
             } @else {
-                <div class="default-cover">
-                    <h3>Cargando portada...</h3>
-                </div>
+            <div class="default-cover">
+                <h3>No tiene foto de portada</h3>
+            </div>
+            }
+            <input #fileInputCover type="file" id="input-background-inst" (change)="changeInputMediaCover($event)"
+                hidden accept="image/jpg, image/png, image/jpeg">
+            <div class="edit-info" (click)="openInputFileCover()" (keypress)="openInputFileCover()">
+                <i class="bi bi-pencil-fill"></i>
+            </div>
+            } @else {
+            <div class="default-cover">
+                <h3>Cargando portada...</h3>
+            </div>
             }
         </div>
 
         <div class="logo-overlay">
             @if (imageLogo) {
-                <img [src]="imageLogo" alt="Logo preview" class="user-logo">
+            <img [src]="imageLogo" alt="Logo preview" class="user-logo">
             } @else if (institution) {
-                <app-institution-avatar [institution]="institution" size="large"></app-institution-avatar>
+            <app-institution-avatar [institution]="institution" size="xlarge"></app-institution-avatar>
             }
-            <input #fileInputLogo type="file" id="input-logo-inst" (change)="changeInputMediaLogo($event)"
-                 hidden accept="image/jpg, image/png, image/jpeg">
+            <input #fileInputLogo type="file" id="input-logo-inst" (change)="changeInputMediaLogo($event)" hidden
+                accept="image/jpg, image/png, image/jpeg">
             <div class="edit-info" (click)="openInputFileLogo()" (keypress)="openInputFileLogo()">
                 <i class="bi bi-pencil-fill"></i>
             </div>
@@ -89,13 +93,9 @@
             <div class="field">
                 <label for="name">Nombre:</label>
                 <div class="input-wrapper">
-                    <input pInputText 
-                        id="name" 
-                        class="form-control"
+                    <input pInputText id="name" class="form-control"
                         [class.is-invalid]="hasError('name', 'required') || hasError('name', 'maxlength')"
-                        formControlName="name" 
-                        type="text" 
-                        autocomplete="off">
+                        formControlName="name" type="text" autocomplete="off">
                     <div class="error-messages">
                         <div class="invalid-feedback" *ngIf="hasError('name', 'required')">
                             El nombre de la institución es obligatorio
@@ -111,12 +111,9 @@
             <div class="field">
                 <label for="description">Descripción:</label>
                 <div class="input-wrapper">
-                    <textarea id="description" 
-                            class="form-control"
-                            [class.is-invalid]="hasError('description', 'required') || hasError('description', 'maxlength')"
-                            formControlName="description" 
-                            rows="4" 
-                            autocomplete="off"></textarea>
+                    <textarea id="description" class="form-control"
+                        [class.is-invalid]="hasError('description', 'required') || hasError('description', 'maxlength')"
+                        formControlName="description" rows="4" autocomplete="off"></textarea>
                     <div class="error-messages">
                         <div class="invalid-feedback" *ngIf="hasError('description', 'required')">
                             La descripción es obligatoria
@@ -132,13 +129,9 @@
             <div class="field">
                 <label for="location">Ubicación:</label>
                 <div class="input-wrapper">
-                    <input pInputText 
-                        id="location" 
-                        class="form-control"
+                    <input pInputText id="location" class="form-control"
                         [class.is-invalid]="hasError('location', 'required') || hasError('location', 'maxlength')"
-                        formControlName="location" 
-                        type="text" 
-                        autocomplete="off">
+                        formControlName="location" type="text" autocomplete="off">
                     <div class="error-messages">
                         <div class="invalid-feedback" *ngIf="hasError('location', 'required')">
                             La ubicación es obligatoria
@@ -154,13 +147,9 @@
             <div class="field">
                 <label for="email">Correo electrónico:</label>
                 <div class="input-wrapper">
-                    <input pInputText 
-                        id="email" 
-                        class="form-control"
+                    <input pInputText id="email" class="form-control"
                         [class.is-invalid]="hasError('email', 'required') || hasError('email', 'email') || hasError('email', 'maxlength')"
-                        formControlName="email" 
-                        type="email" 
-                        autocomplete="off">
+                        formControlName="email" type="email" autocomplete="off">
                     <div class="error-messages">
                         <div class="invalid-feedback" *ngIf="hasError('email', 'required')">
                             El correo electrónico es obligatorio
@@ -179,13 +168,9 @@
             <div class="field">
                 <label for="phone">Teléfono:</label>
                 <div class="input-wrapper">
-                    <input pInputText 
-                        id="phone" 
-                        class="form-control"
+                    <input pInputText id="phone" class="form-control"
                         [class.is-invalid]="hasError('phone', 'required') || hasError('phone', 'maxlength') || hasError('phone', 'invalidPhone')"
-                        formControlName="phone" 
-                        type="tel" 
-                        autocomplete="off">
+                        formControlName="phone" type="tel" autocomplete="off">
                     <div class="error-messages">
                         <div class="invalid-feedback" *ngIf="hasError('phone', 'required')">
                             El teléfono es obligatorio
@@ -204,13 +189,9 @@
             <div class="field">
                 <label for="url">Sitio web:</label>
                 <div class="input-wrapper">
-                    <input pInputText 
-                        id="url" 
-                        class="form-control"
+                    <input pInputText id="url" class="form-control"
                         [class.is-invalid]="hasError('url', 'required') || hasError('url', 'maxlength') || hasError('url', 'invalidUrl')"
-                        formControlName="url" 
-                        type="url" 
-                        autocomplete="off">
+                        formControlName="url" type="url" autocomplete="off">
                     <div class="error-messages">
                         <div class="invalid-feedback" *ngIf="hasError('url', 'required')">
                             El sitio web es obligatorio
@@ -226,24 +207,13 @@
             </div>
 
             <div class="d-flex justify-content-center gap-4 pt-2">
-                <ui-button
-                  label="Guardar"
-                  icon="pi pi-check"
-                  type="submit"
-                  severity="success"
-                  [disabled]="formInstitution.invalid"
-                ></ui-button>
-                <ui-button
-                  label="Cancelar"
-                  icon="pi pi-times"
-                  type="button"
-                  severity="secondary"
-                  variant="outlined"
-                  [routerLink]="['/',currentSlug]"
-                ></ui-button>
+                <ui-button label="Guardar" icon="pi pi-check" type="submit" severity="success"
+                    [disabled]="formInstitution.invalid"></ui-button>
+                <ui-button label="Cancelar" icon="pi pi-times" type="button" severity="secondary" variant="outlined"
+                    [routerLink]="['/',currentSlug]"></ui-button>
             </div>
         </form>
     </div>
-    
+
 </div>
 <app-custom-toast #toast></app-custom-toast>
