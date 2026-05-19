@@ -1,5 +1,5 @@
 <div class="comments-section">
-  <div *ngFor="let comment of comments">
+  <div *ngFor="let comment of comments; let i = index">
     <div class="comment-box">
       <!-- Cabecera del comentario -->
       <div class="d-flex align-items-start comment-row">
@@ -8,7 +8,13 @@
 
         <!-- Burbuja del comentario -->
         <div class="comment-bubble">
-          <p class="mb-1"><strong>{{ comment.user_name }}</strong></p>
+          <div class="comment-bubble-header">
+            <strong>{{ comment.user_name }}</strong>
+            @if(authenticated && currentUser?.role === 'ADMIN'){
+              <i class="bi bi-trash3-fill icon-delete-comment" title="Eliminar comentario"
+                 (click)="showModalDeleteComment(comment, i)" (keypress)="showModalDeleteComment(comment, i)"></i>
+            }
+          </div>
           <p class="mb-1">{{ comment.content }}</p>
           <div class="comment-actions mt-1">
             <span class="comment-time">{{ calculateTimeFromNow(comment.date) }}</span>
@@ -133,3 +139,31 @@
     </div>
   </div>
 </ng-template>
+
+<p-dialog header="Eliminar comentario" [(visible)]="visibleModalDeleteComment" [style]="{ width: '25rem' }">
+  @if(commentToDelete && commentToDelete.replyCount > 0){
+    <span class="p-text-secondary block">¿Seguro que desea eliminar el comentario y sus respuestas?</span>
+  }@else {
+    <span class="p-text-secondary block">¿Seguro que desea eliminar el comentario?</span>
+  }
+  <div class="d-flex justify-content-end gap-2 mt-3">
+      <ui-button
+        label="Cancelar"
+        type="button"
+        severity="secondary"
+        [disabled]="isLoadingDeleteComment"
+        (clicked)="visibleModalDeleteComment = false"
+      ></ui-button>
+      <ui-button
+        label="Eliminar"
+        type="button"
+        icon="pi pi-trash"
+        severity="danger"
+        [disabled]="isLoadingDeleteComment"
+        [loading]="isLoadingDeleteComment"
+        (clicked)="deleteComment()"
+      ></ui-button>
+  </div>
+</p-dialog>
+
+<app-custom-toast #toastRef key="commentToast" position="top-right"></app-custom-toast>
