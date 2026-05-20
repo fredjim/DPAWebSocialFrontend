@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { PostService } from '../../services/post.service';
-import { Modal } from 'bootstrap';
 import * as bootstrap from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { concatMap, Subject, takeUntil } from 'rxjs';
@@ -180,14 +179,6 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     this.disabledPublishButton.set(true);
   }
 
-  showLoading() {
-    this.isLoading = true;
-  }
-
-  hideLoading() {
-    this.isLoading = false
-  }
-
   getTypeByRol() {
     this.postService.getUser()
       .pipe(takeUntil(this.destroy$))
@@ -270,6 +261,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async post() {
+    this.isLoading = true;
     const valueFormPost = this.postForm.value;
     const formData = new FormData();
     const post: CreatePost = {
@@ -285,7 +277,6 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     if (valueFormPost.contentPost != '' || this.listFile || this.fileDoc) {
-      this.showLoading();
 
       if (this.listFile && this.listFile.length > 0) {
         const optimizedFiles = await this.optimizeImages(this.listFile).catch(() => this.listFile);
@@ -337,14 +328,14 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private createSuccessPost(createdPost: Post): void {
-    this.hideLoading();
+    this.isLoading = false;
     this.closeModalCreatePost();
     this.onCreatePost.emit(createdPost)
     this.toastRef.showSuccess('Publicación creada exitosamente', 'Exitoso');
   }
 
   private createErrorPost(errorMsg: string, error: HttpErrorResponse): void {
-    this.hideLoading(); 
+    this.isLoading = false;
     this.toastRef.showError(errorMsg, 'Error');
     console.log(errorMsg, error); 
   }
