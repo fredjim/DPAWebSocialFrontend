@@ -33,13 +33,14 @@ const routes: Routes = [
       {
         path: 'profile',
         component: ProfileComponent,
-        canActivate: [authGuard]
+        canActivate: [authGuard],
+        data: { showGoBack: true }
       },
       {
         path: 'institution',
         component: ProfileInstitutionComponent,
         canActivate: [authGuard],
-        data: { roles: ['ADMIN'] }
+        data: { roles: ['ADMIN'], showGoBack: true }
       },
       
       // Rutas públicas con layout del tenant
@@ -50,9 +51,9 @@ const routes: Routes = [
           { path: '', redirectTo: 'posts', pathMatch: 'full' },
           { path: 'posts/:id', component: ViewAllPostsComponent },
           { path: 'posts', component: ViewAllPostsComponent },
-          { path: 'fotos', component: MediaGalleryComponent },
-          { path: 'videos', component: MediaGalleryComponent },
-          { path: 'documentos', component: MediaGalleryComponent },
+          { path: 'fotos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  }  },
+          { path: 'videos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  }  },
+          { path: 'documentos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  } },
           {
             path: ':pathNavItem',
             component: PageContainerComponent,

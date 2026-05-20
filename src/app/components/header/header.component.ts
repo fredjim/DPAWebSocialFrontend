@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Institution } from '../../posts/models/institution';
 import { PostService } from '../../posts/services/post.service';
 import { TenantService } from '../../services/tenant.service';
@@ -6,6 +6,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { Modal } from 'bootstrap';
 import { AuthService } from '../../authentication/services/auth.service';
 import { CommentService } from '../../comments/services/comment.service';
+import { UserDetail } from '../../posts/models/user-detail';
 
 @Component({
   selector: 'app-header',
@@ -22,8 +23,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   canModerate: boolean = false; // Nueva propiedad
   
   isMobileMenuOpen = false;
-  
-  user: any
+  @Input() hideArrowBackHome = true;
+  user: UserDetail | null = null;
   counterModeratedComments: number = 0;
   currentSlug: string = '';
   private readonly destroy$ = new Subject<void>();

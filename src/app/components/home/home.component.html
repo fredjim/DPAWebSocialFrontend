@@ -1,2 +1,4 @@
-<app-header></app-header>
+<app-header [hideArrowBackHome]="showGoBack"></app-header>
+<app-hero-profile *ngIf="!hideHero"></app-hero-profile>
+<app-navbar class="submenu" *ngIf="!hideNavbar"></app-navbar>
 <router-outlet></router-outlet>
