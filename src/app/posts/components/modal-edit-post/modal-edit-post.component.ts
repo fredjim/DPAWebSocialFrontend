@@ -13,6 +13,7 @@ import { UserDetail } from '../../models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
 import imageCompression from 'browser-image-compression';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-modal-edit-post',
@@ -27,6 +28,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   @Input({ required: true }) postToEdit!: Post;
   @Input() showModalEdit!: WritableSignal<boolean>;
   @Output() postUpdatedEvent = new EventEmitter<Post>();
+  public isLoading = false;
   public commentConfig!: CommentConfig[];
   public selectedCommentConfig!: string;
   public maxLegthTextPost = 1200;
@@ -288,6 +290,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   }
   
   async updatePost(){
+    this.isLoading = true;
     const valueFormPost = this.postForm.value;
     const formData = new FormData();
     const responseMedia: Media[] = []; //Respuesta de imagenes y videos guardados
@@ -354,14 +357,8 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
             return this.postService.updatePost(this.postToEdit.uuid, editedPost);
           })
         ).subscribe({
-          next: (responseUpdatedPost)=> {
-            console.log('post con nuevas imagenes videos actualizado',responseUpdatedPost);
-            globalThis.location.reload();
-          },
-          error: (error) => {
-            this.toastRef.showError('Error al actualizar publicación', 'Error');
-            console.log('Error al actualizar el post con contenido media (imagenes y/o videos)', error)
-          }
+          next: (updatedPost)=> this.updateSuccessPost(updatedPost),
+          error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar publicación con contenido media', error)
         })
       }else if(this.fileNewDoc && this.fileNewDoc.size > 0){//Si hay un archivo
         //Convertir el archivo en form data
@@ -382,14 +379,8 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
             return this.postService.updatePost(this.postToEdit.uuid, editedPost);
           })
         ).subscribe({
-          next: (responseUpdatedPost)=> {
-            console.log('post con archivo actualizado',responseUpdatedPost);
-            globalThis.location.reload();
-          },
-          error: (error) => {
-            this.toastRef.showError('Error al actualizar publicación', 'Error');
-            console.log('Error al actualizar el post con archivo',error)
-          }
+          next: (updatedPost)=> this.updateSuccessPost(updatedPost),
+          error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar publicación con archivo', error)
         })      
       }else if(valueFormPost.contentPost != '' || this.listOldMediaFile.length > 0){//Si solo tiene texto O si se eliminaron medios
         // Usar directamente listOldMediaFile que ya contiene solo los medios que NO fueron eliminados
@@ -397,15 +388,22 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
         editedPost.content.media = [...this.listOldMediaFile];
 
         this.postService.updatePost(this.postToEdit.uuid, editedPost).subscribe({
-          next: (responseUpdatedPost) => {
-            globalThis.location.reload();
-          },
-          error: (error) => {
-            this.toastRef.showError('Error al actualizar publicación', 'Error');
-            console.log('Error al actualizar post', error)
-          }
+          next: (updatedPost) => this.updateSuccessPost(updatedPost),
+          error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar publicación', error)
         })
       }
     }
+  }
+
+  private updateSuccessPost(editedPost: Post): void {
+    this.isLoading = false;
+    this.postUpdatedEvent.emit(editedPost);
+    this.toastRef.showSuccess('Publicación actualizada exitosamente', 'Éxito');
+  }
+
+  private updateErrorPost(errorMsg: string, error: HttpErrorResponse): void {
+    this.isLoading = false;
+    this.toastRef.showError(errorMsg, 'Error');
+    console.log(errorMsg, error)
   }
 }

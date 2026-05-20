@@ -58,6 +58,7 @@
               type="button"
               severity="success"
               [disabled]="disabledSaveButton()"
+              [loading]="isLoading"
               [bsDismiss]="'modal'"
               (clicked)="updatePost()"
             ></ui-button>

@@ -4,7 +4,7 @@
   </div>
   <div *ngIf="posts" class="main-container">
     @if (authenticated && currentUser) {
-      <app-create-post *ngIf="currentUser.role === 'ADMIN'"></app-create-post>
+      <app-create-post *ngIf="currentUser.role === 'ADMIN'" (onCreatePost)="createdNewPost($event)"></app-create-post>
     }
     <div class="header-section">
       <div class="data-user">
@@ -37,3 +37,5 @@
     </button>
   </div>
 </div>
+
+<app-custom-toast #toastRef key="deletePostToast" position="top-right"></app-custom-toast>
