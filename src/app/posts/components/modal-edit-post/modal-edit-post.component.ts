@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal, View
 import { Subject, takeUntil, concatMap } from 'rxjs';
 import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
-import { CommentConfig } from '../../models/comment-config';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PostService } from '../../services/post.service';
 import { Media } from '../../models/media';
@@ -29,8 +28,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   @Input() showModalEdit!: WritableSignal<boolean>;
   @Output() postUpdatedEvent = new EventEmitter<Post>();
   public isLoading = false;
-  public commentConfig!: CommentConfig[];
-  public selectedCommentConfig!: string;
+  public commentsEnabled: boolean = true;
   public maxLegthTextPost = 1200;
   public visibleAreaMedia = signal(false); //Mostrar seleccion y prevista de imagenes
   public visibleAreaMediaDoc = signal(false); //Mostrar seleccion y prevista de documentos
@@ -63,18 +61,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
         this.disableLoadImage.set(true) :
         this.disableLoadDoc.set(true)
     }
-    //Obtener la configuracion de comentarios
-    this.postService.getCommentsConfiguration()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (commentsConfiguration: CommentConfig[])=>{
-          this.commentConfig = commentsConfiguration;
-          this.selectedCommentConfig = this.postToEdit.comment_config_id;//Configuracion de comentarios del post
-        },
-        error: (error)=>{
-          console.log('Error al obtener la configuracion de comentarios', error)
-        }
-      });
+    this.commentsEnabled = this.postToEdit.commentsEnabled ?? true;
     this.getTypeByRol()
     this.buildForm()
     
@@ -164,15 +151,16 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
 
   private checkDisableSaveButton(){
     const textPost: string = this.postForm.get('contentPost')?.value ?? '';
-    if((textPost === '' || textPost.length > this.maxLegthTextPost) && (this.listNewMediaFile.length === 0 
-      && this.listOldMediaFile.length === 0 && !this.fileNewDoc)){
+    const commentsEnabledChanged = this.commentsEnabled !== (this.postToEdit.commentsEnabled ?? true);
+    if((textPost === '' || textPost.length > this.maxLegthTextPost) && (this.listNewMediaFile.length === 0
+      && this.listOldMediaFile.length === 0 && !this.fileNewDoc) && !commentsEnabledChanged){
       this.disabledSaveButton.set(true);
     }else{
       this.disabledSaveButton.set(false);
     }
   }
 
-  public changedSelectConfigComment(): void {
+  public onCommentsEnabledChange(): void {
     this.checkDisableSaveButton();
   }
 
@@ -182,7 +170,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
     if (modalElement) {
       let modal = Modal.getInstance(modalElement);
       modal?.hide();
-      this.selectedCommentConfig = this.postToEdit.comment_config_id;
+      this.commentsEnabled = this.postToEdit.commentsEnabled ?? true;
       this.showModalEdit.set(false);
       this.listNewMediaFile = [];
       this.fileNewDoc = null;
@@ -296,9 +284,8 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
     const responseMedia: Media[] = []; //Respuesta de imagenes y videos guardados
     let responseDoc: Media;
     const editedPost: CreatePost = {
-      institution_id: this.institution.uuid,
       date: this.postToEdit.date,
-      comment_config_id: this.selectedCommentConfig,
+      commentsEnabled: this.commentsEnabled,
       post_type: this.currentPostType,
       content: {
         text: valueFormPost.contentPost,

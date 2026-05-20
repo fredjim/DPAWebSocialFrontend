@@ -7,7 +7,6 @@ import { UploadedMedia } from '../../models/uploaded-media';
 import { CreatePost } from '../../models/create-post';
 import { Institution } from '../../models/institution';
 import moment from 'moment';
-import { CommentConfig } from '../../models/comment-config';
 import { TenantService } from '../../../services/tenant.service';
 import { UserDetail } from '../../models/user-detail';
 import imageCompression from 'browser-image-compression';
@@ -24,8 +23,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private modalHiddenListener!: () => void;
   institution!: Institution;
-  commentConfig!: CommentConfig[];
-  selectedCommentConfig!: string;
+  commentsEnabled: boolean = true;
   visibleAreaMedia = signal(false); //Mostrar seleccion y prevista de imagenes
   visibleAreaMediaDoc = signal(false); //Mostrar seleccion y prevista de documentos
   disableLoadImage = signal(false); //Deshabilitar el boton de cargar imagenes
@@ -62,18 +60,6 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
           console.log(error);
         }
       });
-    //Obtener la configuracion de comentarios
-    this.postService.getCommentsConfiguration()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (commentsConfiguration: CommentConfig[]) => {
-          this.commentConfig = commentsConfiguration;
-          this.selectedCommentConfig = this.commentConfig[0].uuid;//Por defecto todos comentan
-        },
-        error: (error) => {
-          console.log('Error al obtener la configuracion de comentarios', error)
-        }
-      });
     this.getTypeByRol()
     this.buildForm()
   }
@@ -81,7 +67,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.modalHiddenListener = () => {
       this.visibleModalCreate = false;
-      this.selectedCommentConfig = this.commentConfig[0].uuid;
+      this.commentsEnabled = true;
       this.postForm.get('switchControl')?.setValue(false);
     };
     this.modalCreatePost.nativeElement.addEventListener('hidden.bs.modal', this.modalHiddenListener);
@@ -265,9 +251,8 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     const valueFormPost = this.postForm.value;
     const formData = new FormData();
     const post: CreatePost = {
-      institution_id: this.institution.uuid,
       date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
-      comment_config_id: this.selectedCommentConfig,
+      commentsEnabled: this.commentsEnabled,
       post_type: this.currentPostType,
       content: {
         text: valueFormPost.contentPost.trim(),
