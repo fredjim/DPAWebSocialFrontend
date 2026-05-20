@@ -129,6 +129,20 @@
   color: #0866FF;
 }
 
+::ng-deep .p-message.p-message-warn {
+	border: solid 1px #cc8925;
+	padding: 0.2rem;
+
+	.header-message {
+		margin-left: 0.5rem;
+		font-weight: bold;
+		font-size: 15px;
+	}
+	.list-message {
+		font-size: 14px;
+	}
+}
+
 @media screen and (max-width: 768px) {
 	.img-profile {
 		display: none !important;
