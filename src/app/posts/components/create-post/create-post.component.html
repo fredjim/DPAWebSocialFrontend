@@ -50,6 +50,20 @@
 							</div>
 						</div>
 					</div>
+					<p-messages *ngIf="isFbSwitchOn" severity="warn" [closable]="false">
+						<ng-template pTemplate="message">
+							<div class="flex flex-column gap-2">
+								<span class="header-message">
+									<i class="pi pi-exclamation-triangle mr-2"></i>
+									Restricciones de Facebook
+								</span>
+								<ul class="m-0 pl-4 list-message">
+									<li>Solo se permite 1 video</li>
+									<li>No se permite documentos</li>
+								</ul>
+							</div>
+						</ng-template>
+					</p-messages>
 
 					<div class="container">
 						<!-- Seleccionar imagen (es) -->
