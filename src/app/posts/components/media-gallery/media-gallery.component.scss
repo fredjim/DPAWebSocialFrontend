@@ -1,6 +1,30 @@
 .media-gallery {
+  display: grid;
   margin: 50px auto;
   width: var(--container-width);
+
+  .media-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+
+    .photo,
+    .video,
+    .document {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      -o-object-fit: cover;
+      transition: transform 0.3s ease;
+      border-radius: 8px;
+      border: 1px solid var(--blue-color-25);
+      cursor: pointer;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
 }
 
 ::ng-deep ul.p-tabview-nav {
@@ -24,25 +48,6 @@
   color: var(--blue-color);
 }
 
-.media-container {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
-}
-
-.photo, .video, .document {
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-  border-radius: 8px;
-  border: 1px solid var(--blue-color-25);
-  cursor: pointer;
-
-  &:hover {
-    transform: scale(1.05);
-  }
-}
 
 .document {
   overflow: hidden;
@@ -67,4 +72,11 @@ footer {
 	p {
 		margin: 0;
 	}
+}
+
+@media screen and (max-width: 1201px) {
+  .media-gallery {
+    padding: 0 10px;
+    width: 100%;
+  }
 }

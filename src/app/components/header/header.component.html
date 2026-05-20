@@ -10,14 +10,6 @@
     <img src="assets/logo-umss-horizontal.jpg" alt="Logo UMSS" class="main-logo">
 
     <div class="user-profile">
-        <!--
-    @if (counterModeratedComments > 0) {
-    <div class="icon-up-number" (click)="showModeratedComments()">
-      <img src="assets/moderate-messages.png" alt="Ícono mensajes para moderar" class="logo-small">
-      <span class="number-up">{{ counterModeratedComments }}</span>
-    </div>
-    }
-    -->
         @if (authenticated && user) {
             @if (user.photo_profile_path){
                 <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
@@ -32,13 +24,16 @@
 			<i class="material-icons">{{ isMobileMenuOpen ? "close" : "menu" }}</i>
 		</div>
 
+        <span *ngIf="hideArrowBackHome" class="back-home" title="Volver a inicio" [routerLink]="['/', currentSlug]">
+            <i class="bi bi-arrow-left"></i>
+        </span>
     </div>
 
     @if (isMenuOpen) {
     <div class="dropdown-menu">
         <ng-container *ngIf="authenticated">
             <a class="dropdown-item" routerLinkActive="active" [routerLink]="['/',currentSlug,'profile']">Ver perfil</a>
-            <a *ngIf="user.role === 'ADMIN'" routerLinkActive="active" class="dropdown-item" [routerLink]="['/',currentSlug,'institution']">Ver página</a>
+            <a *ngIf="user && user.role === 'ADMIN'" routerLinkActive="active" class="dropdown-item" [routerLink]="['/',currentSlug,'institution']">Ver página</a>
             <a class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
         </ng-container>
         <ng-container *ngIf="!authenticated">
@@ -48,8 +43,6 @@
     </div>
     }
 </header>
-
-<app-hero-profile></app-hero-profile>
 
 <app-login></app-login>
 

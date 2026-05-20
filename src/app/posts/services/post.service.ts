@@ -12,7 +12,6 @@ import { environment } from '../../../environments/environment';
 import { CommentConfig } from '../models/comment-config';
 import { map } from 'rxjs/operators';
 import { EmojiType } from '../models/emoji-type';
-import { PostComment } from '../models/post-comment';
 import { UserDetail } from '../models/user-detail';
 import { MediaInstitution } from '../models/media-institution';
 
@@ -199,6 +198,11 @@ export class PostService {
     return this.http.post<any>(fullUrl, commentData, { headers });
   }
 
+  deleteComment(uuidPost: string, uuidComment: string): Observable<void> {
+    const url = `${this.ROOT_URL}/posts/${uuidPost}/comments/${uuidComment}`;
+    return this.http.delete<void>(url, this.reqHeader);
+  }
+
   //Obtener todas las fotos de la institucion 
   getInstitutionPhotos(uuid: string): Observable<MediaInstitution[]> {
     const url = `${this.ROOT_URL}/institutions/${uuid}/photos`;
@@ -247,6 +251,11 @@ export class PostService {
 
   getRepliesByCommentUuid(commentUuid: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.ROOT_URL}/comments/${commentUuid}/replies`);
+  }
+
+  deleteReply(uuidReply: string): Observable<void> {
+    const url = `${this.ROOT_URL}/replies/${uuidReply}`;
+    return this.http.delete<void>(url, this.reqHeader);
   }
 
 
