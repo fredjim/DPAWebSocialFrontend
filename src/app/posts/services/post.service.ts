@@ -9,7 +9,6 @@ import { Comment } from '../models/comment';
 import { UploadedMedia } from '../models/uploaded-media';
 import { CreateReaction } from '../models/create-reaction';
 import { environment } from '../../../environments/environment';
-import { CommentConfig } from '../models/comment-config';
 import { map } from 'rxjs/operators';
 import { EmojiType } from '../models/emoji-type';
 import { UserDetail } from '../models/user-detail';
@@ -148,12 +147,6 @@ export class PostService {
 
   }
 
-
-  //Método para obtener configuraciones de comentarios
-  getCommentsConfiguration(): Observable<CommentConfig[]> {
-    const commentConfigUrl = 'comment-config'
-    return this.http.get<CommentConfig[]>(`${this.ROOT_URL}/${commentConfigUrl}`);
-  }
 
   //Método para eliminar un post
   deletePost(postUuid: string): Observable<Post> {

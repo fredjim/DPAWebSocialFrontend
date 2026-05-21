@@ -146,7 +146,11 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Error al agregar comentario', err);
+        if (err.status === 403) {
+          console.error('Los comentarios están desactivados en esta publicación');
+        } else {
+          console.error('Error al agregar comentario', err);
+        }
       },
     });
   }
