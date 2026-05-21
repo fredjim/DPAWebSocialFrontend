@@ -123,7 +123,7 @@
 			</div>
 		</button>
 		<!-- Boton de Comentar -->
-		@if(post.comment_config_id !== '587d7d7f-5g3n-4b77-cf98-77a9h46759d0'){
+		@if(post.commentsEnabled){
 			<button type="button" class="btn icon-btn" id="btn-comment" (click)="openViewPostComments(post)">
 				<i class="bi bi-chat-left-text"></i>
 				Comentar</button>

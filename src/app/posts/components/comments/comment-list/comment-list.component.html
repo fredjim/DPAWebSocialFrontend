@@ -21,7 +21,7 @@
             <span class="mx-1">·</span>
             <ng-container *ngIf="authenticated">
 
-              @if (authenticated && commentConfigId !== '587d7d7f-5g3n-4b77-cf98-77a9h46759d0') {
+              @if (authenticated && commentsEnabled) {
                 <button  class="reply-btn" (click)="toggleReplyInput(comment.uuid)">Responder</button>
               }
 
