@@ -30,7 +30,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   disableLoadDoc = signal(false); //Deshabilitar el boton de cargar documentos
   disabledPublishButton = signal(true); //Deshabilitar el boton de publicar
   postForm!: FormGroup;
-  listFile!: File[];
+  listFile: File[] = [];
   fileDoc!: File | null;
   isFbSwitchOn: boolean = false;
   currentUser!: UserDetail;
@@ -89,6 +89,26 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onSwitchChange(value: boolean) {
     this.isFbSwitchOn = value;
+    
+    value ? this.disableLoadDoc.set(true) : this.disableLoadDoc.set(false)
+    
+    if(value){
+      this.checkListFileForFacebook();
+    }else if(this.listFile.length > 0 || (this.fileDoc && this.fileDoc.size > 0) || this.postForm.value.contentPost !== ''){
+      this.disabledPublishButton.set(false);
+    }else{
+      this.disabledPublishButton.set(true);
+    }
+  }
+
+  private checkListFileForFacebook(): void {
+    const hasDocument = this.fileDoc && this.fileDoc.size > 0;
+    const videoCount = this.listFile.filter(file => file.type.includes('video')).length;
+
+    if(hasDocument || videoCount > 1){
+      this.disabledPublishButton.set(true);
+      this.toastRef.showWarn('Solo se permite 1 video y no se pueden subir documentos.', 'Restricciones de Facebook');
+    }
   }
 
   openModalCreatePost() {
@@ -118,7 +138,9 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
 
   //Ocultar area de imagenes
   closeAreaMedia(option: boolean) {
-    this.disableLoadDoc.set(option); //Habilitar el boton de cargar documentos
+    if(!this.isFbSwitchOn){
+      this.disableLoadDoc.set(option); //Habilitar el boton de cargar documentos
+    }
     
     // Actualizar estado del botón de publicar basado en el texto y la lista de archivos
     const contentPost = this.postForm.get('contentPost')?.value;
@@ -134,6 +156,11 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     const contentPost = this.postForm.get('contentPost')?.value;
     // Habilitar el botón de publicar si hay texto o si hay archivos seleccionados
     this.disabledPublishButton.set(!(contentPost != '' || (this.listFile && this.listFile.length > 0)));
+
+    // Desabilitar el boton Publicar si el switchFace == true y incumple restricciones
+    if(this.isFbSwitchOn){
+      this.checkListFileForFacebook();
+    }
   }
 
   //Mostrar area de documentos y deshabilitar el boton de cargar imagenes
@@ -155,6 +182,11 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     this.fileDoc = doc;
     const contentPost = this.postForm.get('contentPost')?.value;
     contentPost != '' || this.fileDoc ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
+
+    // Desabilitar el boton Publicar si el switchFace == true y incumple restricciones
+    if(this.isFbSwitchOn){
+      this.checkListFileForFacebook();
+    }
   }
 
   // Cerrar modal con boton X (data-bs-dismiss="modal")
