@@ -121,11 +121,6 @@ export class AuthService {
     return roles.includes(role);
   }
 
-  // Verificar si el usuario puede moderar (ADMIN o MODERATOR)
-  canModerate(): boolean {
-    return this.hasRole('ADMIN') || this.hasRole('MODERATOR');
-  }
-
   tokenHasExpired() {
     let convertDate = Number.parseInt(localStorage.getItem('expires') ?? '') * 1000;
     let expireDate = new Date(convertDate);
