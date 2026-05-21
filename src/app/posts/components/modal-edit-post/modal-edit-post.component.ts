@@ -69,6 +69,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (commentsConfiguration: CommentConfig[])=>{
           this.commentConfig = commentsConfiguration;
+          this.commentConfig = this.commentConfig.filter(config => config.configuration_type !== 'MODERATED_COMMENTS');
           this.selectedCommentConfig = this.postToEdit.comment_config_id;//Configuracion de comentarios del post
         },
         error: (error)=>{

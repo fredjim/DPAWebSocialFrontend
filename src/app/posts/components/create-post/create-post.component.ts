@@ -68,6 +68,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (commentsConfiguration: CommentConfig[]) => {
           this.commentConfig = commentsConfiguration;
+          this.commentConfig = this.commentConfig.filter(config => config.configuration_type !== 'MODERATED_COMMENTS');
           this.selectedCommentConfig = this.commentConfig[0].uuid;//Por defecto todos comentan
         },
         error: (error) => {
