@@ -1,3 +1,14 @@
+.content {
+  display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	min-height: 100dvh;
+}
+
+.tab-media {
+  flex: 1;
+}
+
 .media-gallery {
   display: grid;
   margin: 50px auto;
