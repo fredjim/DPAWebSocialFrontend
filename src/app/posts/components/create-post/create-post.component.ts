@@ -104,10 +104,17 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   private checkListFileForFacebook(): void {
     const hasDocument = this.fileDoc && this.fileDoc.size > 0;
     const videoCount = this.listFile.filter(file => file.type.includes('video')).length;
+    const imageCount = this.listFile.filter(file => file.type.includes('image')).length;
 
-    if(hasDocument || videoCount > 1){
+    const hasVideoWithImages = videoCount >= 1 && imageCount >= 1;
+    const hasMoreThanOneVideo = videoCount > 1;
+
+    if (hasDocument || hasVideoWithImages || hasMoreThanOneVideo) {
       this.disabledPublishButton.set(true);
-      this.toastRef.showWarn('Solo se permite 1 video y no se pueden subir documentos.', 'Restricciones de Facebook');
+      this.toastRef.showWarn(
+        'Solo se permite 1 video sin imágenes, o solo imágenes sin videos. No se permiten documentos.',
+        'Restricciones de Facebook'
+      );
     }
   }
 
