@@ -44,39 +44,17 @@
   width: var(--container-width);
   border-bottom: 1px solid var(--red-color);
 }
-/*
-::ng-deep ul.p-tabview-nav {
-  gap: 15px;
-  margin: 0;
-  padding: 25px 10px 15px;
-  font-family: var(--secondary-font-family);
-  font-size: 1rem;
-
-  a.p-tabview-nav-link {
-    font-weight: 400;
-    color: var(--blue-color);
-    text-decoration: none;
-    border: none;
-
-    &.p-highlight {
-      font-weight: 400;
-      color: var(--red-color);
-      border: none;
-    }
-
-    &:hover {
-      color: var(--red-color);
-      text-decoration: underline;
-    }
-  }
-}
-*/
 
 ::ng-deep ul.p-tabview-nav {
   margin-top: 1rem;
   padding: 0 1rem;
   gap: 15px;
   border: none;
+
+  li.p-highlight > a.p-tabview-nav-link  {
+    color: var(--red-color);
+    border-color: var(--red-color);
+  }
 
   a.p-tabview-nav-link {
     padding-bottom: 1px;
@@ -87,8 +65,7 @@
     text-decoration: none;
 
     &:hover {
-      color: var(--red-color);
-      border-bottom: 1px solid var(--red-color);
+      border-color: var(--blue-color);
     }
   }
 }
