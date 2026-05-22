@@ -28,41 +28,37 @@ const routes: Routes = [
   // Todas las rutas que requieren slug (públicas y protegidas)
   {
     path: ':slug',
+    component: HomeComponent,  // Este componente contiene header/footer del tenant
     children: [
       // Rutas protegidas
       {
         path: 'profile',
         component: ProfileComponent,
-        canActivate: [authGuard]
+        canActivate: [authGuard],
+        data: { hideHero: true, hideNavbar: true, showGoBack: true }
       },
       {
         path: 'institution',
         component: ProfileInstitutionComponent,
         canActivate: [authGuard],
-        data: { roles: ['ADMIN'] }
+        data: { roles: ['ADMIN'], hideHero: true, hideNavbar: true, showGoBack: true }
       },
       
-      // Rutas públicas con layout del tenant
+      // Rutas públicas
+      { path: '', redirectTo: 'posts', pathMatch: 'full' },
+      { path: 'posts/:id', component: ViewAllPostsComponent },
+      { path: 'posts', component: ViewAllPostsComponent },
+      { path: 'fotos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  }  },
+      { path: 'videos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  }  },
+      { path: 'documentos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  } },
       {
-        path: '',
-        component: HomeComponent,  // Este componente contiene header/footer del tenant
+        path: ':pathNavItem',
+        component: PageContainerComponent,
         children: [
-          { path: '', redirectTo: 'posts', pathMatch: 'full' },
-          { path: 'posts/:id', component: ViewAllPostsComponent },
-          { path: 'posts', component: ViewAllPostsComponent },
-          { path: 'fotos', component: MediaGalleryComponent },
-          { path: 'videos', component: MediaGalleryComponent },
-          { path: 'documentos', component: MediaGalleryComponent },
           {
-            path: ':pathNavItem',
-            component: PageContainerComponent,
-            children: [
-              {
-                path: ':pathSection',
-                component: SectionContainerComponent,
-                resolve: { section: SectionResolver }
-              }
-            ]
+            path: ':pathSection',
+            component: SectionContainerComponent,
+            resolve: { section: SectionResolver }
           }
         ]
       }

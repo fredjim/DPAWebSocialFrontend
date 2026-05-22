@@ -14,6 +14,8 @@
   --nav-width: 1020px;
   --container-width: 1020px;
   --blue-color: #003770;
+  --primary-hover: #004c9e;
+  --clear-blue: #0D6EFD;
   --red-color: #E30613;
   --blue-color-25: rgba(0, 54, 112, 0.25);
   --primary-font-family: "Montserrat", sans-serif;
@@ -368,4 +370,8 @@ body {
        }
     }
   }
+}
+
+.p-tooltip .p-tooltip-text {
+  padding: 0 0.5rem;
 }

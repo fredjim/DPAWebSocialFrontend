@@ -24,6 +24,7 @@ header {
 
 	.user-profile {
 		display: flex;
+		gap: 1rem;
 
 		.user-image {
 			transition: transform 0.3s ease;
@@ -52,6 +53,21 @@ header {
 
 			&:hover {
 				cursor: pointer;
+			}
+		}
+
+		span.back-home {
+			display: flex;
+			align-items: center;
+			font-size: 30px;
+			color: var(--blue-color);
+			cursor: pointer;
+			width: 50px;
+			transition: transform 0.3s ease;
+
+			&:hover {
+				transform: scale(1.05);
+				color: var(--primary-hover);
 			}
 		}
 	}
@@ -85,14 +101,16 @@ header {
 			color: var(--blue-color);
 		}
 	}
+
+}
+// Ocultar en vista web
+.submenu {
+	display: none;
 }
 
 @media screen and (max-width: 768px) {
-	.submenu {	
-		display: none;
-		&.open {
-			display: block;	
-		}
+	.open {
+		display: block;	
 	}
 
 	header {

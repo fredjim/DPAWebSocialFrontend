@@ -37,6 +37,7 @@ import { AppRoutingModule } from "../app-routing.module";
 import { SharedModule } from '../shared/shared.module';
 import { TabViewModule } from 'primeng/tabview';
 import { CarouselModule } from 'primeng/carousel';
+import { MessagesModule } from 'primeng/messages';
 
 @NgModule({
   declarations: [
@@ -78,7 +79,8 @@ import { CarouselModule } from 'primeng/carousel';
     AppRoutingModule,
     SharedModule,
     TabViewModule,
-    CarouselModule
+    CarouselModule,
+    MessagesModule
 ],
   exports: [
     ViewAllPostsComponent,

@@ -1,111 +1,113 @@
-<p-tabView [activeIndex]="activeTabIndex" (onChange)="onTabChange($event)">
+<div class="content">
+  <p-tabView [activeIndex]="activeTabIndex" (onChange)="onTabChange($event)" class="tab-media">
+    
+    <!-- Tab de Fotos -->
+    <p-tabPanel header="Fotos">
+      <ng-template pTemplate="content">
+        <div class="media-gallery">
+          
+          <!-- Loading -->
+          <div *ngIf="photosState === 'loading'" class="loading-message">
+            Cargando fotos...
+          </div>
+          
+          <!-- Error -->
+          <div *ngIf="photosState === 'error'" class="error-message">
+            Error al cargar las fotos. 
+            <button (click)="retryPhotos()">Reintentar</button>
+          </div>
+          
+          <!-- Content -->
+          <div *ngIf="photosState === 'loaded'">
+            <div class="media-container" *ngIf="photos.length > 0">
+              @for (photo of photos; track photo.url) {
+                <img [src]="photo.url" 
+                  alt="" 
+                  class="photo" 
+                  (click)="openViewPost(photo.postUuid, photo.url)" 
+                  (keypress)="openViewPost(photo.postUuid, photo.url)" />
+              }
+            </div>
+            <div class="no-media" *ngIf="photos.length === 0">
+              No hay Fotos.
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-tabPanel>
+    
+    <!-- Tab de Videos -->
+    <p-tabPanel header="Videos">
+      <ng-template pTemplate="content">
+        <div class="media-gallery">
+          
+          <div *ngIf="videosState === 'loading'" class="loading-message">
+            Cargando videos...
+          </div>
+          
+          <div *ngIf="videosState === 'error'" class="error-message">
+            Error al cargar los videos.
+            <button (click)="retryVideos()">Reintentar</button>
+          </div>
+          
+          <div *ngIf="videosState === 'loaded'">
+            <div class="media-container" *ngIf="videos.length > 0">
+              @for (video of videos; track video.url) {
+                <video [src]="video.url" 
+                       muted playsinline 
+                       class="video" 
+                       (click)="openViewPost(video.postUuid, video.url)"
+                       (keypress)="openViewPost(video.postUuid, video.url)">
+                </video>
+              }
+            </div>
+            <div class="no-media" *ngIf="videos.length === 0">
+              No hay Videos.
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-tabPanel>
+    
+    <!-- Tab de Documentos -->
+    <p-tabPanel header="Documentos">
+      <ng-template pTemplate="content">
+        <div class="media-gallery">
+          
+          <div *ngIf="documentosState === 'loading'" class="loading-message">
+            Cargando documentos...
+          </div>
+          
+          <div *ngIf="documentosState === 'error'" class="error-message">
+            Error al cargar los documentos.
+            <button (click)="retryDocuments()">Reintentar</button>
+          </div>
+          
+          <div *ngIf="documentosState === 'loaded'">
+            <div class="media-container" *ngIf="documents.length > 0">
+              @for (doc of documents; track doc.url) {
+                <a [href]="doc.url" target="_blank" class="text-decoration-none">
+                  <pdf-viewer [src]="doc.url" 
+                              [page]="1"
+                              [show-all]="false"
+                              [render-text]="false" 
+                              [original-size]="false" 
+                              [autoresize]="true" 
+                              class="document">
+                  </pdf-viewer>
+                </a>
+              }
+            </div>
+            <div class="no-media" *ngIf="documents.length === 0">
+              No hay Documentos.
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-tabPanel>
+  </p-tabView>
   
-  <!-- Tab de Fotos -->
-  <p-tabPanel header="Fotos">
-    <ng-template pTemplate="content">
-      <div class="media-gallery">
-        
-        <!-- Loading -->
-        <div *ngIf="photosState === 'loading'" class="loading-message">
-          Cargando fotos...
-        </div>
-        
-        <!-- Error -->
-        <div *ngIf="photosState === 'error'" class="error-message">
-          Error al cargar las fotos. 
-          <button (click)="retryPhotos()">Reintentar</button>
-        </div>
-        
-        <!-- Content -->
-        <div *ngIf="photosState === 'loaded'">
-          <div class="media-container" *ngIf="photos.length > 0">
-            @for (photo of photos; track photo.url) {
-              <img [src]="photo.url" 
-                alt="" 
-                class="photo" 
-                (click)="openViewPost(photo.postUuid, photo.url)" 
-                (keypress)="openViewPost(photo.postUuid, photo.url)" />
-            }
-          </div>
-          <div class="no-media" *ngIf="photos.length === 0">
-            No hay Fotos.
-          </div>
-        </div>
-      </div>
-    </ng-template>
-  </p-tabPanel>
-  
-  <!-- Tab de Videos -->
-  <p-tabPanel header="Videos">
-    <ng-template pTemplate="content">
-      <div class="media-gallery">
-        
-        <div *ngIf="videosState === 'loading'" class="loading-message">
-          Cargando videos...
-        </div>
-        
-        <div *ngIf="videosState === 'error'" class="error-message">
-          Error al cargar los videos.
-          <button (click)="retryVideos()">Reintentar</button>
-        </div>
-        
-        <div *ngIf="videosState === 'loaded'">
-          <div class="media-container" *ngIf="videos.length > 0">
-            @for (video of videos; track video.url) {
-              <video [src]="video.url" 
-                     muted playsinline 
-                     class="video" 
-                     (click)="openViewPost(video.postUuid, video.url)"
-                     (keypress)="openViewPost(video.postUuid, video.url)">
-              </video>
-            }
-          </div>
-          <div class="no-media" *ngIf="videos.length === 0">
-            No hay Videos.
-          </div>
-        </div>
-      </div>
-    </ng-template>
-  </p-tabPanel>
-  
-  <!-- Tab de Documentos -->
-  <p-tabPanel header="Documentos">
-    <ng-template pTemplate="content">
-      <div class="media-gallery">
-        
-        <div *ngIf="documentosState === 'loading'" class="loading-message">
-          Cargando documentos...
-        </div>
-        
-        <div *ngIf="documentosState === 'error'" class="error-message">
-          Error al cargar los documentos.
-          <button (click)="retryDocuments()">Reintentar</button>
-        </div>
-        
-        <div *ngIf="documentosState === 'loaded'">
-          <div class="media-container" *ngIf="documents.length > 0">
-            @for (doc of documents; track doc.url) {
-              <a [href]="doc.url" target="_blank" class="text-decoration-none">
-                <pdf-viewer [src]="doc.url" 
-                            [page]="1"
-                            [show-all]="false"
-                            [render-text]="false" 
-                            [original-size]="false" 
-                            [autoresize]="true" 
-                            class="document">
-                </pdf-viewer>
-              </a>
-            }
-          </div>
-          <div class="no-media" *ngIf="documents.length === 0">
-            No hay Documentos.
-          </div>
-        </div>
-      </div>
-    </ng-template>
-  </p-tabPanel>
-</p-tabView>
-
-<footer>
-  <p>Dirección de Planificación Académica. &copy; 2025 Todos los derechos reservados.</p>
-</footer>
+  <footer>
+    <p>Dirección de Planificación Académica. &copy; 2025 Todos los derechos reservados.</p>
+  </footer>
+</div>

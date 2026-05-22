@@ -1,13 +1,18 @@
-<div class="replies">
-  <div *ngFor="let reply of replies | slice:0:getLimit(parentUuid)" class="reply-wrapper">
+<div class="replies mt-3">
+  <div *ngFor="let reply of replies | slice:0:getLimit(parentUuid); let i = index" class="reply-wrapper">
     <!-- Contenido de la respuesta -->
     <div class="d-flex align-items-start reply-row">
       <img [src]="reply.user_photo || 'assets/default-avatar.png'" (error)="onImgError($event)" alt="Foto de perfil" class="reply-img" />
       <div class="comment-bubble">
-        <p class="mb-1"><strong>{{ reply.name }} {{ reply.lastName }}</strong></p>
+        <div class="comment-bubble-header">
+          <strong>{{ reply.name }} {{ reply.lastName }}</strong>
+          @if(authenticated && currentUser?.role === 'ADMIN'){
+            <i class="bi bi-trash3-fill icon-delete-comment" title="Eliminar respuesta"
+              (click)="showModalDeleteReply(reply, i)" (keypress)="showModalDeleteReply(reply, i)"></i>
+          }
+        </div>
         <p class="mb-1">{{ reply.content }}</p>
 
-        <!-- ...existing code... -->
         <div class="comment-actions mt-1">
           <span class="comment-time">{{ calculateTimeFromNow(reply.createdDate) }}</span>
           <span class="mx-1">·</span>
@@ -66,3 +71,27 @@
     </div>
   </div>
 </div>
+
+<p-dialog header="Eliminar respuesta" [(visible)]="visibleModalDeleteReply" [style]="{ width: '25rem' }">
+  <span class="p-text-secondary block">¿Seguro que desea eliminar la respuesta?</span>
+  <div class="d-flex justify-content-end gap-2 mt-3">
+      <ui-button
+        label="Cancelar"
+        type="button"
+        severity="secondary"
+        [disabled]="isLoadingDeleteRyply"
+        (clicked)="visibleModalDeleteReply = false"
+      ></ui-button>
+      <ui-button
+        label="Eliminar"
+        type="button"
+        icon="pi pi-trash"
+        severity="danger"
+        [disabled]="isLoadingDeleteRyply"
+        [loading]="isLoadingDeleteRyply"
+        (clicked)="deleteReply()"
+      ></ui-button>
+  </div>
+</p-dialog>
+
+<app-custom-toast #toastRef key="replyToast" position="top-right"></app-custom-toast>

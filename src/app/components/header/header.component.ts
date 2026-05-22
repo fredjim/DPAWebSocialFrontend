@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Institution } from '../../posts/models/institution';
 import { PostService } from '../../posts/services/post.service';
 import { TenantService } from '../../services/tenant.service';
@@ -6,6 +6,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { Modal } from 'bootstrap';
 import { AuthService } from '../../authentication/services/auth.service';
 import { CommentService } from '../../comments/services/comment.service';
+import { UserDetail } from '../../posts/models/user-detail';
 
 @Component({
   selector: 'app-header',
@@ -19,11 +20,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isMenuOpen = false;
 
   authenticated: boolean = false;
-  canModerate: boolean = false; // Nueva propiedad
   
   isMobileMenuOpen = false;
-  
-  user: any
+  @Input() hideArrowBackHome = true;
+  user: UserDetail | null = null;
   counterModeratedComments: number = 0;
   currentSlug: string = '';
   private readonly destroy$ = new Subject<void>();
@@ -36,14 +36,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private readonly commentService: CommentService,
     private readonly tenantService: TenantService) {
     this.authenticated = authService.isAuthenticated();
-    this.canModerate = authService.canModerate();
   }
 
   ngOnInit() {
     this.currentSlug = this.tenantService.getSlug();
     this.getInstitution();
     this.getUser();
-    this.totalModeratedComments();
   }
 
   ngOnDestroy() {
@@ -97,39 +95,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   closeMobileMenu() {
     this.isMobileMenuOpen = false;
-  }
-
-  totalModeratedComments() {
-    if (this.authenticated && this.canModerate) {
-      this.commentService.countModeratedComments()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (total) => {
-            this.counterModeratedComments = total;
-          },
-          error: (error) => {
-            console.error('Error al obtener contador de comentarios:', error);
-          }
-        });
-    }
-  }
-
-  showModeratedComments() {
-    const modalElement = document.getElementById('moderateCommentModal');
-    if (modalElement) {
-      // Limpiar modal anterior si existe
-      if (this.modalInstance) {
-        this.modalInstance.dispose();
-      }
-
-      // Crear nueva instancia del modal
-      this.modalInstance = new Modal(modalElement);
-      this.modalInstance.show();
-    }
-  }
-
-  onCounterUpdated(newCount: number) {
-    this.counterModeratedComments = newCount;
   }
 
   closeMenu(): void {

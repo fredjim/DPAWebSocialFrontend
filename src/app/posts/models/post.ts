@@ -8,7 +8,7 @@ export interface Post {
     user_id:           string;
     name?:             string;
     lastName?:         string;
-    comment_config_id: string;
+    commentsEnabled:   boolean;
     post_type: string;
     date:              string;
     content:           Content;

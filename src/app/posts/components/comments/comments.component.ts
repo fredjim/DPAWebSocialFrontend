@@ -137,7 +137,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
             userId: newComment.userId || this.currentUser.uuid,
             moderated: newComment.moderated || false,
             state: newComment.state || 'VISIBLE',
-            reply_count: newComment.replyCount || 0,
+            replyCount: newComment.replyCount || 0,
             replies: [],
             reactions: [],
           };
@@ -146,7 +146,11 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Error al agregar comentario', err);
+        if (err.status === 403) {
+          console.error('Los comentarios están desactivados en esta publicación');
+        } else {
+          console.error('Error al agregar comentario', err);
+        }
       },
     });
   }

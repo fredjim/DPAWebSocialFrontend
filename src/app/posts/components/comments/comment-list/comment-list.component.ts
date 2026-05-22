@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, OnDestroy, SimpleChanges, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnDestroy, SimpleChanges, OnInit, ViewChild } from '@angular/core';
 import { Comment, Reply } from '../../../models/comment';
 import { UserDetail } from '../../../models/user-detail';
 import moment from 'moment-timezone';
@@ -8,6 +8,8 @@ import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../../../authentication/services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-replies/modal-list-reactions-replies.component'; // Ajusta la ruta si es necesario
+import { HttpErrorResponse } from '@angular/common/http';
+import { CustomToastComponent } from '../../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-comment-list',
@@ -19,8 +21,10 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
   @Input() comments: Comment[] = [];
   @Input() currentUser: UserDetail | null = null;
   @Input() authenticated: boolean = false;
-  @Input() commentConfigId: string = '';
+  @Input() commentsEnabled: boolean = true;
+  @Input() postUuid: string = '';
   @Output() onAddReply = new EventEmitter<{ parentUuid: string, replyText: string, isTopLevel: boolean }>();
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
   commentReactionsCount: { [commentUuid: string]: number } = {};
   replyInputVisible: { [key: string]: boolean } = {};
   replyText: { [key: string]: string } = {};
@@ -28,7 +32,10 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
   replyVisibility: { [key: string]: boolean } = {};
   emojis: EmojiType[] = [];
   selectedReactions: { [key: string]: string } = {}; // Guarda el emoji seleccionado por comentario
-
+  visibleModalDeleteComment = false;
+  isLoadingDeleteComment = false;
+  commentToDelete: Comment | null = null; 
+  indexCommentDelete: number = -1;
   showEmojiOptions: { [uuid: string]: boolean } = {};
   defaultEmoji: any = {
     uuid: '',
@@ -280,5 +287,33 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
 
   onImgError(event: Event): void {
     (event.target as HTMLImageElement).src = 'assets/default-avatar.png';
+  }
+
+  showModalDeleteComment(comment: Comment, indexComment: number): void {
+    this.commentToDelete = comment;
+    this.indexCommentDelete = indexComment;
+    this.visibleModalDeleteComment = true;
+  }
+
+  deleteComment(): void {
+    if(!this.postUuid || !this.commentToDelete) return;
+
+    this.isLoadingDeleteComment = true;
+    this.postService.deleteComment(this.postUuid, this.commentToDelete.uuid).subscribe({
+      next: () => {
+        this.isLoadingDeleteComment = false;
+        this.visibleModalDeleteComment = false;
+        this.comments.splice(this.indexCommentDelete, 1);
+        this.commentToDelete = null;
+        this.indexCommentDelete = -1
+        this.toastRef.showSuccess('Comentario eliminado exitosamente', 'Éxito');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isLoadingDeleteComment = false;
+        this.toastRef.showError('Error al eliminar comentario', 'Error');
+        console.log('Error al eliminar comentario', error);
+      }
+    })
+
   }
 }

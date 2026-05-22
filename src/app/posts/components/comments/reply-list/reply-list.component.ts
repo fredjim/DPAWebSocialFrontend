@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import moment from 'moment-timezone';
 import { PostService } from '../../../services/post.service';
 import { EmojiType } from '../../../models/emoji-type';
@@ -6,6 +6,9 @@ import { AuthService } from '../../../../authentication/services/auth.service';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-replies/modal-list-reactions-replies.component'; // Ajusta la ruta si es necesario
+import { Reply } from '../../../models/comment';
+import { HttpErrorResponse } from '@angular/common/http';
+import { CustomToastComponent } from '../../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-reply-list',
@@ -26,6 +29,11 @@ export class ReplyListComponent implements OnInit, OnDestroy {
   @Output() addReply = new EventEmitter<{ replyUuid: string, isTopLevel: boolean }>();
   @Output() showAllReplies = new EventEmitter<string>();
   @Output() showLessReplies = new EventEmitter<string>();
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
+  visibleModalDeleteReply = false;
+  isLoadingDeleteRyply = false;
+  replyToDelete: Reply | null = null;
+  indexReplyToDelete: number = -1;
   emojis: EmojiType[] = [];
   selectedReactions: { [key: string]: string } = {};
   replyReactionsCount: { [replyUuid: string]: number } = {};
@@ -201,5 +209,32 @@ export class ReplyListComponent implements OnInit, OnDestroy {
 
   onImgError(event: Event): void {
     (event.target as HTMLImageElement).src = 'assets/default-avatar.png';
+  }
+  
+  showModalDeleteReply(currentReply: Reply, indexReply: number): void {
+    this.replyToDelete = currentReply;
+    this.indexReplyToDelete = indexReply;
+    this.visibleModalDeleteReply = true;
+  }
+
+  deleteReply(): void {
+    if(!this.replyToDelete) return;
+
+    this.isLoadingDeleteRyply = true;
+    this.postService.deleteReply(this.replyToDelete.uuid).subscribe({
+      next: () => {
+        this.isLoadingDeleteRyply = false;
+        this.visibleModalDeleteReply = false;
+        this.replies.splice(this.indexReplyToDelete, 1);
+        this.replyToDelete = null;
+        this.indexReplyToDelete = -1;
+        this.toastRef.showSuccess('Respuesta eliminada exitosamente', 'Éxito');
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isLoadingDeleteRyply = false;
+        this.toastRef.showError('Error al eliminar la respuesta', 'Error');
+        console.log('Error al eliminar la respuesta', error);
+      }
+    })
   }
 }

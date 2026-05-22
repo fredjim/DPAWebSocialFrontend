@@ -63,9 +63,10 @@
 
           <!-- Lista de comentarios -->
           <app-comment-list [comments]="comments" 
+            [postUuid]="postUuid"
             [currentUser]="currentUser" 
             [authenticated]="authenticated" 
-            [commentConfigId]="post.comment_config_id"
+            [commentsEnabled]="post.commentsEnabled"
             (onAddReply)="handleAddReply($event)">
           </app-comment-list>
         </div>
@@ -73,7 +74,7 @@
     </div>
 
     <!-- Modal Footer -->
-    <div class="modal-footer" *ngIf="authenticated && post.comment_config_id !== '587d7d7f-5g3n-4b77-cf98-77a9h46759d0'">
+    <div class="modal-footer" *ngIf="authenticated && post.commentsEnabled">
       <div class="comment-section d-flex flex-row align-items-center">
         <img *ngIf="currentUser" [src]="currentUser.photo_profile_path || 'assets/default-avatar.png'" alt="Foto de perfil" class="comment-img" />
         <div class="comment-box d-flex align-items-center">

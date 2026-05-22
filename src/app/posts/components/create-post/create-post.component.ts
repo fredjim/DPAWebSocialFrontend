@@ -1,16 +1,18 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { PostService } from '../../services/post.service';
-import { Modal } from 'bootstrap';
+import * as bootstrap from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { concatMap, Subject, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../models/uploaded-media';
 import { CreatePost } from '../../models/create-post';
 import { Institution } from '../../models/institution';
 import moment from 'moment';
-import { CommentConfig } from '../../models/comment-config';
 import { TenantService } from '../../../services/tenant.service';
 import { UserDetail } from '../../models/user-detail';
 import imageCompression from 'browser-image-compression';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
+import { Post } from '../../models/post';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-create-post',
@@ -21,22 +23,25 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private modalHiddenListener!: () => void;
   institution!: Institution;
-  commentConfig!: CommentConfig[];
-  selectedCommentConfig!: string;
+  commentsEnabled: boolean = true;
   visibleAreaMedia = signal(false); //Mostrar seleccion y prevista de imagenes
   visibleAreaMediaDoc = signal(false); //Mostrar seleccion y prevista de documentos
   disableLoadImage = signal(false); //Deshabilitar el boton de cargar imagenes
   disableLoadDoc = signal(false); //Deshabilitar el boton de cargar documentos
   disabledPublishButton = signal(true); //Deshabilitar el boton de publicar
   postForm!: FormGroup;
-  listFile!: File[];
+  listFile: File[] = [];
   fileDoc!: File | null;
   isFbSwitchOn: boolean = false;
   currentUser!: UserDetail;
   currentPostType!: string;
-  @ViewChild('modalCreatePost') modal!: ElementRef;
+  @ViewChild('modalCreatePost') modalCreatePost!: ElementRef;
+  private modalInstance: bootstrap.Modal | null = null;
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
   public visibleModalCreate: boolean = false;
   public maxLengthText = 1200;
+  public isLoading: boolean = false;
+  @Output() onCreatePost = new EventEmitter<Post>();
 
   constructor(
     private readonly postService: PostService,
@@ -55,18 +60,6 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
           console.log(error);
         }
       });
-    //Obtener la configuracion de comentarios
-    this.postService.getCommentsConfiguration()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (commentsConfiguration: CommentConfig[]) => {
-          this.commentConfig = commentsConfiguration;
-          this.selectedCommentConfig = this.commentConfig[0].uuid;//Por defecto todos comentan
-        },
-        error: (error) => {
-          console.log('Error al obtener la configuracion de comentarios', error)
-        }
-      });
     this.getTypeByRol()
     this.buildForm()
   }
@@ -74,10 +67,10 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.modalHiddenListener = () => {
       this.visibleModalCreate = false;
-      this.selectedCommentConfig = this.commentConfig[0].uuid;
+      this.commentsEnabled = true;
       this.postForm.get('switchControl')?.setValue(false);
     };
-    this.modal.nativeElement.addEventListener('hidden.bs.modal', this.modalHiddenListener);
+    this.modalCreatePost.nativeElement.addEventListener('hidden.bs.modal', this.modalHiddenListener);
   }
 
   private buildForm() {
@@ -96,16 +89,37 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onSwitchChange(value: boolean) {
     this.isFbSwitchOn = value;
+    
+    value ? this.disableLoadDoc.set(true) : this.disableLoadDoc.set(false)
+    
+    if(value){
+      this.checkListFileForFacebook();
+    }else if(this.listFile.length > 0 || (this.fileDoc && this.fileDoc.size > 0) || this.postForm.value.contentPost !== ''){
+      this.disabledPublishButton.set(false);
+    }else{
+      this.disabledPublishButton.set(true);
+    }
+  }
+
+  private checkListFileForFacebook(): void {
+    const hasDocument = this.fileDoc && this.fileDoc.size > 0;
+    const videoCount = this.listFile.filter(file => file.type.includes('video')).length;
+
+    if(hasDocument || videoCount > 1){
+      this.disabledPublishButton.set(true);
+      this.toastRef.showWarn('Solo se permite 1 video y no se pueden subir documentos.', 'Restricciones de Facebook');
+    }
   }
 
   openModalCreatePost() {
-    const modalElement = document.getElementById('modalCreatePost');
-    if (modalElement) {
-      const modal = new Modal(modalElement);
-      modal.show();
-      this.visibleModalCreate = true;
-      this.disabledPublishButton.set(true);
-    }
+    this.modalInstance = new bootstrap.Modal(this.modalCreatePost.nativeElement);
+    this.modalInstance.show();
+    this.visibleModalCreate = true;
+    this.disabledPublishButton.set(true);
+  }
+
+  closeModalCreatePost() {
+    this.modalInstance?.hide();
   }
 
   //Deshabilitar el boton de publicar si no hay texto
@@ -124,7 +138,9 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
 
   //Ocultar area de imagenes
   closeAreaMedia(option: boolean) {
-    this.disableLoadDoc.set(option); //Habilitar el boton de cargar documentos
+    if(!this.isFbSwitchOn){
+      this.disableLoadDoc.set(option); //Habilitar el boton de cargar documentos
+    }
     
     // Actualizar estado del botón de publicar basado en el texto y la lista de archivos
     const contentPost = this.postForm.get('contentPost')?.value;
@@ -140,6 +156,11 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     const contentPost = this.postForm.get('contentPost')?.value;
     // Habilitar el botón de publicar si hay texto o si hay archivos seleccionados
     this.disabledPublishButton.set(!(contentPost != '' || (this.listFile && this.listFile.length > 0)));
+
+    // Desabilitar el boton Publicar si el switchFace == true y incumple restricciones
+    if(this.isFbSwitchOn){
+      this.checkListFileForFacebook();
+    }
   }
 
   //Mostrar area de documentos y deshabilitar el boton de cargar imagenes
@@ -161,21 +182,19 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     this.fileDoc = doc;
     const contentPost = this.postForm.get('contentPost')?.value;
     contentPost != '' || this.fileDoc ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
+
+    // Desabilitar el boton Publicar si el switchFace == true y incumple restricciones
+    if(this.isFbSwitchOn){
+      this.checkListFileForFacebook();
+    }
   }
 
+  // Cerrar modal con boton X (data-bs-dismiss="modal")
   closeModal(): void {
     this.postForm.reset();
     this.listFile = [];
     this.fileDoc = null;
     this.disabledPublishButton.set(true);
-  }
-
-  showLoading() {
-    document.getElementById('loadingBackdrop')!.style.display = 'flex';
-  }
-
-  hideLoading() {
-    document.getElementById('loadingBackdrop')!.classList.add('hide');
   }
 
   getTypeByRol() {
@@ -193,7 +212,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.modal.nativeElement.removeEventListener('hidden.bs.modal', this.modalHiddenListener);
+    this.modalCreatePost.nativeElement.removeEventListener('hidden.bs.modal', this.modalHiddenListener);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -260,12 +279,12 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async post() {
+    this.isLoading = true;
     const valueFormPost = this.postForm.value;
     const formData = new FormData();
     const post: CreatePost = {
-      institution_id: this.institution.uuid,
       date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
-      comment_config_id: this.selectedCommentConfig,
+      commentsEnabled: this.commentsEnabled,
       post_type: this.currentPostType,
       content: {
         text: valueFormPost.contentPost.trim(),
@@ -275,7 +294,6 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     if (valueFormPost.contentPost != '' || this.listFile || this.fileDoc) {
-      this.showLoading();
 
       if (this.listFile && this.listFile.length > 0) {
         const optimizedFiles = await this.optimizeImages(this.listFile).catch(() => this.listFile);
@@ -295,8 +313,8 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
             return this.postService.createPost(post);
           })
         ).subscribe({
-          next: () => { this.hideLoading(); globalThis.location.reload(); },
-          error: (error) => { this.hideLoading(); console.log('Error al crear el post con media', error); }
+          next: (createdPost) => this.createSuccessPost(createdPost),
+          error: (error: HttpErrorResponse) => this.createErrorPost('Error al crear publicación con media', error)
         });
 
       } else if (this.fileDoc && this.fileDoc.size > 0) {
@@ -313,16 +331,29 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
             return this.postService.createPost(post);
           })
         ).subscribe({
-          next: () => { this.hideLoading(); globalThis.location.reload(); },
-          error: (error) => { this.hideLoading(); console.log('Error al crear el post con archivo', error); }
+          next: (createdPost) => this.createSuccessPost(createdPost),
+          error: (error: HttpErrorResponse) => this.createErrorPost('Error al crear el publicación con archivo', error)
         });
 
       } else if (valueFormPost.contentPost != '') {
         this.postService.createPost(post).subscribe({
-          next: () => { this.hideLoading(); globalThis.location.reload(); },
-          error: (error) => { this.hideLoading(); console.log('Error al subir post solo texto', error); }
+          next: (createdPost) => this.createSuccessPost(createdPost),
+          error: (error: HttpErrorResponse) => this.createErrorPost('Error al subir publicación solo texto', error)
         });
       }
     }
+  }
+
+  private createSuccessPost(createdPost: Post): void {
+    this.isLoading = false;
+    this.closeModalCreatePost();
+    this.onCreatePost.emit(createdPost)
+    this.toastRef.showSuccess('Publicación creada exitosamente', 'Exitoso');
+  }
+
+  private createErrorPost(errorMsg: string, error: HttpErrorResponse): void {
+    this.isLoading = false;
+    this.toastRef.showError(errorMsg, 'Error');
+    console.log(errorMsg, error); 
   }
 }

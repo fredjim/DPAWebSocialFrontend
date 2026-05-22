@@ -9,10 +9,8 @@ import { Comment } from '../models/comment';
 import { UploadedMedia } from '../models/uploaded-media';
 import { CreateReaction } from '../models/create-reaction';
 import { environment } from '../../../environments/environment';
-import { CommentConfig } from '../models/comment-config';
 import { map } from 'rxjs/operators';
 import { EmojiType } from '../models/emoji-type';
-import { PostComment } from '../models/post-comment';
 import { UserDetail } from '../models/user-detail';
 import { MediaInstitution } from '../models/media-institution';
 
@@ -77,9 +75,9 @@ export class PostService {
   }
 
   //Método para crear un post
-  createPost(dataPost: CreatePost): Observable<CreatePost> {
+  createPost(dataPost: CreatePost): Observable<Post> {
     const createPost = 'posts'
-    return this.http.post<CreatePost>(`${this.ROOT_URL}/${createPost}`, dataPost, this.reqHeader)
+    return this.http.post<Post>(`${this.ROOT_URL}/${createPost}`, dataPost, this.reqHeader)
   }
 
   //Método para subir imagenes
@@ -150,12 +148,6 @@ export class PostService {
   }
 
 
-  //Método para obtener configuraciones de comentarios
-  getCommentsConfiguration(): Observable<CommentConfig[]> {
-    const commentConfigUrl = 'comment-config'
-    return this.http.get<CommentConfig[]>(`${this.ROOT_URL}/${commentConfigUrl}`);
-  }
-
   //Método para eliminar un post
   deletePost(postUuid: string): Observable<Post> {
     const deletePost = 'posts'
@@ -197,6 +189,11 @@ export class PostService {
     const fullUrl = `${this.ROOT_URL}/${endpoint}`;
 
     return this.http.post<any>(fullUrl, commentData, { headers });
+  }
+
+  deleteComment(uuidPost: string, uuidComment: string): Observable<void> {
+    const url = `${this.ROOT_URL}/posts/${uuidPost}/comments/${uuidComment}`;
+    return this.http.delete<void>(url, this.reqHeader);
   }
 
   //Obtener todas las fotos de la institucion 
@@ -247,6 +244,11 @@ export class PostService {
 
   getRepliesByCommentUuid(commentUuid: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.ROOT_URL}/comments/${commentUuid}/replies`);
+  }
+
+  deleteReply(uuidReply: string): Observable<void> {
+    const url = `${this.ROOT_URL}/replies/${uuidReply}`;
+    return this.http.delete<void>(url, this.reqHeader);
   }
 
 

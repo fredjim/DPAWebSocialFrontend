@@ -10,6 +10,7 @@ import { TenantService } from '../../../services/tenant.service';
 import { delay, distinctUntilChanged, fromEvent, Subject, takeUntil, throttleTime } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../comments/comments.component';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-view-all-posts',
@@ -36,6 +37,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly loadThreshold = 100; // Pixeles antes del final para cargar
   private readonly throttleTimeMs = 200; // Tiempo para throttling
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
 
   constructor(
     private readonly postService: PostService,
@@ -226,14 +228,19 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
     this.postService.deletePost(postUuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          console.log('post eliminado');
+        next: () => {
+          this.toastRef.showSuccess('Publicación eliminada exitosamente', 'Éxito');
           this.posts = this.posts.filter(post => post.uuid !== postUuid);
         },
         error: (error) => {
+          this.toastRef.showError('Error al eliminar publicación', 'Error');
           console.log('Error al eliminar el post',error);
         }
       });
+  }
+
+  createdNewPost(newPost: Post): void {
+    this.posts.unshift(newPost);
   }
 
   updatePost(postUpdated: Post){

@@ -1,8 +1,5 @@
 import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
-import { PostService } from '../../../posts/services/post.service';
-import { AuthService } from '../../../authentication/services/auth.service';
-import { UserDetail } from '../../../posts/models/user-detail';
 import { Institution } from '../../../posts/models/institution';
 import { TenantService } from '../../../services/tenant.service';
 import { InstitutionService } from '../../services/institution.service';
@@ -17,15 +14,10 @@ import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from
 })
 export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
-  private readonly postService = inject(PostService);
-  private readonly authService = inject(AuthService);
   private readonly institutionService = inject(InstitutionService);
   private readonly tenantService = inject(TenantService);
 
-  currentUser!: UserDetail;
   institution!: Institution;
-  authenticated: boolean = false;
-  isMenuOpen = false;
   imageFileCoverToCreate?: File;
   imageFileLogoToCreate?: File;
   imageCover: string = '';
@@ -43,14 +35,6 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentSlug = this.tenantService.getSlug();
     this.initForm();
-    this.authenticated = this.authService.isAuthenticated();
-    if(this.authenticated){
-      this.postService.getUser()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(user => {
-          this.currentUser = user;
-        });
-    }
 
     this.tenantService.getInstitution()
       .pipe(takeUntil(this.destroy$))
@@ -128,8 +112,6 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
     formData.append('image', file);
     return formData;
   }
-
-
 
   public openInputFileCover(): void {
     this.resetFileInput(this.fileInputCover);
@@ -219,14 +201,6 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
 
   private isValidFileType(file: File): boolean {
     return file.type.startsWith('image/');
-  }
-
-  toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
-  }
-
-  logout() {
-    this.authService.logout();
   }
 
   private phoneValidator(): ValidatorFn {

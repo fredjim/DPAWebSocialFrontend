@@ -2,7 +2,6 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal, View
 import { Subject, takeUntil, concatMap } from 'rxjs';
 import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
-import { CommentConfig } from '../../models/comment-config';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PostService } from '../../services/post.service';
 import { Media } from '../../models/media';
@@ -13,6 +12,7 @@ import { UserDetail } from '../../models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
 import imageCompression from 'browser-image-compression';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-modal-edit-post',
@@ -27,8 +27,8 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   @Input({ required: true }) postToEdit!: Post;
   @Input() showModalEdit!: WritableSignal<boolean>;
   @Output() postUpdatedEvent = new EventEmitter<Post>();
-  public commentConfig!: CommentConfig[];
-  public selectedCommentConfig!: string;
+  public isLoading = false;
+  public commentsEnabled: boolean = true;
   public maxLegthTextPost = 1200;
   public visibleAreaMedia = signal(false); //Mostrar seleccion y prevista de imagenes
   public visibleAreaMediaDoc = signal(false); //Mostrar seleccion y prevista de documentos
@@ -61,18 +61,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
         this.disableLoadImage.set(true) :
         this.disableLoadDoc.set(true)
     }
-    //Obtener la configuracion de comentarios
-    this.postService.getCommentsConfiguration()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (commentsConfiguration: CommentConfig[])=>{
-          this.commentConfig = commentsConfiguration;
-          this.selectedCommentConfig = this.postToEdit.comment_config_id;//Configuracion de comentarios del post
-        },
-        error: (error)=>{
-          console.log('Error al obtener la configuracion de comentarios', error)
-        }
-      });
+    this.commentsEnabled = this.postToEdit.commentsEnabled ?? true;
     this.getTypeByRol()
     this.buildForm()
     
@@ -162,15 +151,16 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
 
   private checkDisableSaveButton(){
     const textPost: string = this.postForm.get('contentPost')?.value ?? '';
-    if((textPost === '' || textPost.length > this.maxLegthTextPost) && (this.listNewMediaFile.length === 0 
-      && this.listOldMediaFile.length === 0 && !this.fileNewDoc)){
+    const commentsEnabledChanged = this.commentsEnabled !== (this.postToEdit.commentsEnabled ?? true);
+    if((textPost === '' || textPost.length > this.maxLegthTextPost) && (this.listNewMediaFile.length === 0
+      && this.listOldMediaFile.length === 0 && !this.fileNewDoc) && !commentsEnabledChanged){
       this.disabledSaveButton.set(true);
     }else{
       this.disabledSaveButton.set(false);
     }
   }
 
-  public changedSelectConfigComment(): void {
+  public onCommentsEnabledChange(): void {
     this.checkDisableSaveButton();
   }
 
@@ -180,7 +170,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
     if (modalElement) {
       let modal = Modal.getInstance(modalElement);
       modal?.hide();
-      this.selectedCommentConfig = this.postToEdit.comment_config_id;
+      this.commentsEnabled = this.postToEdit.commentsEnabled ?? true;
       this.showModalEdit.set(false);
       this.listNewMediaFile = [];
       this.fileNewDoc = null;
@@ -288,14 +278,14 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   }
   
   async updatePost(){
+    this.isLoading = true;
     const valueFormPost = this.postForm.value;
     const formData = new FormData();
     const responseMedia: Media[] = []; //Respuesta de imagenes y videos guardados
     let responseDoc: Media;
     const editedPost: CreatePost = {
-      institution_id: this.institution.uuid,
       date: this.postToEdit.date,
-      comment_config_id: this.selectedCommentConfig,
+      commentsEnabled: this.commentsEnabled,
       post_type: this.currentPostType,
       content: {
         text: valueFormPost.contentPost,
@@ -354,14 +344,8 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
             return this.postService.updatePost(this.postToEdit.uuid, editedPost);
           })
         ).subscribe({
-          next: (responseUpdatedPost)=> {
-            console.log('post con nuevas imagenes videos actualizado',responseUpdatedPost);
-            globalThis.location.reload();
-          },
-          error: (error) => {
-            this.toastRef.showError('Error al actualizar publicación', 'Error');
-            console.log('Error al actualizar el post con contenido media (imagenes y/o videos)', error)
-          }
+          next: (updatedPost)=> this.updateSuccessPost(updatedPost),
+          error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar publicación con contenido media', error)
         })
       }else if(this.fileNewDoc && this.fileNewDoc.size > 0){//Si hay un archivo
         //Convertir el archivo en form data
@@ -382,14 +366,8 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
             return this.postService.updatePost(this.postToEdit.uuid, editedPost);
           })
         ).subscribe({
-          next: (responseUpdatedPost)=> {
-            console.log('post con archivo actualizado',responseUpdatedPost);
-            globalThis.location.reload();
-          },
-          error: (error) => {
-            this.toastRef.showError('Error al actualizar publicación', 'Error');
-            console.log('Error al actualizar el post con archivo',error)
-          }
+          next: (updatedPost)=> this.updateSuccessPost(updatedPost),
+          error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar publicación con archivo', error)
         })      
       }else if(valueFormPost.contentPost != '' || this.listOldMediaFile.length > 0){//Si solo tiene texto O si se eliminaron medios
         // Usar directamente listOldMediaFile que ya contiene solo los medios que NO fueron eliminados
@@ -397,15 +375,22 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
         editedPost.content.media = [...this.listOldMediaFile];
 
         this.postService.updatePost(this.postToEdit.uuid, editedPost).subscribe({
-          next: (responseUpdatedPost) => {
-            globalThis.location.reload();
-          },
-          error: (error) => {
-            this.toastRef.showError('Error al actualizar publicación', 'Error');
-            console.log('Error al actualizar post', error)
-          }
+          next: (updatedPost) => this.updateSuccessPost(updatedPost),
+          error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar publicación', error)
         })
       }
     }
+  }
+
+  private updateSuccessPost(editedPost: Post): void {
+    this.isLoading = false;
+    this.postUpdatedEvent.emit(editedPost);
+    this.toastRef.showSuccess('Publicación actualizada exitosamente', 'Éxito');
+  }
+
+  private updateErrorPost(errorMsg: string, error: HttpErrorResponse): void {
+    this.isLoading = false;
+    this.toastRef.showError(errorMsg, 'Error');
+    console.log(errorMsg, error)
   }
 }

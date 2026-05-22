@@ -26,10 +26,12 @@
 						<app-institution-avatar [institution]="institution" size="small"></app-institution-avatar>
 						<div>
 							<p class="fw-bold fs-6">{{ institution.name }}</p>
-							<select id="option-comment" *ngIf="commentConfig" [(ngModel)]="selectedCommentConfig">
-								<option *ngFor="let config of commentConfig" [value]="config.uuid">{{config.name}}
-								</option>
-							</select>
+							<div class="form-check form-switch mt-1">
+								<input class="form-check-input" type="checkbox" id="commentsEnabledSwitch" [(ngModel)]="commentsEnabled">
+								<label class="form-check-label small" for="commentsEnabledSwitch">
+									{{ commentsEnabled ? 'Comentarios activados' : 'Comentarios desactivados' }}
+								</label>
+							</div>
 						</div>
 					}
 				</div>
@@ -50,8 +52,22 @@
 							</div>
 						</div>
 					</div>
+					<p-messages *ngIf="isFbSwitchOn" severity="warn" [closable]="false">
+						<ng-template pTemplate="message">
+							<div class="flex flex-column gap-2">
+								<span class="header-message">
+									<i class="pi pi-exclamation-triangle mr-2"></i>
+									Restricciones de Facebook
+								</span>
+								<ul class="m-0 pl-4 list-message">
+									<li>Solo se permite 1 video</li>
+									<li>No se permite documentos</li>
+								</ul>
+							</div>
+						</ng-template>
+					</p-messages>
 
-					<div class="container">
+					<div class="content-media">
 						<!-- Seleccionar imagen (es) -->
 						<app-images-uploader [showAreaMedia]="visibleAreaMedia" [isVisibleModal]="visibleModalCreate"
 							(closeAreaMediaEvent)="closeAreaMedia($event)"
@@ -79,6 +95,7 @@
 						type="button"
 						severity="primary"
 						[disabled]="disabledPublishButton()"
+						[loading]="isLoading"
 						(clicked)="post()"
 					></ui-button>
 				</form>
@@ -87,8 +104,4 @@
 	</div>
 </div>
 
-<div class="d-flex justify-content-center align-items-center bg-dark bg-opacity-50 position-fixed top-0 start-0 w-100 h-100" id="loadingBackdrop" style="z-index: 1080; display: none !important;">
-  <div class="spinner-border text-primary" aria-live="polite" aria-label="Cargando">
-    <span class="visually-hidden">Cargando...</span>
-  </div>
-</div>
+<app-custom-toast #toastRef key="newPostToast" position="top-right"></app-custom-toast>
