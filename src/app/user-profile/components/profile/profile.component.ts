@@ -2,7 +2,6 @@ import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@an
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 import { PostService } from '../../../posts/services/post.service';
 import { UserDetail } from '../../../posts/models/user-detail';
-import { Institution } from '../../../posts/models/institution';
 import { TenantService } from '../../../services/tenant.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
@@ -23,10 +22,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private readonly tenantService = inject(TenantService);
 
   currentUser!: UserDetail;
-  institution!: Institution;
   authenticated: boolean = false;
   currentSlug: string = '';
-  isMenuOpen = false;
   isLoading = false;
   formUser!: FormGroup;
 
@@ -54,12 +51,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
           });
         });
     }
-
-    this.tenantService.getInstitution()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(institutionData =>{
-        this.institution = institutionData;
-      });
   }
 
   onSubmit(): void {
@@ -155,14 +146,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       lastName: new FormControl('', [Validators.required, Validators.maxLength(80), this.onlyLettersValidator()]),
       phone: new FormControl('', [Validators.maxLength(15), this.numbersOnlyValidator()]),
     });
-  }
-
-  toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
-  }
-
-  logout() {
-    this.authService.logout();
   }
 
   private numbersOnlyValidator(): ValidatorFn {
