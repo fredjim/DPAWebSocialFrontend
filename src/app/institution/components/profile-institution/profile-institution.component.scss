@@ -48,6 +48,13 @@
                 bottom: 5px;
                 background-color: white;
 				border: solid 2px var(--blue-color);
+				width: 28px;
+				height: 28px;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
                 i {
                     color: var(--blue-color);
                 }
@@ -81,6 +88,13 @@
                 border: solid 2px var(--blue-color);
                 align-self: end;
                 transform: translateY(-85%);
+				width: 28px;
+				height: 28px;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
                 i {
                     color: var(--blue-color);
                 }

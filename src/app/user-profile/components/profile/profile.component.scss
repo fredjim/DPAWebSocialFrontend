@@ -29,6 +29,13 @@
 					position: absolute;
 					bottom: -8px;
 					right: 30px;
+					width: 28px;
+					height: 28px;
+					border-radius: 50%;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					cursor: pointer;
 
 					i {
 						color: var(--blue-color);

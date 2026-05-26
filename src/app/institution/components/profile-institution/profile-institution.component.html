@@ -65,7 +65,7 @@
             <div class="field">
                 <label for="description">Descripción:</label>
                 <div class="input-wrapper">
-                    <textarea id="description" class="form-control"
+                    <textarea id="description" class="form-control" pInputTextarea 
                         [class.is-invalid]="hasError('description', 'required') || hasError('description', 'maxlength')"
                         formControlName="description" rows="4" autocomplete="off"></textarea>
                     <div class="error-messages">
