@@ -713,7 +713,10 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private normalizeSpaces(html: string): string {
-    return html.replace(/&nbsp;/g, ' ');
+    return html
+      .replace(/&nbsp;/g, ' ')
+      .replace(/^<p><br\s*\/?><\/p>/, '') //Quita saltos de linea al inicio 
+      .replace(/<p><br\s*\/?><\/p>$/, '');//Quita saltos de linea al final 
   }
 
   private checkArticleEmpty(): void {

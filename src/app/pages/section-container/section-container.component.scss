@@ -72,8 +72,12 @@
 				word-wrap: break-word;
 				width: 100%;
 				max-width: 720px;
-			}
 
+				::ng-deep p {
+					margin-bottom: 0;
+				}
+
+			}
 			.documents {
 				align-self: flex-start;
 				display: flex;
