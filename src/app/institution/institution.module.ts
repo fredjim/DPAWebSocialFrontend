@@ -7,7 +7,7 @@ import { AppModule } from '../app.module';
 import { RouterModule } from '@angular/router';
 import { InstitutionRoutingModule } from './institution-routing.module';
 import { SharedModule } from '../shared/shared.module';
-
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 
 @NgModule({
@@ -21,7 +21,8 @@ import { SharedModule } from '../shared/shared.module';
     InstitutionRoutingModule,
     AppModule,
     AppRoutingModule,
-    SharedModule
+    SharedModule,
+    InputTextareaModule
   ]
 })
 export class InstitutionModule { }
