@@ -78,6 +78,24 @@
 	
 		}
 
+		.edit-button, .delete-button {
+			display: flex;
+			align-items: center;
+			cursor: pointer;
+
+			&:hover {
+				scale: 1.1;
+			}
+		}
+
+		.edit-button:hover {
+			color: var(--primary-hover);
+		}
+
+		.delete-button:hover {
+			color: var(--red-color);
+		}
+
 		#add-button {
 			width: 10rem;
 			align-self: end;

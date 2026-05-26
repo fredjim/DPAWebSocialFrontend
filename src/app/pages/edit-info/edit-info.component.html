@@ -115,10 +115,10 @@
                                 <img src="assets/icon-link.png" alt="icon-link"> {{ button.name }}
                             </a>
                         </div>
-                        <div class="edit-info" (click)="showModalNewButton('edit','load', undefined, button, i)" (keypress)="showModalNewButton('edit','load', undefined,button, i)">
+                        <div class="edit-button" title="Editar botón" (click)="showModalNewButton('edit','load', undefined, button, i)" (keypress)="showModalNewButton('edit','load', undefined,button, i)">
                             <i class="bi bi-pencil-fill"></i>
                         </div>
-                        <div class="edit-info delete" (click)="deleteButton(i)" (keypress)="deleteButton(i)">
+                        <div class="delete-button" title="Eliminar botón" (click)="deleteButton(i)" (keypress)="deleteButton(i)">
                             <i class="bi bi-trash-fill"></i>
                         </div>
                     </div>
@@ -132,10 +132,10 @@
                                 <img src="assets/icon-link.png" alt="icon-link"> {{ newButton.name }}
                             </a>
                         </div>
-                        <div class="edit-info" (click)="showModalNewButton('edit','preload',newButton, undefined, i)" (keypress)="showModalNewButton('edit','preload',newButton, undefined, i)">
+                        <div class="edit-button" title="Editar botón" (click)="showModalNewButton('edit','preload',newButton, undefined, i)" (keypress)="showModalNewButton('edit','preload',newButton, undefined, i)">
                             <i class="bi bi-pencil-fill"></i>
                         </div>
-                        <div class="edit-info delete" (click)="preDeleteButton(i)" (keypress)="preDeleteButton(i)">
+                        <div class="delete-button" title="Eliminar botón" (click)="preDeleteButton(i)" (keypress)="preDeleteButton(i)">
                             <i class="bi bi-trash-fill"></i>
                         </div>
                     </div>
