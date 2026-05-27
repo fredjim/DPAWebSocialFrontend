@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { NavItem } from '../../pages/models/nav-item';
 import { UserDetail } from '../../posts/models/user-detail';
@@ -29,6 +29,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   public typeForm: 'create' | 'edit' = 'create';
   public navItems: NavItem[] = [];
   visible = false;
+  @Input() labelButtonNewMenu: string = '';
   @Output() closeMenuHamburguer = new EventEmitter<void>();
 
   ngOnInit(): void {
