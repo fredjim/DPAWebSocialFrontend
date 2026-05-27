@@ -140,8 +140,8 @@
 			}
 
 			.media-container:has(img:only-child) {
-				grid-template-columns: 1fr;
-				grid-template-rows: 1fr;
+				display: flex;
+  				width: 50%;
 			}
 
 			.buttons {

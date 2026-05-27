@@ -10,6 +10,10 @@
     <img src="assets/logo-umss-horizontal.jpg" alt="Logo UMSS" class="main-logo">
 
     <div class="user-profile">
+        <span *ngIf="hideArrowBackHome" class="back-home" title="Volver a inicio" [routerLink]="['/', currentSlug]">
+            <i class="bi bi-arrow-left"></i>
+        </span>
+        
         @if (authenticated && user) {
             @if (user.photo_profile_path){
                 <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
@@ -24,9 +28,6 @@
 			<i class="material-icons">{{ isMobileMenuOpen ? "close" : "menu" }}</i>
 		</div>
 
-        <span *ngIf="hideArrowBackHome" class="back-home" title="Volver a inicio" [routerLink]="['/', currentSlug]">
-            <i class="bi bi-arrow-left"></i>
-        </span>
     </div>
 
     @if (isMenuOpen) {
