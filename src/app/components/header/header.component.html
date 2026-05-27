@@ -33,8 +33,8 @@
     @if (isMenuOpen) {
     <div class="dropdown-menu">
         <ng-container *ngIf="authenticated">
-            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['/',currentSlug,'profile']">Ver perfil</a>
-            <a *ngIf="user && user.role === 'ADMIN'" routerLinkActive="active" class="dropdown-item" [routerLink]="['/',currentSlug,'institution']">Ver página</a>
+            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['/',currentSlug,'profile']" (click)="closeMenu()">Ver perfil</a>
+            <a *ngIf="user && user.role === 'ADMIN'" routerLinkActive="active" class="dropdown-item" [routerLink]="['/',currentSlug,'institution']" (click)="closeMenu()">Ver página</a>
             <a class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
         </ng-container>
         <ng-container *ngIf="!authenticated">
