@@ -28,15 +28,19 @@ nav {
 			justify-content: space-between;
 			align-items: baseline;
 			color: var(--blue-color);
+
+			div.edit-info {
+				cursor: pointer;
+
+				&:hover {
+					color: var(--primary-hover);
+					scale: 1.02;
+				}
+			}
 		}
 	}
-	.btn-primary.save {
-		background-color: var(--blue-color);
-		font-weight: 500;
+	.btn-new-section {
 		margin-right: 10px;
-		&:hover {
-			background-color: var(--primary-hover);
-		}
 	}
 }
 

@@ -52,6 +52,16 @@
 		.edit-section-content {
 			display: flex;
 			flex-direction: row;
+
+			.edit-info {
+				height: fit-content;
+				cursor: pointer;
+
+				&:hover {
+					color: var(--primary-hover);
+					scale: 1.02;
+				}
+			}
 		}
 		
 		.section-content {
@@ -170,14 +180,6 @@
 					}
 	
 				}
-			}
-		}
-
-		.btn-primary.save {
-			background-color: var(--blue-color);
-			
-			&:hover {
-				background-color: var(--primary-hover);
 			}
 		}
 	}
