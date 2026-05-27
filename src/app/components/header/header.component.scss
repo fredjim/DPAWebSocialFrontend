@@ -62,7 +62,7 @@ header {
 			font-size: 30px;
 			color: var(--blue-color);
 			cursor: pointer;
-			width: 50px;
+			width: 35px;
 			transition: transform 0.3s ease;
 
 			&:hover {
@@ -99,6 +99,13 @@ header {
 		.dropdown-item:active {
 			background-color: #bbdbfb;
 			color: var(--blue-color);
+		}
+		.dropdown-item.active {
+			color: white;
+
+			&:hover {
+				color: var(--blue-color);
+			}
 		}
 	}
 
