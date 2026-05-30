@@ -128,9 +128,9 @@ export class PostService {
   }
 
   //Método para subir un archivo
-  uploadDocument(formData: FormData): Observable<any> {
+  uploadDocument(formData: FormData): Observable<UploadedMedia[]> {
     const uploadImgs = 'documents/posts'
-    return this.http.post<any>(`${this.ROOT_URL}/${uploadImgs}`, formData, this.reqHeader)
+    return this.http.post<UploadedMedia[]>(`${this.ROOT_URL}/${uploadImgs}`, formData, this.reqHeader)
   }
 
   //Método para reaccionar a una publicacion
