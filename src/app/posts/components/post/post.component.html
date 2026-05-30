@@ -69,14 +69,15 @@
 			</ng-container>
 		</div>
 
-		<!-- Visualizar post con solo documento -->
+		<!-- Visualizar post con documentos -->
 		<ng-container *ngIf="post.content.media[0].type == 'document'">
-			<a [href]="post.content.media[0].path" target="_blank" class="text-decoration-none">
-				<div class="doc-post d-flex justify-content-center">
-					<pdf-viewer [src]="post.content.media[0].path" [render-text]="true" [original-size]="false"
-						style="width: 400px; height: 500px;" [autoresize]="true" class="pdf-viewer"></pdf-viewer>
-				</div>
-			</a>
+			<div class="documents-list d-flex flex-column gap-2 mt-2 px-2">
+				<ng-container *ngFor="let doc of post.content.media">
+					<a *ngIf="doc.type === 'document'" [href]="doc.path" target="_blank" class="text-decoration-none">
+						<i class="bi bi-file-earmark-pdf-fill"></i> {{ doc.name || 'Documento PDF' }}
+					</a>
+				</ng-container>
+			</div>
 		</ng-container>
 	</ng-container>
 	<!-- Cantidad de reacciones y comentarios -->
