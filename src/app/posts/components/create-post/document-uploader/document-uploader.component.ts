@@ -9,14 +9,14 @@ export class DocumentUploaderComponent implements OnChanges {
   @Input() showAreaDoc!: WritableSignal<boolean>;
   @Input() isVisibleModal: boolean = false;
   @Output() closeAreaDocEvent = new EventEmitter<boolean>(); 
-  @Output() loadFileDoc = new EventEmitter<File>(); 
+  @Output() loadFileDoc = new EventEmitter<File[]>(); 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   public readonly SIZE = 100;
   private readonly MAX_FILE_SIZE = this.SIZE * 1024 * 1024; // 100MB en bytes
   public isLoadingIcon = false;
   private iconPreloaded = false;
   showPreviewDoc = false;
-  fileDoc!: File; //El doc que se selecciona para crear post
+  fileDocs: File[] = []; // Los docs que se seleccionan para crear post
   typesDocs = {
     pdf : 'application/pdf',
     document : ['application/doc','application/docx','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
@@ -24,10 +24,37 @@ export class DocumentUploaderComponent implements OnChanges {
     text : 'application/txt' 
   }
   fileType!: string;
+  isHovering = false;
 
   ngOnChanges(changes: SimpleChanges): void {
     if(changes['isVisibleModal'] && !this.isVisibleModal){
       this.closeCleanPreviewDoc();
+    }
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isHovering = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isHovering = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isHovering = false;
+    
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      this.handleFiles(Array.from(event.dataTransfer.files));
+      
+      if (this.fileInput?.nativeElement) {
+        this.fileInput.nativeElement.value = '';
+      }
     }
   }
 
@@ -36,33 +63,42 @@ export class DocumentUploaderComponent implements OnChanges {
     event.stopPropagation();
     
     if(event.target instanceof HTMLInputElement && event.target.files && event.target.files.length > 0){
-      this.fileDoc = event.target.files[0];
+      this.handleFiles(Array.from(event.target.files));
+      event.target.value = '';
+    }
+  }
 
+  private handleFiles(newFiles: File[]) {
+    let hasError = false;
+
+    newFiles.forEach(file => {
       // Validar tipo archivo pdf
-      if(this.fileDoc && !this.isValidFileType(this.fileDoc.type)){
-        alert('Por favor, seleccione un documento tipo PDF');
-        //Limpiar el input file
-        event.target.files = new DataTransfer().files;
+      if(!this.isValidFileType(file.type)){
+        alert(`Por favor, seleccione un documento tipo PDF. Archivo inválido: ${file.name}`);
+        hasError = true;
         return;
       }
 
       // Validar tamaño de archivo
-      if(this.fileDoc && !this.isValidFileSize(this.fileDoc.size)){
-        alert(`El archivo es demasiado grande. Máximo permitido: ${this.SIZE}MB.`);
-        //Limpiar el input file
-        event.target.files = new DataTransfer().files;
+      if(!this.isValidFileSize(file.size)){
+        alert(`El archivo ${file.name} es demasiado grande. Máximo permitido: ${this.SIZE}MB.`);
+        hasError = true;
         return;
       }
+    });
 
-      // Si el icono no está precargado, precargarlo
-      if (!this.iconPreloaded) {
-        this.preloadIcon();
-      }
-
-      this.fileType = this.getTypeFile(this.fileDoc.type);
-      this.showPreviewDoc = true;
-      this.loadFileDoc.emit(this.fileDoc);
+    if(hasError) {
+      return;
     }
+
+    // Si el icono no está precargado, precargarlo
+    if (!this.iconPreloaded) {
+      this.preloadIcon();
+    }
+
+    this.fileDocs = [...this.fileDocs, ...newFiles];
+    this.showPreviewDoc = true;
+    this.loadFileDoc.emit(this.fileDocs);
   }
 
   private isValidFileType(type: string): boolean {
@@ -97,8 +133,16 @@ export class DocumentUploaderComponent implements OnChanges {
     }
   }
 
+  removeDoc(index: number) {
+    this.fileDocs.splice(index, 1);
+    if (this.fileDocs.length === 0) {
+      this.showPreviewDoc = false;
+    }
+    this.loadFileDoc.emit(this.fileDocs);
+  }
+
   closeCleanPreviewDoc(){
-    this.fileDoc = new File([''],'');
+    this.fileDocs = [];
     this.showPreviewDoc = false;
     this.showAreaDoc.set(false);
     
