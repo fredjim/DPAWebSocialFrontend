@@ -9,12 +9,14 @@ import { Media } from '../../../models/media';
 export class DocumentEditorComponent implements OnInit {
   @Input() showAreaDoc!: WritableSignal<boolean>;
 
-  @Input() mediaDocPost!: Media[] | undefined; //Documento que se recibe del post
-  public fileMediaDoc!: Media | null; //El doc del post - not undefined
-  public fileDoc!: File; //El doc nuevo que se puede añadir
+  @Input() mediaDocPost!: Media[] | undefined; //Documentos que se recibe del post
+  public fileMediaDocs: Media[] = []; //Los docs del post - not undefined
+  public fileDocs: File[] = []; //Los docs nuevos que se pueden añadir
 
   @Output() closeAreaDocEvent = new EventEmitter<boolean>(); 
-  @Output() loadNewFileDoc = new EventEmitter<File>(); 
+  @Output() loadNewFileDoc = new EventEmitter<File[]>(); 
+  @Output() loadOldFileDoc = new EventEmitter<Media[]>(); 
+
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   public readonly SIZE = 100;
   private readonly MAX_FILE_SIZE = this.SIZE * 1024 * 1024; // 100MB en bytes
@@ -28,16 +30,41 @@ export class DocumentEditorComponent implements OnInit {
     text : 'application/txt' 
   }
   fileType!: string;
+  isHovering = false;
 
   ngOnInit(){
-    if(this.mediaDocPost?.length == 1){
-
-      this.fileMediaDoc = this.mediaDocPost[0];
-      this.fileType = this.getTypeFile(this.fileMediaDoc.type);
+    if(this.mediaDocPost && this.mediaDocPost.length > 0){
+      this.fileMediaDocs = [...this.mediaDocPost];
       this.showAreaDoc.set(true);
       this.showPreviewDoc = true;
     }
 
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isHovering = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isHovering = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isHovering = false;
+    
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      this.handleFiles(Array.from(event.dataTransfer.files));
+      
+      if (this.fileInput?.nativeElement) {
+        this.fileInput.nativeElement.value = '';
+      }
+    }
   }
 
   changeInputMediaDoc(event: Event){
@@ -45,35 +72,64 @@ export class DocumentEditorComponent implements OnInit {
     event.stopPropagation();
     
     if(event.target instanceof HTMLInputElement && event.target.files && event.target.files.length > 0){
-      this.fileDoc = event.target.files[0];
+      this.handleFiles(Array.from(event.target.files));
+      
+      // Limpiar input file
+      event.target.value = '';
+    } else {
+      console.error('No se seleccionó ningún archivo o el evento no contiene archivos');
+    }
+  }
 
+  private handleFiles(newFiles: File[]) {
+    let hasError = false;
+
+    newFiles.forEach(file => {
       // Validar tipo archivo pdf
-      if(this.fileDoc && !this.isValidFileType(this.fileDoc.type)){
-        alert('Por favor, seleccione un documento tipo PDF');
-        //Limpiar el input file
-        event.target.files = new DataTransfer().files;
+      if(!this.isValidFileType(file.type)){
+        alert(`Por favor, seleccione un documento tipo PDF. Archivo inválido: ${file.name}`);
+        hasError = true;
         return;
       }
 
       // Validar tamaño de archivo
-      if(this.fileDoc && !this.isValidFileSize(this.fileDoc.size)){
-        alert(`El archivo es demasiado grande. Máximo permitido: ${this.SIZE}MB.`);
-        //Limpiar el input file
-        event.target.files = new DataTransfer().files;
+      if(!this.isValidFileSize(file.size)){
+        alert(`El archivo ${file.name} es demasiado grande. Máximo permitido: ${this.SIZE}MB.`);
+        hasError = true;
         return;
       }
+    });
 
-      // Si el icono no está precargado, precargarlo
-      if (!this.iconPreloaded) {
-        this.preloadIcon();
-      }
+    if(hasError) {
+      return;
+    }
 
-      this.fileType = this.getTypeFile(this.fileDoc.name);
-      
-      this.showPreviewDoc = true;      
-      this.loadNewFileDoc.emit(this.fileDoc);
-    } else {
-      console.error('No se seleccionó ningún archivo o el evento no contiene archivos');
+    // Si el icono no está precargado, precargarlo
+    if (!this.iconPreloaded) {
+      this.preloadIcon();
+    }
+
+    this.fileDocs = [...this.fileDocs, ...newFiles];
+    
+    this.showPreviewDoc = true;      
+    this.loadNewFileDoc.emit(this.fileDocs);
+  }
+
+  removeNewDoc(index: number) {
+    this.fileDocs.splice(index, 1);
+    this.checkPreviewState();
+    this.loadNewFileDoc.emit(this.fileDocs);
+  }
+
+  removeExistingDoc(index: number) {
+    this.fileMediaDocs.splice(index, 1);
+    this.checkPreviewState();
+    this.loadOldFileDoc.emit(this.fileMediaDocs);
+  }
+
+  checkPreviewState() {
+    if (this.fileDocs.length === 0 && this.fileMediaDocs.length === 0) {
+      this.showPreviewDoc = false;
     }
   }
 
@@ -111,18 +167,18 @@ export class DocumentEditorComponent implements OnInit {
   }
 
   closeCleanPreviewDoc(){
-    this.mediaDocPost = undefined; // Arreglo media con 1 doc
-    this.fileMediaDoc = null; // El doc como tal tipo Media
-    this.fileDoc = new File([''],''); // El nuevo doc como File 
+    this.fileDocs = [];
+    this.fileMediaDocs = [];
     this.showPreviewDoc = false;
     this.showAreaDoc.set(false);
     
-    if (this.fileInput?.nativeElement) {
+    if (this.fileInput) {
       this.fileInput.nativeElement.value = '';
     }
-
-    // Emitir que se cerró el área de documentos
-    this.closeAreaDocEvent.emit(false);
+    
+    this.loadNewFileDoc.emit(this.fileDocs);
+    this.loadOldFileDoc.emit(this.fileMediaDocs);
+    this.closeAreaDocEvent.emit(this.showAreaDoc());
   }
 
   private preloadIcon() {
