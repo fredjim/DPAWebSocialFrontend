@@ -45,6 +45,7 @@
                 [showAreaDoc]="visibleAreaMediaDoc" 
                 (closeAreaDocEvent)="closeAreaDoc($event)" 
                 (loadNewFileDoc)="setFileDocPostAdded($event)" 
+                (loadOldFileDoc)="setFileDocPostOld($event)"
                 [mediaDocPost]="sendMedia(typeMedia.doc)"></app-document-editor>
             </div>
 

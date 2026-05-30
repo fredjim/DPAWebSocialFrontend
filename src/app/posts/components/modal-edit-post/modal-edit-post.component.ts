@@ -40,7 +40,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   public postForm!: FormGroup;
   private listNewMediaFile: File[] = []; //Lista de media editada obtenida de 'image-video-editor' component
   private listOldMediaFile!: Media[]; //Lista de media editada que existe en el post
-  private fileNewDoc: File | null = null;  //Doc añadido en edicion
+  private listNewDocFile: File[] = []; //Docs añadidos en edicion
   private currentUser!: UserDetail;
   private currentPostType!: string;
   private isAuthenticated: boolean = false;
@@ -119,14 +119,20 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   closeAreaDoc(option: boolean){
     this.disableLoadImage.set(option);
     // Limpiar si selecciono un File para Doc y la lista de Medias si habia un Doc 
-    this.fileNewDoc = null;//Limpiar el archivo
+    this.listNewDocFile = [];//Limpiar el archivo
     this.listOldMediaFile = [];
     this.checkDisableSaveButton();
   }
   
-  //Establecer el Doc editado y verificar deshabilitar boton Guardar
-  setFileDocPostAdded(doc: File){
-    this.fileNewDoc = doc;
+  //Establecer los Docs editados y verificar deshabilitar boton Guardar
+  setFileDocPostAdded(docs: File[]){
+    this.listNewDocFile = docs;
+    this.checkDisableSaveButton();
+  }
+
+  //Establecer los Docs preexistentes
+  setFileDocPostOld(oldDocs: Media[]){
+    this.listOldMediaFile = oldDocs;
     this.checkDisableSaveButton();
   }
 
@@ -153,7 +159,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
     const textPost: string = this.postForm.get('contentPost')?.value ?? '';
     const commentsEnabledChanged = this.commentsEnabled !== (this.postToEdit.commentsEnabled ?? true);
     if((textPost === '' || textPost.length > this.maxLegthTextPost) && (this.listNewMediaFile.length === 0
-      && this.listOldMediaFile.length === 0 && !this.fileNewDoc) && !commentsEnabledChanged){
+      && this.listOldMediaFile.length === 0 && this.listNewDocFile.length === 0) && !commentsEnabledChanged){
       this.disabledSaveButton.set(true);
     }else{
       this.disabledSaveButton.set(false);
@@ -173,7 +179,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
       this.commentsEnabled = this.postToEdit.commentsEnabled ?? true;
       this.showModalEdit.set(false);
       this.listNewMediaFile = [];
-      this.fileNewDoc = null;
+      this.listNewDocFile = [];
       this.listOldMediaFile = this.postToEdit.content.media;
       this.postForm.get('contentPost')?.setValue(this.postToEdit.content.text);
       this.disabledSaveButton.set(true);
@@ -295,7 +301,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
     }
 
     //Si hay info para postear (texto, imagen o video, documento)
-    if(valueFormPost.contentPost != '' || this.listOldMediaFile.length > 0 || this.listNewMediaFile.length > 0 || this.fileNewDoc){
+    if(valueFormPost.contentPost != '' || this.listOldMediaFile.length > 0 || this.listNewMediaFile.length > 0 || this.listNewDocFile.length > 0){
 
       //Si hay nuevas imagenes-videos se los procesa Y imgs-videos eliminados se actualiza
       if(this.listNewMediaFile && this.listNewMediaFile.length > 0){ 
@@ -347,21 +353,32 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
           next: (updatedPost)=> this.updateSuccessPost(updatedPost),
           error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar publicación con contenido media', error)
         })
-      }else if(this.fileNewDoc && this.fileNewDoc.size > 0){//Si hay un archivo
+      }else if(this.listNewDocFile && this.listNewDocFile.length > 0){//Si hay nuevos archivos
         //Convertir el archivo en form data
-        formData.append('file', this.fileNewDoc);
+        Array.from(this.listNewDocFile).forEach((file) => {
+          formData.append('files', file);
+        });
+
+        const amountMediaPost = this.postToEdit.content.media?.length || 0;
 
         this.postService.uploadDocument(formData).pipe(
-          concatMap((uploadResponse: UploadedMedia) => {
+          concatMap((uploadResponse: UploadedMedia[]) => {
   
-            responseDoc = {
-              number: 1,
-              type: 'document',
-              file_name: uploadResponse.name,
-              uploaded_file_uuid: uploadResponse.uuid
-            };
+            uploadResponse.forEach((media, index) => {
+              responseMedia.push({
+                number: index + 1 + amountMediaPost,
+                type: 'document',
+                file_name: media.name,
+                uploaded_file_uuid: media.uuid
+              });
+            });
 
-            editedPost.content.media.push(responseDoc);
+            editedPost.content.media = [...this.listOldMediaFile];
+
+            Array.from(responseMedia).forEach((newDoc) => {
+              editedPost.content.media.push(newDoc);
+            });
+
             editedPost.fb_post_enable = false;
             return this.postService.updatePost(this.postToEdit.uuid, editedPost);
           })
@@ -369,7 +386,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
           next: (updatedPost)=> this.updateSuccessPost(updatedPost),
           error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar publicación con archivo', error)
         })      
-      }else if(valueFormPost.contentPost != '' || this.listOldMediaFile.length > 0){//Si solo tiene texto O si se eliminaron medios
+      }else if(valueFormPost.contentPost != '' || this.listOldMediaFile.length > 0 || this.listOldMediaFile.length === 0){//Si solo tiene texto O si se eliminaron medios
         // Usar directamente listOldMediaFile que ya contiene solo los medios que NO fueron eliminados
         // O si fueron eliminados listOldMediaFile es un []
         editedPost.content.media = [...this.listOldMediaFile];

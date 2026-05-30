@@ -200,6 +200,23 @@ hr {
 	margin: 10px 0;
 }
 
+.documents-list {
+	a {
+		color: var(--blue-color, #003770);
+		font-size: 14px;
+		
+		&:hover {
+			text-decoration: underline !important;
+		}
+
+		i {
+			font-size: 18px;
+			color: var(--red-color, #dc3545);
+			margin-right: 5px;
+		}
+	}
+}
+
 .bottuns {
 	display: flex;
 	justify-content: space-around;

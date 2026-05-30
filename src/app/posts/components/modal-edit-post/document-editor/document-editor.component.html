@@ -1,33 +1,84 @@
 <!-- Seleccionar archivo -->
-<div class="area-media-doc" *ngIf="showAreaDoc()">
+<div class="area-media-doc dropzone" 
+     [class.hovering]="isHovering" 
+     (dragover)="onDragOver($event)" 
+     (dragleave)="onDragLeave($event)" 
+     (drop)="onDrop($event)" 
+     *ngIf="showAreaDoc()">
   <button type="button" class="btn-close m-0" aria-label="Close" (click)="closeCleanPreviewDoc()"></button>
-  <div class="back-doc d-flex flex-column px-3 py-3" *ngIf="!showPreviewDoc">
-    <span>Subir un archivo</span>
-    <p>Los archivos deben ocupar un máximo de 100MB</p>
-    <ui-button
-      label="Elegir archivo"
-      type="button"
-      severity="secondary"
-      variant="outlined"
-      (clicked)="openInputFileDoc($event)"
-    ></ui-button>
-  </div>
+  
+  <button type="button" class="back-doc d-flex flex-column px-3 py-4 align-items-center justify-content-center text-center w-100 border-0" *ngIf="!showPreviewDoc" (click)="openInputFileDoc($event)" style="cursor: pointer; border: 2px dashed #ccc; border-radius: 8px; transition: all 0.3s; background: transparent;" [style.borderColor]="isHovering ? '#007bff' : '#ccc'" [style.backgroundColor]="isHovering ? 'rgba(0,123,255,0.05)' : 'transparent'">
+    <i class="bi bi-cloud-arrow-up text-primary mb-2" style="font-size: 2.5rem;"></i>
+    <span class="fw-bold mb-1">Arrastra tus archivos aquí</span>
+    <span class="text-muted d-block mb-3" style="font-size: 0.9rem;">o haz clic para buscar en tu dispositivo</span>
+    <p class="text-muted small m-0">Los archivos deben ocupar un máximo de 100MB. Solo PDFs.</p>
+  </button>
 
   <!-- Preview archivo -->
-  <div class="preview-doc d-flex flex-row" *ngIf="showPreviewDoc">
-    <div class="icon-doc d-flex align-items-center justify-content-center">
-      <!-- Spinner mientras carga -->
-      <div *ngIf="isLoadingIcon" class="spinner-border spinner-border-sm text-primary">
-        <span class="visually-hidden">Cargando...</span>
+  <div class="peview-docs" *ngIf="showPreviewDoc">
+    <!-- Documentos existentes -->
+    <div *ngIf="fileMediaDocs && fileMediaDocs.length > 0">
+      <h6 class="text-muted small mb-2">Documentos del post</h6>
+      <div class="preview-doc d-flex flex-row justify-content-between align-items-center mb-2" *ngFor="let doc of fileMediaDocs; let i = index">
+        <div class="d-flex align-items-center">
+          <div class="icon-doc d-flex align-items-center justify-content-center">
+            <div class="pdf-icon"></div>
+          </div>
+          <div class="name-doc d-flex align-items-center ms-2">
+            <span>{{ doc.name || 'Documento PDF' }}</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-link text-danger p-0 mx-2 border-0 shadow-none"
+          (click)="removeExistingDoc(i)"
+          aria-label="Eliminar documento"
+          title="Eliminar documento"
+        >
+          <i class="bi bi-x-lg fs-5"></i>
+        </button>
       </div>
-      <!-- Contenedor con background-image (se muestra cuando no está cargando) -->
-      <div *ngIf="!isLoadingIcon" class="pdf-icon"></div>
     </div>
-    <div class="name-doc d-flex align-items-center">
-      <span *ngIf="fileMediaDoc">{{ fileMediaDoc.name }}</span>
-      <span *ngIf="fileDoc && fileDoc.name">{{ fileDoc.name }}</span>
+    
+    <!-- Documentos nuevos -->
+    <div *ngIf="fileDocs && fileDocs.length > 0" class="mt-3">
+      <h6 class="text-muted small mb-2">Nuevos documentos</h6>
+      <div class="preview-doc d-flex flex-row justify-content-between align-items-center mb-2" *ngFor="let doc of fileDocs; let j = index">
+        <div class="d-flex align-items-center">
+          <div class="icon-doc d-flex align-items-center justify-content-center">
+            <div *ngIf="isLoadingIcon" class="spinner-border spinner-border-sm text-primary">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <div *ngIf="!isLoadingIcon" class="pdf-icon"></div>
+          </div>
+          <div class="name-doc d-flex align-items-center ms-2">
+            <span>{{ doc.name }}</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-link text-danger p-0 mx-2 border-0 shadow-none"
+          (click)="removeNewDoc(j)"
+          aria-label="Eliminar documento"
+          title="Eliminar documento"
+        >
+          <i class="bi bi-x-lg fs-5"></i>
+        </button>
+      </div>
     </div>
+
+    <!-- Mini Dropzone para añadir más -->
+        <button type="button" class="d-flex flex-column align-items-center justify-content-center mt-3 p-3 w-100 border-0"
+          (click)="openInputFileDoc($event)"
+             style="cursor: pointer; border: 1.5px dashed #ccc; border-radius: 8px; transition: all 0.2s; background-color: #f8f9fa;"
+         [style.borderColor]="isHovering ? '#007bff' : '#ccc'"
+         [style.backgroundColor]="isHovering ? '#f1f8ff' : '#f8f9fa'"
+         onmouseenter="this.style.borderColor='#007bff'; this.style.backgroundColor='#f1f8ff'"
+         onmouseleave="this.style.borderColor='#ccc'; this.style.backgroundColor='#f8f9fa'">
+      <i class="bi bi-plus-circle-dotted text-primary" style="font-size: 1.5rem;"></i>
+      <span class="text-muted small mt-1 fw-medium">Clic o arrastra más PDFs aquí</span>
+        </button>
   </div>
 
-  <input type="file" #fileInput hidden (change)="changeInputMediaDoc($event)" accept=".pdf">
+  <input type="file" #fileInput hidden multiple (change)="changeInputMediaDoc($event)" accept=".pdf">
 </div>

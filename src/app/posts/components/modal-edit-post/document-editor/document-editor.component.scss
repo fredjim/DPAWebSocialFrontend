@@ -13,9 +13,14 @@
     width: 20px;
     font-size: 10px;
     position: absolute;
-    top: 7px;
-    right: 7px;
-    z-index: 1;
+    top: -8px;
+    right: -8px;
+    z-index: 2;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  }
+
+  .peview-docs {
+    padding-top: 6px;
   }
 
   .back-doc {

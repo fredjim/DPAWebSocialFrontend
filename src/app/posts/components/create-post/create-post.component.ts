@@ -31,7 +31,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   disabledPublishButton = signal(true); //Deshabilitar el boton de publicar
   postForm!: FormGroup;
   listFile: File[] = [];
-  fileDoc!: File | null;
+  listFileDoc: File[] = [];
   isFbSwitchOn: boolean = false;
   currentUser!: UserDetail;
   currentPostType!: string;
@@ -94,7 +94,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     
     if(value){
       this.checkListFileForFacebook();
-    }else if(this.listFile.length > 0 || (this.fileDoc && this.fileDoc.size > 0) || this.postForm.value.contentPost !== ''){
+    }else if(this.listFile.length > 0 || this.listFileDoc.length > 0 || this.postForm.value.contentPost !== ''){
       this.disabledPublishButton.set(false);
     }else{
       this.disabledPublishButton.set(true);
@@ -102,7 +102,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private checkListFileForFacebook(): void {
-    const hasDocument = this.fileDoc && this.fileDoc.size > 0;
+    const hasDocument = this.listFileDoc.length > 0;
     const videoCount = this.listFile.filter(file => file.type.includes('video')).length;
     const imageCount = this.listFile.filter(file => file.type.includes('image')).length;
 
@@ -181,14 +181,14 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     this.disableLoadImage.set(option);
     const contentPost = this.postForm.get('contentPost')?.value;
     contentPost === '' ? this.disabledPublishButton.set(true) : this.disabledPublishButton.set(false);
-    this.fileDoc = null;//Limpiar el archivo
+    this.listFileDoc = [];//Limpiar el archivo
   }
 
   //Deshabilitar el boton de publicar si no hay archivo
-  getFileDocPost(doc: File) {
-    this.fileDoc = doc;
+  getFileDocPost(docs: File[]) {
+    this.listFileDoc = docs;
     const contentPost = this.postForm.get('contentPost')?.value;
-    contentPost != '' || this.fileDoc ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
+    contentPost != '' || this.listFileDoc.length > 0 ? this.disabledPublishButton.set(false) : this.disabledPublishButton.set(true);
 
     // Desabilitar el boton Publicar si el switchFace == true y incumple restricciones
     if(this.isFbSwitchOn){
@@ -200,7 +200,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   closeModal(): void {
     this.postForm.reset();
     this.listFile = [];
-    this.fileDoc = null;
+    this.listFileDoc = [];
     this.disabledPublishButton.set(true);
   }
 
@@ -300,7 +300,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
       fb_post_enable: this.isFbSwitchOn
     };
 
-    if (valueFormPost.contentPost != '' || this.listFile || this.fileDoc) {
+    if (valueFormPost.contentPost != '' || this.listFile || this.listFileDoc.length > 0) {
 
       if (this.listFile && this.listFile.length > 0) {
         const optimizedFiles = await this.optimizeImages(this.listFile).catch(() => this.listFile);
@@ -324,17 +324,19 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
           error: (error: HttpErrorResponse) => this.createErrorPost('Error al crear publicación con media', error)
         });
 
-      } else if (this.fileDoc && this.fileDoc.size > 0) {
-        formData.append('file', this.fileDoc);
+      } else if (this.listFileDoc && this.listFileDoc.length > 0) {
+        Array.from(this.listFileDoc).forEach((file) => {
+          formData.append('files', file);
+        });
 
         this.postService.uploadDocument(formData).pipe(
-          concatMap((uploadResponse: UploadedMedia) => {
-            post.content.media = [{
-              number: 1,
+          concatMap((uploadResponse: UploadedMedia[]) => {
+            post.content.media = uploadResponse.map((media, index) => ({
+              number: index + 1,
               type: 'document',
-              file_name: uploadResponse.name,
-              uploaded_file_uuid: uploadResponse.uuid
-            }];
+              file_name: media.name,
+              uploaded_file_uuid: media.uuid
+            }));
             return this.postService.createPost(post);
           })
         ).subscribe({
