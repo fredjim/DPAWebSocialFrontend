@@ -28,11 +28,15 @@
           <span>{{ doc.name }}</span>
         </div>
       </div>
-      <div>
-        <button type="button" class="btn btn-sm btn-danger px-2 py-1 mx-2" (click)="removeDoc(i)">
-          <i class="bi bi-trash"></i>
-        </button>
-      </div>
+      <button
+        type="button"
+        class="btn btn-link text-danger p-0 mx-2 border-0 shadow-none"
+        (click)="removeDoc(i)"
+        aria-label="Eliminar documento"
+        title="Eliminar documento"
+      >
+        <i class="bi bi-x-lg fs-5"></i>
+      </button>
     </div>
     <!-- Mini Dropzone para añadir más -->
         <button type="button" class="d-flex flex-column align-items-center justify-content-center mt-3 p-3 w-100 border-0"
