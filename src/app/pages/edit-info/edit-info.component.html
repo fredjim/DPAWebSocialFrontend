@@ -2,7 +2,10 @@
     <form [formGroup]="formArticle" (ngSubmit)="onSubmit()">
 
         <!-- Editar titulo de articulo -->
-        <input #firstInput type="text" pInputText formControlName="title" class="input-title" placeholder="Título del artículo" />
+         <div class="title-article">
+            <input #firstInput type="text" pInputText formControlName="title" class="input-title" placeholder="Título del artículo" />
+            <small class="text-danger" *ngIf="hasError('title', 'maxlength')">Máximo {{ MAX_LENGTH_TITLE }} caracteres</small>
+         </div>
 
         <!-- Editor de texto -->
         <p-editor (onInit)="onEditorInit($event)" formControlName="text" [style]="{ height: 'auto' }" class="text-editor" [class.exceeded]="isExceeded" placeholder="Texto del artículo">
