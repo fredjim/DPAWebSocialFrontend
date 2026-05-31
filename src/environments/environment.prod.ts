@@ -1,7 +1,10 @@
 export const environment = {
   production: true,
-  DEFAULT_TENANT_SLUG: '', // en prod se lee de la URL, no hay fallback hardcodeado
-  BACK_END_HOST: 'https://devpws.cs.umss.edu.bo/api/v1',
-  BACK_END_HOST_DEV: 'https://devpws.cs.umss.edu.bo/api/v1',
-  BACK_END_HOST_DEV_AUTH: 'https://devpws.cs.umss.edu.bo/api/auth',
+  DEFAULT_TENANT_SLUG: '',
+  // URLs canónicas — usar estas en código nuevo
+  BACK_END_HOST: 'https://api.umss.dev/api/v1',
+  BACK_END_HOST_AUTH: 'https://api.umss.dev/api/auth',
+  // Aliases legacy — mantener para no romper servicios existentes
+  BACK_END_HOST_DEV: 'https://api.umss.dev/api/v1',
+  BACK_END_HOST_DEV_AUTH: 'https://api.umss.dev/api/auth',
 };
