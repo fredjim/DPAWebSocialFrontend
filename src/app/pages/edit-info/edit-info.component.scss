@@ -289,6 +289,17 @@
     #name,#url {
         padding-left: 5px;
     }
+
+	.input-field {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+
+		small {
+			position: absolute;
+			top: 70px;
+		}
+	}
 }
 
 .modal-footer {
