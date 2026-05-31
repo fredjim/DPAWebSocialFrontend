@@ -11,30 +11,41 @@ export class TenantService {
 
   private institution$: Observable<Institution> | null = null;
 
-  // Rutas de Angular que NO son slugs de tenant
-  private readonly RESERVED_PATHS = ['profile', 'institution', 'login', 'register', 'admin'];
-
   constructor(private readonly http: HttpClient) {}
 
   /**
-   * Devuelve el slug del tenant activo leyendo el primer segmento del path de la URL.
-   * Ejemplo: app.umss.net/dpa/posts → "dpa"
-   * Fallback en desarrollo: environment.DEFAULT_TENANT_SLUG
+   * Devuelve el slug del tenant activo.
+   *
+   * Orden de resolución:
+   *   1. Dev override — localStorage 'dev_tenant' (solo en !production)
+   *   2. Subdominio del hostname — dpa.umss.net → "dpa"
+   *   3. Fallback — environment.DEFAULT_TENANT_SLUG (dev local sin subdominio)
    */
   getSlug(): string {
-    const segments = window.location.pathname
-      .split('/')
-      .filter(s => s.length > 0);
-
-    const firstSegment = segments[0] ?? '';
-
-    // Root dashboard never belongs to a tenant
-    if (firstSegment === 'root') return '';
-
-    if (firstSegment && !this.RESERVED_PATHS.includes(firstSegment)) {
-      return firstSegment;
+    // Override local para desarrollo — establecer con:
+    //   localStorage.setItem('dev_tenant', 'dpa')  en la consola del navegador
+    if (!environment.production) {
+      const devTenant = localStorage.getItem('dev_tenant');
+      if (devTenant) return devTenant;
     }
 
+    const hostname = window.location.hostname; // "dpa.umss.net"
+    const parts = hostname.split('.');
+
+    // Root dashboard nunca pertenece a un tenant
+    if (parts[0] === 'root') return '';
+
+    // Subdominio real: dpa.umss.net (3 partes) o dpa.localhost (2 partes en dev)
+    const EXCLUDED_HOSTS = ['www', 'app', 'api', 'root', 'localhost'];
+    const isSubdomain =
+      (!EXCLUDED_HOSTS.includes(parts[0])) &&
+      (parts.length >= 3 || (parts.length === 2 && parts[1] === 'localhost'));
+
+    if (isSubdomain) {
+      return parts[0];
+    }
+
+    // Fallback para desarrollo local sin subdominio
     return environment.DEFAULT_TENANT_SLUG ?? '';
   }
 
@@ -46,7 +57,7 @@ export class TenantService {
   getInstitution(): Observable<Institution> {
     if (!this.institution$) {
       this.institution$ = this.http
-        .get<Institution>(`${environment.BACK_END_HOST_DEV}/institutions/current`)
+        .get<Institution>(`${environment.BACK_END_HOST}/institutions/current`)
         .pipe(shareReplay(1));
     }
     return this.institution$;

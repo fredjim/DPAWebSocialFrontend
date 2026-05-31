@@ -11,46 +11,45 @@ import { ProfileInstitutionComponent } from './institution/components/profile-in
 import { VerifyEmailComponent } from './authentication/components/verify-email/verify-email.component';
 import { ResetPasswordComponent } from './authentication/components/reset-password/reset-password.component';
 import { authGuard } from './authentication/services/auth.guard';
-import { environment } from '../environments/environment';
 
 const routes: Routes = [
-  // Rutas públicas standalone (sin slug — llegan desde links de email)
+  // Rutas standalone — llegan desde links de email, sin contexto de subdominio de tenant
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
 
-     // ROOT dashboard — lazy loaded, debe ir ANTES del wildcard :slug
+  // ROOT dashboard — lazy loaded, tenant-agnostic (root.umss.net o /root)
   {
     path: 'root',
     loadChildren: () =>
       import('./root-dashboard/root-dashboard.module').then(m => m.RootDashboardModule)
   },
-  
-  // Todas las rutas que requieren slug (públicas y protegidas)
+
+  // Rutas del tenant — el tenant se resuelve desde el subdominio, no desde el path
   {
-    path: ':slug',
-    component: HomeComponent,  // Este componente contiene header/footer del tenant
+    path: '',
+    component: HomeComponent,
     children: [
-      // Rutas protegidas
-      {
-        path: 'profile',
-        component: ProfileComponent,
-        canActivate: [authGuard],
-        data: { hideHero: true, hideNavbar: true, showGoBack: true }
-      },
-      {
-        path: 'institution',
-        component: ProfileInstitutionComponent,
-        canActivate: [authGuard],
-        data: { roles: ['ADMIN'], hideHero: true, hideNavbar: true, showGoBack: true }
-      },
-      
-      // Rutas públicas
       { path: '', redirectTo: 'posts', pathMatch: 'full' },
-      { path: 'posts/:id', component: ViewAllPostsComponent },
+
+      // Rutas públicas
       { path: 'posts', component: ViewAllPostsComponent },
-      { path: 'fotos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  }  },
-      { path: 'videos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  }  },
-      { path: 'documentos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  } },
+      { path: 'posts/:id', component: ViewAllPostsComponent },
+      { path: 'fotos', component: MediaGalleryComponent,
+        data: { hideHero: true, hideNavbar: true, showGoBack: true } },
+      { path: 'videos', component: MediaGalleryComponent,
+        data: { hideHero: true, hideNavbar: true, showGoBack: true } },
+      { path: 'documentos', component: MediaGalleryComponent,
+        data: { hideHero: true, hideNavbar: true, showGoBack: true } },
+
+      // Rutas protegidas
+      { path: 'profile', component: ProfileComponent,
+        canActivate: [authGuard],
+        data: { hideHero: true, hideNavbar: true, showGoBack: true } },
+      { path: 'institution', component: ProfileInstitutionComponent,
+        canActivate: [authGuard],
+        data: { roles: ['ADMIN'], hideHero: true, hideNavbar: true, showGoBack: true } },
+
+      // Secciones de navegación dinámica
       {
         path: ':pathNavItem',
         component: PageContainerComponent,
@@ -63,13 +62,6 @@ const routes: Routes = [
         ]
       }
     ]
-  },
-
-  // Raíz → redirige al tenant por defecto
-  {
-    path: '',
-    redirectTo: environment.DEFAULT_TENANT_SLUG,
-    pathMatch: 'full'
   },
 ];
 
