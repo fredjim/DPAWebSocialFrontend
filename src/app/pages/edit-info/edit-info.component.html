@@ -2,7 +2,10 @@
     <form [formGroup]="formArticle" (ngSubmit)="onSubmit()">
 
         <!-- Editar titulo de articulo -->
-        <input #firstInput type="text" pInputText formControlName="title" class="input-title" placeholder="Título del artículo" />
+         <div class="title-article">
+            <input #firstInput type="text" pInputText formControlName="title" class="input-title" placeholder="Título del artículo" />
+            <small class="text-danger" *ngIf="hasError('title', 'maxlength')">Máximo {{ MAX_LENGTH_TITLE_ARTICLE }} caracteres</small>
+         </div>
 
         <!-- Editor de texto -->
         <p-editor (onInit)="onEditorInit($event)" formControlName="text" [style]="{ height: 'auto' }" class="text-editor" [class.exceeded]="isExceeded" placeholder="Texto del artículo">
@@ -62,7 +65,7 @@
             <span *ngIf="isExceeded" class="error-message">
             Has alcanzado el límite de caracteres
             </span>
-            <span>{{ currentLength }}</span> / {{ maxLengthTextArticle }}
+            <span>{{ currentLength }}</span> / {{ MAX_LENGTH_TEXT_ARTICLE }}
         </div>
 
         <!-- Agregar documentos -->
@@ -231,13 +234,17 @@
             <div class="input-field">
                 <label for="name">Nombre del botón:</label>
                 <input #firstInput type="text" autocomplete="off" formControlName="name" pInputText id="name" class="w-100">
+                <small class="text-danger" *ngIf="hasErrorButton('name', 'required')">El nombre es requerido</small>
+                <small class="text-danger" *ngIf="hasErrorButton('name', 'maxlength')">Máximo {{ MAX_LENGTH_NAME_BUTTON }} caracteres</small>
             </div>
             <div class="input-field">
                 <label for="url">URL del botón:</label>
                 <input type="text" autocomplete="off" placeholder="https://www.pagina.com/" formControlName="url" pInputText id="url" class="w-100">
+                <small class="text-danger" *ngIf="hasErrorButton('url', 'required')">El URL es requerido</small>
+                <small class="text-danger" *ngIf="hasErrorButton('url', 'maxlength')">Máximo {{ MAX_LENGTH_URL_BUTTON }} caracteres</small>
             </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer mt-4">
             <ui-button
                 label="Guardar"
                 icon="pi pi-check"
