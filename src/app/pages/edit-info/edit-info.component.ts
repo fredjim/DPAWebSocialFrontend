@@ -33,6 +33,11 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('fileInputDocument') fileInputDoc!: ElementRef;
   @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
 
+  public readonly MAX_LENGTH_TITLE_ARTICLE = 1000;
+  public readonly MAX_LENGTH_NAME_BUTTON = 150;
+  public readonly MAX_LENGTH_URL_BUTTON = 500;
+  public readonly MAX_LENGTH_TEXT_ARTICLE: number = 5000;
+
   public imgsPreview: {name: string, type: string, url: string}[] = [];
   public imagesOfArticle: MediaArticle[] = []; // imagenes del articulo actual para renderizar
   private imageFilesToCreate: File[] = []; //imagenes para subir al articulo
@@ -46,11 +51,10 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   public isLoading = false;
 
   public formArticle = new FormGroup({
-    title: new FormControl('', [Validators.maxLength(1000)]),
+    title: new FormControl('', [Validators.maxLength(this.MAX_LENGTH_TITLE_ARTICLE)]),
     text: new FormControl(''),
   });
 
-  public readonly MAX_LENGTH_TITLE = 1000;
   public buttonsOfArticle: Link[] = [];
   public buttonsToAdd: { name: string, url: string }[] = []; // Para crear articulo
   // Modal de agregar botones
@@ -64,11 +68,10 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
 
 
   public formNewButton = new FormGroup({
-    name: new FormControl('', [Validators.required]),
-    url: new FormControl('', [Validators.required])
+    name: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LENGTH_NAME_BUTTON)]),
+    url: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LENGTH_URL_BUTTON)])
   });
 
-  public maxLengthTextArticle: number = 5000;
   public currentLength: number = 0;
   public isExceeded: boolean = false;
 
@@ -128,7 +131,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   public onSubmit(): void {
     // Validar límite (aunque botón esté deshabilitado)
     if (this.isExceeded) {
-      this.toastRef.showError(`El texto excede el límite de ${this.maxLengthTextArticle} caracteres. Actual: ${this.currentLength}`, 'Error de validación');
+      this.toastRef.showError(`El texto excede el límite de ${this.MAX_LENGTH_TEXT_ARTICLE} caracteres. Actual: ${this.currentLength}`, 'Error de validación');
       return; 
     }
 
@@ -708,7 +711,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     if (htmlContent === '<p><br></p>') htmlContent = '';
 
     this.currentLength = htmlContent.length;
-    this.isExceeded = this.currentLength > this.maxLengthTextArticle;
+    this.isExceeded = this.currentLength > this.MAX_LENGTH_TEXT_ARTICLE;
 
     this.disableButtonSaveArticle = this.isExceeded;
   }
@@ -754,4 +757,8 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     return !!(c?.hasError(error) && c.touched);
   }
 
+  hasErrorButton(control: string, error: string): boolean {
+    const c = this.formNewButton.get(control);
+    return !!(c?.hasError(error) && c.touched);
+  }
 }
