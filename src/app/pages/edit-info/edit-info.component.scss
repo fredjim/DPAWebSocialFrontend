@@ -4,13 +4,24 @@
 	gap: 1.5rem;
 	max-width: 750px;
 
-	.input-title {
-		height: 34px;
-		width: 100%;
-		padding: 10px; 
-		font-weight: 700; 
-		color: var(--bs-heading-color);
-		margin-bottom: 1rem;
+	.title-article {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+
+		.input-title {
+			height: 34px;
+			width: 100%;
+			padding: 10px !important; 
+			font-weight: 700; 
+			color: var(--bs-heading-color) !important;
+			margin-bottom: 1.5rem;
+		}
+
+		small {
+			position: absolute;
+			top: 35px;
+		}
 	}
 
 	.text-editor {

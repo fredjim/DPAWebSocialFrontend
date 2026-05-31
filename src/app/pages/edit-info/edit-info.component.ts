@@ -46,10 +46,11 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
   public isLoading = false;
 
   public formArticle = new FormGroup({
-    title: new FormControl(''),
+    title: new FormControl('', [Validators.maxLength(1000)]),
     text: new FormControl(''),
   });
 
+  public readonly MAX_LENGTH_TITLE = 1000;
   public buttonsOfArticle: Link[] = [];
   public buttonsToAdd: { name: string, url: string }[] = []; // Para crear articulo
   // Modal de agregar botones
@@ -67,7 +68,7 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     url: new FormControl('', [Validators.required])
   });
 
-  public maxLengthTextArticle: number = 3000;
+  public maxLengthTextArticle: number = 5000;
   public currentLength: number = 0;
   public isExceeded: boolean = false;
 
@@ -745,6 +746,12 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
         this.isArticleEmpty = false;
       }
     }
+  }
+
+  hasError(control: string, error: string): boolean {
+    const c = this.formArticle.get(control);
+    this.disableButtonSaveArticle = !!c?.hasError(error);
+    return !!(c?.hasError(error) && c.touched);
   }
 
 }
