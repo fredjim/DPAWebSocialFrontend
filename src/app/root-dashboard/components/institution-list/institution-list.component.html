@@ -1,8 +1,8 @@
 <div class="container-fluid p-0">
-  <app-custom-table title="Instituciones" [data]="institutions" [columns]="columns" [loading]="isLoading()"
-    [globalFilterFields]="globalFilterFields" [hasActions]="true" searchPlaceholder="Buscar instituciones...">
+  <app-custom-table title="Unidades" [data]="institutions" [columns]="columns" [loading]="isLoading()"
+    [globalFilterFields]="globalFilterFields" [hasActions]="true" searchPlaceholder="Buscar unidades...">
     <!-- Botón de añadir en el toolbar -->
-    <p-button extraActions label="Nueva Institución" styleClass="p-button-primary p-button-sm"
+    <p-button extraActions label="Nueva Unidad" styleClass="p-button-primary p-button-sm"
       (onClick)="showCreateModal.set(true)">
       <i class="fa-solid fa-plus me-2"></i>
     </p-button>
