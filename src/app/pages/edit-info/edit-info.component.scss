@@ -26,6 +26,14 @@
 
 	.text-editor {
 		margin: 0.5rem 0;
+
+		::ng-deep .ql-editor li[data-list="ordered"].ql-indent-1 > .ql-ui::before {
+			content: counter(list-1, decimal) ". ";
+		}
+
+		::ng-deep .ql-editor li {
+			padding-left: 0;
+		}
 	}
 
 	.char-counter {
@@ -205,26 +213,18 @@
 				color: var(--red-color);
 			}
 
-			.btn-delete-media {
-				position: absolute;
-				top: 0px;
-				right: 5px;
-				background-color: rgba(0, 0, 0, 0.5);
-				color: white;
-				border: none;
-				border-radius: 50%;
-				width: 24px;
-				height: 24px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 16px;
-				padding: 0;
-				z-index: 5;
+			.btn-delete-doc {
+				margin-left: 0.5rem;
 				
-				&:hover {
-					background-color: var(--red-color);
-					scale: 1.1;
+				::ng-deep button.ui-btn--danger.ui-btn--text.ui-btn--sm {
+					border-radius: 50% !important;
+					width: 30px !important;
+					height: 30px !important;
+				}
+				
+				::ng-deep button.ui-btn--danger.ui-btn--text.ui-btn--sm:hover:not(:disabled) {
+					background: #dc2626 !important;
+					color: white !important;
 				}
 			}
 		}

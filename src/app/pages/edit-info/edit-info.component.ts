@@ -139,8 +139,8 @@ export class EditInfoComponent implements OnInit, OnChanges, OnDestroy {
     if(this.isArticleEmpty) return;
 
     // SOLO AQUÍ obtenemos el HTML definitivo para enviar
-    const htmlContent = this.quillInstance.root.innerHTML;
-    const cleanHtml = this.normalizeSpaces(htmlContent);
+    const semanticHtml = this.quillInstance.getSemanticHTML();
+    const cleanHtml = this.normalizeSpaces(semanticHtml);
     this.formArticle.patchValue({ text: cleanHtml });
 
     if(this.typeForm === 'edit'){
