@@ -16,16 +16,20 @@
         </div>
       </div>
     </div>
-    <app-post *ngFor="let post of posts" 
-      [post]="post" 
-      [currentUser]="currentUser"
-      [authenticated]="authenticated"
-      [openInParent]="true"
-      (openPostDetail)="handleOpenPost($event.post, $event.initialMediaIndex)"
-      (requestDeletePost)="deletePost($event)"
-      (requestUpdatePost)="updatePost($event)" 
-      (reactionChanged)="updateReactions(post.uuid)">
-    </app-post>
+    @if(posts.length > 0){
+      <app-post *ngFor="let post of posts" 
+        [post]="post" 
+        [currentUser]="currentUser"
+        [authenticated]="authenticated"
+        [openInParent]="true"
+        (openPostDetail)="handleOpenPost($event.post, $event.initialMediaIndex)"
+        (requestDeletePost)="deletePost($event)"
+        (requestUpdatePost)="updatePost($event)" 
+        (reactionChanged)="updateReactions(post.uuid)">
+      </app-post>
+    }@else {
+      <span class="text-danger d-flex justify-content-center text-no-posts">No hay publicaciones.</span>
+    }
 
     <button 
       *ngIf="showScrollButton"

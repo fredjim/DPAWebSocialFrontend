@@ -33,7 +33,7 @@
                             El nombre es obligatorio
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('name', 'maxlength')">
-                            El nombre no puede exceder los 50 caracteres
+                            El nombre no puede exceder los {{ MAX_NAME_LENGTH }} caracteres
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('name', 'onlyLetters')">
                             El nombre solo puede contener letras y espacios
@@ -52,7 +52,7 @@
                             El apellido es obligatorio
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('lastName', 'maxlength')">
-                            El apellido no puede exceder los 80 caracteres
+                            El apellido no puede exceder los {{ MAX_LASTNAME_LENGTH }} caracteres
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('lastName', 'onlyLetters')">
                             El apellido solo puede contener letras y espacios
@@ -68,7 +68,7 @@
                         [class.is-invalid]="hasError('phone', 'maxlength') || hasError('phone', 'numbersOnly')">
                     <div class="error-messages">
                         <div class="invalid-feedback" *ngIf="hasError('phone', 'maxlength')">
-                            El teléfono no puede exceder los 15 caracteres
+                            El teléfono no puede exceder los {{ MAX_PHONE_LENGTH }} caracteres
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('phone', 'numbersOnly')">
                             El teléfono solo debe contener números

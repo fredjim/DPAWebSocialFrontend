@@ -21,6 +21,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly tenantService = inject(TenantService);
 
+  public readonly MAX_NAME_LENGTH = 50;
+  public readonly MAX_LASTNAME_LENGTH = 80;
+  public readonly MAX_PHONE_LENGTH = 15;
+
   currentUser!: UserDetail;
   authenticated: boolean = false;
   currentSlug: string = '';
@@ -142,9 +146,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   private initForm(): void {
     this.formUser = new FormGroup({
-      name: new FormControl('', [Validators.required, Validators.maxLength(50), this.onlyLettersValidator()]),
-      lastName: new FormControl('', [Validators.required, Validators.maxLength(80), this.onlyLettersValidator()]),
-      phone: new FormControl('', [Validators.maxLength(15), this.numbersOnlyValidator()]),
+      name: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_NAME_LENGTH), this.onlyLettersValidator()]),
+      lastName: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LASTNAME_LENGTH), this.onlyLettersValidator()]),
+      phone: new FormControl('', [Validators.maxLength(this.MAX_PHONE_LENGTH), this.numbersOnlyValidator()]),
     });
   }
 
