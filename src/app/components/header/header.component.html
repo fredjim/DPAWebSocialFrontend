@@ -14,14 +14,15 @@
             <i class="bi bi-arrow-left"></i>
         </span>
         
+        <p-menu #menu [model]="menuItemsPopup" [popup]="true" />
         @if (authenticated && user) {
             @if (user.photo_profile_path){
-                <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
+                <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="menu.toggle($event)" (keypress)="menu.toggle($event)" class="logo user-image">
             } @else {
-                <img src="assets/user-icon.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
+                <img src="assets/user-icon.png" alt="" (click)="menu.toggle($event)" (keypress)="menu.toggle($event)" class="logo user-image">
             }
         } @else {
-            <img src="assets/user-icon-1.png" alt="" (click)="toggleMenu()" (keypress)="toggleMenu()" class="logo user-image">
+            <img src="assets/user-icon-1.png" alt="" (click)="menu.toggle($event)" (keypress)="menu.toggle($event)" class="logo user-image">
         }
 		
         <div class="burger-menu" (click)="toggleMobileMenu()" (keypress)="toggleMobileMenu()">
@@ -29,20 +30,6 @@
 		</div>
 
     </div>
-
-    @if (isMenuOpen) {
-    <div class="dropdown-menu">
-        <ng-container *ngIf="authenticated">
-            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['/',currentSlug,'profile']" (click)="closeMenu()">Ver perfil</a>
-            <a *ngIf="user && user.role === 'ADMIN'" routerLinkActive="active" class="dropdown-item" [routerLink]="['/',currentSlug,'institution']" (click)="closeMenu()">Ver página</a>
-            <a class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
-        </ng-container>
-        <ng-container *ngIf="!authenticated">
-            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#loginModal">Iniciar Sesión</a>
-            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#registerModal">Registrarse</a>
-        </ng-container>
-    </div>
-    }
 </header>
 
 <app-login></app-login>

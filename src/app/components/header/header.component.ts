@@ -1,12 +1,12 @@
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Institution } from '../../posts/models/institution';
 import { PostService } from '../../posts/services/post.service';
 import { TenantService } from '../../services/tenant.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Modal } from 'bootstrap';
 import { AuthService } from '../../authentication/services/auth.service';
-import { CommentService } from '../../comments/services/comment.service';
 import { UserDetail } from '../../posts/models/user-detail';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-header',
@@ -16,24 +16,18 @@ import { UserDetail } from '../../posts/models/user-detail';
 export class HeaderComponent implements OnInit, OnDestroy {
 
   institution!: Institution
-  totalFollowers!: number;
-  isMenuOpen = false;
-
   authenticated: boolean = false;
   
   isMobileMenuOpen = false;
   @Input() hideArrowBackHome = true;
   user: UserDetail | null = null;
-  counterModeratedComments: number = 0;
   currentSlug: string = '';
   private readonly destroy$ = new Subject<void>();
   private modalInstance?: Modal; // Para gestionar el modal
-
-  @ViewChild('moderateCommentModal') modalElement!: ElementRef;
+  menuItemsPopup: MenuItem[] = [];
 
   constructor(private readonly authService: AuthService,
     private readonly postService: PostService,
-    private readonly commentService: CommentService,
     private readonly tenantService: TenantService) {
     this.authenticated = authService.isAuthenticated();
   }
@@ -55,7 +49,47 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  getInstitution() {
+  private buildMenu() {
+    if (this.authenticated && this.user) {
+      this.menuItemsPopup = [
+        {
+          label: 'Ver perfil',
+          routerLink: ['/', this.currentSlug, 'profile'],
+          routerLinkActiveOptions: 'active'
+        },
+        {
+          label: 'Ver página',
+          routerLink: ['/', this.currentSlug, 'institution'],
+          visible: this.user.role === 'ADMIN'
+        },
+        {
+          label: 'Cerrar Sesión',
+          command: () => this.logout()
+        }
+      ];
+    } else {
+      this.menuItemsPopup = [
+        {
+          label: 'Iniciar Sesión',
+          command: () => this.openModal('loginModal')
+        },
+        {
+          label: 'Registrarse',
+          command: () => this.openModal('registerModal')
+        }
+      ];
+    }
+  }
+
+  private openModal(id: string) {
+    const el = document.getElementById(id);
+    if (el) {
+      const modal = new (globalThis as any).bootstrap.Modal(el);
+      modal.show();
+    }
+  }
+
+  private getInstitution() {
     this.tenantService.getInstitution()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -66,23 +100,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
   }
 
-  getUser() {
+  private getUser() {
     if (this.authenticated) {
       this.postService.getUser()
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (infoUser) => {
             this.user = infoUser;
+            this.buildMenu();
           },
           error: (error) => {
             console.log('Error al obtener al user', error);
+            this.buildMenu(); // menú sin datos de usuario
           }
-        })
+        });
+    } else {
+      this.buildMenu(); // para usuario no autenticado
     }
-  }
-
-  toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
   }
 
   logout() {
@@ -95,10 +129,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   closeMobileMenu() {
     this.isMobileMenuOpen = false;
-  }
-
-  closeMenu(): void {
-    this.isMenuOpen = false;
   }
 
 }
