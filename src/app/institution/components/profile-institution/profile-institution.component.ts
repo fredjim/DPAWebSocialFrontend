@@ -17,6 +17,13 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   private readonly institutionService = inject(InstitutionService);
   private readonly tenantService = inject(TenantService);
 
+  public readonly MAX_NAME_LENGTH = 150;
+  public readonly MAX_DESCRIPTION_LENGTH = 300;
+  public readonly MAX_LOCATION_LENGTH = 300;
+  public readonly MAX_EMAIL_LENGTH = 80;
+  public readonly MAX_PHONE_LENGTH = 20;
+  public readonly MAX_URL_LENGTH = 80;
+
   institution!: Institution;
   imageFileCoverToCreate?: File;
   imageFileLogoToCreate?: File;
@@ -55,12 +62,12 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
 
   private initForm(): void {
     this.formInstitution = new FormGroup({
-      name: new FormControl('', [Validators.required, Validators.maxLength(150)]),
-      description: new FormControl('', [Validators.required, Validators.maxLength(300)]),
-      location: new FormControl('', [Validators.required, Validators.maxLength(300)]),
-      email: new FormControl('', [Validators.required, Validators.email, Validators.maxLength(80)]),
-      phone: new FormControl('', [Validators.required, Validators.maxLength(20), this.phoneValidator()]),
-      url: new FormControl('', [Validators.required, Validators.maxLength(80), this.urlValidator()]),
+      name: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_NAME_LENGTH)]),
+      description: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_DESCRIPTION_LENGTH)]),
+      location: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LOCATION_LENGTH)]),
+      email: new FormControl('', [Validators.required, Validators.email, Validators.maxLength(this.MAX_EMAIL_LENGTH)]),
+      phone: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_PHONE_LENGTH), this.phoneValidator()]),
+      url: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_URL_LENGTH), this.urlValidator()]),
     });
   }
 

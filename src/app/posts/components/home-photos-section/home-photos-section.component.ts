@@ -6,7 +6,6 @@ import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from './../comments/comments.component';
 import { TenantService } from '../../../services/tenant.service';
-import { MediaInstitution } from '../../models/media-institution';
 
 @Component({
   selector: 'home-photos-section',
