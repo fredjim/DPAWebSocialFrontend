@@ -55,7 +55,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         {
           label: 'Ver perfil',
           routerLink: ['/', this.currentSlug, 'profile'],
-          routerLinkActiveOptions: 'active'
         },
         {
           label: 'Ver página',
