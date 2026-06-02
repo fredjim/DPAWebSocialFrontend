@@ -29,9 +29,10 @@ export class FormSectionComponent implements OnInit, OnChanges {
   @ViewChild('firstInput') firstInput!: ElementRef<HTMLInputElement>;
 
   public isLoading = false;
+  public readonly MAX_LENGTH_NAME = 50;
 
   public formSection = new FormGroup({
-    name: new FormControl('', [Validators.required])
+    name: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LENGTH_NAME)])
   });
 
   ngOnInit(): void {
@@ -144,5 +145,10 @@ export class FormSectionComponent implements OnInit, OnChanges {
         this.firstInput.nativeElement.focus();
       }
     }, 200);
+  }
+
+  hasErrors(controlName: string, errorType: string) {
+    const control = this.formSection.get(controlName);
+    return control?.hasError(errorType) && control?.touched;
   }
 }
