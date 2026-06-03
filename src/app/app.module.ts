@@ -41,6 +41,7 @@ import { CarouselModule } from 'primeng/carousel';
 import { UserProfileModule } from './user-profile/user-profile.module';
 import { InstitutionModule } from './institution/institution.module';
 import { SharedModule } from './shared/shared.module';
+import { MenuModule } from 'primeng/menu';
 
 @NgModule({
   declarations: [
@@ -79,6 +80,7 @@ import { SharedModule } from './shared/shared.module';
     InputNumberModule,
     CarouselModule,
     SharedModule,
+    MenuModule
 ],
   exports: [
     NavbarComponent

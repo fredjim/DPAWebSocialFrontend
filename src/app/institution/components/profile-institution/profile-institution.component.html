@@ -52,10 +52,10 @@
                         formControlName="name" type="text" autocomplete="off">
                     <div class="error-messages">
                         <div class="invalid-feedback" *ngIf="hasError('name', 'required')">
-                            El nombre de la institución es obligatorio
+                            El nombre de la unidad es obligatorio
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('name', 'maxlength')">
-                            El nombre no puede exceder los 150 caracteres
+                            El nombre no puede exceder los {{ MAX_NAME_LENGTH }} caracteres
                         </div>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                             La descripción es obligatoria
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('description', 'maxlength')">
-                            La descripción no puede exceder los 300 caracteres
+                            La descripción no puede exceder los {{ MAX_DESCRIPTION_LENGTH }} caracteres
                         </div>
                     </div>
                 </div>
@@ -91,7 +91,7 @@
                             La ubicación es obligatoria
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('location', 'maxlength')">
-                            La ubicación no puede exceder los 300 caracteres
+                            La ubicación no puede exceder los {{ MAX_LOCATION_LENGTH }} caracteres
                         </div>
                     </div>
                 </div>
@@ -112,7 +112,7 @@
                             Ingrese un correo electrónico válido (ejemplo&#64;dominio.com)
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('email', 'maxlength')">
-                            El correo no puede exceder los 80 caracteres
+                            El correo no puede exceder los {{ MAX_EMAIL_LENGTH }} caracteres
                         </div>
                     </div>
                 </div>
@@ -130,7 +130,7 @@
                             El teléfono es obligatorio
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('phone', 'maxlength')">
-                            El teléfono no puede exceder los 20 caracteres
+                            El teléfono no puede exceder los {{ MAX_PHONE_LENGTH }} caracteres
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('phone', 'invalidPhone')">
                             El teléfono solo puede contener números, espacios, guiones y el signo +
@@ -151,7 +151,7 @@
                             El sitio web es obligatorio
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('url', 'maxlength')">
-                            La URL no puede exceder los 80 caracteres
+                            La URL no puede exceder los {{ MAX_URL_LENGTH }} caracteres
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('url', 'invalidUrl')">
                             Ingrese una URL válida (ejemplo: https://www.dominio.com)

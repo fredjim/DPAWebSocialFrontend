@@ -55,6 +55,10 @@
 		.scroll-to-top-btn:active {
 			transform: translateY(0);
 		}
+
+		.text-no-posts {
+			font-family: var(--primary-font-family);
+		}
 	}
 
 	.header-section {
