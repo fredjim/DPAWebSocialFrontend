@@ -1,8 +1,11 @@
 <div class="page-container">
 
+	<!-- Vista mobile -->
 	<div class="header-navitem">
 		<div class="data-user">
-			<img *ngIf="currentInstitution" [src]="currentInstitution.logo_url" alt="'Foto de perfil'" class="img-institution">
+			@if (currentInstitution) {
+				<app-institution-avatar [institution]="currentInstitution" size="small" id="logo-inst"></app-institution-avatar>
+			}
 			<div class="info-user">
 				<h2 *ngIf="currentNavItem">{{ currentNavItem.label }}</h2>
 			</div>
@@ -11,7 +14,9 @@
 
 	<div class="header-section">
 		<div class="data-user">
-			<img *ngIf="currentInstitution" [src]="currentInstitution.logo_url" alt="'Foto de perfil'" class="img-profile">
+			@if (currentInstitution) {
+				<app-institution-avatar [institution]="currentInstitution" size="small" id="logo-inst" class="img-profile"></app-institution-avatar>
+			}
 			<div class="info-user">
 				<h2 *ngIf="currentSection">{{ currentSection.name }}</h2>
 			</div>
