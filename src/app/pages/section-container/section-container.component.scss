@@ -15,14 +15,6 @@
 			display: flex;
 			gap: 10px;
 
-			.img-profile {
-				width: 40px;
-				height: 40px;
-				border-radius: 50%;
-				border: 1px solid var(--blue-color);
-				object-fit: contain;
-			}
-
 			.info-user {
 				margin: 0;
 				padding: 0;
@@ -282,14 +274,6 @@
 			width: 95%;
 			display: flex;
 			gap: 10px;
-
-			.img-institution {
-				width: 40px;
-				height: 40px;
-				border-radius: 50%;
-				border: 1px solid var(--blue-color);
-				object-fit: contain;
-			}
 
 			.info-user {
 				margin: 0;
