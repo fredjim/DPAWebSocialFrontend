@@ -68,7 +68,9 @@ import { LayoutModule } from './layout/layout.module';
     InputNumberModule,
     CarouselModule,
     SharedModule,
-    MenuModule
+    MenuModule,
+    UserProfileModule,
+    InstitutionModule
   ],
   providers: [
     {
