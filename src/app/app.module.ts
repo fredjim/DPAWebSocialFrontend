@@ -2,9 +2,7 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { AuthInterceptor } from './core/interceptors/auth-interceptor';
-import { TenantInterceptor } from './core/interceptors/tenant-interceptor';
+import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from './authentication/services/auth.service';
 export function refreshTokenFactory(authService: AuthService) {
   return () => authService.tryRefreshOnStartup();
@@ -71,18 +69,8 @@ import { LayoutModule } from './layout/layout.module';
     CarouselModule,
     SharedModule,
     MenuModule
-],
+  ],
   providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TenantInterceptor,
-      multi: true
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    },
     {
       provide: APP_INITIALIZER,
       useFactory: refreshTokenFactory,

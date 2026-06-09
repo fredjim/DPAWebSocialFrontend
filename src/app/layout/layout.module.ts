@@ -43,12 +43,8 @@ import { AuthenticationModule } from '../authentication/authentication.module';
     AuthenticationModule
   ],
   exports: [
-    HeaderComponent,
-    MenuItemsComponent,
     SectionsPanelComponent,
-    SectionFormComponent,
-    MenuItemFormComponent,
-    HeroProfileComponent
+    HomeComponent
   ]
 })
 export class LayoutModule { }
