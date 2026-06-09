@@ -9,7 +9,7 @@ import { Article } from '../models/article';
 import { UserDetail } from '../../posts/models/user-detail';
 import { SectionStateService } from '../services/sections-state.service';
 import { Subscription, switchMap } from 'rxjs';
-import { TenantService } from '../../services/tenant.service';
+import { TenantService } from '../../core/services/tenant.service';
 import { Institution } from '../../posts/models/institution';
 import { Link } from '../models/link';
 import { MediaArticle } from '../models/media-article';

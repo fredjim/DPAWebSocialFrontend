@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { TenantService } from '../services/tenant.service';
-import { InstitutionStateService } from '../services/institution-state.service';
+import { TenantService } from '../core/services/tenant.service';
+import { InstitutionStateService } from '../core/services/institution-state.service';
 
 @Component({
   selector: 'app-pages',

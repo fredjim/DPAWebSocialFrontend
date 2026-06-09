@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@an
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 import { PostService } from '../../../posts/services/post.service';
 import { UserDetail } from '../../../posts/models/user-detail';
-import { TenantService } from '../../../services/tenant.service';
+import { TenantService } from '../../../core/services/tenant.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';

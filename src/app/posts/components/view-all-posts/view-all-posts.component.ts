@@ -6,7 +6,7 @@ import { AuthService } from '../../../authentication/services/auth.service';
 import { Post } from '../../models/post';
 import { UserDetail } from '../../models/user-detail';
 import { Institution } from '../../models/institution';
-import { TenantService } from '../../../services/tenant.service';
+import { TenantService } from '../../../core/services/tenant.service';
 import { delay, distinctUntilChanged, fromEvent, Subject, takeUntil, throttleTime } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../comments/comments.component';

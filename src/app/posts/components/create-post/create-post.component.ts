@@ -7,7 +7,7 @@ import { UploadedMedia } from '../../models/uploaded-media';
 import { CreatePost } from '../../models/create-post';
 import { Institution } from '../../models/institution';
 import moment from 'moment';
-import { TenantService } from '../../../services/tenant.service';
+import { TenantService } from '../../../core/services/tenant.service';
 import { UserDetail } from '../../models/user-detail';
 import imageCompression from 'browser-image-compression';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';

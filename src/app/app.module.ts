@@ -3,8 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { AuthInterceptor } from './authentication/http-interceptors/auth-interceptor';
-import { TenantInterceptor } from './authentication/http-interceptors/tenant-interceptor';
+import { AuthInterceptor } from './core/interceptors/auth-interceptor';
+import { TenantInterceptor } from './core/interceptors/tenant-interceptor';
 import { AuthService } from './authentication/services/auth.service';
 export function refreshTokenFactory(authService: AuthService) {
   return () => authService.tryRefreshOnStartup();
@@ -42,6 +42,7 @@ import { UserProfileModule } from './user-profile/user-profile.module';
 import { InstitutionModule } from './institution/institution.module';
 import { SharedModule } from './shared/shared.module';
 import { MenuModule } from 'primeng/menu';
+import { CoreModule } from './core/core.module';
 
 @NgModule({
   declarations: [
@@ -64,6 +65,7 @@ import { MenuModule } from 'primeng/menu';
     AppRoutingModule,
     AuthenticationModule,
     CommonModule,
+    CoreModule,
     PostsModule,
     HttpClientModule,
     FontAwesomeModule,

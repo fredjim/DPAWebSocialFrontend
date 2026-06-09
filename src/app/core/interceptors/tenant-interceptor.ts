@@ -1,7 +1,7 @@
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { TenantService } from '../../services/tenant.service';
+import { TenantService } from '../../core/services/tenant.service';
 import { environment } from '../../../environments/environment';
 
 @Injectable()

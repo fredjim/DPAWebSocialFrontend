@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Institution } from '../../posts/models/institution';
 import { PostService } from '../../posts/services/post.service';
-import { TenantService } from '../../services/tenant.service';
+import { TenantService } from '../../core/services/tenant.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Modal } from 'bootstrap';
 import { AuthService } from '../../authentication/services/auth.service';

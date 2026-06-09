@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { map } from 'rxjs/operators';
 import { NewUser } from '../models/new-user';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { TenantService } from '../../services/tenant.service';
+import { TenantService } from '../../core/services/tenant.service';
 
 @Injectable({
   providedIn: 'root'
