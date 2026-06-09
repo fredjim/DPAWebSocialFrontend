@@ -1,17 +1,17 @@
 import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { NavItem } from '../../../pages/models/nav-item';
-import { InformationService } from '../../../pages/services/information.service';
-import { AuthService } from '../../../authentication/services/auth.service';
+import { NavItem } from '../../../../pages/models/nav-item';
+import { InformationService } from '../../../../pages/services/information.service';
+import { AuthService } from '../../../../authentication/services/auth.service';
 import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-form-menu',
-  templateUrl: './form-menu.component.html',
-  styleUrl: './form-menu.component.scss'
+  selector: 'app-menu-item-form',
+  templateUrl: './menu-item-form.component.html',
+  styleUrl: './menu-item-form.component.scss'
 })
-export class FormNavItemComponent implements OnInit, OnChanges, OnDestroy {
+export class MenuItemFormComponent implements OnInit, OnChanges, OnDestroy {
   private readonly informationService = inject(InformationService);
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);

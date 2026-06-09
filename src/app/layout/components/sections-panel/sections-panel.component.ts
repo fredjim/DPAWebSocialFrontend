@@ -1,21 +1,20 @@
-import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
-import { InformationService } from '../../../../pages/services/information.service';
-import { Section } from '../../../../pages/models/section';
-import { UserDetail } from '../../../../posts/models/user-detail';
-import { AuthService } from '../../../../authentication/services/auth.service';
-import { PostService } from '../../../../posts/services/post.service';
-import { NavItem } from '../../../../pages/models/nav-item';
+import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { InformationService } from '../../../pages/services/information.service';
+import { Section } from '../../../pages/models/section';
+import { UserDetail } from '../../../posts/models/user-detail';
+import { AuthService } from '../../../authentication/services/auth.service';
+import { PostService } from '../../../posts/services/post.service';
+import { NavItem } from '../../../pages/models/nav-item';
 import { Subject, takeUntil } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CustomToastComponent } from '../../../../shared/components/custom-toast/custom-toast.component';
-import { ViewChild } from '@angular/core';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
-  selector: 'app-navbar-information',
-  templateUrl: './navbar-information.component.html',
-  styleUrl: './navbar-information.component.scss'
+  selector: 'app-sections-panel',
+  templateUrl: './sections-panel.component.html',
+  styleUrl: './sections-panel.component.scss'
 })
-export class NavbarInformationComponent implements OnInit, OnChanges, OnDestroy {
+export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
   private readonly informationService = inject(InformationService);
   private readonly authService = inject(AuthService);
   private readonly postService = inject(PostService);

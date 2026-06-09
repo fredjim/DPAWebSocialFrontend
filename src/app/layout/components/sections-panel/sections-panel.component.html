@@ -4,14 +4,14 @@
 			@for(section of sections; track section.uuid; let i = $index){
 				@if(uuidSectionToEdit === section.uuid){
 					<!-- Vista de form edit section -->
-					<app-form-section
+					<app-section-form
 						typeForm="edit"
 						[currentSection]="section"
 						[currentNavItem]="currentNavItem"
 						(onCloseEdit)="onCloseEditSection()"
 						(onEditedSection)="onEditSection($event)"
 						(onDeletedSection)="onDeletedSection($event)"
-					></app-form-section>
+					></app-section-form>
 				}@else {
 					<!-- Vista para admins -->
 					<div class="edit-section-pencil">
@@ -50,13 +50,13 @@
 				(clicked)="hideButtonNewSection()"
 			></ui-button>
 		}@else {
-			<app-form-section
+			<app-section-form
 				typeForm="create"
 				[currentNavItem]="currentNavItem"
 				(onCloseNew)="showButtonNewSection = $event"
 				(onCreateSection)="onCreatedSection($event)"
 				(onDeletedSection)="onDeletedSection($event)"
-			></app-form-section>
+			></app-section-form>
 		}
 	}
 </nav>

@@ -1,19 +1,19 @@
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { NavItem } from '../../pages/models/nav-item';
-import { UserDetail } from '../../posts/models/user-detail';
-import { AuthService } from '../../authentication/services/auth.service';
-import { PostService } from '../../posts/services/post.service';
-import { InformationService } from '../../pages/services/information.service';
+import { NavItem } from '../../../pages/models/nav-item';
+import { UserDetail } from '../../../posts/models/user-detail';
+import { AuthService } from '../../../authentication/services/auth.service';
+import { PostService } from '../../../posts/services/post.service';
+import { InformationService } from '../../../pages/services/information.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CustomToastComponent } from '../../shared/components/custom-toast/custom-toast.component';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
-  selector: 'app-navbar',
-  templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss']
+  selector: 'app-menu-items',
+  templateUrl: './menu-items.component.html',
+  styleUrls: ['./menu-items.component.scss']
 })
-export class NavbarComponent implements OnInit, OnDestroy {
+export class MenuItemsComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly informationService = inject(InformationService);
   private readonly authService = inject(AuthService);

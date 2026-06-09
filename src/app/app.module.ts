@@ -11,12 +11,9 @@ export function refreshTokenFactory(authService: AuthService) {
 }
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HeaderComponent } from './components/header/header.component';
-import { HomeComponent } from './components/home/home.component';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { PostsModule } from './posts/posts.module';
 import { CommonModule } from '@angular/common';
-import { NavbarComponent } from './components/navbar/navbar.component';
 import { FontAwesomeModule, FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -28,12 +25,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { EditInfoComponent } from './pages/edit-info/edit-info.component';
 import { ToastModule } from 'primeng/toast';
-import { NavbarInformationComponent } from './components/navbar/child/navbar-information/navbar-information.component';
-import { HeroProfileComponent } from './components/hero-profile/hero-profile.component';
 import { MessageService } from 'primeng/api';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
-import { FormSectionComponent } from './components/navbar/form-section/form-section.component';
-import { FormNavItemComponent } from './components/navbar/form-menu/form-menu.component';
 import { DialogModule } from 'primeng/dialog';
 import { PageContainerComponent } from './pages/page-container/page-container.component';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -43,20 +36,14 @@ import { InstitutionModule } from './institution/institution.module';
 import { SharedModule } from './shared/shared.module';
 import { MenuModule } from 'primeng/menu';
 import { CoreModule } from './core/core.module';
+import { LayoutModule } from './layout/layout.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent,
-    HomeComponent,
-    NavbarComponent,
     PagesComponent,
     EditInfoComponent,
-    NavbarInformationComponent,
-    HeroProfileComponent,
     SectionContainerComponent,
-    FormSectionComponent,
-    FormNavItemComponent,
     PageContainerComponent
   ],
   imports: [
@@ -66,6 +53,7 @@ import { CoreModule } from './core/core.module';
     AuthenticationModule,
     CommonModule,
     CoreModule,
+    LayoutModule,
     PostsModule,
     HttpClientModule,
     FontAwesomeModule,
@@ -84,9 +72,6 @@ import { CoreModule } from './core/core.module';
     SharedModule,
     MenuModule
 ],
-  exports: [
-    NavbarComponent
-  ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,

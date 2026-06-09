@@ -1,21 +1,21 @@
 import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { InformationService } from '../../../pages/services/information.service';
+import { InformationService } from '../../../../pages/services/information.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Section } from '../../../pages/models/section';
+import { Section } from '../../../../pages/models/section';
 import moment from 'moment';
-import { SectionStateService } from '../../../pages/services/sections-state.service';
-import { AuthService } from '../../../authentication/services/auth.service';
+import { SectionStateService } from '../../../../pages/services/sections-state.service';
+import { AuthService } from '../../../../authentication/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { concatMap, debounceTime, distinctUntilChanged, finalize, map, Observable, of, Subscription, tap } from 'rxjs';
-import { NavItem } from '../../../pages/models/nav-item';
+import { NavItem } from '../../../../pages/models/nav-item';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
-  selector: 'app-form-section',
-  templateUrl: './form-section.component.html',
-  styleUrl: './form-section.component.scss'
+  selector: 'app-section-form',
+  templateUrl: './section-form.component.html',
+  styleUrl: './section-form.component.scss'
 })
-export class FormSectionComponent implements OnInit, OnChanges, OnDestroy {
+export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
   private readonly informationService = inject(InformationService);
   private readonly sectionStateService = inject(SectionStateService);
   private readonly authService = inject(AuthService);

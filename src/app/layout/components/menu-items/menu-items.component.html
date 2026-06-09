@@ -11,14 +11,14 @@
 						<i class="bi bi-pencil-fill"></i>
 					</div>
           <div class="submenu">
-            <app-navbar-information [isMobile]="true" [currentNavItem]="navItem" (collapse)="closeMenuNav()"></app-navbar-information>
+            <app-sections-panel [isMobile]="true" [currentNavItem]="navItem" (collapse)="closeMenuNav()"></app-sections-panel>
           </div>
         </li>
       }@else {
         <li>
           <a (click)="closeMenuNav()" (keypress)="closeMenuNav()" [routerLink]="navItem.path" routerLinkActive="active">{{ navItem.label }}</a>
           <div class="submenu">
-            <app-navbar-information [isMobile]="true" [currentNavItem]="navItem" (collapse)="closeMenuNav()"></app-navbar-information>
+            <app-sections-panel [isMobile]="true" [currentNavItem]="navItem" (collapse)="closeMenuNav()"></app-sections-panel>
           </div>
         </li>
       }
@@ -35,7 +35,7 @@
   </ul>
 </nav>
 <p-dialog header="Agregar Menú" [(visible)]="visible" [style]="{ width: '25rem' }">
-  <app-form-menu
+  <app-menu-item-form
     [visibleModal]="visible"
     [currentNavItem]="navItemToEdit"
     [typeForm]="typeForm"
@@ -44,6 +44,6 @@
     (onCreateNavItem)="onCreatedNavItem($event)"
     (onDeletedNavItem)="onDeleteNavItem($event)"
     (onEditedNavItem)="onEditedNavItem($event)"
-  ></app-form-menu>
+  ></app-menu-item-form>
 </p-dialog>
 <app-custom-toast #customToast></app-custom-toast>

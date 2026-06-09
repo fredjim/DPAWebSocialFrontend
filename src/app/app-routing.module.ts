@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './components/home/home.component';
+import { HomeComponent } from './layout/components/home/home.component';
 import { ViewAllPostsComponent } from './posts/components/view-all-posts/view-all-posts.component';
 import { MediaGalleryComponent } from './posts/components/media-gallery/media-gallery.component';
 import { SectionContainerComponent } from './pages/section-container/section-container.component';
