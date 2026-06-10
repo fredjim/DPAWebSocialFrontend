@@ -5,8 +5,8 @@ import { UserDetail } from '../../../posts/models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { PostService } from '../../../posts/services/post.service';
 import { NavItem } from '../../../shared/models/nav-item';
-import { Subject, takeUntil } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { filter, Subject, takeUntil } from 'rxjs';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
@@ -42,6 +42,19 @@ export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
         this.currentUser = user;
       });
     }
+
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      const currentNavItemPath = this.route.snapshot.paramMap.get('pathNavItem');
+      
+      if (currentNavItemPath && currentNavItemPath === this.currentNavItem?.path) {
+        if (this.sections.length > 0 && !this.isCurrentSectionValid()) {
+          this.navigateToFirstSection();
+        }
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
