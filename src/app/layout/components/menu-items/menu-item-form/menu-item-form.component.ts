@@ -30,10 +30,16 @@ export class MenuItemFormComponent implements OnInit, OnChanges, OnDestroy {
   public isLoading = false;
   private readonly subscription: Subscription = new Subscription();
 
+  public readonly VALIDATION = {
+    LABEL: { MIN: 2, MAX: 50 },
+    PATH: { MIN: 2, MAX: 50 },
+    ORDER_INDEX: { MIN: 1, MAX: 50 }
+  } as const;
+
   public formNavItem = new FormGroup({
-    label: new FormControl('', [Validators.required, Validators.minLength(2),Validators.maxLength(50)]) as FormControl<string>,
-    path: new FormControl('', [Validators.required, Validators.min(2), Validators.max(50)]) as FormControl<string>,
-    orderIndex: new FormControl(this.lastOrderIndexNavItems + 1, [Validators.min(1), Validators.max(50)])
+    label: new FormControl('', [Validators.required, Validators.minLength(this.VALIDATION.LABEL.MIN),Validators.maxLength(this.VALIDATION.LABEL.MAX)]) as FormControl<string>,
+    path: new FormControl('', [Validators.required, Validators.minLength(this.VALIDATION.PATH.MIN), Validators.maxLength(this.VALIDATION.PATH.MAX)]) as FormControl<string>,
+    orderIndex: new FormControl(this.lastOrderIndexNavItems + 1, [Validators.required, Validators.min(this.VALIDATION.ORDER_INDEX.MIN), Validators.max(this.VALIDATION.ORDER_INDEX.MAX)])
   });
 
   ngOnInit(): void {
@@ -212,5 +218,10 @@ export class MenuItemFormComponent implements OnInit, OnChanges, OnDestroy {
         this.firstInput.nativeElement.focus();
       }
     }, 200);
+  }
+
+  hasErrors(controlName: string, errorType: string) {
+    const control = this.formNavItem.get(controlName);
+    return control?.hasError(errorType) && control?.touched;
   }
 }

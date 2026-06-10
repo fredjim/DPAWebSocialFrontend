@@ -3,17 +3,46 @@
         <div class="input-field">
             <label for="input-menu">Nombre:</label>
             <input #firstInput type="text" autocomplete="off" formControlName="label" pInputText id="input-menu">
+            <small class="text-danger" *ngIf="hasErrors('label', 'required')">
+                El nombre es obligatorio
+            </small>
+            <small class="text-danger" *ngIf="hasErrors('label', 'minlength')">
+                Mínimo {{ VALIDATION.LABEL.MIN }} caracteres
+            </small>
+            <small class="text-danger" *ngIf="hasErrors('label', 'maxlength')">
+                Máximo {{ VALIDATION.LABEL.MAX }} caracteres
+            </small>
         </div>
         <div class="input-field">
             <label for="input-path">Ruta:</label>
-            <input type="text" (input)="firstInput.value" autocomplete="off" formControlName="path" pInputText id="input-path">
+            <input type="text" autocomplete="off" formControlName="path" pInputText id="input-path">
+            <small class="text-danger" *ngIf="hasErrors('path', 'required')">
+                La ruta es obligatoria
+            </small>
+            <small class="text-danger" *ngIf="hasErrors('path', 'minlength')">
+                Mínimo {{ VALIDATION.PATH.MIN }} caracteres
+            </small>
+            <small class="text-danger" *ngIf="hasErrors('path', 'maxlength')">
+                Máximo {{ VALIDATION.PATH.MAX }} caracteres
+            </small>
         </div>
         <div class="input-field">
             <label for="input-index">Posición:</label>
-            <p-inputNumber autocomplete="off" formControlName="orderIndex" id="input-index"/>
+            <p-inputNumber autocomplete="off" formControlName="orderIndex" id="input-index" 
+                [class.ng-invalid]="formNavItem.get('orderIndex')?.invalid"
+                [class.ng-dirty]="formNavItem.get('orderIndex')?.dirty"/>
+            <small class="text-danger" *ngIf="hasErrors('orderIndex', 'required')">
+                La posición es obligatoria
+            </small>
+            <small class="text-danger" *ngIf="hasErrors('orderIndex', 'min')">
+                Mínimo valor {{ VALIDATION.ORDER_INDEX.MIN }}
+            </small>
+            <small class="text-danger" *ngIf="hasErrors('orderIndex', 'max')">
+                Máximo valor {{ VALIDATION.ORDER_INDEX.MAX }}
+            </small>
         </div>
     </div>
-    <div *ngIf="!isLoading" class="modal-footer">
+    <div *ngIf="!isLoading" class="modal-footer pt-1">
         <ui-button
             label="Guardar"
             icon="pi pi-check"

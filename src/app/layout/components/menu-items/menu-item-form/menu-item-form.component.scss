@@ -13,13 +13,34 @@
     right: 4px;
 }
 
+::ng-deep .p-dialog .p-dialog-content{
+    padding: 1rem;
+}
+
+::ng-deep p-inputnumber.ng-dirty.ng-invalid > .p-inputnumber > .p-inputtext {
+    border-color: #ef4444 !important;
+}
+
+
 .modal-body {
     padding: 10px 25px 10px;
 
-    #input-menu, #input-path {
-        padding-left: 5px;
-        width: 100%;
+    .input-field {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+
+        small {
+            position: absolute;
+            top: 4.5rem;
+        }
+
+        #input-menu, #input-path {
+            padding-left: 5px;
+            width: 100%;
+        }
     }
+
 }
 ::ng-deep p-inputnumber {
     width: 100%;
