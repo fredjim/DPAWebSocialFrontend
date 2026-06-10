@@ -1,10 +1,10 @@
 import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { InformationService } from '../../../pages/services/information.service';
-import { Section } from '../../../pages/models/section';
+import { SectionService } from '../../services/section.service';
+import { Section } from '../../../shared/models/section';
 import { UserDetail } from '../../../posts/models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { PostService } from '../../../posts/services/post.service';
-import { NavItem } from '../../../pages/models/nav-item';
+import { NavItem } from '../../../shared/models/nav-item';
 import { Subject, takeUntil } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
@@ -15,7 +15,7 @@ import { CustomToastComponent } from '../../../shared/components/custom-toast/cu
   styleUrl: './sections-panel.component.scss'
 })
 export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
-  private readonly informationService = inject(InformationService);
+  private readonly sectionService = inject(SectionService);
   private readonly authService = inject(AuthService);
   private readonly postService = inject(PostService);
   private readonly router = inject(Router);
@@ -56,7 +56,7 @@ export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadSections(): void {
-    this.informationService.getAllSectionsByNavItemId(this.currentNavItem.uuid)
+    this.sectionService.getAllSectionsByNavItemId(this.currentNavItem.uuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe(secs => {
         this.sections = secs;

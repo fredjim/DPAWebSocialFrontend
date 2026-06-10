@@ -3,9 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './layout/components/home/home.component';
 import { ViewAllPostsComponent } from './posts/components/view-all-posts/view-all-posts.component';
 import { MediaGalleryComponent } from './posts/components/media-gallery/media-gallery.component';
-import { SectionContainerComponent } from './pages/section-container/section-container.component';
-import { PageContainerComponent } from './pages/page-container/page-container.component';
-import { SectionResolver } from './resolvers/section.resolver';
 import { ProfileComponent } from './user-profile/components/profile/profile.component';
 import { ProfileInstitutionComponent } from './institution/components/profile-institution/profile-institution.component';
 import { VerifyEmailComponent } from './authentication/components/verify-email/verify-email.component';
@@ -53,14 +50,7 @@ const routes: Routes = [
       { path: 'documentos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  } },
       {
         path: ':pathNavItem',
-        component: PageContainerComponent,
-        children: [
-          {
-            path: ':pathSection',
-            component: SectionContainerComponent,
-            resolve: { section: SectionResolver }
-          }
-        ]
+        loadChildren: () => import('./articles/articles.module').then(m => m.ArticlesModule)
       }
     ]
   },

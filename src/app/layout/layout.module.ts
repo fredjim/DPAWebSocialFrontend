@@ -17,6 +17,8 @@ import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthenticationModule } from '../authentication/authentication.module';
+import { PageContainerComponent } from './components/page-container/page-container.component';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @NgModule({
   declarations: [
@@ -27,6 +29,7 @@ import { AuthenticationModule } from '../authentication/authentication.module';
     HeroProfileComponent,
     SectionFormComponent,
     MenuItemFormComponent,
+    PageContainerComponent
   ],
   imports: [
     CommonModule,
@@ -40,11 +43,13 @@ import { AuthenticationModule } from '../authentication/authentication.module';
     ToastModule,
     InputTextModule,
     SharedModule,
-    AuthenticationModule
+    AuthenticationModule,
+    InputNumberModule
   ],
   exports: [
     SectionsPanelComponent,
-    HomeComponent
+    HomeComponent,
+    PageContainerComponent
   ]
 })
 export class LayoutModule { }

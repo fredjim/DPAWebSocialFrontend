@@ -1,10 +1,10 @@
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { NavItem } from '../../../pages/models/nav-item';
+import { NavItem } from '../../../shared/models/nav-item';
 import { UserDetail } from '../../../posts/models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { PostService } from '../../../posts/services/post.service';
-import { InformationService } from '../../../pages/services/information.service';
+import { NavItemService } from '../../services/nav-item.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
@@ -15,7 +15,7 @@ import { CustomToastComponent } from '../../../shared/components/custom-toast/cu
 })
 export class MenuItemsComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
-  private readonly informationService = inject(InformationService);
+  private readonly navItemService = inject(NavItemService);
   private readonly authService = inject(AuthService);
   private readonly postService = inject(PostService);
   private readonly route = inject(ActivatedRoute);
@@ -33,7 +33,7 @@ export class MenuItemsComponent implements OnInit, OnDestroy {
   @Output() closeMenuHamburguer = new EventEmitter<void>();
 
   ngOnInit(): void {
-    this.informationService.getAllNavItems()
+    this.navItemService.getAllNavItems()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (resNavItems) => {

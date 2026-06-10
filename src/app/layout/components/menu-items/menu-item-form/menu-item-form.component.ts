@@ -1,7 +1,7 @@
 import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { NavItem } from '../../../../pages/models/nav-item';
-import { InformationService } from '../../../../pages/services/information.service';
+import { NavItem } from '../../../../shared/models/nav-item';
+import { NavItemService } from '../../../services/nav-item.service';
 import { AuthService } from '../../../../authentication/services/auth.service';
 import { debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,7 +12,7 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrl: './menu-item-form.component.scss'
 })
 export class MenuItemFormComponent implements OnInit, OnChanges, OnDestroy {
-  private readonly informationService = inject(InformationService);
+  private readonly navItemService = inject(NavItemService);
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -95,7 +95,7 @@ export class MenuItemFormComponent implements OnInit, OnChanges, OnDestroy {
       orderIndex: this.formNavItem.get('orderIndex')!.value ?? this.lastOrderIndexNavItems + 1
     }
 
-    this.informationService.createNavItem(newNavItem).subscribe({
+    this.navItemService.createNavItem(newNavItem).subscribe({
       next:(createdNavs) => {
         this.isLoading = false;
         this.onCreateNavItem.emit({menus: createdNavs});
@@ -120,7 +120,7 @@ export class MenuItemFormComponent implements OnInit, OnChanges, OnDestroy {
       orderIndex: this.formNavItem.get('orderIndex')!.value ?? this.lastOrderIndexNavItems + 1
     }
 
-    this.informationService.updateNavItem(updatedNavItem).subscribe({
+    this.navItemService.updateNavItem(updatedNavItem).subscribe({
       next: (updatedNavs) => {
         this.isLoading = false;
         this.onEditedNavItem.emit({menus: updatedNavs});
@@ -138,7 +138,7 @@ export class MenuItemFormComponent implements OnInit, OnChanges, OnDestroy {
     if(!this.currentNavItem) return;
 
     this.isLoading = true;
-    this.informationService.deleteNavItem(this.currentNavItem.uuid).subscribe({
+    this.navItemService.deleteNavItem(this.currentNavItem.uuid).subscribe({
       next: () => {
         this.isLoading = false;
         this.onDeletedNavItem.emit({menu: this.currentNavItem});

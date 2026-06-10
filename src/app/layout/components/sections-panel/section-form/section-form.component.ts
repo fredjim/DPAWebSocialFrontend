@@ -1,13 +1,13 @@
 import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { InformationService } from '../../../../pages/services/information.service';
+import { SectionService } from '../../../services/section.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Section } from '../../../../pages/models/section';
+import { Section } from '../../../../shared/models/section';
 import moment from 'moment';
-import { SectionStateService } from '../../../../pages/services/sections-state.service';
+import { SectionStateService } from '../../../services/sections-state.service';
 import { AuthService } from '../../../../authentication/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { concatMap, debounceTime, distinctUntilChanged, finalize, map, Observable, of, Subscription, tap } from 'rxjs';
-import { NavItem } from '../../../../pages/models/nav-item';
+import { NavItem } from '../../../../shared/models/nav-item';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -16,7 +16,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrl: './section-form.component.scss'
 })
 export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
-  private readonly informationService = inject(InformationService);
+  private readonly sectionService = inject(SectionService);
   private readonly sectionStateService = inject(SectionStateService);
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
@@ -93,7 +93,7 @@ export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
       path: this.getPathFromNameSection(this.formSection.value.path!.trim())
     }
     
-    this.informationService.createSection(newSection).subscribe({
+    this.sectionService.createSection(newSection).subscribe({
       next: (created) => {
         this.isLoading = false;
         this.onCreateSection.emit({section: created});
@@ -119,7 +119,7 @@ export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
       path: this.getPathFromNameSection(this.formSection.value.path!.trim())
     }
 
-    this.informationService.updateSection(updatedSection).subscribe({
+    this.sectionService.updateSection(updatedSection).subscribe({
       next: (updated) => {
         this.isLoading = false;
         this.sectionStateService.setSectionToEdit(updated);
@@ -141,7 +141,7 @@ export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
 
     this.isLoading = true;
     
-    this.informationService.deleteSection(this.currentSection.uuid).pipe(
+    this.sectionService.deleteSection(this.currentSection.uuid).pipe(
       tap({
         next: () => this.handleDeleteSuccess(),
         error: (err: HttpErrorResponse) => this.handleDeleteError(err)
@@ -168,7 +168,7 @@ export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
       const currentNavItemPath = this.route.snapshot.paramMap.get('pathNavItem');
 
       if (currentNavItemPath && this.currentNavItem) {
-        return this.informationService.getAllSectionsByNavItemId(this.currentNavItem.uuid).pipe(
+        return this.sectionService.getAllSectionsByNavItemId(this.currentNavItem.uuid).pipe(
           tap(secs => this.performRedirection(currentNavItemPath, secs)),
           map(() => void 0)
         );
