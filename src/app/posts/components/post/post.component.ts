@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output, signal, WritableSignal, inject, OnInit } from '@angular/core';
+import { InstitutionService } from '../../../institution/services/institution.service';
 import { PostService } from '../../services/post.service';
 import { CreateReaction } from '../../models/create-reaction';
 import { Post } from '../../models/post';
@@ -53,6 +54,7 @@ export class PostComponent implements OnInit {
   totalComments = signal(0);
 
   constructor(
+    private readonly institutionService: InstitutionService,
     private readonly postService: PostService,
     private readonly tenantService: TenantService
   ) {}
@@ -60,7 +62,7 @@ export class PostComponent implements OnInit {
   ngOnInit() {
     this.listMediaPost = this.loadMediaPost();
   
-    this.postService.getInstitution(this.post.institution_id).subscribe({
+    this.institutionService.getInstitution(this.post.institution_id).subscribe({
       next: (institutionData) => {
         this.institution = institutionData;
       },

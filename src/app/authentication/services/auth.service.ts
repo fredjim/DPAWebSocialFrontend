@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { map } from 'rxjs/operators';
 import { NewUser } from '../models/new-user';
@@ -19,7 +18,6 @@ export class AuthService {
   public token: any
   constructor(
     private readonly http: HttpClient,
-    private readonly router: Router,
     private readonly tenantService: TenantService
   ) {
   }

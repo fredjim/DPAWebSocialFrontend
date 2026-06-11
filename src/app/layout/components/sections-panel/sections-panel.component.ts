@@ -3,7 +3,7 @@ import { SectionService } from '../../services/section.service';
 import { Section } from '../../../shared/models/section';
 import { UserDetail } from '../../../posts/models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
-import { PostService } from '../../../posts/services/post.service';
+import { UserService } from '../../../user-profile/services/user.service';
 import { NavItem } from '../../../shared/models/nav-item';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -17,7 +17,7 @@ import { CustomToastComponent } from '../../../shared/components/custom-toast/cu
 export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
   private readonly sectionService = inject(SectionService);
   private readonly authService = inject(AuthService);
-  private readonly postService = inject(PostService);
+  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroy$ = new Subject<void>();
@@ -36,7 +36,7 @@ export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
     if(this.isAuthenticated){
-      this.postService.getUser().pipe(
+      this.userService.getUser().pipe(
         takeUntil(this.destroy$)
       ).subscribe(user => {
         this.currentUser = user;

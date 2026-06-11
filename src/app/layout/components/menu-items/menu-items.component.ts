@@ -3,7 +3,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { NavItem } from '../../../shared/models/nav-item';
 import { UserDetail } from '../../../posts/models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
-import { PostService } from '../../../posts/services/post.service';
+import { UserService } from '../../../user-profile/services/user.service';
 import { NavItemService } from '../../services/nav-item.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
@@ -17,7 +17,7 @@ export class MenuItemsComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly navItemService = inject(NavItemService);
   private readonly authService = inject(AuthService);
-  private readonly postService = inject(PostService);
+  private readonly userService = inject(UserService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -46,7 +46,7 @@ export class MenuItemsComponent implements OnInit, OnDestroy {
 
     this.isAuthenticated = this.authService.isAuthenticated();
     if(this.isAuthenticated){
-      this.postService.getUser()
+      this.userService.getUser()
         .pipe(takeUntil(this.destroy$))
         .subscribe(user => {
           this.currentUser = user;

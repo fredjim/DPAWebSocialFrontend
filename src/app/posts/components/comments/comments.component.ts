@@ -1,13 +1,13 @@
 import { Component, ViewChild, ElementRef, Input, OnInit, ViewChildren, QueryList, AfterViewInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { PostService } from '../../services/post.service';
+import { UserService } from '../../../user-profile/services/user.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Comment } from '../../models/comment';
 import { Institution } from '../../models/institution';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Post } from '../../models/post';
 import { Media } from '../../models/media';
-import { PostComment } from '../../models/post-comment';
 import { UserDetail } from '../../models/user-detail';
 import moment from 'moment-timezone';
 
@@ -30,7 +30,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   newComment: string = '';
   comments: Comment[] = [];
-  authenticated: boolean;
+  authenticated: boolean = false;
   currentUser: UserDetail | null = null;
 
   private readonly destroy$ = new Subject<void>();
@@ -39,13 +39,13 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private readonly postService: PostService,
+    private readonly userService: UserService,
     public modal: NgbModal,
     private readonly authService: AuthService
-  ) {
-    this.authenticated = authService.isAuthenticated();
-  }
+  ) {}
 
   ngOnInit(): void {
+    this.authenticated = this.authService.isAuthenticated();
     this.loadComments();
     if (this.authenticated) {
       this.loadCurrentUser();
@@ -96,7 +96,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadCurrentUser(): void {
-    this.postService.getUser()
+    this.userService.getUser()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (user: UserDetail) => {

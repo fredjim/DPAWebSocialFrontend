@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError, forkJoin } from 'rxjs';
 import { AuthService } from '../../authentication/services/auth.service';
 import { CreatePost } from '../models/create-post';
-import { Institution } from '../models/institution';
 import { Post } from '../models/post';
 import { Comment } from '../models/comment';
 import { UploadedMedia } from '../models/uploaded-media';
@@ -11,7 +10,6 @@ import { CreateReaction } from '../models/create-reaction';
 import { environment } from '../../../environments/environment';
 import { map } from 'rxjs/operators';
 import { EmojiType } from '../models/emoji-type';
-import { UserDetail } from '../models/user-detail';
 import { MediaInstitution } from '../models/media-institution';
 
 @Injectable({
@@ -27,28 +25,6 @@ export class PostService {
 
 
   constructor(private readonly http: HttpClient, private readonly authService: AuthService) { }
-
-  // Método para obtener los datos de una institución
-
-  getInstitution(uuid: string): Observable<Institution> {
-    const urlInstitution = 'institutions'
-    return this.http.get<Institution>(`${this.ROOT_URL}/${urlInstitution}/${uuid}`);
-  }
-
-  //Método para obtener un user
-  getUser(): Observable<UserDetail> {
-    const getUser = 'users/me'
-    return this.http.get<UserDetail>(`${this.ROOT_URL}/${getUser}`, this.reqHeader)
-  }
-
-  getUserByUuid(uuid: string): Observable<UserDetail> {
-    return this.http.get<UserDetail>(`${this.ROOT_URL}/user/${uuid}`);
-  }
-
-  // Método para obtener el número de seguidores de una institución
-  getNumberFollowers(uuid: string): Observable<any> {
-    return this.http.get<number>(`${this.ROOT_URL}/institutions/${uuid}/followers/count`);
-  }
 
   // Método para obtener un post por uuid
   getPost(postUuid: string): Observable<Post> {
@@ -195,24 +171,6 @@ export class PostService {
     const url = `${this.ROOT_URL}/posts/${uuidPost}/comments/${uuidComment}`;
     return this.http.delete<void>(url, this.reqHeader);
   }
-
-  //Obtener todas las fotos de la institucion 
-  getInstitutionPhotos(uuid: string): Observable<MediaInstitution[]> {
-    const url = `${this.ROOT_URL}/institutions/${uuid}/photos`;
-    return this.http.get<MediaInstitution[]>(url);
-  }
-
-  //Obtener todos los videos de la institucion 
-  getInstitutionVideos(uuid: string): Observable<MediaInstitution[]> {
-    const url = `${this.ROOT_URL}/institutions/${uuid}/videos`;
-    return this.http.get<MediaInstitution[]>(url);
-  }
-
-  getInstitutionDocuments(uuid: string): Observable<MediaInstitution[]> {
-    const url = `${this.ROOT_URL}/institutions/${uuid}/documents`;
-    return this.http.get<MediaInstitution[]>(url);
-  }
-
 
   //Obtener todos los videos de la institucion 
   getCommentReactions(uuid: string): Observable<any[]> {

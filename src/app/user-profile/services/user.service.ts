@@ -15,14 +15,20 @@ export class UserService {
 
   private readonly reqHeader = { headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }) };
 
+  private readonly userUrl: string = 'users/me';
+
   constructor(
     private readonly http: HttpClient, 
     private readonly authService: AuthService
   ) {}
 
+  //Método para obtener el user logueado
+  getUser(): Observable<UserDetail> {
+    return this.http.get<UserDetail>(`${this.ROOT_URL}/${this.userUrl}`, this.reqHeader)
+  }
+
   updateUserDate(body: Partial<UserDetail>): Observable<UserDetail> {
-    const url = `${this.ROOT_URL}/users/me`;
-    return this.http.put<UserDetail>(url, body, this.reqHeader);
+    return this.http.put<UserDetail>(`${this.ROOT_URL}/${this.userUrl}`, body, this.reqHeader);
   }
 
   postUserPhotoProfile(formData: FormData): Observable<UploadedMedia> {

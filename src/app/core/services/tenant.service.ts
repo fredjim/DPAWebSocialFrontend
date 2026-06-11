@@ -22,7 +22,7 @@ export class TenantService {
    * Fallback en desarrollo: environment.DEFAULT_TENANT_SLUG
    */
   getSlug(): string {
-    const segments = window.location.pathname
+    const segments = globalThis.location.pathname
       .split('/')
       .filter(s => s.length > 0);
 
@@ -44,11 +44,10 @@ export class TenantService {
    * El resultado se cachea con shareReplay(1) durante la vida de la sesión.
    */
   getInstitution(): Observable<Institution> {
-    if (!this.institution$) {
-      this.institution$ = this.http
-        .get<Institution>(`${environment.BACK_END_HOST_DEV}/institutions/current`)
-        .pipe(shareReplay(1));
-    }
+    this.institution$ ??= this.http
+      .get<Institution>(`${environment.BACK_END_HOST_DEV}/institutions/current`)
+      .pipe(shareReplay(1));
+    
     return this.institution$;
   }
 

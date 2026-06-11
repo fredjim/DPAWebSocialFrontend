@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Institution } from '../../../posts/models/institution';
-import { PostService } from '../../../posts/services/post.service';
+import { UserService } from '../../../user-profile/services/user.service';
 import { TenantService } from '../../../core/services/tenant.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Modal } from 'bootstrap';
@@ -27,7 +27,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   menuItemsPopup: MenuItem[] = [];
 
   constructor(private readonly authService: AuthService,
-    private readonly postService: PostService,
+    private readonly userService: UserService,
     private readonly tenantService: TenantService) {
     this.authenticated = authService.isAuthenticated();
   }
@@ -101,7 +101,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private getUser() {
     if (this.authenticated) {
-      this.postService.getUser()
+      this.userService.getUser()
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (infoUser) => {

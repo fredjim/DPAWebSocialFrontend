@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, signal, ViewChild } from '@angular/core';
+import { UserService } from '../../../user-profile/services/user.service';
 import { PostService } from '../../services/post.service';
 import * as bootstrap from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -45,6 +46,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private readonly postService: PostService,
+    private readonly userService: UserService,
     private readonly formBuilder: FormBuilder,
     private readonly tenantService: TenantService
   ) { }
@@ -205,7 +207,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getTypeByRol() {
-    this.postService.getUser()
+    this.userService.getUser()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next:(user: UserDetail) => {

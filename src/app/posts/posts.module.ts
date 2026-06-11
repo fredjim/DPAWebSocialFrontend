@@ -81,7 +81,7 @@ import { MessagesModule } from 'primeng/messages';
     TabViewModule,
     CarouselModule,
     MessagesModule
-],
+  ],
   exports: [
     ViewAllPostsComponent,
     PostComponent

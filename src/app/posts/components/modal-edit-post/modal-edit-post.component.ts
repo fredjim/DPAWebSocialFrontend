@@ -4,6 +4,7 @@ import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PostService } from '../../services/post.service';
+import { UserService } from '../../../user-profile/services/user.service';
 import { Media } from '../../models/media';
 import { CreatePost } from '../../models/create-post';
 import { UploadedMedia } from '../../models/uploaded-media';
@@ -51,6 +52,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
 
   constructor(
       private readonly postService: PostService,
+      private readonly userService: UserService,
       private readonly formBuilder: FormBuilder,
       private readonly authService: AuthService
   ){}
@@ -205,7 +207,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   getTypeByRol() {
     this.isAuthenticated = this.authService.isAuthenticated();
     if (this.isAuthenticated) {
-      this.postService.getUser()
+      this.userService.getUser()
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next:(user: UserDetail) => {

@@ -5,7 +5,7 @@ import { SectionService } from '../../../layout/services/section.service';
 import { ArticleService } from '../../services/article.service';
 import { Section } from '../../../shared/models/section';
 import { AuthService } from '../../../authentication/services/auth.service';
-import { PostService } from '../../../posts/services/post.service';
+import { UserService } from '../../../user-profile/services/user.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Article } from '../../models/article';
 import { UserDetail } from '../../../posts/models/user-detail';
@@ -30,7 +30,7 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   private readonly sectionService = inject(SectionService);
   private readonly articleService = inject(ArticleService);
   private readonly authService = inject(AuthService);
-  private readonly postService = inject(PostService);
+  private readonly userService = inject(UserService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly sectionStateService = inject(SectionStateService);
   private readonly tenantService = inject(TenantService);
@@ -60,7 +60,7 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.isAuthenticated = this.authService.isAuthenticated();
     if(this.isAuthenticated){
-      this.postService.getUser().subscribe(user => {
+      this.userService.getUser().subscribe(user => {
         this.currentUser = user;
       });
     }
