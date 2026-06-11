@@ -2,9 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CommentsComponent } from './components/comments/comments.component';
 import { CommentListComponent } from './components/comment-list/comment-list.component';
-import { CommentItemComponent } from './components/comment-item/comment-item.component';
 import { ReplyListComponent } from './components/reply-list/reply-list.component'; 
-import { ReplyItemComponent } from './components/reply-item/reply-item.component';
 import { CommentInputComponent } from './components/comment-input/comment-input.component';
 import { ModalListReactionsRepliesComponent } from './components/modal-list-reactions-replies/modal-list-reactions-replies.component';
 import { SharedModule } from '../shared/shared.module';
@@ -19,9 +17,7 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
   declarations: [
     CommentsComponent,
     CommentListComponent,
-    CommentItemComponent,
     ReplyListComponent,
-    ReplyItemComponent,
     CommentInputComponent,
     ModalListReactionsRepliesComponent,
   ],
