@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { PostService } from '../../services/post.service';
-import { CommentService  } from '../../../comments/services/comment.service';
+import { CommentService  } from '../../../interactions/services/comment.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Comment } from '../../models/comment';
 import { PostComponent } from '../post/post.component';

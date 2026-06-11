@@ -14,7 +14,7 @@ import { PostsModule } from './posts/posts.module';
 import { CommonModule } from '@angular/common';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
-import { CommentsModule } from "./comments/comments.module";
+import { InteractionsModule } from "./interactions/interactions.module";
 import { MessageService } from 'primeng/api';
 import { UserProfileModule } from './user-profile/user-profile.module';
 import { InstitutionModule } from './institution/institution.module';
@@ -28,7 +28,7 @@ import { LayoutModule } from './layout/layout.module';
     AuthenticationModule,
     BrowserAnimationsModule,
     BrowserModule,
-    CommentsModule,
+    InteractionsModule,
     CommonModule,
     CoreModule,
     HttpClientModule,

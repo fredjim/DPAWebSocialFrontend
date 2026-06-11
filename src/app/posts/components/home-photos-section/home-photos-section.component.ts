@@ -5,7 +5,7 @@ import { InstitutionService } from '../../../institution/services/institution.se
 import { Institution } from '../../models/institution';
 import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommentsComponent } from './../comments/comments.component';
+import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { TenantService } from '../../../core/services/tenant.service';
 
 @Component({

@@ -1,14 +1,15 @@
 import { Component, Input, OnDestroy, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import moment from 'moment-timezone';
-import { PostService } from '../../../services/post.service';
-import { EmojiType } from '../../../models/emoji-type';
-import { AuthService } from '../../../../authentication/services/auth.service';
+import { ReplyService } from '../../services/reply.service';
+import { ReactionService } from '../../services/reaction.service';
+import { EmojiType } from '../../../posts/models/emoji-type';
+import { AuthService } from '../../../authentication/services/auth.service'; 
 import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-replies/modal-list-reactions-replies.component'; // Ajusta la ruta si es necesario
-import { Reply } from '../../../models/comment';
+import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-replies/modal-list-reactions-replies.component'; 
+import { Reply } from '../../../posts/models/comment'; 
 import { HttpErrorResponse } from '@angular/common/http';
-import { CustomToastComponent } from '../../../../shared/components/custom-toast/custom-toast.component';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component'; 
 
 @Component({
   selector: 'app-reply-list',
@@ -54,7 +55,8 @@ export class ReplyListComponent implements OnInit, OnDestroy {
   };
 
   constructor(
-    private readonly postService: PostService,
+    private readonly replyService: ReplyService,
+    private readonly reactionService: ReactionService,
     private readonly authService: AuthService,
     private readonly modalService: NgbModal
   ) { }
@@ -78,7 +80,7 @@ export class ReplyListComponent implements OnInit, OnDestroy {
   }
 
   loadEmojis() {
-    this.postService.getEmojisType()
+    this.reactionService.getEmojisType()
       .pipe(takeUntil(this.destroy$))
       .subscribe(emojis => {
       this.emojis = emojis.map(e => ({
@@ -112,7 +114,7 @@ export class ReplyListComponent implements OnInit, OnDestroy {
       emoji_type_id: emojiTypeUuid, // <-- nombre correcto
       reaction_date: new Date().toISOString() // <-- nombre correcto
     };
-    this.postService.reactToReply(replyUuid, body)
+    this.reactionService.reactToReply(replyUuid, body)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
       this.selectedReactions[replyUuid] = emojiTypeUuid;
@@ -121,7 +123,7 @@ export class ReplyListComponent implements OnInit, OnDestroy {
   }
 
   removeReplyReaction(replyUuid: string) {
-    this.postService.deleteReplyReaction(replyUuid)
+    this.reactionService.deleteReplyReaction(replyUuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
       this.selectedReactions[replyUuid] = '';
@@ -133,7 +135,7 @@ export class ReplyListComponent implements OnInit, OnDestroy {
     const userId = this.authService.getUserId();
     if (!userId || !this.replies) return;
     const reactionsObservables = this.replies.map(reply =>
-      this.postService.getReplyReactions(reply.uuid)
+      this.reactionService.getReplyReactions(reply.uuid)
     );
     forkJoin(reactionsObservables)
       .pipe(takeUntil(this.destroy$))
@@ -154,7 +156,7 @@ export class ReplyListComponent implements OnInit, OnDestroy {
   loadRepliesReactionsCount() {
     if (!this.replies) return;
     this.replies.forEach(reply => {
-      this.postService.getReplyReactions(reply.uuid)
+      this.reactionService.getReplyReactions(reply.uuid)
         .pipe(takeUntil(this.destroy$))
         .subscribe(reactions => {
           this.replyReactionsCount[reply.uuid] = reactions.length;
@@ -180,7 +182,7 @@ export class ReplyListComponent implements OnInit, OnDestroy {
     return moment.utc(date).local().fromNow();
   }
   openReplyReactionsModal(replyUuid: string) {
-    this.postService.getReplyReactions(replyUuid)
+    this.reactionService.getReplyReactions(replyUuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe(reactions => {
       // Mapea los datos para el modal
@@ -221,7 +223,7 @@ export class ReplyListComponent implements OnInit, OnDestroy {
     if(!this.replyToDelete) return;
 
     this.isLoadingDeleteRyply = true;
-    this.postService.deleteReply(this.replyToDelete.uuid).subscribe({
+    this.replyService.deleteReply(this.replyToDelete.uuid).subscribe({
       next: () => {
         this.isLoadingDeleteRyply = false;
         this.visibleModalDeleteReply = false;

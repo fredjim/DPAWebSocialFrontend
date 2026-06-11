@@ -11,7 +11,7 @@ import { Institution } from '../../models/institution';
 import { TenantService } from '../../../core/services/tenant.service';
 import { delay, distinctUntilChanged, fromEvent, Subject, takeUntil, throttleTime } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommentsComponent } from '../comments/comments.component';
+import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({

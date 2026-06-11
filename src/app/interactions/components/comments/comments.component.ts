@@ -1,14 +1,15 @@
 import { Component, ViewChild, ElementRef, Input, OnInit, ViewChildren, QueryList, AfterViewInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { PostService } from '../../services/post.service';
+import { CommentService } from '../../services/comment.service'; 
+import { ReplyService } from '../../services/reply.service'; 
 import { UserService } from '../../../user-profile/services/user.service';
 import { AuthService } from '../../../authentication/services/auth.service';
-import { Comment } from '../../models/comment';
-import { Institution } from '../../models/institution';
+import { Comment } from '../../../posts/models/comment';
+import { Institution } from '../../../posts/models/institution';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Post } from '../../models/post';
-import { Media } from '../../models/media';
-import { UserDetail } from '../../models/user-detail';
+import { Post } from '../../../posts/models/post';
+import { Media } from '../../../posts/models/media';
+import { UserDetail } from '../../../posts/models/user-detail';
 import moment from 'moment-timezone';
 
 @Component({
@@ -38,7 +39,8 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   private slideEventHandler: any;
 
   constructor(
-    private readonly postService: PostService,
+    private readonly commentService: CommentService,
+    private readonly replyService: ReplyService,
     private readonly userService: UserService,
     public modal: NgbModal,
     private readonly authService: AuthService
@@ -123,7 +125,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
       content: this.newComment,
     };
 
-    this.postService.addComment(this.post.uuid, commentData)
+    this.commentService.addComment(this.post.uuid, commentData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
       next: (newComment: any) => {
@@ -163,7 +165,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
       parentReplyUuid: event.isTopLevel ? null : event.parentUuid,
     };
 
-    this.postService.addReply(event.parentUuid, replyData)
+    this.replyService.addReply(event.parentUuid, replyData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (newReply: any) => {
@@ -224,92 +226,91 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
   // Agregar este método para cargar respuestas
-private loadAllReplies(): void {
-  this.comments.forEach(comment => {
-    this.postService.getRepliesByCommentUuid(comment.uuid)
+  private loadAllReplies(): void {
+    this.comments.forEach(comment => {
+      this.replyService.getRepliesByCommentUuid(comment.uuid)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (replies) => {
+            comment.replies = replies.sort(
+              (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+            );
+          },
+          error: (error) => console.error('Error al obtener respuestas:', error)
+        });
+    });
+  }
+
+  // Modificar loadComments para cargar también las respuestas
+  // Agrega este método para cargar respuestas de un comentario
+  private loadCommentReplies(comment: Comment): void {
+    this.replyService.getRepliesByCommentUuid(comment.uuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (replies) => {
-          comment.replies = replies.sort(
-            (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
-          );
-        },
-        error: (error) => console.error('Error al obtener respuestas:', error)
-      });
-  });
-}
-
-// Modificar loadComments para cargar también las respuestas
-
-// Agrega este método para cargar respuestas de un comentario
-private loadCommentReplies(comment: Comment): void {
-  this.postService.getRepliesByCommentUuid(comment.uuid)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (replies) => {
-      comment.replies = replies.sort(
-        (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
-      );
-      // Cargar respuestas anidadas si existen
-      if (comment.replies) {
-        comment.replies.forEach(reply => {
-          if (reply.replies && reply.replies.length > 0) {
-            this.loadReplyReplies(reply);
-          }
-        });
-      }
-    },
-    error: (error) => console.error('Error al obtener respuestas:', error)
-  });
-}
-
-// Método para cargar respuestas de respuestas (anidadas)
-private loadReplyReplies(reply: any): void {
-  this.postService.getRepliesByCommentUuid(reply.uuid)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (nestedReplies) => {
-      reply.replies = nestedReplies.sort(
-        (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
-      );
-    },
-    error: (error) => console.error('Error al obtener respuestas anidadas:', error)
-  });
-}
-
-// Modifica loadComments para cargar también las respuestas
-loadComments(): void {
-  this.postService.getPostComments(this.postUuid)
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-    next: (data: Comment[]) => {
-      this.comments = data.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-      // Cargar respuestas para cada comentario
-      this.comments.forEach(comment => {
-        this.loadCommentReplies(comment);
-      });
-    },
-    error: (error) => {
-      console.error('Error al obtener comentarios', error);
-    },
-  });
-}
-
-// Asegúrate que updateNestedReplies esté correctamente implementado
-private updateNestedReplies(items: any[], parentUuid: string, newReply: any): boolean {
-  for (const item of items) {
-    if (item.uuid === parentUuid) {
-      item.replies = item.replies || [];
-      item.replies.unshift(newReply);
-      return true;
-    }
-    if (item.replies && item.replies.length > 0) {
-      const found = this.updateNestedReplies(item.replies, parentUuid, newReply);
-      if (found) return true;
-    }
+        comment.replies = replies.sort(
+          (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+        );
+        // Cargar respuestas anidadas si existen
+        if (comment.replies) {
+          comment.replies.forEach(reply => {
+            if (reply.replies && reply.replies.length > 0) {
+              this.loadReplyReplies(reply);
+            }
+          });
+        }
+      },
+      error: (error) => console.error('Error al obtener respuestas:', error)
+    });
   }
-  return false;
-}
+
+  // Método para cargar respuestas de respuestas (anidadas)
+  private loadReplyReplies(reply: any): void {
+    this.replyService.getRepliesByCommentUuid(reply.uuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (nestedReplies) => {
+        reply.replies = nestedReplies.sort(
+          (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+        );
+      },
+      error: (error) => console.error('Error al obtener respuestas anidadas:', error)
+    });
+  }
+
+  // Modifica loadComments para cargar también las respuestas
+  loadComments(): void {
+    this.commentService.getComments(this.postUuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+      next: (data: Comment[]) => {
+        this.comments = data.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        // Cargar respuestas para cada comentario
+        this.comments.forEach(comment => {
+          this.loadCommentReplies(comment);
+        });
+      },
+      error: (error) => {
+        console.error('Error al obtener comentarios', error);
+      },
+    });
+  }
+
+  // Asegúrate que updateNestedReplies esté correctamente implementado
+  private updateNestedReplies(items: any[], parentUuid: string, newReply: any): boolean {
+    for (const item of items) {
+      if (item.uuid === parentUuid) {
+        item.replies = item.replies || [];
+        item.replies.unshift(newReply);
+        return true;
+      }
+      if (item.replies && item.replies.length > 0) {
+        const found = this.updateNestedReplies(item.replies, parentUuid, newReply);
+        if (found) return true;
+      }
+    }
+    return false;
+  }
 }

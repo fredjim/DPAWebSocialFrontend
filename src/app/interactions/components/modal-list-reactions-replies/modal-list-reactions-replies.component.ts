@@ -1,13 +1,13 @@
-import { Component, ElementRef, inject, Input, QueryList, signal, ViewChildren, WritableSignal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, Input, QueryList, signal, ViewChildren, WritableSignal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { EmojiType } from '../../../../posts/models/emoji-type';
+import { EmojiType } from '../../../posts/models/emoji-type';
 
 @Component({
   selector: 'app-modal-list-reactions-replies',
   templateUrl: './modal-list-reactions-replies.component.html',
   styleUrl: './modal-list-reactions-replies.component.scss'
 })
-export class ModalListReactionsRepliesComponent {
+export class ModalListReactionsRepliesComponent implements AfterViewInit {
   public activeModal = inject(NgbActiveModal)
   @Input() reactionsCount!: {
     emojiTypeId: string;

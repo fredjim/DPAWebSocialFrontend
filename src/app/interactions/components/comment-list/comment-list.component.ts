@@ -1,15 +1,16 @@
 import { Component, Input, Output, EventEmitter, OnChanges, OnDestroy, SimpleChanges, OnInit, ViewChild } from '@angular/core';
-import { Comment, Reply } from '../../../models/comment';
-import { UserDetail } from '../../../models/user-detail';
+import { Comment, Reply } from '../../../posts/models/comment';
+import { UserDetail } from '../../../posts/models/user-detail';
 import moment from 'moment-timezone';
-import { PostService } from '../../../services/post.service';
-import { EmojiType } from '../../../models/emoji-type';
+import { ReactionService } from '../../services/reaction.service'; 
+import { CommentService } from '../../services/comment.service'; 
+import { EmojiType } from '../../../posts/models/emoji-type';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
-import { AuthService } from '../../../../authentication/services/auth.service';
+import { AuthService } from '../../../authentication/services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-replies/modal-list-reactions-replies.component'; // Ajusta la ruta si es necesario
 import { HttpErrorResponse } from '@angular/common/http';
-import { CustomToastComponent } from '../../../../shared/components/custom-toast/custom-toast.component';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-comment-list',
@@ -54,6 +55,13 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
     'astonished-face': 'astonished-face'
   };
 
+  constructor(
+    private readonly commentService: CommentService,
+    private readonly reactionService: ReactionService,
+    private readonly authService: AuthService,
+    private readonly modalService: NgbModal
+  ) { }
+
   ngOnInit() {
     this.loadEmojis();
     this.loadUserReactionsForComments();
@@ -71,7 +79,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
   loadEmojis() {
-    this.postService.getEmojisType()
+    this.reactionService.getEmojisType()
       .pipe(takeUntil(this.destroy$))
       .subscribe(emojis => {
       // Agrega la clase a cada emoji para usar en el botón
@@ -105,12 +113,6 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
     return this.emojis.find(e => e.uuid === emojiUuid);
   }
 
-  constructor(
-    private readonly postService: PostService,
-    private readonly authService: AuthService,
-    private readonly modalService: NgbModal
-  ) { }
-
   reactToComment(commentUuid: string, emojiTypeUuid: string, forceChange: boolean = false) {
     // Si ya hay reacción y NO es un cambio forzado (click en botón principal), elimina la reacción
     if (this.selectedReactions[commentUuid] && !forceChange) {
@@ -122,7 +124,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
       emojiTypeId: emojiTypeUuid,
       reactionDate: new Date().toISOString()
     };
-    this.postService.reactToComment(commentUuid, body)
+    this.reactionService.reactToComment(commentUuid, body)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
       this.selectedReactions[commentUuid] = emojiTypeUuid;
@@ -131,7 +133,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   removeReaction(commentUuid: string) {
-    this.postService.deleteCommentReaction(commentUuid)
+    this.reactionService.deleteCommentReaction(commentUuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
       this.selectedReactions[commentUuid] = '';
@@ -223,7 +225,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
 
     // Llama a getCommentsReactions para cada comentario
     const reactionsObservables = this.comments.map(comment =>
-      this.postService.getCommentsReactions(comment.uuid)
+      this.reactionService.getCommentReactions(comment.uuid)
     );
 
     forkJoin(reactionsObservables)
@@ -242,7 +244,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
   loadCommentsReactionsCount() {
     if (!this.comments) return;
     this.comments.forEach(comment => {
-      this.postService.getCommentsReactions(comment.uuid)
+      this.reactionService.getCommentReactions(comment.uuid)
         .pipe(takeUntil(this.destroy$))
         .subscribe(reactions => {
           this.commentReactionsCount[comment.uuid] = reactions.length;
@@ -258,7 +260,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
     return this.commentReactionsCount[comment.uuid] || 0;
   }
   openCommentReactionsModal(comment: Comment) {
-    this.postService.getCommentsReactions(comment.uuid)
+    this.reactionService.getCommentReactions(comment.uuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe(reactions => {
       // Mapea los datos para el modal
@@ -299,7 +301,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
     if(!this.postUuid || !this.commentToDelete) return;
 
     this.isLoadingDeleteComment = true;
-    this.postService.deleteComment(this.postUuid, this.commentToDelete.uuid).subscribe({
+    this.commentService.deleteComment(this.postUuid, this.commentToDelete.uuid).subscribe({
       next: () => {
         this.isLoadingDeleteComment = false;
         this.visibleModalDeleteComment = false;

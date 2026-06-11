@@ -1,16 +1,12 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, throwError, forkJoin } from 'rxjs';
-import { AuthService } from '../../authentication/services/auth.service';
-import { CreatePost } from '../models/create-post';
-import { Post } from '../models/post';
-import { Comment } from '../models/comment';
-import { UploadedMedia } from '../models/uploaded-media';
-import { CreateReaction } from '../models/create-reaction';
-import { environment } from '../../../environments/environment';
+import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { EmojiType } from '../models/emoji-type';
-import { MediaInstitution } from '../models/media-institution';
+import { AuthService } from '../../authentication/services/auth.service';
+import { environment } from '../../../environments/environment';
+import { Post } from '../models/post';
+import { CreatePost } from '../models/create-post';
+import { UploadedMedia } from '../models/uploaded-media';
 
 @Injectable({
   providedIn: 'root'
@@ -18,250 +14,104 @@ import { MediaInstitution } from '../models/media-institution';
 export class PostService {
 
   private readonly ROOT_URL = `${environment.BACK_END_HOST_DEV}`;
-  private readonly reqHeader = { 
+  private readonly postsUrl = 'posts';
+
+  private readonly reqHeader = {
     headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }),
     withCredentials: true
   };
 
+  constructor(
+    private readonly http: HttpClient,
+    private readonly authService: AuthService
+  ) {}
 
-  constructor(private readonly http: HttpClient, private readonly authService: AuthService) { }
+  // ── Lectura ──────────────────────────────────────────────────────────────────
 
-  // Método para obtener un post por uuid
   getPost(postUuid: string): Observable<Post> {
-    return this.http.get<Post>(`${this.ROOT_URL}/posts/${postUuid}`);
+    return this.http.get<Post>(`${this.ROOT_URL}/${this.postsUrl}/${postUuid}`);
   }
 
-  // Método para obtener los posts
   getPosts(): Observable<Post[]> {
-    const getPosts = 'posts'
     const token = this.authService.getToken();
-    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
-    return this.http.get<Post[]>(`${this.ROOT_URL}/${getPosts}`, { headers });
+    const headers = token
+      ? new HttpHeaders({ 'Authorization': `Bearer ${token}` })
+      : undefined;
+    return this.http.get<Post[]>(`${this.ROOT_URL}/${this.postsUrl}`, { headers });
   }
 
   getPostsByType(postType: string): Observable<Post[]> {
-    const urlByType = `${this.ROOT_URL}/posts?type=${postType}`;
-    return this.http.get<Post[]>(urlByType);
+    return this.http.get<Post[]>(`${this.ROOT_URL}/${this.postsUrl}?type=${postType}`);
   }
 
-  //Metodo para obtener posts paginados
   getPagedPosts(pageNumber: number): Observable<Post[]> {
-    const urlPagedPosts = `${this.ROOT_URL}/posts/paged?page=${pageNumber}&size=5`;
-    return this.http.get<Post[]>(urlPagedPosts);
+    return this.http.get<Post[]>(
+      `${this.ROOT_URL}/${this.postsUrl}/paged?page=${pageNumber}&size=5`
+    );
   }
 
-  //Método para crear un post
+  // ── Escritura ─────────────────────────────────────────────────────────────────
+
   createPost(dataPost: CreatePost): Observable<Post> {
-    const createPost = 'posts'
-    return this.http.post<Post>(`${this.ROOT_URL}/${createPost}`, dataPost, this.reqHeader)
+    return this.http.post<Post>(`${this.ROOT_URL}/${this.postsUrl}`, dataPost, this.reqHeader);
   }
 
-  //Método para subir imagenes
+  updatePost(postUuid: string, dataPost: CreatePost): Observable<Post> {
+    return this.http.put<Post>(
+      `${this.ROOT_URL}/${this.postsUrl}/${postUuid}`,
+      dataPost,
+      this.reqHeader
+    );
+  }
+
+  deletePost(postUuid: string): Observable<Post> {
+    return this.http.delete<Post>(
+      `${this.ROOT_URL}/${this.postsUrl}/${postUuid}`,
+      this.reqHeader
+    );
+  }
+
+  // ── Upload de media ───────────────────────────────────────────────────────────
+
   uploadImages(formData: FormData): Observable<UploadedMedia[]> {
-    const uploadImgs = 'images/posts'
-    return this.http.post<UploadedMedia[]>(`${this.ROOT_URL}/${uploadImgs}`, formData, this.reqHeader)
+    return this.http.post<UploadedMedia[]>(
+      `${this.ROOT_URL}/images/posts`,
+      formData,
+      this.reqHeader
+    );
   }
 
-  //Métedo para subir videos
   uploadVideos(formData: FormData): Observable<UploadedMedia[]> {
-    const uploadImgs = 'videos/posts'
-    return this.http.post<UploadedMedia[]>(`${this.ROOT_URL}/${uploadImgs}`, formData, this.reqHeader)
+    return this.http.post<UploadedMedia[]>(
+      `${this.ROOT_URL}/videos/posts`,
+      formData,
+      this.reqHeader
+    );
   }
 
-  //Método para subir media (imagenes y videos)
   uploadMedia(formData: FormData): Observable<UploadedMedia[]> {
     const imagesFormData = new FormData();
     const videosFormData = new FormData();
 
-    // Clasificar los archivos
     formData.forEach((file, key) => {
       if (file instanceof File) {
-        if (file.type.startsWith('image/')) {
-          imagesFormData.append(key, file);
-        } else if (file.type.startsWith('video/')) {
-          videosFormData.append(key, file);
-        }
+        if (file.type.startsWith('image/')) imagesFormData.append(key, file);
+        else if (file.type.startsWith('video/')) videosFormData.append(key, file);
       }
     });
 
-    // Observables para guardar imágenes y videos
     const observables: Observable<UploadedMedia[]>[] = [];
+    if (imagesFormData.has('images')) observables.push(this.uploadImages(imagesFormData));
+    if (videosFormData.has('videos')) observables.push(this.uploadVideos(videosFormData));
 
-    // Subir imágenes si las hay
-    if (imagesFormData.has('images')) {
-      observables.push(this.uploadImages(imagesFormData));
-    }
-
-    // Subir videos si los hay
-    if (videosFormData.has('videos')) {
-      observables.push(this.uploadVideos(videosFormData));
-    }
-
-    // Combinar los resultados
-    return forkJoin(observables).pipe(
-      map((results) => results.flat()) // Combina los arrays de resultados en uno solo
-    );
+    return forkJoin(observables).pipe(map(results => results.flat()));
   }
 
-  //Método para subir un archivo
   uploadDocument(formData: FormData): Observable<UploadedMedia[]> {
-    const uploadImgs = 'documents/posts'
-    return this.http.post<UploadedMedia[]>(`${this.ROOT_URL}/${uploadImgs}`, formData, this.reqHeader)
-  }
-
-  //Método para reaccionar a una publicacion
-  postReaction(postUuid: string, body: CreateReaction): Observable<any> {
-    const urlReactPost = 'reactions'
-    return this.http.post<any>(`${this.ROOT_URL}/posts/${postUuid}/${urlReactPost}`, body, this.reqHeader)
-  }
-
-  // Método para obtener los comentarios de un post
-  getPostComments(uuid: string): Observable<Comment[]> {
-    const getPosts = 'posts'
-    const getComments = 'comments'
-    return this.http.get<Comment[]>(`${this.ROOT_URL}/${getPosts}/${uuid}/${getComments}`);
-
-  }
-
-
-  //Método para eliminar un post
-  deletePost(postUuid: string): Observable<Post> {
-    const deletePost = 'posts'
-    return this.http.delete<Post>(`${this.ROOT_URL}/${deletePost}/${postUuid}`, this.reqHeader);
-  }
-
-  //Método para actualizar un post
-  updatePost(postUuid: string, dataPost: CreatePost): Observable<Post> {
-    const updatePost = 'posts'
-    return this.http.put<Post>(`${this.ROOT_URL}/${updatePost}/${postUuid}`, dataPost, this.reqHeader);
-  }
-
-  //Método para obeter los tipos de emojis
-  getEmojisType(): Observable<EmojiType[]> {
-    const getEmojis = 'emoji-type'
-    return this.http.get<EmojiType[]>(`${this.ROOT_URL}/${getEmojis}`);
-  }
-
-  // Método para obtener los comentarios de un post
-  getComments(postUuid: string): Observable<Comment[]> {
-    return this.http.get<Comment[]>(`${this.ROOT_URL}/posts/${postUuid}/comments`);
-  }
-
-  // Método para agregar un comentario a un post usando uuid
-  addComment(uuid: string, commentData: { content: string }): Observable<any> {
-    const endpoint = `post/${uuid}/comments`;
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      console.error("Error: No hay token de autenticación");
-      return throwError(() => new Error("No autorizado"));
-    }
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`  // 
-    });
-
-    const fullUrl = `${this.ROOT_URL}/${endpoint}`;
-
-    return this.http.post<any>(fullUrl, commentData, { headers });
-  }
-
-  deleteComment(uuidPost: string, uuidComment: string): Observable<void> {
-    const url = `${this.ROOT_URL}/posts/${uuidPost}/comments/${uuidComment}`;
-    return this.http.delete<void>(url, this.reqHeader);
-  }
-
-  //Obtener todos los videos de la institucion 
-  getCommentReactions(uuid: string): Observable<any[]> {
-    const url = `${this.ROOT_URL}/institutions/${uuid}/videos`;
-    return this.http.get<any[]>(url);
-  }
-
-  //Eliminar mi reaccion de post
-  deleteReaction(postUuid: string): Observable<any> {
-    const urlReactPost = 'reactions';
-    return this.http.delete<any>(`${this.ROOT_URL}/posts/${postUuid}/${urlReactPost}`, this.reqHeader);
-  }
-
-
-
-  addReply(commentUuid: string, replyData: any): Observable<any> {
-    const token = localStorage.getItem('token'); // 🔥 Obtiene el token del almacenamiento local
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`  // 🔥 Incluye el token en el encabezado
-    };
-
-    return this.http.post<any>(
-      `${this.ROOT_URL}/comments/${commentUuid}/replies`,
-      replyData,
-      { headers: headers }
+    return this.http.post<UploadedMedia[]>(
+      `${this.ROOT_URL}/documents/posts`,
+      formData,
+      this.reqHeader
     );
   }
-
-  getRepliesByCommentUuid(commentUuid: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.ROOT_URL}/comments/${commentUuid}/replies`);
-  }
-
-  deleteReply(uuidReply: string): Observable<void> {
-    const url = `${this.ROOT_URL}/replies/${uuidReply}`;
-    return this.http.delete<void>(url, this.reqHeader);
-  }
-
-
-  // Método para reaccionar a un comentario
-  reactToComment(commentUuid: string, body: { emojiTypeId: string; reactionDate: string }): Observable<any> {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      return throwError(() => new Error('No autorizado'));
-    }
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
-    return this.http.post<any>(
-      `${this.ROOT_URL}/comment/${commentUuid}/reactions`,
-      body,
-      { headers }
-    );
-  }
-
-  deleteCommentReaction(commentUuid: string): Observable<any> {
-    return this.http.delete<any>(`${this.ROOT_URL}/comment/${commentUuid}/reactions`, this.reqHeader);
-  }
-
-  getCommentsReactions(commentUuid: string) {
-    return this.http.get<any[]>(
-      `${this.ROOT_URL}/comment/${commentUuid}/reactions`
-    );
-  }
-
-   /* Reacciones a respuestas (replies) */
-  reactToReply(replyUuid: string, body: { emoji_type_id: string; reaction_date: string }): Observable<any> {
-    const token = localStorage.getItem('token');
-    if (!token) return throwError(() => new Error('No autorizado'));
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    });
-
-    return this.http.post<any>(
-      `${this.ROOT_URL}/reply-reactions/${replyUuid}`,
-      body,
-      { headers }
-    );
-  }
-
-  getReplyReactions(replyUuid: string): Observable<any[]> {
-    return this.http.get<any[]>(
-      `${this.ROOT_URL}/reply-reactions/${replyUuid}`
-    );
-  }
-
-  deleteReplyReaction(replyUuid: string): Observable<any> {
-    return this.http.delete<any>(`${this.ROOT_URL}/reply-reactions/${replyUuid}/reactions`, this.reqHeader);
-  }
-
 }
