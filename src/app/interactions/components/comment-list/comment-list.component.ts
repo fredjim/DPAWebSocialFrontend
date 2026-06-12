@@ -1,10 +1,11 @@
 import { Component, Input, Output, EventEmitter, OnChanges, OnDestroy, SimpleChanges, OnInit, ViewChild } from '@angular/core';
-import { Comment, Reply } from '../../../posts/models/comment';
-import { UserDetail } from '../../../posts/models/user-detail';
+import { Comment } from '../../models/comment';
+import { Reply } from '../../models/reply';
+import { UserDetail } from '../../../shared/models/user-detail';
 import moment from 'moment-timezone';
 import { ReactionService } from '../../services/reaction.service'; 
 import { CommentService } from '../../services/comment.service'; 
-import { EmojiType } from '../../../posts/models/emoji-type';
+import { EmojiType } from '../../../shared/models/emoji-type';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';

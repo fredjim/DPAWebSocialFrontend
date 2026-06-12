@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../authentication/services/auth.service';
 import { environment } from '../../../environments/environment';
-import { CreateReaction } from '../../posts/models/create-reaction';
-import { EmojiType } from '../../posts/models/emoji-type';
+import { CreateReaction } from '../../shared/models/create-reaction';
+import { EmojiType } from '../../shared/models/emoji-type';
 
 @Injectable({
   providedIn: 'root'

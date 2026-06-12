@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, Input, inject } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { PostService } from '../../services/post.service';
 import { InstitutionService } from '../../../institution/services/institution.service';
-import { Institution } from '../../models/institution';
+import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../../../interactions/components/comments/comments.component';

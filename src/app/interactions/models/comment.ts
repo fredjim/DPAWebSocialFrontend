@@ -1,3 +1,5 @@
+import { Reply } from "./reply";
+
 export interface Comment {
     uuid: string;
     content: string;
@@ -11,16 +13,4 @@ export interface Comment {
     reactions?: any[];
     totalReactions?: number;
     replies?: Reply[]; 
-}
-
-// interfaz para las respuestas de los Comentarios
-export interface Reply {
-  uuid: string;
-  content: string;
-  createdDate: string;
-  name: string;
-  lastName: string;
-  user_photo: string;
-  parentReplyUuid?: string;
-  replies: Reply[];
 }

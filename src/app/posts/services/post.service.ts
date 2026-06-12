@@ -6,7 +6,7 @@ import { AuthService } from '../../authentication/services/auth.service';
 import { environment } from '../../../environments/environment';
 import { Post } from '../models/post';
 import { CreatePost } from '../models/create-post';
-import { UploadedMedia } from '../models/uploaded-media';
+import { UploadedMedia } from '../../shared/models/uploaded-media';
 
 @Injectable({
   providedIn: 'root'

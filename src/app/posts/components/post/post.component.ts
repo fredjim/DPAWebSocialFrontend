@@ -2,15 +2,15 @@ import { Component, EventEmitter, Input, Output, signal, WritableSignal, inject,
 import { InstitutionService } from '../../../institution/services/institution.service';
 import { ReactionService } from '../../../interactions/services/reaction.service';
 import { CommentService } from '../../../interactions/services/comment.service';
-import { CreateReaction } from '../../models/create-reaction';
+import { CreateReaction } from '../../../shared/models/create-reaction';
 import { Post } from '../../models/post';
-import { Institution } from '../../models/institution';
+import { Institution } from '../../../shared/models/institution';
 import { ReactionsByType } from '../../models/reactions-by-type';
-import { Media } from '../../models/media';
+import { Media } from '../../../shared/models/media';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { PostComment } from '../../models/post-comment';
-import { UserDetail } from '../../models/user-detail';
+import { UserDetail } from '../../../shared/models/user-detail';
 import { TenantService } from '../../../core/services/tenant.service';
 import { environment } from '../../../../environments/environment';
 

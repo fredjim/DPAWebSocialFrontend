@@ -2,12 +2,12 @@ import { Component, Input, OnDestroy, OnInit, Output, EventEmitter, ViewChild } 
 import moment from 'moment-timezone';
 import { ReplyService } from '../../services/reply.service';
 import { ReactionService } from '../../services/reaction.service';
-import { EmojiType } from '../../../posts/models/emoji-type';
+import { EmojiType } from '../../../shared/models/emoji-type';
 import { AuthService } from '../../../authentication/services/auth.service'; 
 import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-replies/modal-list-reactions-replies.component'; 
-import { Reply } from '../../../posts/models/comment'; 
+import { Reply } from '../../models/reply'; 
 import { HttpErrorResponse } from '@angular/common/http';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component'; 
 

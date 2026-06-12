@@ -5,7 +5,7 @@ import { AuthService } from '../../authentication/services/auth.service';
 import { Observable } from 'rxjs';
 import { Article } from '../models/article';
 import { Link } from '../models/link';
-import { UploadedMedia } from '../../posts/models/uploaded-media';
+import { UploadedMedia } from '../../shared/models/uploaded-media';
 import { CreateUpdateArticle } from '../models/create-update-article';
 
 @Injectable({

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { NavItem } from '../../../shared/models/nav-item';
-import { UserDetail } from '../../../posts/models/user-detail';
+import { UserDetail } from '../../../shared/models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { UserService } from '../../../user-profile/services/user.service';
 import { NavItemService } from '../../services/nav-item.service';

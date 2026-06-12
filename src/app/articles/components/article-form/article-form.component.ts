@@ -5,7 +5,7 @@ import { CustomToastComponent } from '../../../shared/components/custom-toast/cu
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { catchError, debounceTime, forkJoin, from, fromEvent, map, of, Subject, switchMap, takeUntil, throwError } from 'rxjs';
 import { PostService } from '../../../posts/services/post.service';
-import { UploadedMedia } from '../../../posts/models/uploaded-media';
+import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { MediaArticle } from '../../models/media-article';
 import { Link } from '../../models/link';
 import imageCompression from 'browser-image-compression';

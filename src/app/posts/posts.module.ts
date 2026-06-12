@@ -10,7 +10,6 @@ import { TextEditorComponent } from './components/create-post/text-editor/text-e
 import { ImagesUploaderComponent } from './components/create-post/images-videos-uploader/images-uploader.component';
 import { DocumentUploaderComponent } from './components/create-post/document-uploader/document-uploader.component';
 
-import { ViewCommentsComponent } from './components/view-comments/view-comments.component';
 import { OptionsPostComponent } from './components/options-post/options-post.component';
 import { ModalDeletePostComponent } from './components/modal-delete-post/modal-delete-post.component';
 import { ModalEditPostComponent } from './components/modal-edit-post/modal-edit-post.component';
@@ -38,7 +37,6 @@ import { MessagesModule } from 'primeng/messages';
     DepartmentDetailsComponent,
     PostComponent,
     CreatePostComponent,
-    ViewCommentsComponent,
     TextEditorComponent,
     ImagesUploaderComponent,
     DocumentUploaderComponent,

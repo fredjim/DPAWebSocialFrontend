@@ -3,9 +3,9 @@ import { AuthService } from "../../authentication/services/auth.service";
 import { environment } from "../../../environments/environment";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { UploadedMedia } from "../../posts/models/uploaded-media";
-import { Institution } from "../../posts/models/institution";
-import { MediaInstitution } from "../../posts/models/media-institution";
+import { UploadedMedia } from "../../shared/models/uploaded-media";
+import { Institution } from "../../shared/models/institution";
+import { MediaInstitution } from "../../shared/models/media-institution";
 
 
 @Injectable({

@@ -1,10 +1,10 @@
 import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
-import { Institution } from '../../../posts/models/institution';
+import { Institution } from '../../../shared/models/institution';
 import { TenantService } from '../../../core/services/tenant.service';
 import { InstitutionService } from '../../services/institution.service';
 import { forkJoin, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
-import { UploadedMedia } from '../../../posts/models/uploaded-media';
+import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
 @Component({

@@ -4,12 +4,12 @@ import { CommentService } from '../../services/comment.service';
 import { ReplyService } from '../../services/reply.service'; 
 import { UserService } from '../../../user-profile/services/user.service';
 import { AuthService } from '../../../authentication/services/auth.service';
-import { Comment } from '../../../posts/models/comment';
-import { Institution } from '../../../posts/models/institution';
+import { Comment } from '../../models/comment';
+import { Institution } from '../../../shared/models/institution';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Post } from '../../../posts/models/post';
-import { Media } from '../../../posts/models/media';
-import { UserDetail } from '../../../posts/models/user-detail';
+import { Media } from '../../../shared/models/media';
+import { UserDetail } from '../../../shared/models/user-detail';
 import moment from 'moment-timezone';
 
 @Component({

@@ -3,8 +3,8 @@ import { AuthService } from "../../authentication/services/auth.service";
 import { environment } from "../../../environments/environment";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { UploadedMedia } from "../../posts/models/uploaded-media";
-import { UserDetail } from "../../posts/models/user-detail";
+import { UploadedMedia } from "../../shared/models/uploaded-media";
+import { UserDetail } from "../../shared/models/user-detail";
 
 @Injectable({
   providedIn: 'root'

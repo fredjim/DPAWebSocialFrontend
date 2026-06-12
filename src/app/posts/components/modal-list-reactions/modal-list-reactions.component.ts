@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryLi
 import { Subject, takeUntil } from 'rxjs';
 import { Reactions } from '../../models/reactions';
 import { ReactionService } from '../../../interactions/services/reaction.service'; 
-import { EmojiType } from '../../models/emoji-type';
+import { EmojiType } from '../../../shared/models/emoji-type';
 import { ReactionsByType } from '../../models/reactions-by-type';
 
 @Component({

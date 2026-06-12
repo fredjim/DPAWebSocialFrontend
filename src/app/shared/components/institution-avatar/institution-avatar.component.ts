@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { Institution } from '../../../posts/models/institution';
+import { Institution } from '../../models/institution';
 
 @Component({
   selector: 'app-institution-avatar',

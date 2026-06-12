@@ -2,13 +2,13 @@ import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef, ChangeDetectio
 import { filter, Subject, takeUntil } from 'rxjs';
 import { PostService } from '../../services/post.service';
 import { InstitutionService } from '../../../institution/services/institution.service';
-import { Institution } from '../../models/institution';
+import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { TenantService } from '../../../core/services/tenant.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { MediaInstitution } from '../../models/media-institution';
+import { MediaInstitution } from '../../../shared/models/media-institution';
 
 @Component({
   selector: 'app-media-gallery',

@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, inject, Input, QueryList, signal, ViewChildren, WritableSignal } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { EmojiType } from '../../../posts/models/emoji-type';
+import { EmojiType } from '../../../shared/models/emoji-type';
 
 @Component({
   selector: 'app-modal-list-reactions-replies',

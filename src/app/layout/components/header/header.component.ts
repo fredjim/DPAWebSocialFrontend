@@ -1,11 +1,11 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Institution } from '../../../posts/models/institution';
+import { Institution } from '../../../shared/models/institution';
 import { UserService } from '../../../user-profile/services/user.service';
 import { TenantService } from '../../../core/services/tenant.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Modal } from 'bootstrap';
 import { AuthService } from '../../../authentication/services/auth.service';
-import { UserDetail } from '../../../posts/models/user-detail';
+import { UserDetail } from '../../../shared/models/user-detail';
 import { MenuItem } from 'primeng/api';
 
 @Component({

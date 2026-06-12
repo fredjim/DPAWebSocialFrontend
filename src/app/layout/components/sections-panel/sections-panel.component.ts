@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { SectionService } from '../../services/section.service';
 import { Section } from '../../../shared/models/section';
-import { UserDetail } from '../../../posts/models/user-detail';
+import { UserDetail } from '../../../shared/models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { UserService } from '../../../user-profile/services/user.service';
 import { NavItem } from '../../../shared/models/nav-item';
