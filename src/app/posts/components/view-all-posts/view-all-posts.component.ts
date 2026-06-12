@@ -2,14 +2,16 @@ import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/co
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { PostService } from '../../services/post.service';
+import { UserService } from '../../../user-profile/services/user.service';
+import { InstitutionService } from '../../../institution/services/institution.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Post } from '../../models/post';
-import { UserDetail } from '../../models/user-detail';
-import { Institution } from '../../models/institution';
-import { TenantService } from '../../../services/tenant.service';
+import { UserDetail } from '../../../shared/models/user-detail';
+import { Institution } from '../../../shared/models/institution';
+import { TenantService } from '../../../core/services/tenant.service';
 import { delay, distinctUntilChanged, fromEvent, Subject, takeUntil, throttleTime } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommentsComponent } from '../comments/comments.component';
+import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
@@ -41,6 +43,8 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly postService: PostService,
+    private readonly userService: UserService,
+    private readonly institutionService: InstitutionService,
     private readonly authService: AuthService,
     private readonly tenantService: TenantService,
     private readonly route: ActivatedRoute,
@@ -73,7 +77,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
       });
 
     if(this.authenticated === true) {
-      this.postService.getUser()
+      this.userService.getUser()
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next:(user: UserDetail) => {
@@ -289,7 +293,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   }
 
   private openPostModal(post: Post, initialMediaIndex: number = 0): void {
-    this.postService.getInstitution(post.institution_id)
+    this.institutionService.getInstitution(post.institution_id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (institution) => {

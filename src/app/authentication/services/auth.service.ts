@@ -1,11 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { map } from 'rxjs/operators';
 import { NewUser } from '../models/new-user';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { TenantService } from '../../services/tenant.service';
+import { TenantService } from '../../core/services/tenant.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +18,6 @@ export class AuthService {
   public token: any
   constructor(
     private readonly http: HttpClient,
-    private readonly router: Router,
     private readonly tenantService: TenantService
   ) {
   }

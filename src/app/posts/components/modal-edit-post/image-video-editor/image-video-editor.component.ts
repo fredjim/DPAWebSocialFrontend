@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, WritableSignal, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { Media } from '../../../models/media';
+import { Media } from '../../../../shared/models/media';
 
 @Component({
   selector: 'app-image-video-editor',

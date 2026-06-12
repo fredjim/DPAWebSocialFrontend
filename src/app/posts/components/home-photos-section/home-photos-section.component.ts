@@ -1,11 +1,12 @@
 import { Component, OnDestroy, OnInit, Input, inject } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { PostService } from '../../services/post.service';
-import { Institution } from '../../models/institution';
+import { InstitutionService } from '../../../institution/services/institution.service';
+import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommentsComponent } from './../comments/comments.component';
-import { TenantService } from '../../../services/tenant.service';
+import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
+import { TenantService } from '../../../core/services/tenant.service';
 
 @Component({
   selector: 'home-photos-section',
@@ -24,7 +25,8 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly postService: PostService,
-    private readonly tenantService: TenantService
+    private readonly tenantService: TenantService,
+    private readonly institutionService: InstitutionService
   ) {}
 
   ngOnInit(){
@@ -45,7 +47,7 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
 
   loadPhotos() {
     if (this.institution) {
-      this.postService.getInstitutionPhotos(this.institution.uuid)
+      this.institutionService.getInstitutionPhotos(this.institution.uuid)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (photos) => {

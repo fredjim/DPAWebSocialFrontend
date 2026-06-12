@@ -1,0 +1,63 @@
+<nav>
+	<ul>
+		@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+			@for(section of sections; track section.uuid; let i = $index){
+				@if(uuidSectionToEdit === section.uuid){
+					<!-- Vista de form edit section -->
+					<app-section-form
+						typeForm="edit"
+						[currentSection]="section"
+						[currentNavItem]="currentNavItem"
+						(onCloseEdit)="onCloseEditSection()"
+						(onEditedSection)="onEditSection($event)"
+						(onDeletedSection)="onDeletedSection($event)"
+					></app-section-form>
+				}@else {
+					<!-- Vista para admins -->
+					<div class="edit-section-pencil">
+						<li>
+							<a [routerLink]="isMobile ? currentNavItem.path +'/'+ section.path : section.path"
+							routerLinkActive="active"  
+							(click)="closeMobileMenu()"
+							>{{ section.name }}
+							</a>
+						</li>
+						<div class="edit-info" (click)="editSectionByUuid(section.uuid)" (keypress)="editSectionByUuid(section.uuid)">
+							<i class="bi bi-pencil-fill"></i>
+						</div>
+					</div>
+				}
+			}
+		}@else {
+			<!-- Vista para usuarios normales -->
+			@for(section of sections; track section.uuid; let i = $index){
+				<li>
+					<a [routerLink]="isMobile ? currentNavItem.path +'/'+ section.path : section.path" 
+					routerLinkActive="active"  
+					(click)="closeMobileMenu()"
+					>{{ section.name }}
+					</a>
+				</li>
+			}
+		}
+	</ul>
+	@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+		@if(showButtonNewSection){
+			<ui-button
+				label="Agregar sección"
+				icon="pi pi-plus"
+				class="btn-new-section"
+				(clicked)="hideButtonNewSection()"
+			></ui-button>
+		}@else {
+			<app-section-form
+				typeForm="create"
+				[currentNavItem]="currentNavItem"
+				(onCloseNew)="showButtonNewSection = $event"
+				(onCreateSection)="onCreatedSection($event)"
+				(onDeletedSection)="onDeletedSection($event)"
+			></app-section-form>
+		}
+	}
+</nav>
+<app-custom-toast #customToast></app-custom-toast>

@@ -1,13 +1,14 @@
 import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { PostService } from '../../services/post.service';
-import { Institution } from '../../models/institution';
+import { InstitutionService } from '../../../institution/services/institution.service';
+import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommentsComponent } from '../comments/comments.component';
-import { TenantService } from '../../../services/tenant.service';
+import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
+import { TenantService } from '../../../core/services/tenant.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { MediaInstitution } from '../../models/media-institution';
+import { MediaInstitution } from '../../../shared/models/media-institution';
 
 @Component({
   selector: 'app-media-gallery',
@@ -36,6 +37,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
   constructor(
     private readonly postService: PostService,
     private readonly tenantService: TenantService,
+    private readonly institutionService: InstitutionService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly cdr: ChangeDetectorRef
@@ -103,7 +105,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     this.photosState = 'loading';
     this.cdr.detectChanges();
 
-    this.postService.getInstitutionPhotos(this.institution.uuid)
+    this.institutionService.getInstitutionPhotos(this.institution.uuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (photos: MediaInstitution[]) => {
@@ -128,7 +130,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     this.videosState = 'loading';
     this.cdr.detectChanges();
 
-    this.postService.getInstitutionVideos(this.institution.uuid)
+    this.institutionService.getInstitutionVideos(this.institution.uuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (videos: MediaInstitution[]) => {
@@ -153,7 +155,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     this.documentosState = 'loading';
     this.cdr.detectChanges();
 
-    this.postService.getInstitutionDocuments(this.institution.uuid)
+    this.institutionService.getInstitutionDocuments(this.institution.uuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (documents: MediaInstitution[]) => {

@@ -1,14 +1,15 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal, ViewChild, WritableSignal } from '@angular/core';
 import { Subject, takeUntil, concatMap } from 'rxjs';
-import { Institution } from '../../models/institution';
+import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PostService } from '../../services/post.service';
-import { Media } from '../../models/media';
+import { UserService } from '../../../user-profile/services/user.service';
+import { Media } from '../../../shared/models/media';
 import { CreatePost } from '../../models/create-post';
-import { UploadedMedia } from '../../models/uploaded-media';
+import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { Modal } from 'bootstrap';
-import { UserDetail } from '../../models/user-detail';
+import { UserDetail } from '../../../shared/models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
 import imageCompression from 'browser-image-compression';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
@@ -51,6 +52,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
 
   constructor(
       private readonly postService: PostService,
+      private readonly userService: UserService,
       private readonly formBuilder: FormBuilder,
       private readonly authService: AuthService
   ){}
@@ -205,7 +207,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   getTypeByRol() {
     this.isAuthenticated = this.authService.isAuthenticated();
     if (this.isAuthenticated) {
-      this.postService.getUser()
+      this.userService.getUser()
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next:(user: UserDetail) => {

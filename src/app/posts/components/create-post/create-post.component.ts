@@ -1,14 +1,15 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, signal, ViewChild } from '@angular/core';
+import { UserService } from '../../../user-profile/services/user.service';
 import { PostService } from '../../services/post.service';
 import * as bootstrap from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { concatMap, Subject, takeUntil } from 'rxjs';
-import { UploadedMedia } from '../../models/uploaded-media';
+import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { CreatePost } from '../../models/create-post';
-import { Institution } from '../../models/institution';
+import { Institution } from '../../../shared/models/institution';
 import moment from 'moment';
-import { TenantService } from '../../../services/tenant.service';
-import { UserDetail } from '../../models/user-detail';
+import { TenantService } from '../../../core/services/tenant.service';
+import { UserDetail } from '../../../shared/models/user-detail';
 import imageCompression from 'browser-image-compression';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 import { Post } from '../../models/post';
@@ -45,6 +46,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private readonly postService: PostService,
+    private readonly userService: UserService,
     private readonly formBuilder: FormBuilder,
     private readonly tenantService: TenantService
   ) { }
@@ -205,7 +207,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getTypeByRol() {
-    this.postService.getUser()
+    this.userService.getUser()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next:(user: UserDetail) => {

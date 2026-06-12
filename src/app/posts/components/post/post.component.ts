@@ -1,15 +1,17 @@
 import { Component, EventEmitter, Input, Output, signal, WritableSignal, inject, OnInit } from '@angular/core';
-import { PostService } from '../../services/post.service';
-import { CreateReaction } from '../../models/create-reaction';
+import { InstitutionService } from '../../../institution/services/institution.service';
+import { ReactionService } from '../../../interactions/services/reaction.service';
+import { CommentService } from '../../../interactions/services/comment.service';
+import { CreateReaction } from '../../../shared/models/create-reaction';
 import { Post } from '../../models/post';
-import { Institution } from '../../models/institution';
+import { Institution } from '../../../shared/models/institution';
 import { ReactionsByType } from '../../models/reactions-by-type';
-import { Media } from '../../models/media';
+import { Media } from '../../../shared/models/media';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommentsComponent } from './../comments/comments.component';
+import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { PostComment } from '../../models/post-comment';
-import { UserDetail } from '../../models/user-detail';
-import { TenantService } from '../../../services/tenant.service';
+import { UserDetail } from '../../../shared/models/user-detail';
+import { TenantService } from '../../../core/services/tenant.service';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -53,14 +55,16 @@ export class PostComponent implements OnInit {
   totalComments = signal(0);
 
   constructor(
-    private readonly postService: PostService,
+    private readonly institutionService: InstitutionService,
+    private readonly reactionService: ReactionService,
+    private readonly commentService: CommentService,
     private readonly tenantService: TenantService
   ) {}
   
   ngOnInit() {
     this.listMediaPost = this.loadMediaPost();
   
-    this.postService.getInstitution(this.post.institution_id).subscribe({
+    this.institutionService.getInstitution(this.post.institution_id).subscribe({
       next: (institutionData) => {
         this.institution = institutionData;
       },
@@ -81,7 +85,7 @@ export class PostComponent implements OnInit {
   
 
   loadComments() {
-    this.postService.getComments(this.post.uuid).subscribe({
+    this.commentService.getComments(this.post.uuid).subscribe({
       next: (data: any) => {
         this.comments = data.map((c: any) => ({
           postId: c.postId,
@@ -198,23 +202,23 @@ export class PostComponent implements OnInit {
   }
 
   removeReaction(postUuid: string) {
-  this.postService.deleteReaction(postUuid).subscribe({
-    next: () => {
-      this.like = false;
-      this.myReaction = {
-        class: 'default',
-        emoji: 'fa-regular fa-thumbs-up',
-        name: 'Me gusta'
-      };
-      this.totalReactions.update(valor => valor - 1);
-      this.reactionChanged.emit(); // Emitir evento de cambio de reacción
-      console.log('Reacción eliminada');
-    },
-    error: (error) => {
-      console.log('No se pudo eliminar la reacción', error);
-    }
-  });
-}
+    this.reactionService.deletePostReaction(postUuid).subscribe({
+      next: () => {
+        this.like = false;
+        this.myReaction = {
+          class: 'default',
+          emoji: 'fa-regular fa-thumbs-up',
+          name: 'Me gusta'
+        };
+        this.totalReactions.update(valor => valor - 1);
+        this.reactionChanged.emit(); // Emitir evento de cambio de reacción
+      },
+      error: (error) => {
+        console.log('No se pudo eliminar la reacción', error);
+      }
+    });
+  }
+  
   getTypeDoc(typeDoc: string) {
     if (typeDoc == 'application/pdf')
       return 'PDF';
@@ -330,7 +334,7 @@ export class PostComponent implements OnInit {
       "emoji_type_id": emoji_id,
       "reaction_date": new Date()
     }
-    this.postService.postReaction(postUuid, newReaction).subscribe({
+    this.reactionService.reactToPost(postUuid, newReaction).subscribe({
       next: () => {
         this.like = true;
         //this.totalReactions.update(valor => valor + 1)

@@ -1,13 +1,12 @@
 import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
-import { PostService } from '../../../posts/services/post.service';
-import { UserDetail } from '../../../posts/models/user-detail';
-import { TenantService } from '../../../services/tenant.service';
+import { UserDetail } from '../../../shared/models/user-detail';
+import { TenantService } from '../../../core/services/tenant.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
-import { UploadedMedia } from '../../../posts/models/uploaded-media';
+import { UploadedMedia } from '../../../shared/models/uploaded-media';
 
 @Component({
   selector: 'app-profile',
@@ -16,7 +15,6 @@ import { UploadedMedia } from '../../../posts/models/uploaded-media';
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
-  private readonly postService = inject(PostService);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly tenantService = inject(TenantService);
@@ -43,7 +41,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     this.authenticated = this.authService.isAuthenticated();
     if(this.authenticated){
-      this.postService.getUser()
+      this.userService.getUser()
         .pipe(takeUntil(this.destroy$))
         .subscribe(user => {
           this.currentUser = user;

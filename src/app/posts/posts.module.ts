@@ -10,8 +10,6 @@ import { TextEditorComponent } from './components/create-post/text-editor/text-e
 import { ImagesUploaderComponent } from './components/create-post/images-videos-uploader/images-uploader.component';
 import { DocumentUploaderComponent } from './components/create-post/document-uploader/document-uploader.component';
 
-import { CommentsComponent } from './components/comments/comments.component';
-import { ViewCommentsComponent } from './components/view-comments/view-comments.component';
 import { OptionsPostComponent } from './components/options-post/options-post.component';
 import { ModalDeletePostComponent } from './components/modal-delete-post/modal-delete-post.component';
 import { ModalEditPostComponent } from './components/modal-edit-post/modal-edit-post.component';
@@ -22,17 +20,11 @@ import { DocumentEditorComponent } from './components/modal-edit-post/document-e
 import { ViewPostDetailComponent } from './components/view-post-detail/view-post-detail.component';
 import { MediaGalleryComponent } from './components/media-gallery/media-gallery.component';
 import { HomePhotosSectionComponent} from './components/home-photos-section/home-photos-section.component';
-import { CommentsModule } from '../comments/comments.module';
+import { InteractionsModule } from '../interactions/interactions.module';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { PopupInfoUserComponent } from './components/popup-info-user/popup-info-user.component';
-import { CommentListComponent } from './components/comments/comment-list/comment-list.component';
-import { CommentItemComponent } from './components/comments/comment-item/comment-item.component';
-import { ReplyListComponent } from './components/comments/reply-list/reply-list.component';
-import { ReplyItemComponent } from './components/comments/reply-item/reply-item.component';
-import { CommentInputComponent } from './components/comments/comment-input/comment-input.component';
-import { ModalListReactionsRepliesComponent } from './components/comments/modal-list-reactions-replies/modal-list-reactions-replies.component';
 import { AppRoutingModule } from "../app-routing.module";
 import { SharedModule } from '../shared/shared.module';
 import { TabViewModule } from 'primeng/tabview';
@@ -45,8 +37,6 @@ import { MessagesModule } from 'primeng/messages';
     DepartmentDetailsComponent,
     PostComponent,
     CreatePostComponent,
-    CommentsComponent,
-    ViewCommentsComponent,
     TextEditorComponent,
     ImagesUploaderComponent,
     DocumentUploaderComponent,
@@ -61,18 +51,12 @@ import { MessagesModule } from 'primeng/messages';
     MediaGalleryComponent,
     HomePhotosSectionComponent,
     PopupInfoUserComponent,
-    CommentListComponent,
-    CommentItemComponent,
-    ReplyListComponent,
-    ReplyItemComponent,
-    CommentInputComponent,
-    ModalListReactionsRepliesComponent,
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    CommentsModule,
+    InteractionsModule,
     NgbCarouselModule,
     PdfViewerModule,
     OverlayPanelModule,
@@ -81,7 +65,7 @@ import { MessagesModule } from 'primeng/messages';
     TabViewModule,
     CarouselModule,
     MessagesModule
-],
+  ],
   exports: [
     ViewAllPostsComponent,
     PostComponent

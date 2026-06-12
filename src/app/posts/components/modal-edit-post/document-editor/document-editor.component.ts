@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, WritableSignal } from '@angular/core';
-import { Media } from '../../../models/media';
+import { Media } from '../../../../shared/models/media';
 
 @Component({
   selector: 'app-document-editor',

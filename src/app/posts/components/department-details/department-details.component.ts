@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TenantService } from '../../../services/tenant.service';
+import { TenantService } from '../../../core/services/tenant.service';
 
 @Component({
   selector: 'app-department-details',
