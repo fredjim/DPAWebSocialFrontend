@@ -14,7 +14,6 @@
           pInputText
           formControlName="email"
           class="w-100"
-          placeholder="root@system.local"
           [class.is-invalid]="hasError('email', 'required') || hasError('email', 'email')"
         />
         <small class="text-danger" *ngIf="hasError('email', 'required')">El email es requerido</small>

@@ -1,7 +1,7 @@
 <nav>
   <ul>
     <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="posts" routerLinkActive="active">Publicaciones</a></li>
-    <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="fotos" routerLinkActive="active">Galería</a></li>
+    <!-- <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="fotos" routerLinkActive="active">Galería</a></li> -->
 
     @for(navItem of navItems; track navItem.uuid){
       @if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
