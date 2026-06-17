@@ -2,7 +2,7 @@
 
   <div class="section-title">
     <h3>Fotos</h3>
-    <a [routerLink]="['/', currentSlug, 'fotos']">Ver más</a>
+    <a (click)="visibleModalMedia = true">Ver más</a>
   </div>
 
   <div *ngIf="isLoading" class="loading-message">
@@ -31,6 +31,9 @@
   [(visible)]="visibleModalMedia"
   appendTo="body">
 
-  <app-media-gallery></app-media-gallery>
+  <app-media-gallery 
+    *ngIf="visibleModalMedia"
+    (closeModalMedia)="visibleModalMedia = false">
+  </app-media-gallery>
 </p-dialog>
 

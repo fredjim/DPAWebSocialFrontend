@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { filter, Subject, takeUntil } from 'rxjs';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy, Output, EventEmitter } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { PostService } from '../../services/post.service';
 import { InstitutionService } from '../../../institution/services/institution.service';
 import { Institution } from '../../../shared/models/institution';
@@ -7,7 +7,6 @@ import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { TenantService } from '../../../core/services/tenant.service';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { MediaInstitution } from '../../../shared/models/media-institution';
 
 @Component({
@@ -17,6 +16,7 @@ import { MediaInstitution } from '../../../shared/models/media-institution';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaGalleryComponent implements OnInit, OnDestroy {
+  @Output() closeModalMedia = new EventEmitter<void>();
   private readonly destroy$ = new Subject<void>();
   private readonly modalService = inject(NgbModal);
   institution!: Institution;
@@ -30,7 +30,6 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
   documentosState: 'idle' | 'loading' | 'loaded' | 'error' = 'idle';
 
   currentPost !: Post;
-  currentSlug: string = '';
   activeTabIndex: number = 0;
 
 
@@ -38,17 +37,10 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     private readonly postService: PostService,
     private readonly tenantService: TenantService,
     private readonly institutionService: InstitutionService,
-    private readonly router: Router,
-    private readonly route: ActivatedRoute,
     private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-    this.currentSlug = this.tenantService.getSlug();
-
-    // Sincronizar al iniciar
-    this.syncTabFromRoute();
-
     this.tenantService.getInstitution()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -64,18 +56,6 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
           this.documentosState = 'error';
           this.cdr.detectChanges();
         }
-      });
-
-    // Sincronizar cuando cambia la ruta desde fuera (URL, back/forward)
-    this.router.events
-      .pipe(
-        filter(event => event instanceof NavigationEnd),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        this.syncTabFromRoute();
-        this.loadDataForCurrentTab();
-        this.cdr.detectChanges();
       });
   }
 
@@ -175,6 +155,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
   }
 
   openViewPost(postUuid: string, mediaUrl: string) {
+    this.closeModalMedia.emit();
     this.postService.getPost(postUuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -192,30 +173,9 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
       });
   }
 
-  private syncTabFromRoute() {
-    const currentPath = this.router.url.split('/').pop();
-    switch(currentPath) {
-      case 'videos':
-        this.activeTabIndex = 1;
-        break;
-      case 'documentos':
-        this.activeTabIndex = 2;
-        break;
-      default:
-        this.activeTabIndex = 0; // fotos por defecto
-    }
-    this.cdr.detectChanges();
-  }
-
   onTabChange(event: any) {
     this.activeTabIndex = event.index; 
-    const routes = ['fotos', 'videos', 'documentos'];
-    const selectedRoute = routes[event.index];
-    
-    this.router.navigate([selectedRoute], { 
-      relativeTo: this.route.parent,
-      replaceUrl: true
-    });
+    this.loadDataForCurrentTab();
   }
 
   retryPhotos() {

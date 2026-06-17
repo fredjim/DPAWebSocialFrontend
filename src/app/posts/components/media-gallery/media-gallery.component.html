@@ -1,5 +1,5 @@
 <div class="content">
-  <p-tabView [activeIndex]="activeTabIndex" class="tab-media">
+  <p-tabView [activeIndex]="activeTabIndex" (onChange)="onTabChange($event)" class="tab-media">
     
     <!-- Tab de Fotos -->
     <p-tabPanel header="Fotos">
@@ -93,6 +93,7 @@
                               [render-text]="false" 
                               [original-size]="false" 
                               [autoresize]="true" 
+                              
                               class="document">
                   </pdf-viewer>
                 </a>
