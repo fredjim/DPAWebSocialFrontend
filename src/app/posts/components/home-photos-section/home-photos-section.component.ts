@@ -22,6 +22,7 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   currentPost !: Post;
   currentSlug: string = '';
+  visibleModalMedia: boolean = false;
 
   constructor(
     private readonly postService: PostService,

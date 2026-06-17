@@ -63,23 +63,6 @@
 			gap: 10px;
 			width: 100%;
 
-			.img-profile {
-				width: 40px;
-				height: 40px;
-				border-radius: 50%;
-				border: 1px solid var(--blue-color);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-
-				img {
-					border-radius: 50%;
-					width: 99%;
-					height: 99%;
-					object-fit: contain;
-				}
-			}
-
 			.info-user {
 				margin: 0;
 				padding: 0;
@@ -566,7 +549,7 @@ hr {
 }
 
 @media screen and (max-width: 768px) {
-	.img-profile {
+	#inst-avatar {
 		display: none !important;
 	}
 
@@ -579,14 +562,6 @@ hr {
 			width: 100%;
 			display: flex;
 			gap: 10px;
-
-			.img-profile {
-				width: 40px;
-				height: 40px;
-				border-radius: 50%;
-				border: 1px solid var(--blue-color);
-				object-fit: contain;
-			}
 
 			.info-user {
 				margin: 0;

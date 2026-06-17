@@ -275,6 +275,10 @@
 			display: flex;
 			gap: 10px;
 
+			#logo-inst {
+				display: none;
+			}
+
 			.info-user {
 				margin: 0;
 				padding: 0;

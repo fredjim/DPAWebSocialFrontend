@@ -76,21 +76,27 @@
 
 	.hero-profile {
 		.hero-images {
-			height: 255px;
+			height: 170px;
 
 			.hero-photo {
-				height: 200px;
+				height: 130px;
 			}
 
 			.profile-photo {
-				top: 145px;
-				width: 120px;
-				height: 120px;
+				top: 80px;
+				width: 100px;
+				height: 100px;
+				
+				::ng-deep .institution-logo {
+					width: 90px;
+					height: 90px;
+				}
 			}
 
 		}
 		.profile-information {
 			font-size: 24px !important;
+			padding: 20px 10px;
 		}
 	}
 

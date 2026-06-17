@@ -13,7 +13,7 @@ import { NavigationEnd, Router } from '@angular/router';
 export class HeroProfileComponent implements OnInit, OnDestroy {
   institution!: Institution;
   screenWidth!: number;
-  showHero = true;
+  // showHero = true;
   coverImageError = false;
   private readonly subscriptions = new Subscription();
 
@@ -28,38 +28,38 @@ export class HeroProfileComponent implements OnInit, OnDestroy {
     this.getInstitutionData();
 
     // Suscribirse a cambios de ruta
-    this.subscribeToRouteChanges();
+    // this.subscribeToRouteChanges();
 
     // Evaluar condiciones iniciales
-    this.showHero = this.checkConditions();
+    // this.showHero = this.checkConditions();
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.screenWidth = window.innerWidth;
-    this.updateShowHero();
+    // this.updateShowHero();
   }
 
-  private subscribeToRouteChanges(): void {
-    const routeSubscription = this.router.events
-      .pipe(
-        filter(event => event instanceof NavigationEnd)
-      )
-      .subscribe(() => {
-        this.updateShowHero();
-      });
+  // private subscribeToRouteChanges(): void {
+  //   const routeSubscription = this.router.events
+  //     .pipe(
+  //       filter(event => event instanceof NavigationEnd)
+  //     )
+  //     .subscribe(() => {
+  //       this.updateShowHero();
+  //     });
 
-    this.subscriptions.add(routeSubscription);
-  }
+  //   this.subscriptions.add(routeSubscription);
+  // }
 
-  private updateShowHero(): void {
-    this.showHero = this.checkConditions();
-  }
+  // private updateShowHero(): void {
+  //   this.showHero = this.checkConditions();
+  // }
 
-  private checkConditions(): boolean {
-    const isMobile = this.screenWidth >= 768;
-    return isMobile || this.shouldRender;
-  }
+  // private checkConditions(): boolean {
+  //   const isMobile = this.screenWidth >= 768;
+  //   return isMobile || this.shouldRender;
+  // }
 
   get shouldRender(): boolean {
     return this.router.url.includes('/posts');
