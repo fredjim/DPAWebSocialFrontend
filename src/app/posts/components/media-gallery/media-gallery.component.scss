@@ -1,8 +1,7 @@
 .content {
   display: flex;
 	flex-direction: column;
-	min-height: 100vh;
-	min-height: 100dvh;
+	min-height: 27rem;
 }
 
 .tab-media {
@@ -46,7 +45,7 @@
 }
 
 ::ng-deep ul.p-tabview-nav {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   padding: 0 1rem;
   gap: 15px;
   border: none;
@@ -54,6 +53,8 @@
   li.p-highlight > a.p-tabview-nav-link  {
     color: var(--red-color);
     border-color: var(--red-color);
+    outline: 0 none !important;
+    box-shadow: none !important;
   }
 
   a.p-tabview-nav-link {
@@ -89,18 +90,6 @@
   text-align: center;
   color: var(--red-color);
   margin-top: 20px;
-}
-
-footer {
-	text-align: center;
-	padding: 5px;
-	background-color: var(--blue-color);
-	color: white;
-	width: 100%;
-
-	p {
-		margin: 0;
-	}
 }
 
 @media screen and (max-width: 1201px) {

@@ -3,7 +3,7 @@
 <div class="create-post-container">
 	<div class="d-flex gap-3 align-items-center w-100">
 		@if (institution) {
-			<app-institution-avatar [institution]="institution" size="small"></app-institution-avatar>
+			<app-institution-avatar [institution]="institution" size="small" id="inst-avatar"></app-institution-avatar>
 		}
 		<div class="new-post fw-semibold ml-3" (click)="openModalCreatePost()" (keypress)="openModalCreatePost()">
 			<p>Crea una publicación</p>

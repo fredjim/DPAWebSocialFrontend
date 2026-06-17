@@ -63,6 +63,10 @@
   color: var(--blue-color);
 }
 
+::ng-deep .p-dialog .p-dialog-content {
+  padding-top: 0;
+}
+
 @media screen and (max-width: 768px) {
 
 	.photos-container {
