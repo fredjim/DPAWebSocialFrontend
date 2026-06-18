@@ -14,7 +14,6 @@
             <i class="bi bi-arrow-left"></i>
         </span>
         
-        <p-menu #menu [model]="menuItemsPopup" [popup]="true" />
         @if (authenticated && user) {
             @if (user.photo_profile_path){
                 <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="menu.toggle($event)" (keypress)="menu.toggle($event)" class="logo user-image">
@@ -31,6 +30,7 @@
 
     </div>
 </header>
+<p-menu #menu [model]="menuItemsPopup" [popup]="true" appendTo="body" />
 
 <app-login></app-login>
 
