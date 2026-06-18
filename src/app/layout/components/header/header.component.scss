@@ -72,47 +72,48 @@ header {
 		}
 	}
 
-	::ng-deep .p-menu.p-menu-overlay {
-		width: auto;
-		transform: translateX(25%);
-		.p-menu-list {
-			padding-left: 0;
-			margin: 0.5rem 0;
+}
 
-			.p-menuitem-link {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				padding: 0 40px;
-				height: 40px;
-				font-size: 1rem;
-				text-decoration: none;
-				cursor: pointer;
-				
-				&:hover {
-					background-color: #bbdbfb;
-					color: var(--blue-color);
-				}
-				
-				.p-menuitem-text {
-					color: var(--blue-color);
-				}
+::ng-deep .p-menu.p-menu-overlay {
+	width: auto;
+	transform: translateX(35%) !important;
+	.p-menu-list {
+		padding-left: 0;
+		margin: 0.5rem 0;
+
+		.p-menuitem-link {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0 40px;
+			height: 40px;
+			font-size: 1rem;
+			text-decoration: none;
+			cursor: pointer;
+			
+			&:hover {
+				background-color: #bbdbfb;
+				color: var(--blue-color);
 			}
-			.p-menuitem-link-active {
-				background-color: var(--clear-blue);
+			
+			.p-menuitem-text {
+				color: var(--blue-color);
+			}
+		}
+		.p-menuitem-link-active {
+			background-color: var(--clear-blue);
+			.p-menuitem-text {
+				color: white;
+			}
+			&:hover {
 				.p-menuitem-text {
-					color: white;
-				}
-				&:hover {
-					.p-menuitem-text {
-						color: var(--blue-color);
-					}
+					color: var(--blue-color);
 				}
 			}
 		}
 	}
-
 }
+
 // Ocultar en vista web
 .submenu {
 	display: none;
@@ -151,5 +152,11 @@ header {
 			transform: translateX(33%);
 		}
 
+	}
+}
+
+@media screen and (min-width: 1400px) {
+	::ng-deep .p-menu.p-menu-overlay {
+		transform: translateX(-35%) !important;
 	}
 }
