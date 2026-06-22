@@ -7,6 +7,9 @@
     [globalFilterFields]="globalFilterFields"
     [hasActions]="true"
     searchPlaceholder="Buscar administradores..."
+    [lazy]="true"
+    [totalRecords]="totalRecords"
+    (onLazyLoad)="onLazyLoad($event)"
   >
     <!-- Botón de añadir en el toolbar -->
     <p-button
@@ -32,9 +35,9 @@
         ></button>
         <button
           pButton
-          icon="fa-solid fa-trash-can"
+          icon="fa-solid fa-user-slash"
           class="p-button-text p-button-danger p-button-rounded"
-          pTooltip="Eliminar"
+          pTooltip="Deshabilitar"
           tooltipPosition="top"
           title=""
           (click)="confirmDelete(admin)"
