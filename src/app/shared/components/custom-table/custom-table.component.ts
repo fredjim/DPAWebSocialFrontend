@@ -1,4 +1,4 @@
-import { Component, Input, ContentChild, TemplateRef } from '@angular/core';
+import { Component, Input, ContentChild, TemplateRef, Output, EventEmitter } from '@angular/core';
 
 export interface TableColumn {
   field: string;
@@ -22,6 +22,11 @@ export class CustomTableComponent {
   @Input() title: string = '';
   @Input() searchPlaceholder: string = 'Buscar registros...';
   @Input() hasActions: boolean = false;
+
+  // Propiedades para Paginación de Servidor (Lazy Load)
+  @Input() lazy: boolean = false;
+  @Input() totalRecords: number = 0;
+  @Output() onLazyLoad = new EventEmitter<any>();
 
   @ContentChild('actions') actionsTemplate!: TemplateRef<any>;
   

@@ -12,6 +12,9 @@
     [showCurrentPageReport]="true"
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
     styleClass="p-datatable-responsive p-datatable-sm custom-premium-table"
+    [lazy]="lazy"
+    [totalRecords]="lazy ? totalRecords : (data ? data.length : 0)"
+    (onLazyLoad)="lazy ? onLazyLoad.emit($event) : null"
     >
     <!-- Caption / Toolbar -->
     <ng-template pTemplate="caption">
