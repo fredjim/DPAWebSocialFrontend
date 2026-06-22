@@ -130,6 +130,9 @@ $font-size-large: 1.2rem;
 .img-profile {
   width: 55px;
   height: 55px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .comment-img {
