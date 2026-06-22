@@ -4,7 +4,7 @@ import { HomeComponent } from './layout/components/home/home.component';
 import { ViewAllPostsComponent } from './posts/components/view-all-posts/view-all-posts.component';
 import { MediaGalleryComponent } from './posts/components/media-gallery/media-gallery.component';
 import { ProfileComponent } from './user-profile/components/profile/profile.component';
-import { ProfileInstitutionComponent } from './institution/components/profile-institution/profile-institution.component';
+import { InstitutionAdminComponent } from './institution/components/institution-admin/institution-admin.component';
 import { VerifyEmailComponent } from './authentication/components/verify-email/verify-email.component';
 import { ResetPasswordComponent } from './authentication/components/reset-password/reset-password.component';
 import { authGuard } from './authentication/services/auth.guard';
@@ -36,7 +36,7 @@ const routes: Routes = [
       },
       {
         path: 'institution',
-        component: ProfileInstitutionComponent,
+        component: InstitutionAdminComponent,
         canActivate: [authGuard],
         data: { roles: ['ADMIN'], hideHero: true, hideNavbar: true, showGoBack: true }
       },

@@ -59,12 +59,6 @@
             <div class="d-flex align-items-center">
             {{ col.header }}
             <p-sortIcon *ngIf="col.sortable" [field]="col.field" class="ms-1"></p-sortIcon>
-            <div class="ms-auto">
-                <p-columnFilter *ngIf="col.type === 'text'" type="text" [field]="col.field" display="menu"></p-columnFilter>
-                <p-columnFilter *ngIf="col.type === 'numeric'" type="numeric" [field]="col.field" display="menu"></p-columnFilter>
-                <p-columnFilter *ngIf="col.type === 'date'" type="date" [field]="col.field" display="menu"></p-columnFilter>
-                <p-columnFilter *ngIf="col.type === 'boolean'" type="boolean" [field]="col.field" display="menu"></p-columnFilter>
-            </div>
             </div>
         </th>
         <th *ngIf="hasActions" class="text-center" style="width: 140px">Acciones</th>
