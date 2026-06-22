@@ -16,6 +16,11 @@ header {
 	.logo-brands {
 		display: flex;
 		gap: 30px;
+
+		#logo-inst {
+			display: flex;
+			align-items: center;
+		}
 	}
 
 	.main-logo {
