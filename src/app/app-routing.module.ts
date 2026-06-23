@@ -2,13 +2,10 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './layout/components/home/home.component';
 import { ViewAllPostsComponent } from './posts/components/view-all-posts/view-all-posts.component';
-import { MediaGalleryComponent } from './posts/components/media-gallery/media-gallery.component';
-import { ProfileComponent } from './user-profile/components/profile/profile.component';
-import { InstitutionAdminComponent } from './institution/components/institution-admin/institution-admin.component';
 import { VerifyEmailComponent } from './authentication/components/verify-email/verify-email.component';
 import { ResetPasswordComponent } from './authentication/components/reset-password/reset-password.component';
-import { authGuard } from './authentication/services/auth.guard';
 import { environment } from '../environments/environment';
+import { authGuard } from './authentication/services/auth.guard';
 
 const routes: Routes = [
   // Rutas públicas standalone (sin slug — llegan desde links de email)
@@ -30,15 +27,15 @@ const routes: Routes = [
       // Rutas protegidas
       {
         path: 'profile',
-        component: ProfileComponent,
         canActivate: [authGuard],
-        data: { hideHero: true, hideNavbar: true, showGoBack: true }
+        data: { hideHero: true, hideNavbar: true, showGoBack: true },
+        loadChildren: () => import('./user-profile/user-profile.module').then(m => m.UserProfileModule)
       },
       {
         path: 'institution',
-        component: InstitutionAdminComponent,
         canActivate: [authGuard],
-        data: { roles: ['ADMIN'], hideHero: true, hideNavbar: true, showGoBack: true }
+        data: { roles: ['ADMIN'], hideHero: true, hideNavbar: true, showGoBack: true },
+        loadChildren: () => import('./institution/institution.module').then(m => m.InstitutionModule)
       },
       
       // Rutas públicas
