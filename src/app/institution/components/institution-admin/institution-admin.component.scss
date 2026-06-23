@@ -1,0 +1,67 @@
+.institution-admin-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 0;
+}
+
+.tab-section-wrap {
+  padding-top: 1rem;
+}
+
+// Tabs styling
+:host ::ng-deep .custom-tabs {
+
+  // Barra de navegación de tabs
+  .p-tabview-nav-container {
+    border-bottom: 2px solid var(--rd-border);
+    margin-bottom: 2rem;
+  }
+
+  .p-tabview-nav {
+    background: transparent;
+    border: none;
+    gap: 0;
+    padding: 0;
+    margin-bottom: -2px; // solapa con el border-bottom del container
+
+    li {
+      .p-tabview-nav-link {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: 0.875rem 1.5rem;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        color: var(--rd-text-secondary);
+        transition: color var(--rd-transition), border-color var(--rd-transition);
+        border-radius: 0;
+        box-shadow: none !important;
+        gap: 8px;
+
+        &:hover {
+          color: var(--rd-text);
+          background: transparent;
+        }
+      }
+
+      &.p-highlight .p-tabview-nav-link {
+        color: var(--rd-accent);
+        border-bottom-color: var(--rd-accent);
+        background: transparent;
+      }
+    }
+  }
+
+  // Panel de contenido
+  .p-tabview-panels {
+    background: transparent;
+    padding: 0;
+  }
+}

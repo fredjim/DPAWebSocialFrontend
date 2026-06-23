@@ -1,0 +1,31 @@
+<div class="institution-admin-container">
+
+  <div *ngIf="isLoading()" class="loader-container">
+    <p-progressSpinner strokeWidth="4" styleClass="spinner-md" />
+  </div>
+
+  <p-tabView *ngIf="!isLoading()" styleClass="custom-tabs">
+
+    <!-- Tab 1: Perfil -->
+    <p-tabPanel>
+      <ng-template pTemplate="header">
+        <i class="fa-solid fa-building me-2"></i> Perfil de la Institución
+      </ng-template>
+      <app-profile-institution />
+    </p-tabPanel>
+
+    <!-- Tab 2: Estudiantes -->
+    <p-tabPanel>
+      <ng-template pTemplate="header">
+        <i class="fa-solid fa-user-graduate me-2"></i> Estudiantes
+      </ng-template>
+      <div class="tab-section-wrap">
+        <app-institution-students-table
+          [institutionUuid]="institutionUuid()"
+          class="d-block"
+        />
+      </div>
+    </p-tabPanel>
+
+  </p-tabView>
+</div>
