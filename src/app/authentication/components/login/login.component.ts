@@ -71,6 +71,8 @@ export class LoginComponent implements OnInit {
             this.toastRef.showError('El usuario no pertenece a esta institución', 'Error al iniciar sesión');
           } else if (error.status === 401) {
             this.correctCredentials = false;
+          } else if (error.status === 403) {
+            this.toastRef.showError('La cuenta está deshabilitada. Contacta al administrador.', 'Error al iniciar sesión');
           }
         }
       });
