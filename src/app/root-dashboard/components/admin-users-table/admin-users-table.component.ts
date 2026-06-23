@@ -7,7 +7,7 @@ import { AdminUser } from '../../models/admin-user.model';
 import { AdminUserService } from '../../services/admin-user.service';
 import { TableColumn } from '../../../shared/components/custom-table/custom-table.component';
 
-const ONLY_LETTERS_AND_NUMBERS = /^[a-zA-Z0-9\s]+$/;
+const ONLY_LETTERS = /^[a-zA-Z\s]+$/;
 const PHONE_8_DIGITS = /^\d{8}$/;
 interface PasswordValidationErrors {
   passwordLength?: true;
@@ -68,8 +68,8 @@ export class AdminUsersTableComponent implements OnInit {
 
   private buildForm(): void {
     this.form = this.fb.group({
-      name:     ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_NAME), Validators.maxLength(this.MAX_LENGTH_NAME), Validators.pattern(ONLY_LETTERS_AND_NUMBERS)]],
-      lastName: ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_LASTNAME), Validators.maxLength(this.MAX_LENGTH_LASTNAME), Validators.pattern(ONLY_LETTERS_AND_NUMBERS)]],
+      name:     ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_NAME), Validators.maxLength(this.MAX_LENGTH_NAME), Validators.pattern(ONLY_LETTERS)]],
+      lastName: ['', [Validators.required, Validators.minLength(this.MIN_LENGTH_LASTNAME), Validators.maxLength(this.MAX_LENGTH_LASTNAME), Validators.pattern(ONLY_LETTERS)]],
       email:    ['', [Validators.required, Validators.email, Validators.maxLength(this.MAX_LENGTH_EMAIL)]],
       password: ['', [this.passwordValidator()]],
       phone:    ['', [Validators.pattern(PHONE_8_DIGITS)]]

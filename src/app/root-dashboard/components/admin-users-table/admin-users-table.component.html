@@ -63,16 +63,18 @@
           <label class="form-label" for="name">Nombre <span class="text-danger">*</span></label>
           <input pInputText id="name" formControlName="name" class="w-100" placeholder="Ej: Juan" />
           <small class="text-danger" *ngIf="hasError('name', 'required')">Obligatorio</small>
-          <small class="text-danger-msg" *ngIf="hasError('name', 'minlength')">Mínimo {{ MIN_LENGTH_NAME }} caracteres</small>
-          <small class="text-danger-msg" *ngIf="hasError('name', 'maxlength')">Máximo {{ MAX_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('name', 'minlength')">Mínimo {{ MIN_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('name', 'maxlength')">Máximo {{ MAX_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('name', 'pattern')">Solo letras y espacios</small>
         </div>
 
         <div class="col-md-6">
           <label class="form-label" for="lastName">Apellido <span class="text-danger">*</span></label>
           <input pInputText id="lastName" formControlName="lastName" class="w-100" placeholder="Ej: Pérez" />
           <small class="text-danger" *ngIf="hasError('lastName', 'required')">Obligatorio</small>
-          <small class="text-danger-msg" *ngIf="hasError('lastName', 'minlength')">Mínimo {{ MIN_LENGTH_NAME }} caracteres</small>
-          <small class="text-danger-msg" *ngIf="hasError('lastName', 'maxlength')">Máximo {{ MAX_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('lastName', 'minlength')">Mínimo {{ MIN_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('lastName', 'maxlength')">Máximo {{ MAX_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('lastName', 'pattern')">Solo letras y espacios</small>
         </div>
 
         <div class="col-12">
