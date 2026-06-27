@@ -6,7 +6,7 @@ import { Institution } from '../../shared/models/institution';
   providedIn: 'root'
 })
 export class InstitutionStateService {
-  private institutionSubject = new BehaviorSubject<Institution | null>(null);
+  private readonly institutionSubject = new BehaviorSubject<Institution | null>(null);
 
   public readonly currentInstitution$ = this.institutionSubject.asObservable();
 

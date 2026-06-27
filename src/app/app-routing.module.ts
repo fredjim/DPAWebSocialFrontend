@@ -4,15 +4,16 @@ import { HomeComponent } from './layout/components/home/home.component';
 import { ViewAllPostsComponent } from './posts/components/view-all-posts/view-all-posts.component';
 import { VerifyEmailComponent } from './authentication/components/verify-email/verify-email.component';
 import { ResetPasswordComponent } from './authentication/components/reset-password/reset-password.component';
-import { environment } from '../environments/environment';
 import { authGuard } from './authentication/services/auth.guard';
+import { NotFoundComponent } from './core/components/not-found/not-found.component';
+import { tenantGuard } from './core/guards/tenant.guard';
 
 const routes: Routes = [
   // Rutas públicas standalone (sin slug — llegan desde links de email)
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-
-     // ROOT dashboard — lazy loaded, debe ir ANTES del wildcard :slug
+  { path: 'not-found', component: NotFoundComponent },
+  // ROOT dashboard — lazy loaded, debe ir ANTES del wildcard :slug
   {
     path: 'root',
     loadChildren: () =>
@@ -23,6 +24,7 @@ const routes: Routes = [
   {
     path: ':slug',
     component: HomeComponent,  // Este componente contiene header/footer del tenant
+    canActivate: [tenantGuard],
     children: [
       // Rutas protegidas
       {
@@ -48,16 +50,13 @@ const routes: Routes = [
       {
         path: ':pathNavItem',
         loadChildren: () => import('./articles/articles.module').then(m => m.ArticlesModule)
-      }
+      },
+      { path: '**', component: NotFoundComponent } // ← sub-rutas inexistentes dentro de un slug válido
     ]
   },
 
-  // Raíz → redirige al tenant por defecto
-  {
-    path: '',
-    redirectTo: environment.DEFAULT_TENANT_SLUG,
-    pathMatch: 'full'
-  },
+  // Raíz → redirige al 404 not found
+  { path: '**', redirectTo: '/not-found' }
 ];
 
 @NgModule({

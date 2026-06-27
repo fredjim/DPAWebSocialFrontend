@@ -4,6 +4,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AuthInterceptor } from './interceptors/auth-interceptor';
 import { TenantInterceptor } from './interceptors/tenant-interceptor';
+import { NotFoundComponent } from './components/not-found/not-found.component';
 
 /**
  * CoreModule — se importa UNA sola vez en AppModule.
@@ -23,6 +24,9 @@ import { TenantInterceptor } from './interceptors/tenant-interceptor';
       useClass: AuthInterceptor,
       multi: true
     }
+  ],
+  declarations: [
+    NotFoundComponent
   ]
 })
 export class CoreModule {
