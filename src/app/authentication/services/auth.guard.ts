@@ -1,12 +1,14 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from './auth.service';
+import { TenantService } from '../../core/services/tenant.service';
 
 export const authGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ) => {
   const authService = inject(AuthService);
+  const tenantService = inject(TenantService);
   const router = inject(Router);
 
   // isAuthenticated() debería incluir la verificación de expiración
@@ -17,7 +19,7 @@ export const authGuard: CanActivateFn = (
       const userRoles = authService.getRoles();
       
       if (!requiredRoles.some(role => userRoles.includes(role))) {
-        return router.createUrlTree(['/']);
+        return router.createUrlTree([`/${tenantService.getSlug()}`]);
       }
     }
     return true;
@@ -25,7 +27,7 @@ export const authGuard: CanActivateFn = (
 
   // No autenticado - redirigir al login
   // authService.logout(); // Limpiar datos vencidos
-  return router.createUrlTree(['/'], {
+  return router.createUrlTree([`/${tenantService.getSlug()}`], {
     queryParams: { returnUrl: state.url }
   });
 };

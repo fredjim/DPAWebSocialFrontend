@@ -6,6 +6,7 @@ import { finalize } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ForgotPasswordComponent } from '../forgot-password/forgot-password.component';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
+import { TenantService } from '../../../core/services/tenant.service';
 
 @Component({
   selector: 'app-login',
@@ -27,14 +28,17 @@ export class LoginComponent implements OnInit {
   public emailNotVerified = false;
   public isLoggedIn = false;
   public isLoading = false;
+  private currentSlug: string = '';
 
   constructor(
     private readonly formBuilder: FormBuilder,
     private readonly auth: AuthService,
     private readonly router: Router,
+    private readonly tenantService: TenantService
   ) { }
 
   ngOnInit(): void {
+    this.currentSlug = this.tenantService.getSlug();
     this.buildForm();
   }
 
@@ -57,7 +61,7 @@ export class LoginComponent implements OnInit {
         .subscribe({
         next: () => {
           this.isLoggedIn = true;
-          this.router.navigate(['/']);
+          this.router.navigate([`/${this.currentSlug}`]);
           globalThis.location.reload();
         },
         error: (error: HttpErrorResponse) => {

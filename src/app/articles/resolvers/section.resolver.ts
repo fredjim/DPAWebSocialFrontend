@@ -13,7 +13,7 @@ export const SectionResolver: ResolveFn<Section | null> = (route: ActivatedRoute
   return sectionService.getSectionByPath(routeParam).pipe(
     catchError(error => {
       // Redirigir si hay error
-      router.navigate(['/']);
+      router.navigate(['/not-found']);
       return of(null);
     })
   );

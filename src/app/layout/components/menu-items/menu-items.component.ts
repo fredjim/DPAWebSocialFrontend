@@ -7,6 +7,7 @@ import { UserService } from '../../../user-profile/services/user.service';
 import { NavItemService } from '../../services/nav-item.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
+import { TenantService } from '../../../core/services/tenant.service';
 
 @Component({
   selector: 'app-menu-items',
@@ -18,6 +19,7 @@ export class MenuItemsComponent implements OnInit, OnDestroy {
   private readonly navItemService = inject(NavItemService);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
+  private readonly tenantService = inject(TenantService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -28,11 +30,13 @@ export class MenuItemsComponent implements OnInit, OnDestroy {
   public navItemToEdit!: NavItem | null;
   public typeForm: 'create' | 'edit' = 'create';
   public navItems: NavItem[] = [];
+  private currentSlug: string = '';
   visible = false;
   @Input() labelButtonNewMenu: string = '';
   @Output() closeMenuHamburguer = new EventEmitter<void>();
 
   ngOnInit(): void {
+    this.currentSlug = this.tenantService.getSlug();
     this.navItemService.getAllNavItems()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -106,7 +110,7 @@ export class MenuItemsComponent implements OnInit, OnDestroy {
       const currentNavItemPath = this.route.snapshot.firstChild?.paramMap.get('pathNavItem');
       if(currentNavItemPath === event.menu.path){
         // Si el nav item eliminado es el que se está visualizando, redirigir al inicio
-        this.router.navigate(['/'], { replaceUrl: true });
+        this.router.navigate([`/${this.currentSlug}`], { replaceUrl: true });
       }
       this.customToast.showSuccess('Menú eliminado exitosamente');
     }else{

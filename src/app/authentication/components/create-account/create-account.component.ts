@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { TenantService } from '../../../core/services/tenant.service';
 
 @Component({
   selector: 'app-create-account',
@@ -17,14 +18,17 @@ export class CreateAccountComponent implements OnInit {
   usernameField!: ElementRef;
   correctCredentials: boolean = true;
   public isLoggedIn = false;
+  private currentSlug = '';
 
   constructor(
-    private formBuilder: FormBuilder,
-    private auth: AuthService,
-    private router: Router,
+    private readonly formBuilder: FormBuilder,
+    private readonly auth: AuthService,
+    private readonly router: Router,
+    private readonly tenantService: TenantService
   ) { }
 
   ngOnInit(): void {
+    this.currentSlug = this.tenantService.getSlug();
     this.buildForm();
   }
 
@@ -44,8 +48,8 @@ export class CreateAccountComponent implements OnInit {
       this.auth.login(login.username, login.password).subscribe(
         () => {
           this.isLoggedIn = true;
-          this.router.navigate(['/']);
-          window.location.reload()
+          this.router.navigate([`/${this.currentSlug}`]);
+          globalThis.location.reload()
         },
         (error: any) => {
           console.log(error)
