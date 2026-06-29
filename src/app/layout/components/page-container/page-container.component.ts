@@ -3,6 +3,7 @@ import { NavItemService } from '../../services/nav-item.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavItem } from '../../../shared/models/nav-item';
 import { Subscription, switchMap } from 'rxjs';
+import { TenantService } from '../../../core/services/tenant.service';
 
 @Component({
   selector: 'app-page-container',
@@ -14,6 +15,7 @@ export class PageContainerComponent implements OnInit, OnDestroy {
   private readonly navItemService = inject(NavItemService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly tenantService = inject(TenantService);
   private readonly subscription: Subscription = new Subscription();
 
   public selectedNavItemPath!: string | null;
@@ -39,7 +41,7 @@ export class PageContainerComponent implements OnInit, OnDestroy {
         if (navItemFinded) {
           this.currentNavItem = navItemFinded;
         } else {
-          this.router.navigate(['/']);
+          this.router.navigate([`/${this.tenantService.getSlug()}`]);
         }
       })
     );

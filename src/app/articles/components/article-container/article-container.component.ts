@@ -36,6 +36,7 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   private readonly tenantService = inject(TenantService);
   private sectionUpdateSubscription?: Subscription;
   private readonly subscriptions = new Subscription();
+  private currentSlug = '';
   
   currentSection!: Section;
   articles: Article[] = [];
@@ -58,6 +59,7 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   @ViewChild('sectionToastRef') private readonly sectionToastRef!: CustomToastComponent;
 
   ngOnInit() {
+    this.currentSlug = this.tenantService.getSlug();
     this.isAuthenticated = this.authService.isAuthenticated();
     if(this.isAuthenticated){
       this.userService.getUser().subscribe(user => {
@@ -82,7 +84,7 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
         if (navItemFinded) {
           this.currentNavItem = navItemFinded;
         } else {
-          this.router.navigate(['/']);
+          this.router.navigate([`/${this.currentSlug}`]);
         }
       })
     );
