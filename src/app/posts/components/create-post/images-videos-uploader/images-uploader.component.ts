@@ -27,6 +27,7 @@ export class ImagesUploaderComponent implements OnChanges {
   closeCleanPreviewMedia(){
     this.mediaListPreview = [];
     this.listFileMedia = [];
+    this.loadFilesMediaEvent.emit(this.listFileMedia);
     this.showPreviewMedia = false;
     this.showAreaMedia.set(false);
     this.resetFileInput();
