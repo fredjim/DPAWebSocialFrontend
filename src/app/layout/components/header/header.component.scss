@@ -72,12 +72,19 @@ header {
 			font-size: 30px;
 			color: var(--blue-color);
 			cursor: pointer;
-			width: 35px;
+			width: 25px;
+			margin-left: 5px;
 			transition: transform 0.3s ease;
 
 			&:hover {
 				transform: scale(1.05);
 				color: var(--primary-hover);
+			}
+
+			i {
+				height: 40px;
+				display: flex;
+  				align-items: center;
 			}
 		}
 	}
