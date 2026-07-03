@@ -2,6 +2,7 @@ header {
 	position: relative;
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
 	margin: 0 15px;
 	padding: 15px 100px;
 	width: inherit;
@@ -21,10 +22,6 @@ header {
 			display: flex;
 			align-items: center;
 		}
-	}
-
-	.main-logo {
-		display: block;
 	}
 
 	.user-profile {
@@ -141,7 +138,7 @@ header {
 			gap: 20px;
 		}
 
-		#logo-inst, .main-logo {
+		#logo-inst {
 			display: none;
 		}
 
@@ -163,5 +160,21 @@ header {
 @media screen and (min-width: 1400px) {
 	::ng-deep .p-menu.p-menu-overlay {
 		transform: translateX(-35%) !important;
+	}
+}
+
+@media screen and (max-width: 576px) {
+	header {
+		img.main-logo {
+			height: 2.5rem;
+		}
+	}
+}
+
+@media screen and (max-width: 374px) {
+	header {
+		img.main-logo {
+			height: 2.2rem;
+		}
 	}
 }
