@@ -11,7 +11,7 @@ export const tenantGuard: CanActivateFn = () => {
     map(() => true),
     catchError(() => {
       tenantService.clearCache();
-      return of(router.createUrlTree(['/not-found']));
+      return of(router.createUrlTree(['/dpa']));
     })
   );
 };
