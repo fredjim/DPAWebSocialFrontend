@@ -7,6 +7,7 @@ import { ResetPasswordComponent } from './authentication/components/reset-passwo
 import { authGuard } from './authentication/services/auth.guard';
 import { NotFoundComponent } from './core/components/not-found/not-found.component';
 import { tenantGuard } from './core/guards/tenant.guard';
+import { environment } from '../environments/environment';
 
 const routes: Routes = [
   // Rutas públicas standalone (sin slug — llegan desde links de email)
@@ -56,7 +57,11 @@ const routes: Routes = [
   },
 
   // Raíz → redirige al 404 not found
-  { path: '**', redirectTo: '/dpa' }
+  {
+    path: '',
+    redirectTo: environment.DEFAULT_TENANT_SLUG,
+    pathMatch: 'full'
+  },
 ];
 
 @NgModule({
