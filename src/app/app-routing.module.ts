@@ -56,7 +56,7 @@ const routes: Routes = [
   },
 
   // Raíz → redirige al 404 not found
-  { path: '**', redirectTo: '/not-found' }
+  { path: '**', redirectTo: 'dpa' }
 ];
 
 @NgModule({
