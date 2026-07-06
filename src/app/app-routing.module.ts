@@ -12,7 +12,7 @@ const routes: Routes = [
   // Rutas públicas standalone (sin slug — llegan desde links de email)
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'not-found', component: NotFoundComponent },
+  // { path: 'not-found', component: NotFoundComponent },
   // ROOT dashboard — lazy loaded, debe ir ANTES del wildcard :slug
   {
     path: 'root',
@@ -51,7 +51,7 @@ const routes: Routes = [
         path: ':pathNavItem',
         loadChildren: () => import('./articles/articles.module').then(m => m.ArticlesModule)
       },
-      { path: '**', component: NotFoundComponent } // ← sub-rutas inexistentes dentro de un slug válido
+      // { path: '**', component: NotFoundComponent } // ← sub-rutas inexistentes dentro de un slug válido
     ]
   },
 
