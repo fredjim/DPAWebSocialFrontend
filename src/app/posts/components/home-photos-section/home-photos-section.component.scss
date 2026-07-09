@@ -67,6 +67,14 @@
   padding-top: 0;
 }
 
+::ng-deep .dialog-post.p-dialog-content {
+  padding: 0;
+}
+
+::ng-deep .p-dialog-header .p-dialog-title {
+  color: var(--blue-color) !important;
+}
+
 @media screen and (max-width: 768px) {
 
 	.photos-container {

@@ -1,88 +1,88 @@
-<div class="modal-backdrop">
-  <div class="modal-container">
+<div [ngClass]="{'modal-container': modalBoostrap}">
+  @if(modalBoostrap) {
     <!-- Modal Header -->
     <div class="modal-header text-center">
-      <h4 class="modal-title w-100">Publicación de {{ postAuthor }}</h4>
+      <h4 class="modal-title w-100">Publicación de {{ institution.name }}</h4>
       <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismissAll('Cross click')"></button>
     </div>
+  }
 
-    <!-- Modal Body -->
-    <div class="modal-body">
-      <div class="post-details">
-        <!-- Información del autor -->
-        <div class="d-flex flex-column">
-          <div class="d-flex flex-row justify-content-start" *ngIf="institution">
-            <app-institution-avatar 
-              [institution]="institution" 
-              size="medium" 
-              class="img-profile">
-            </app-institution-avatar>
-            <div class="info-user">
-              <h2>{{ institution.name }}</h2>
-              <p>{{ calculateTimePost() }}</p>
-            </div>
+  <!-- Modal Body -->
+  <div class="modal-body">
+    <div class="post-details">
+      <!-- Información del autor -->
+      <div class="d-flex flex-column">
+        <div class="d-flex flex-row justify-content-start" *ngIf="institution">
+          <app-institution-avatar 
+            [institution]="institution" 
+            size="medium" 
+            class="img-profile">
+          </app-institution-avatar>
+          <div class="info-user">
+            <h2>{{ institution.name }}</h2>
+            <p>{{ calculateTimePost() }}</p>
           </div>
-
-          <!-- Descripción del post -->
-          <p class="post-description">{{ postDescription }}</p>
-
-          <!-- Imagen o contenido multimedia -->
-          <div class="object-fit-md-contain border rounded">
-            <ng-container *ngIf="postMedia">
-              <p-carousel [value]="postMedia" 
-                          [numVisible]="1" 
-                          [numScroll]="1" 
-                          [circular]="true"
-                          [showIndicators]="false" 
-                          [showNavigators]="postMedia.length > 1"
-                          [page]="initialMediaIndex">
-                <ng-template pTemplate="item" let-media>
-                  <div class="image-box text-center">
-
-                    <ng-container *ngIf="media.type.includes('image')">
-                      <img [src]="media.path" alt="" />
-                    </ng-container>
-
-                    <ng-container *ngIf="media.type.includes('video')">
-                      <video [src]="media.path" controls class="video"></video>
-                    </ng-container>
-
-                    <ng-container *ngIf="media.type === 'document'">
-                      <div class="d-flex justify-content-center">
-                        <pdf-viewer [src]="media.path" [render-text]="true" 
-                                    [original-size]="false" class="pdf-viewer">
-                        </pdf-viewer>
-                      </div>
-                    </ng-container>
-
-                  </div>
-                </ng-template>
-              </p-carousel>
-            </ng-container>
-          </div>
-
-          <!-- Lista de comentarios -->
-          <app-comment-list [comments]="comments" 
-            [postUuid]="postUuid"
-            [currentUser]="currentUser" 
-            [authenticated]="authenticated" 
-            [commentsEnabled]="post.commentsEnabled"
-            (onAddReply)="handleAddReply($event)">
-          </app-comment-list>
         </div>
+
+        <!-- Descripción del post -->
+        <p class="post-description">{{ post.content.text }}</p>
+
+        <!-- Imagen o contenido multimedia -->
+        <div class="object-fit-md-contain border rounded">
+          <ng-container *ngIf="post.content.media">
+            <p-carousel [value]="post.content.media" 
+                        [numVisible]="1" 
+                        [numScroll]="1" 
+                        [circular]="true"
+                        [showIndicators]="false" 
+                        [showNavigators]="post.content.media.length > 1"
+                        [page]="initialMediaIndex">
+              <ng-template pTemplate="item" let-media>
+                <div class="image-box text-center">
+
+                  <ng-container *ngIf="media.type.includes('image')">
+                    <img [src]="media.path" alt="" />
+                  </ng-container>
+
+                  <ng-container *ngIf="media.type.includes('video')">
+                    <video [src]="media.path" controls class="video"></video>
+                  </ng-container>
+
+                  <ng-container *ngIf="media.type === 'document'">
+                    <div class="d-flex justify-content-center">
+                      <pdf-viewer [src]="media.path" [render-text]="true" 
+                                  [original-size]="false" class="pdf-viewer">
+                      </pdf-viewer>
+                    </div>
+                  </ng-container>
+
+                </div>
+              </ng-template>
+            </p-carousel>
+          </ng-container>
+        </div>
+
+        <!-- Lista de comentarios -->
+        <app-comment-list [comments]="comments" 
+          [postUuid]="post.uuid"
+          [currentUser]="currentUser" 
+          [authenticated]="authenticated" 
+          [commentsEnabled]="post.commentsEnabled"
+          (onAddReply)="handleAddReply($event)">
+        </app-comment-list>
       </div>
     </div>
+  </div>
 
-    <!-- Modal Footer -->
-    <div class="modal-footer" *ngIf="authenticated && post.commentsEnabled">
-      <div class="comment-section d-flex flex-row align-items-center">
-        <img *ngIf="currentUser" [src]="currentUser.photo_profile_path || 'assets/default-avatar.png'" alt="Foto de perfil" class="comment-img" />
-        <div class="comment-box d-flex align-items-center">
-          <input #commentInput [(ngModel)]="newComment" placeholder="Escribe un comentario..." class="comment-input" (keydown.enter)="addComment()" />
-          <button (click)="addComment()" class="send-comment-button">
-            <i class="bi bi-send"></i>
-          </button>
-        </div>
+  <!-- Modal Footer -->
+  <div class="modal-footer" *ngIf="authenticated && post.commentsEnabled">
+    <div class="comment-section d-flex flex-row align-items-center">
+      <img *ngIf="currentUser" [src]="currentUser.photo_profile_path || 'assets/default-avatar.png'" alt="Foto de perfil" class="comment-img" />
+      <div class="comment-box d-flex align-items-center">
+        <input [(ngModel)]="newComment" placeholder="Escribe un comentario..." class="comment-input" (keydown.enter)="addComment()" />
+        <button (click)="addComment()" class="send-comment-button">
+          <i class="bi bi-send"></i>
+        </button>
       </div>
     </div>
   </div>

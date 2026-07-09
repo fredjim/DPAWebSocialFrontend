@@ -300,11 +300,6 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
           const modalRef = this.modalService.open(CommentsComponent, { size: 'lg', centered: true });
           modalRef.componentInstance.institution = institution;
           modalRef.componentInstance.post = post;
-          modalRef.componentInstance.postUuid = post.uuid;
-          modalRef.componentInstance.postMedia = post.content.media;
-          modalRef.componentInstance.postAuthor = institution.name;
-          modalRef.componentInstance.postDate = this.calculateTimePost(post);
-          modalRef.componentInstance.postDescription = post.content.text;
           modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
 
           const resetUrl = () => {

@@ -19,15 +19,10 @@ import moment from 'moment-timezone';
 })
 export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() initialMediaIndex: number = 0; // image-video
-  @ViewChild('commentInput') commentInput!: ElementRef;
+  @Input() modalBoostrap: boolean = true;
   @ViewChildren('videoPlayer') videos!: QueryList<ElementRef<HTMLVideoElement>>;
-  @Input() institution!: Institution;
-  @Input() post!: Post;
-  @Input() postUuid!: string;
-  @Input() postMedia!: Media[];
-  @Input() postAuthor!: string;
-  @Input() postTime!: string;
-  @Input() postDescription!: string;
+  @Input({ required: true }) institution!: Institution;
+  @Input({ required: true }) post!: Post;
 
   newComment: string = '';
   comments: Comment[] = [];
@@ -109,13 +104,6 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.currentUser = null;
         },
       });
-  }
-
-  toggleCommentInput(): void {
-
-    setTimeout(() => {
-      this.commentInput?.nativeElement.focus();
-    }, 100);
   }
 
   addComment(): void {
@@ -280,7 +268,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Modifica loadComments para cargar también las respuestas
   loadComments(): void {
-    this.commentService.getComments(this.postUuid)
+    this.commentService.getComments(this.post.uuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
       next: (data: Comment[]) => {

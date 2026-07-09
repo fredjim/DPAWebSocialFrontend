@@ -72,28 +72,14 @@ $font-size-large: 1.2rem;
   .modal-container {
     height: 90vh;
     min-height: auto;
-  }
-}
-
-.modal-header {
-  padding: 1rem;
-  border-bottom: 1px solid #dee2e6;
-  flex-shrink: 0;
-  background-color: #f8f9fa;
-  position: relative;
-
-  .btn-close {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
+    width: auto;
   }
 }
 
 .modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem;
+  padding: 1rem 1rem 0 1rem;
 
   .post-details {
     height: 100%;
@@ -249,7 +235,7 @@ $font-size-large: 1.2rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 5px;
+  padding: 5px 1rem;
 
   .comment-box {
     @include flex-center(row, 8px);
