@@ -1,9 +1,11 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from '../../authentication/services/auth.service';
 
 export const rootGuard: CanActivateFn = () => {
   const router = inject(Router);
-  const token = localStorage.getItem('token');
+  const authService = inject(AuthService);
+  const token = authService.token;
 
   if (!token) return router.createUrlTree(['/root/login']);
 

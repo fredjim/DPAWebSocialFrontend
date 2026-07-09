@@ -15,7 +15,7 @@ export class AuthService {
   private readonly jwtHelper = new JwtHelperService();
 
 
-  public token: any
+  public token: string | null = null;
   constructor(
     private readonly http: HttpClient,
     private readonly tenantService: TenantService
@@ -23,9 +23,8 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('token');
-    if (!token) return false;
-    return !this.jwtHelper.isTokenExpired(token);
+    if (!this.token) return false;
+    return !this.jwtHelper.isTokenExpired(this.token);
   }
 
   login(username: string, password: string) {
@@ -34,13 +33,11 @@ export class AuthService {
       password
     }
 
-    return this.http.post<any>(this.ROOT_URL + '/login', user)
+    return this.http.post<any>(this.ROOT_URL + '/login', user, { withCredentials: true })
       .pipe(
-        map(user => {
-          this.token = user.accessToken;
-          localStorage.setItem('token', this.token);
-          localStorage.setItem('refreshToken', user.refreshToken);
-
+        map(res => {
+          this.token = res.accessToken;
+          // refreshToken llega como cookie HttpOnly — el browser lo almacena solo
           return true;
         })
       );
@@ -63,7 +60,7 @@ export class AuthService {
   }
 
   getToken() {
-    return localStorage.getItem('token');
+    return this.token;
   }
 
   getUsername() {
@@ -71,16 +68,9 @@ export class AuthService {
   }
 
   getUserId() {
-    const token = this.getToken();
-
-    if (!token) {
-      console.warn("⚠️ No hay token en localStorage.");
-      return null;
-    }
-
+    if (!this.token) return null;
     try {
-      // 🔥 Decodificar el token para extraer el userId
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(this.token.split('.')[1]));
       return payload.userId ?? null;
     } catch (error) {
       console.error("Error al decodificar el token:", error);
@@ -89,10 +79,9 @@ export class AuthService {
   }
 
   getInstitutionId(): string | null {
-    const token = this.getToken();
-    if (!token) return null;
+    if (!this.token) return null;
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(this.token.split('.')[1]));
       return payload.institutionId ?? null;
     } catch {
       return null;
@@ -100,12 +89,9 @@ export class AuthService {
   }
 
   getRoles() {
-    const token = this.getToken();
-    if (!token) return [];
-    
+    if (!this.token) return [];
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      // Extraer roles del array en el payload
+      const payload = JSON.parse(atob(this.token.split('.')[1]));
       return payload.roles || [];
     } catch (error) {
       console.error("Error al extraer roles del token:", error);
@@ -127,73 +113,48 @@ export class AuthService {
     return expired;
   }
 
-  // Check if token is expired
   isTokenExpired(): boolean {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      return true;
-    }
-    const expired = this.jwtHelper.isTokenExpired(token);
-    return expired;
+    if (!this.token) return true;
+    return this.jwtHelper.isTokenExpired(this.token);
   }
 
-  // Logout usando refresh token
   logout(): void {
-    const refreshToken = localStorage.getItem('refreshToken');
-
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
+    this.token = null;
 
     const redirect = () => {
       globalThis.location.href = `/${this.tenantService.getSlug()}`;
     };
-    
-    if (refreshToken) {
-      this.http.post(`${this.ROOT_URL}/logout`, {}, {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`
-        }
-      }).subscribe({
+
+    // El browser envía la cookie refresh_token automáticamente (withCredentials)
+    // El backend la revoca en BD y responde borrando la cookie (Max-Age=0)
+    this.http.post(`${this.ROOT_URL}/logout`, {}, { withCredentials: true })
+      .subscribe({
         next: () => redirect(),
         error: (error) => {
           console.log('Error al cerrar sesión', error);
           redirect();
         }
       });
-    }else {
-      redirect();
-    }
   }
 
-  // Método para refrescar el access token
+  // El browser envía la cookie refresh_token automáticamente (withCredentials)
   refreshAccessToken() {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) return null;
-    return this.http.post<any>(`${this.ROOT_URL}/refresh`, {}, {
-      headers: {
-        Authorization: `Bearer ${refreshToken}`
-      }
-    });
+    return this.http.post<any>(`${this.ROOT_URL}/refresh`, {}, { withCredentials: true });
   }
 
-  // Refresca el token antes de inicializar la app
+  // Refresca el token al inicializar la app usando la cookie HttpOnly
   tryRefreshOnStartup(): Promise<void> {
-    const token = localStorage.getItem('token');
-    if (!token || this.jwtHelper.isTokenExpired(token)) {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
-        const refreshObs = this.refreshAccessToken();
-        if (refreshObs) {
-          return refreshObs.toPromise().then((res: any) => {
-            if (res && res.accessToken) {
-              localStorage.setItem('token', res.accessToken);
-            }
-          }).catch(() => {
-            this.logout();
-          });
-        }
-      }
+    if (this.token && !this.jwtHelper.isTokenExpired(this.token)) {
+      return Promise.resolve();
     }
-    return Promise.resolve();
+    // Si la cookie existe y es válida el backend devuelve un nuevo accessToken
+    // Si no hay cookie o expiró, el backend responde 401 y limpiamos memoria
+    return this.refreshAccessToken().toPromise().then((res: any) => {
+      if (res?.accessToken) {
+        this.token = res.accessToken;
+      }
+    }).catch(() => {
+      this.token = null;
+    });
   }
 }
