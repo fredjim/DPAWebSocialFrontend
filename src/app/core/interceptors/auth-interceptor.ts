@@ -30,7 +30,7 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(request);
     }
     // Añadir access token si existe
-    const token = localStorage.getItem('token');
+    const token = this.authService.token;
     let authReq = request;
     if (token) {
       authReq = request.clone({
@@ -61,12 +61,10 @@ export class AuthInterceptor implements HttpInterceptor {
               map((res: any) => {
                 this.isRefreshing = false;
                 if (res.accessToken) {
-                  localStorage.setItem('token', res.accessToken);
+                  this.authService.token = res.accessToken;
                   this.refreshTokenSubject.next(res.accessToken);
                 }
-                if (res.refreshToken) {
-                  localStorage.setItem('refreshToken', res.refreshToken);
-                }
+                // refreshToken llega como cookie HttpOnly — el browser lo maneja solo
                 const newReq = request.clone({
                   setHeaders: {
                     Authorization: `Bearer ${res.accessToken}`
