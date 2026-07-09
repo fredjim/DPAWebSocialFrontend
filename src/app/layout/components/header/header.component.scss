@@ -1,7 +1,8 @@
 header {
 	position: relative;
-	display: flex;
-	justify-content: space-between;
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
 	margin: 0 15px;
 	padding: 15px 100px;
 	width: inherit;
@@ -14,21 +15,26 @@ header {
 	}
 
 	.logo-brands {
+		justify-self: start;
 		display: flex;
 		gap: 30px;
+		align-items: center;
 
-		#logo-inst {
-			display: flex;
-			align-items: center;
+		img {  // Logo de la UMSS
+			height: 50px;
+			width: auto;
+			object-fit: contain;
 		}
 	}
 
 	.main-logo {
-		display: block;
+		justify-self: center;
 	}
 
 	.user-profile {
+		justify-self: end;
 		display: flex;
+		align-items: center;
 		gap: 1rem;
 
 		.user-image {
@@ -46,11 +52,10 @@ header {
 
 		.burger-menu {
 			display: none;
-			width: 50px;
-			height: 50px;
+			width: 40px;
+			height: 40px;
 
 			.material-icons {
-				padding-top: 5px;
 				font-size: 40px;
 				font-weight: 100;
 				color: var(--blue-color);
@@ -67,12 +72,19 @@ header {
 			font-size: 30px;
 			color: var(--blue-color);
 			cursor: pointer;
-			width: 35px;
+			width: 25px;
+			margin-left: 5px;
 			transition: transform 0.3s ease;
 
 			&:hover {
 				transform: scale(1.05);
 				color: var(--primary-hover);
+			}
+
+			i {
+				height: 40px;
+				display: flex;
+  				align-items: center;
 			}
 		}
 	}
@@ -134,19 +146,25 @@ header {
 		padding-left: 15px;
 		padding-right: 15px;
 		width: 100%;
-		min-height: 80px !important;
+		min-height: 70px;
 		height: auto;
 
-		.logo-brands {
-			gap: 20px;
+		.logo-brands img,
+		.main-logo {
+			height: 40px;
 		}
 
-		#logo-inst, .main-logo {
+		#logo-inst {
 			display: none;
 		}
 
 		.user-profile {
-			gap: 15px;
+			gap: 0.5rem;
+
+			.user-image {
+				height: 40px;
+				width: 40px;
+			}
 
 			.burger-menu {
 				display: block;
@@ -163,5 +181,28 @@ header {
 @media screen and (min-width: 1400px) {
 	::ng-deep .p-menu.p-menu-overlay {
 		transform: translateX(-35%) !important;
+	}
+}
+
+@media screen and (max-width: 576px) {
+	header {
+		img.main-logo {
+			height: 2.5rem;
+		}
+
+		.user-profile {
+
+			.user-image {
+				display: none;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 374px) {
+	header {
+		img.main-logo {
+			height: 2.2rem;
+		}
 	}
 }

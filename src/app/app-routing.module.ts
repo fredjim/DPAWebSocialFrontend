@@ -7,12 +7,13 @@ import { ResetPasswordComponent } from './authentication/components/reset-passwo
 import { authGuard } from './authentication/services/auth.guard';
 import { NotFoundComponent } from './core/components/not-found/not-found.component';
 import { tenantGuard } from './core/guards/tenant.guard';
+import { environment } from '../environments/environment';
 
 const routes: Routes = [
   // Rutas públicas standalone (sin slug — llegan desde links de email)
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'not-found', component: NotFoundComponent },
+  // { path: 'not-found', component: NotFoundComponent },
   // ROOT dashboard — lazy loaded, debe ir ANTES del wildcard :slug
   {
     path: 'root',
@@ -24,7 +25,7 @@ const routes: Routes = [
   {
     path: ':slug',
     component: HomeComponent,  // Este componente contiene header/footer del tenant
-    canActivate: [tenantGuard],
+    // canActivate: [tenantGuard],
     children: [
       // Rutas protegidas
       {
@@ -51,12 +52,16 @@ const routes: Routes = [
         path: ':pathNavItem',
         loadChildren: () => import('./articles/articles.module').then(m => m.ArticlesModule)
       },
-      { path: '**', component: NotFoundComponent } // ← sub-rutas inexistentes dentro de un slug válido
+      // { path: '**', component: NotFoundComponent } // ← sub-rutas inexistentes dentro de un slug válido
     ]
   },
 
   // Raíz → redirige al 404 not found
-  { path: '**', redirectTo: '/not-found' }
+  {
+    path: '',
+    redirectTo: environment.DEFAULT_TENANT_SLUG,
+    pathMatch: 'full'
+  },
 ];
 
 @NgModule({
