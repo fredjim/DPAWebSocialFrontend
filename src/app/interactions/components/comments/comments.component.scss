@@ -33,19 +33,6 @@ $font-size-large: 1.2rem;
 }
 
 // MODAL
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1050;
-}
-
 .modal-container {
   display: flex;
   flex-direction: column;
@@ -76,6 +63,13 @@ $font-size-large: 1.2rem;
   }
 }
 
+.modal-fixed-footer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 90vh;
+}
+
 .modal-body {
   flex: 1;
   overflow-y: auto;
@@ -102,6 +96,9 @@ $font-size-large: 1.2rem;
   align-items: center;
   margin: 0;
   padding: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 // AVATARS E IMÁGENES

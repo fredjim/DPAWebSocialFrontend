@@ -1,4 +1,4 @@
-<div [ngClass]="{'modal-container': modalBoostrap}">
+<div [ngClass]="{'modal-container': modalBoostrap, 'modal-fixed-footer': !modalBoostrap}">
   @if(modalBoostrap) {
     <!-- Modal Header -->
     <div class="modal-header text-center">
