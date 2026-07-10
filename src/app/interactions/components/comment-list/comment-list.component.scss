@@ -2,8 +2,6 @@
 .comment-box {
   position: relative;
   padding: 10px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #ddd;
 
   &::before {
     content: '';
@@ -42,6 +40,7 @@
   max-width: 500px;
   min-width: 120px;
   display: inline-block;
+  color: var(--text-comment);
 
   .comment-bubble-header {
     display: flex;
@@ -367,8 +366,4 @@
 // Dialog primeng
 ::ng-deep .p-dialog .p-dialog-header {
   padding: 0.5rem 2rem;
-}
-
-::ng-deep .p-dialog .p-dialog-content {
-  padding: 1.5rem;
 }

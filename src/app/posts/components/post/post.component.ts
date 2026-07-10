@@ -124,11 +124,6 @@ export class PostComponent implements OnInit {
     const modalRef = this.modalService.open(CommentsComponent, { size: 'lg', centered: true });
     modalRef.componentInstance.institution = this.institution;
     modalRef.componentInstance.post = post;
-    modalRef.componentInstance.postUuid = post.uuid;
-    modalRef.componentInstance.postMedia = post.content.media;
-    modalRef.componentInstance.postAuthor = this.institution.name;
-    modalRef.componentInstance.postDate = this.calculateTimePost;
-    modalRef.componentInstance.postDescription = post.content.text;
     modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
     modalRef.dismissed.subscribe(() => {
       this.totalComments.set(modalRef.componentInstance.comments.length);

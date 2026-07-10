@@ -5,7 +5,6 @@ import { InstitutionService } from '../../../institution/services/institution.se
 import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { TenantService } from '../../../core/services/tenant.service';
 
 @Component({
@@ -22,7 +21,9 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   currentPost !: Post;
   currentSlug: string = '';
-  visibleModalMedia: boolean = false;
+  visibleModalGallery: boolean = false;
+  visibleModalPost: boolean = false;
+  indexImage: number = 0;
 
   constructor(
     private readonly postService: PostService,
@@ -66,33 +67,19 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
     }
   }
 
-  openViewPost(postUuid: string, photoUrl: string) {
+  openViewPost(postUuid: string, mediaUrl: string) {
     this.postService.getPost(postUuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (dataPost: Post) => {
           this.currentPost = dataPost;
-          const indexImage = this.currentPost.content.media.findIndex( (media) => media.path === photoUrl)
-          this.openModal(indexImage);
+          this.indexImage = this.currentPost.content.media.findIndex( (media) => media.path === mediaUrl)
+          this.visibleModalPost = true;
         },
         error: (error) => {
           console.log(error);
-          this.isLoading = false;
         }
       });
-  }
-
-  openModal(initialMediaIndex: number) {
-    const modalRef = this.modalService.open(CommentsComponent, { size: 'xl' });
-
-    modalRef.componentInstance.institution = this.institution;
-    modalRef.componentInstance.post = this.currentPost;
-    modalRef.componentInstance.postUuid = this.currentPost.uuid;
-    modalRef.componentInstance.postMedia = this.currentPost.content.media;
-    modalRef.componentInstance.postAuthor = this.institution.name;
-    modalRef.componentInstance.postDate = this.calculateTimePost;
-    modalRef.componentInstance.postDescription = this.currentPost.content.text;
-    modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
   }
 
   getPost(postUuid: string) {

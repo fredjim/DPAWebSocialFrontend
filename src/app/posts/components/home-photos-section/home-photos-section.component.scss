@@ -67,6 +67,22 @@
   padding-top: 0;
 }
 
+::ng-deep .dialog-post.p-dialog-content {
+  padding: 0;
+}
+
+::ng-deep .p-dialog-header {
+  padding: 0.5rem 1rem;
+  border-bottom-color: #dee2e6 !important;
+
+  .p-dialog-title {
+    color: rgb(33, 37, 41) !important;
+    font-size: 20px !important;
+    font-weight: 400 !important;
+    font-family: var(--secondary-font-family);
+  }
+}
+
 @media screen and (max-width: 768px) {
 
 	.photos-container {

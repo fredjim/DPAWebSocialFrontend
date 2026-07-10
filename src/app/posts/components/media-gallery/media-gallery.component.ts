@@ -1,11 +1,8 @@
-import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy, Output, EventEmitter } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef, ChangeDetectionStrategy, Output, EventEmitter } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { PostService } from '../../services/post.service';
 import { InstitutionService } from '../../../institution/services/institution.service';
 import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { TenantService } from '../../../core/services/tenant.service';
 import { MediaInstitution } from '../../../shared/models/media-institution';
 
@@ -16,9 +13,8 @@ import { MediaInstitution } from '../../../shared/models/media-institution';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaGalleryComponent implements OnInit, OnDestroy {
-  @Output() closeModalMedia = new EventEmitter<void>();
+  @Output() openModalPostFromModalGallery = new EventEmitter<{postUuid: string, mediaUrl: string}>();
   private readonly destroy$ = new Subject<void>();
-  private readonly modalService = inject(NgbModal);
   institution!: Institution;
 
   photos: {url: string, postUuid: string}[] = [];
@@ -34,7 +30,6 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
 
 
   constructor(
-    private readonly postService: PostService,
     private readonly tenantService: TenantService,
     private readonly institutionService: InstitutionService,
     private readonly cdr: ChangeDetectorRef
@@ -155,22 +150,7 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
   }
 
   openViewPost(postUuid: string, mediaUrl: string) {
-    this.closeModalMedia.emit();
-    this.postService.getPost(postUuid)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (dataPost: Post) => {
-          this.currentPost = dataPost;
-          const indexMedia = this.currentPost.content.media.findIndex( (media) => media.path === mediaUrl)
-          this.openModal(indexMedia);
-        },
-        error: (error) => {
-          console.log(error);
-          this.photosState = 'error';
-          this.videosState = 'error';
-          this.documentosState = 'error';
-        }
-      });
+    this.openModalPostFromModalGallery.emit({ postUuid, mediaUrl });
   }
 
   onTabChange(event: any) {
@@ -193,54 +173,9 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     this.loadDocumentos();
   }
 
-  openModal(initialMediaIndex: number = 0) {
-    const modalRef = this.modalService.open(CommentsComponent, { size: 'xl' });
-
-    modalRef.componentInstance.institution = this.institution;
-    modalRef.componentInstance.post = this.currentPost;
-    modalRef.componentInstance.postUuid = this.currentPost.uuid;
-    modalRef.componentInstance.postMedia = this.currentPost.content.media;
-    modalRef.componentInstance.postAuthor = this.institution.name;
-    modalRef.componentInstance.postDate = this.calculateTimePost;
-    modalRef.componentInstance.postDescription = this.currentPost.content.text;
-    modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
-  }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  private calculateTimePost() {
-    const postDate = new Date(this.currentPost.date)
-    const currentDate = new Date(Date.now());
-    const diferenciaMs: number = currentDate.getTime() - postDate.getTime(); // Diferencia en milisegundos
-    const unMinuto = 60 * 1000;
-    const unaHora = 60 * unMinuto;
-    const unDia = 24 * unaHora;
-    const sieteDias = 7 * unDia;
-
-    if (diferenciaMs < unMinuto) {
-      return 'Hace un momento';
-    } else if (diferenciaMs < unaHora) {
-      const minutos = Math.floor(diferenciaMs / unMinuto);
-      return `Hace ${minutos} min`;
-    } else if (diferenciaMs < unDia) {
-      const horas = Math.floor(diferenciaMs / unaHora);
-      return `Hace ${horas} h`;
-    } else if (diferenciaMs < sieteDias) {
-      const dias = Math.floor(diferenciaMs / unDia);
-      return `Hace ${dias} d`;
-
-    } else {
-      const opciones: Intl.DateTimeFormatOptions = {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      };
-      return postDate.toLocaleDateString('es-ES', opciones);
-    }
-  }
 }
