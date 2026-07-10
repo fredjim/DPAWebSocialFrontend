@@ -17,6 +17,10 @@ nav {
 		width: max-content;
 		list-style: none;
 
+		.options-user {
+			display: none;
+		}
+
 		li {
 			position: relative;
 			width: inherit;
@@ -32,7 +36,6 @@ nav {
 				text-decoration: none;
 
 				&:hover {
-					padding-bottom: 11px;
 					color: var(--blue-color);
 					border-bottom: 10px solid var(--blue-color);
 				}
@@ -76,10 +79,19 @@ nav {
 
 		ul {
 			flex-direction: column;
-			gap: 25px;
+			gap: 10px;
 			padding: 1rem;
 			width: 100%;
 			align-items: initial;
+
+			.options-user {
+				display: block;
+				border-bottom: 1px solid gray;
+
+				li {
+					margin-bottom: 1rem;
+				}
+			}
 
 			li {
 
