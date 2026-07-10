@@ -63,11 +63,21 @@ $font-size-large: 1.2rem;
   }
 }
 
+.modal-header {
+  padding: 0.5rem 1rem;
+
+  .modal-title {
+    font-size: 20px;
+    font-weight: 400;
+    font-family: var(--secondary-font-family);
+  }
+}
+
 .modal-fixed-footer {
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-height: 90vh;
+  max-height: 80vh;
 }
 
 .modal-body {
