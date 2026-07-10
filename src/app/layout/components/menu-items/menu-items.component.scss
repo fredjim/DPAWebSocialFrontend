@@ -17,6 +17,10 @@ nav {
 		width: max-content;
 		list-style: none;
 
+		.options-user {
+			display: none;
+		}
+
 		li {
 			position: relative;
 			width: inherit;
@@ -80,6 +84,16 @@ nav {
 			padding: 1rem;
 			width: 100%;
 			align-items: initial;
+
+			.options-user {
+				display: block;
+				border-bottom: 1px solid gray;
+				padding-bottom: 1rem;
+
+				li {
+					margin-bottom: 1rem;
+				}
+			}
 
 			li {
 

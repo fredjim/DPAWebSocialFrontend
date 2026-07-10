@@ -63,6 +63,19 @@ export class MenuItemsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  public openModal(id: string) {
+    this.closeMenuHamburguer.emit();
+    const el = document.getElementById(id);
+    if (el) {
+      const modal = new (globalThis as any).bootstrap.Modal(el);
+      modal.show();
+    }
+  }
+
+  public logout(){
+    this.authService.logout();
+  }
+
   showDialog() {
     this.typeForm = 'create';
     this.visible = true;

@@ -1,5 +1,16 @@
 <nav>
   <ul>
+    <div class="options-user">
+      @if(isAuthenticated && currentUser) {
+        <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="profile" routerLinkActive="active">Ver perfil</a></li>
+        <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="institution" routerLinkActive="active">Ver página</a></li>
+        <li><a (click)="logout()" (keypress)="logout()">Cerrar sesión</a></li>
+      }@else{
+        <li><a (click)="openModal('loginModal')" (keypress)="openModal('loginModal')">Iniciar sesión</a></li>
+        <li><a (click)="openModal('registerModal')" (keypress)="openModal('registerModal')">Regstrarse</a></li>
+      }
+    </div>
+
     <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="posts" routerLinkActive="active">Publicaciones</a></li>
     <!-- <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="fotos" routerLinkActive="active">Galería</a></li> -->
 
