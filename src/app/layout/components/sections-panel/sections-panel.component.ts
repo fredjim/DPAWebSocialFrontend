@@ -110,7 +110,9 @@ export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
 
   onCreatedSection(event: {section?: Section, error?: any}): void {
     if (event.section) {
-      this.sections.push(event.section);
+      // El backend puede haber desplazado el orderIndex de otras sections al insertar en una posición
+      // explícita: se refresca la lista completa en vez de parchear el array local.
+      this.loadSections();
       this.customToast.showSuccess('Sección creada exitosamente');
     } else {
       if (event.error?.status === 409) {
@@ -123,7 +125,8 @@ export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
 
   onDeletedSection(event: {section?: Section, error?: any}): void {
     if (event.section) {
-      this.sections = this.sections.filter(sec => sec.uuid !== event.section?.uuid);
+      // El backend cierra el hueco dejado en el orderIndex del resto de sections al eliminar
+      this.loadSections();
       this.customToast.showSuccess('Sección eliminada exitosamente');
     } else {
       this.customToast.showError('Error al eliminar sección');
@@ -132,7 +135,8 @@ export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
 
   onEditSection(event: {section?: Section, error?: any}): void {
     if (event.section) {
-      this.sections = this.sections.map(sec => sec.uuid === event.section?.uuid ? event.section : sec);
+      // El backend puede haber desplazado el orderIndex de otras sections al mover esta a una nueva posición
+      this.loadSections();
       this.customToast.showSuccess('Sección actualizada exitosamente');
     } else {
       if (event.error?.status === 409) {
@@ -141,6 +145,10 @@ export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
         this.customToast.showError('Error al actualizar sección');
       }
     }
+  }
+
+  getLastOrderIndexSection(): number {
+    return this.sections.at(-1)?.orderIndex ?? this.sections.length;
   }
 
   hideButtonNewSection(): void {
