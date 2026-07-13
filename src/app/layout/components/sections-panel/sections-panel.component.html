@@ -8,6 +8,7 @@
 						typeForm="edit"
 						[currentSection]="section"
 						[currentNavItem]="currentNavItem"
+						[lastOrderIndexSections]="getLastOrderIndexSection()"
 						(onCloseEdit)="onCloseEditSection()"
 						(onEditedSection)="onEditSection($event)"
 						(onDeletedSection)="onDeletedSection($event)"
@@ -54,6 +55,7 @@
 			<app-section-form
 				typeForm="create"
 				[currentNavItem]="currentNavItem"
+				[lastOrderIndexSections]="getLastOrderIndexSection()"
 				(onCloseNew)="showButtonNewSection = $event"
 				(onCreateSection)="onCreatedSection($event)"
 				(onDeletedSection)="onDeletedSection($event)"

@@ -6,4 +6,5 @@ export interface Section {
     name:           string;
     date:           string;
     path:           string;
+    orderIndex:     number;
 }

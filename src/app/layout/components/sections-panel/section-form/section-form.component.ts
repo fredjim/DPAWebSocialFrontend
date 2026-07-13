@@ -26,6 +26,7 @@ export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() currentSection: Section | undefined;
   @Input() currentNavItem!: NavItem;
+  @Input() lastOrderIndexSections!: number;
   @Output() onCloseNew = new EventEmitter<boolean>();
   @Output() onCloseEdit = new EventEmitter<void>();
   @Output() onEditedSection = new EventEmitter<{section?: Section, error?: any}>();
@@ -37,15 +38,26 @@ export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
   public readonly MAX_LENGTH_NAME = 50;
   public readonly MAX_LENGTH_PATH = 50;
 
+  public readonly VALIDATION = {
+    ORDER_INDEX: { MIN: 1 }
+  } as const;
+
   public formSection = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LENGTH_NAME)]),
-    path: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LENGTH_PATH)])
+    path: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LENGTH_PATH)]),
+    orderIndex: new FormControl(this.lastOrderIndexSections + 1, [Validators.required, Validators.min(this.VALIDATION.ORDER_INDEX.MIN)])
   });
 
   ngOnInit(): void {
     setTimeout(()=>{
       this.focusInputIfNeeded();
     });
+
+    if(this.typeForm === 'create'){
+      this.formSection.patchValue({
+        orderIndex: this.lastOrderIndexSections + 1
+      });
+    }
 
     this.subscription.add(
       this.formSection.get('name')?.valueChanges
@@ -61,10 +73,16 @@ export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if(changes['lastOrderIndexSections'] && this.lastOrderIndexSections !== undefined && this.typeForm === 'create'){
+      this.formSection.patchValue({
+        orderIndex: this.lastOrderIndexSections + 1
+      });
+    }
     if(changes['currentSection'] && this.currentSection && this.formSection && this.typeForm === 'edit'){
       this.formSection.patchValue({
         name: this.currentSection.name,
-        path: this.currentSection.path
+        path: this.currentSection.path,
+        orderIndex: this.currentSection.orderIndex
       });
     }
   }
@@ -90,7 +108,8 @@ export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
       date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
       institution_id: this.authService.getInstitutionId() ?? '',
       name: this.formSection.value.name?.trim() ?? '',
-      path: this.getPathFromNameSection(this.formSection.value.path!.trim())
+      path: this.getPathFromNameSection(this.formSection.value.path!.trim()),
+      orderIndex: this.formSection.get('orderIndex')!.value ?? this.lastOrderIndexSections + 1
     }
     
     this.sectionService.createSection(newSection).subscribe({
@@ -116,7 +135,8 @@ export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
       ...this.currentSection,
       date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
       name: this.formSection.value.name?.trim() ?? '',
-      path: this.getPathFromNameSection(this.formSection.value.path!.trim())
+      path: this.getPathFromNameSection(this.formSection.value.path!.trim()),
+      orderIndex: this.formSection.get('orderIndex')!.value ?? this.currentSection.orderIndex
     }
 
     this.sectionService.updateSection(updatedSection).subscribe({
@@ -193,7 +213,9 @@ export class SectionFormComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   closeForm(): void {
-    this.formSection.reset();
+    this.formSection.reset({
+      orderIndex: this.lastOrderIndexSections + 1
+    });
     if(this.typeForm === 'edit'){
       this.currentSection = undefined;
       this.onCloseEdit.emit();
