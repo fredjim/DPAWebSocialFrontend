@@ -35,4 +35,8 @@ export class UserService {
     const url = `${this.ROOT_URL}/images/user-profile`;
     return this.http.post<UploadedMedia>(url, formData, this.reqHeader);
   }
+
+  deleteUserPhotoProfile(imgUuid: string): Observable<void> {
+    return this.http.delete<void>(`${this.ROOT_URL}/images/${imgUuid}`, this.reqHeader);
+  }
 }

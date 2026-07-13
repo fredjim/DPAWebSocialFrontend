@@ -5,7 +5,7 @@ import { TenantService } from '../../../core/services/tenant.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
-import { Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { map, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
 
 @Component({
@@ -32,6 +32,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   imageFileProfileToCreate?: File;
   imageProfile = '';
   currentPhotoUuid: string = '';
+  photoProfileMarkedForDeletion = false;
   @ViewChild('fileInputProfile') fileInputProfile!: ElementRef;
   @ViewChild('toast') toast!: CustomToastComponent;
 
@@ -57,19 +58,40 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (!this.currentUser || this.formUser.invalid) return;
-
     this.isLoading = true;
     this.toast.showInfo('Guardando cambios...', 'Procesando');
 
-    const upload$: Observable<UploadedMedia | null> = this.imageFileProfileToCreate
-      ? this.userService.postUserPhotoProfile(this.createFormData(this.imageFileProfileToCreate))
-      : of(null);
+    // undefined = sin cambios | null = fue borrada | UploadedMedia = nueva
+    let photoAction$: Observable<UploadedMedia | null | undefined>;
 
-    upload$.pipe(
-      switchMap((uploadedMedia) => {
-        const updateData: any = {
+    if (this.imageFileProfileToCreate) {
+      photoAction$ = this.userService.postUserPhotoProfile(
+        this.createFormData(this.imageFileProfileToCreate)
+      );
+    } else if (this.photoProfileMarkedForDeletion && this.currentPhotoUuid) {
+      photoAction$ = this.userService.deleteUserPhotoProfile(this.currentPhotoUuid).pipe(
+        map(() => null)
+      );
+    } else {
+      photoAction$ = of(null);
+    }
+
+    photoAction$.pipe(
+      switchMap((result) => {
+        let photoProfileFileUuid: string | null;
+
+        if (result === undefined) {
+          photoProfileFileUuid = this.currentPhotoUuid;   // sin cambios
+        } else if (result === null) {
+          photoProfileFileUuid = null;    // se borró -> valor null por default
+        } else {
+          photoProfileFileUuid = result.uuid; // nueva imagen
+        }
+
+        const updateData: UserDetail = {
+          ...this.currentUser,
           ...this.formUser.value,
-          photoProfileFileUuid: uploadedMedia ? uploadedMedia.uuid : this.currentPhotoUuid
+          photoProfileFileUuid
         };
 
         return this.userService.updateUserDate(updateData);
@@ -81,6 +103,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.currentUser = userData;
         this.currentPhotoUuid = this.extractUuidFromUrl(userData.photo_profile_path);
         this.imageFileProfileToCreate = undefined;
+        this.photoProfileMarkedForDeletion = false;
         this.toast.showSuccess('Perfil actualizado correctamente');
       },
       error: (error) => {
@@ -89,6 +112,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.toast.showError('Hubo un error al actualizar el perfil');
       }
     });
+  }
+
+  onDeletePhotoProfile(): void {
+    this.imageFileProfileToCreate = undefined;
+    this.photoProfileMarkedForDeletion = true;
+    this.currentUser.photoProfileFileUuid = undefined;
+    this.currentUser.photo_profile_path = undefined;
   }
 
   private createFormData(file: File): FormData {

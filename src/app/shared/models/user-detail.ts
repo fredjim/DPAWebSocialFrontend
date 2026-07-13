@@ -5,7 +5,7 @@ export interface UserDetail {
     password:               string;
     email:                  string;
     phone:                  string;
-    photo_profile_path:     string;
+    photo_profile_path?:     string;
     photo_cover_path:       string;
     role:                   string;
     photoProfileFileUuid?:  string;
