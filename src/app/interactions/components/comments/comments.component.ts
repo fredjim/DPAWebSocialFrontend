@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, Input, OnInit, ViewChildren, QueryList, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChildren, QueryList, AfterViewInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CommentService } from '../../services/comment.service'; 
 import { ReplyService } from '../../services/reply.service'; 
@@ -8,9 +8,10 @@ import { Comment } from '../../models/comment';
 import { Institution } from '../../../shared/models/institution';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Post } from '../../../posts/models/post';
-import { Media } from '../../../shared/models/media';
 import { UserDetail } from '../../../shared/models/user-detail';
 import moment from 'moment-timezone';
+import { CreateReply } from '../../models/create-reply';
+import { Reply } from '../../models/reply';
 
 @Component({
   selector: 'app-comments',
@@ -116,22 +117,9 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.commentService.addComment(this.post.uuid, commentData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: (newComment: any) => {
+      next: (newComment) => {
         if (this.currentUser) {
-          const commentToAdd: Comment = {
-            uuid: newComment.uuid || '',
-            content: newComment.content,
-            date: newComment.date,
-            user_name: newComment.user_name || `${this.currentUser.name} ${this.currentUser.lastName}`,
-            user_photo: newComment.user_photo || this.currentUser.photo_profile_path,
-            userId: newComment.userId || this.currentUser.uuid,
-            moderated: newComment.moderated || false,
-            state: newComment.state || 'VISIBLE',
-            replyCount: newComment.replyCount || 0,
-            replies: [],
-            reactions: [],
-          };
-          this.comments.unshift(commentToAdd);
+          this.comments.unshift(newComment);
           this.newComment = '';
         }
       },
@@ -148,7 +136,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   handleAddReply(event: { parentUuid: string; replyText: string; isTopLevel: boolean }): void {
     if (!event.replyText.trim()) return;
 
-    const replyData = {
+    const replyData: CreateReply = {
       content: event.replyText,
       parentReplyUuid: event.isTopLevel ? null : event.parentUuid,
     };
@@ -156,18 +144,9 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.replyService.addReply(event.parentUuid, replyData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (newReply: any) => {
+        next: (newReply) => {
           // El nuevo response del backend ya incluye name, lastName y user_photo,
           // por lo tanto, no necesitamos llamar a getUser() nuevamente.
-          const formattedReply = {
-            uuid: newReply.uuid,
-            content: newReply.content,
-            createdDate: newReply.createdDate,
-            name: newReply.name || this.currentUser?.name,
-            lastName: newReply.lastName || this.currentUser?.lastName,
-            user_photo: newReply.user_photo || this.currentUser?.photo_profile_path,
-            replies: newReply.replies || [],
-          };
 
           if (event.isTopLevel) {
             const parentComment = this.comments.find(
@@ -175,10 +154,10 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
             );
             if (parentComment) {
               parentComment.replies = parentComment.replies || [];
-              parentComment.replies.unshift(formattedReply);
+              parentComment.replies.unshift(newReply);
             }
           } else {
-            this.updateNestedReplies(this.comments, event.parentUuid, formattedReply);
+            this.updateNestedReplies(this.comments, event.parentUuid, newReply);
           }
         },
         error: (error) => console.error('Error al agregar respuesta:', error),
@@ -211,21 +190,6 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
-  }
-  // Agregar este método para cargar respuestas
-  private loadAllReplies(): void {
-    this.comments.forEach(comment => {
-      this.replyService.getRepliesByCommentUuid(comment.uuid)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (replies) => {
-            comment.replies = replies.sort(
-              (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
-            );
-          },
-          error: (error) => console.error('Error al obtener respuestas:', error)
-        });
     });
   }
 
@@ -287,7 +251,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // Asegúrate que updateNestedReplies esté correctamente implementado
-  private updateNestedReplies(items: any[], parentUuid: string, newReply: any): boolean {
+  private updateNestedReplies(items: any[], parentUuid: string, newReply: Reply): boolean {
     for (const item of items) {
       if (item.uuid === parentUuid) {
         item.replies = item.replies || [];

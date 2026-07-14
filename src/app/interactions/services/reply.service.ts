@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../authentication/services/auth.service';
 import { environment } from '../../../environments/environment';
+import { Reply } from '../models/reply';
+import { CreateReply } from '../models/create-reply';
 
 @Injectable({
   providedIn: 'root'
@@ -22,14 +24,14 @@ export class ReplyService {
     private readonly authService: AuthService
   ) {}
 
-  getRepliesByCommentUuid(commentUuid: string): Observable<any[]> {
-    return this.http.get<any[]>(
+  getRepliesByCommentUuid(commentUuid: string): Observable<Reply[]> {
+    return this.http.get<Reply[]>(
       `${this.ROOT_URL}/${this.commentsUrl}/${commentUuid}/${this.repliesUrl}`
     );
   }
 
-  addReply(commentUuid: string, replyData: any): Observable<any> {
-    return this.http.post<any>(
+  addReply(commentUuid: string, replyData: CreateReply): Observable<Reply> {
+    return this.http.post<Reply>(
       `${this.ROOT_URL}/${this.commentsUrl}/${commentUuid}/${this.repliesUrl}`,
       replyData,
       this.reqHeader

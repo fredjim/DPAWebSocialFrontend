@@ -144,23 +144,9 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
   }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['comments']) {
-      this.initializeReplyLimits();
       this.loadUserReactionsForComments();
       this.loadCommentsReactionsCount();
     }
-  }
-
-  private initializeReplyLimits(): void {
-    this.comments.forEach(comment => {
-      this.replyLimit[comment.uuid] = 0;
-      this.replyVisibility[comment.uuid] = false;
-
-      if (comment.replies) {
-        comment.replies.forEach(reply => {
-          this.initializeReply(reply);
-        });
-      }
-    });
   }
 
   private initializeReply(reply: Reply): void {

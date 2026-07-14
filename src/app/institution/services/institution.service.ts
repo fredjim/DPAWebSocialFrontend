@@ -43,11 +43,6 @@ export class InstitutionService {
     return this.http.put<Institution>(url, body, this.reqHeader);
   }
 
-  // Método para obtener el número de seguidores de una institución
-  getNumberFollowers(uuid: string): Observable<any> {
-    return this.http.get<number>(`${this.ROOT_URL}/${this.institutionUrl}/${uuid}/followers/count`);
-  }
-
   //Obtener todas las fotos de la institucion 
   getInstitutionPhotos(uuid: string): Observable<MediaInstitution[]> {
     const url = `${this.ROOT_URL}/institutions/${uuid}/photos`;
