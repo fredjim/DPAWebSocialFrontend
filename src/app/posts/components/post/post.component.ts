@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output, signal, WritableSignal, inject, OnInit } from '@angular/core';
 import { InstitutionService } from '../../../institution/services/institution.service';
 import { ReactionService } from '../../../interactions/services/reaction.service';
-import { CommentService } from '../../../interactions/services/comment.service';
 import { CreateReaction } from '../../../shared/models/create-reaction';
 import { Post } from '../../models/post';
 import { Institution } from '../../../shared/models/institution';
@@ -9,7 +8,6 @@ import { ReactionsByType } from '../../models/reactions-by-type';
 import { Media } from '../../../shared/models/media';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
-import { PostComment } from '../../models/post-comment';
 import { UserDetail } from '../../../shared/models/user-detail';
 import { TenantService } from '../../../core/services/tenant.service';
 import { environment } from '../../../../environments/environment';
@@ -26,9 +24,6 @@ export class PostComponent implements OnInit {
   @Input() currentUser!: UserDetail;
   @Input() authenticated: boolean = false;
   @Input() openInParent: boolean = false;
-  comments: PostComment[] = [];
-  newComment: string = '';
-  showCommentInput: boolean = false;
 
   @Output() requestDeletePost = new EventEmitter<string>();
   @Output() requestUpdatePost = new EventEmitter<Post>();
@@ -57,7 +52,6 @@ export class PostComponent implements OnInit {
   constructor(
     private readonly institutionService: InstitutionService,
     private readonly reactionService: ReactionService,
-    private readonly commentService: CommentService,
     private readonly tenantService: TenantService
   ) {}
   
@@ -82,24 +76,7 @@ export class PostComponent implements OnInit {
 
     this.totalComments.set(this.post.commentCounter.totalComments);
   }
-  
-
-  loadComments() {
-    this.commentService.getComments(this.post.uuid).subscribe({
-      next: (data: any) => {
-        this.comments = data.map((c: any) => ({
-          postId: c.postId,
-          userId: c.userId,
-          content: c.content,
-          createdAt: c.createdAt || new Date()
-        }));
-      },
-      error: (err) => console.error('Error al cargar comentarios', err)
-    });
-  }
-
-  
-  
+    
   deletePost(confirm: boolean) {
     if (confirm) {
       this.requestDeletePost.emit(this.post.uuid);
@@ -180,7 +157,7 @@ export class PostComponent implements OnInit {
   }
 
 
-  reactUserBoton(postUuid: any) {
+  reactUserBoton(postUuid: string) {
     if (!this.like) { //No seleccionaron ningun emoji por default Me gusta
       
       this.react(postUuid, this.emoji_type_id.thumbs_up)
