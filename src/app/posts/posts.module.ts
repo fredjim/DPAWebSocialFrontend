@@ -30,6 +30,7 @@ import { SharedModule } from '../shared/shared.module';
 import { TabViewModule } from 'primeng/tabview';
 import { CarouselModule } from 'primeng/carousel';
 import { MessagesModule } from 'primeng/messages';
+import { PaginatorModule } from 'primeng/paginator';
 
 @NgModule({
   declarations: [
@@ -64,7 +65,8 @@ import { MessagesModule } from 'primeng/messages';
     SharedModule,
     TabViewModule,
     CarouselModule,
-    MessagesModule
+    MessagesModule,
+    PaginatorModule
   ],
   exports: [
     ViewAllPostsComponent,

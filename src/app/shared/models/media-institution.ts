@@ -1,4 +1,8 @@
 export interface MediaInstitution {
-    path:       string,
-    uuid_post:  string;
+  uuid_post:  string;
+  fileUuid:   string;
+  path:       string;
+  fileName:   string;
+  mimeType:   string;
+  fileType:   string;
 }

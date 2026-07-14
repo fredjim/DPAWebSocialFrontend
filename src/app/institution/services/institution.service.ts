@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { AuthService } from "../../authentication/services/auth.service";
 import { environment } from "../../../environments/environment";
 import { Injectable } from "@angular/core";
@@ -6,6 +6,7 @@ import { Observable } from "rxjs";
 import { UploadedMedia } from "../../shared/models/uploaded-media";
 import { Institution } from "../../shared/models/institution";
 import { MediaInstitution } from "../../shared/models/media-institution";
+import { PaginatedResponse } from "../../shared/models/paginated-response";
 
 
 @Injectable({
@@ -43,20 +44,24 @@ export class InstitutionService {
     return this.http.put<Institution>(url, body, this.reqHeader);
   }
 
-  //Obtener todas las fotos de la institucion 
-  getInstitutionPhotos(uuid: string): Observable<MediaInstitution[]> {
+  //Obtener las fotos paginadas de la institucion
+  getInstitutionPhotos(uuid: string, page = 0, size = 12, sort = 'post_date,desc'): Observable<PaginatedResponse<MediaInstitution>> {
     const url = `${this.ROOT_URL}/institutions/${uuid}/photos`;
-    return this.http.get<MediaInstitution[]>(url);
+    const params = new HttpParams().set('page', page).set('size', size).set('sort', sort);
+    return this.http.get<PaginatedResponse<MediaInstitution>>(url, { params });
   }
 
-    //Obtener todos los videos de la institucion 
-  getInstitutionVideos(uuid: string): Observable<MediaInstitution[]> {
+  //Obtener los videos paginados de la institucion
+  getInstitutionVideos(uuid: string, page = 0, size = 9, sort = 'post_date,desc'): Observable<PaginatedResponse<MediaInstitution>> {
     const url = `${this.ROOT_URL}/institutions/${uuid}/videos`;
-    return this.http.get<MediaInstitution[]>(url);
+    const params = new HttpParams().set('page', page).set('size', size).set('sort', sort);
+    return this.http.get<PaginatedResponse<MediaInstitution>>(url, { params });
   }
 
-  getInstitutionDocuments(uuid: string): Observable<MediaInstitution[]> {
+  //Obtener los documentos paginados de la institucion
+  getInstitutionDocuments(uuid: string, page = 0, size = 20, sort = 'post_date,desc'): Observable<PaginatedResponse<MediaInstitution>> {
     const url = `${this.ROOT_URL}/institutions/${uuid}/documents`;
-    return this.http.get<MediaInstitution[]>(url);
+    const params = new HttpParams().set('page', page).set('size', size).set('sort', sort);
+    return this.http.get<PaginatedResponse<MediaInstitution>>(url, { params });
   }
 }

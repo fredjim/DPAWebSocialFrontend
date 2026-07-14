@@ -49,11 +49,11 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
 
   loadPhotos() {
     if (this.institution) {
-      this.institutionService.getInstitutionPhotos(this.institution.uuid)
+      this.institutionService.getInstitutionPhotos(this.institution.uuid, 0, 9)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: (photos) => {
-            this.photos = photos.slice(-9).map(photo => ({
+          next: (res) => {
+            this.photos = res.content.map(photo => ({
               url: `${photo.path}`,
               postUuid: `${photo.uuid_post}`
             }));

@@ -11,11 +11,12 @@
 .media-gallery {
   display: grid;
   margin: 50px auto;
-  width: var(--container-width);
+  width: 100%;
+  max-width: var(--container-width);
 
   .media-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
 
     .photo,
@@ -40,7 +41,8 @@
 ::ng-deep .p-tabview-nav-container {
   position: relative;
   margin: 0 auto !important;
-  width: var(--container-width);
+  width: 100%;
+  max-width: var(--container-width);
   border-bottom: 1px solid var(--red-color);
 }
 
@@ -102,4 +104,10 @@
     width: 100%;
   }
 
+}
+
+@media screen and (max-width: 700px) {
+  .media-gallery .media-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
