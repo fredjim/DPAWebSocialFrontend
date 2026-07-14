@@ -327,7 +327,7 @@ export class PostComponent implements OnInit {
   react(postUuid: string, emoji_id: string) {
     const newReaction: CreateReaction = {
       "emoji_type_id": emoji_id,
-      "reaction_date": new Date()
+      "reaction_date": new Date().toISOString()
     }
     this.reactionService.reactToPost(postUuid, newReaction).subscribe({
       next: () => {
