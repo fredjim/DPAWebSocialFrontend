@@ -203,30 +203,8 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
         comment.replies = replies.sort(
           (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
         );
-        // Cargar respuestas anidadas si existen
-        if (comment.replies) {
-          comment.replies.forEach(reply => {
-            if (reply.replies && reply.replies.length > 0) {
-              this.loadReplyReplies(reply);
-            }
-          });
-        }
       },
       error: (error) => console.error('Error al obtener respuestas:', error)
-    });
-  }
-
-  // Método para cargar respuestas de respuestas (anidadas)
-  private loadReplyReplies(reply: any): void {
-    this.replyService.getRepliesByCommentUuid(reply.uuid)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (nestedReplies) => {
-        reply.replies = nestedReplies.sort(
-          (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
-        );
-      },
-      error: (error) => console.error('Error al obtener respuestas anidadas:', error)
     });
   }
 

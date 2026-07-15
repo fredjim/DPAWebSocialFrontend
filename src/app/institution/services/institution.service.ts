@@ -1,5 +1,4 @@
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
-import { AuthService } from "../../authentication/services/auth.service";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
@@ -15,14 +14,10 @@ import { PaginatedResponse } from "../../shared/models/paginated-response";
 export class InstitutionService {
 
   private readonly ROOT_URL = `${environment.BACK_END_HOST_DEV}`;
-
-  private readonly reqHeader = { headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }) };
-
   private readonly institutionUrl: string = 'institutions';
 
   constructor(
-    private readonly http: HttpClient, 
-    private readonly authService: AuthService
+    private readonly http: HttpClient
   ) {}
 
   getInstitution(uuid: string): Observable<Institution> {
@@ -31,17 +26,17 @@ export class InstitutionService {
 
   postInstitutionPhotoProfile(formData: FormData): Observable<UploadedMedia> {
     const url = `${this.ROOT_URL}/images/inst-profile`;
-    return this.http.post<UploadedMedia>(url, formData, this.reqHeader);
+    return this.http.post<UploadedMedia>(url, formData);
   }
 
   postInstitutionPhotoCover(formData: FormData): Observable<UploadedMedia> {
     const url = `${this.ROOT_URL}/images/inst-cover`;
-    return this.http.post<UploadedMedia>(url, formData, this.reqHeader);
+    return this.http.post<UploadedMedia>(url, formData);
   }
 
   updateInstitutionData(body: Partial<Institution>): Observable<Institution> {
     const url = `${this.ROOT_URL}/${this.institutionUrl}`;
-    return this.http.put<Institution>(url, body, this.reqHeader);
+    return this.http.put<Institution>(url, body);
   }
 
   //Obtener las fotos paginadas de la institucion

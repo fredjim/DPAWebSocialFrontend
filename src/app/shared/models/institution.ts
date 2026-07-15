@@ -1,6 +1,6 @@
 export interface Institution {
     uuid:                string;
-    slug?:               string;
+    slug:                string;
     name:                string;
     description:         string;
     location:            string;

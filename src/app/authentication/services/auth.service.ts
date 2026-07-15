@@ -1,10 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { NewUser } from '../models/new-user';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { TenantService } from '../../core/services/tenant.service';
+import { UserStateService } from '../../core/services/user-state.service';
+import { firstValueFrom, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +20,8 @@ export class AuthService {
   public token: string | null = null;
   constructor(
     private readonly http: HttpClient,
-    private readonly tenantService: TenantService
+    private readonly tenantService: TenantService,
+    private readonly userState: UserStateService
   ) {
   }
 
@@ -28,19 +31,17 @@ export class AuthService {
   }
 
   login(username: string, password: string) {
-    let user = {
-      email: username,
-      password
-    }
-
-    return this.http.post<any>(this.ROOT_URL + '/login', user, { withCredentials: true })
-      .pipe(
-        map(res => {
-          this.token = res.accessToken;
-          // refreshToken llega como cookie HttpOnly — el browser lo almacena solo
-          return true;
-        })
-      );
+    const user = { email: username, password };
+    return this.http.post<any>(this.ROOT_URL + '/login', user, { withCredentials: true }).pipe(
+      switchMap(res => {
+        this.token = res.accessToken;
+        // refreshToken llega como cookie HttpOnly — el browser lo almacena solo
+        const institutionId = this.getInstitutionId();
+        return institutionId
+          ? this.userState.loadOwnInstitution(institutionId).pipe(map(() => true))
+          : of(true);
+      })
+    );
   }
 
   register(newUser: NewUser) {
@@ -120,6 +121,7 @@ export class AuthService {
 
   logout(): void {
     this.token = null;
+    this.userState.clear();
 
     const redirect = () => {
       globalThis.location.href = `/${this.tenantService.getSlug()}`;
@@ -145,16 +147,24 @@ export class AuthService {
   // Refresca el token al inicializar la app usando la cookie HttpOnly
   tryRefreshOnStartup(): Promise<void> {
     if (this.token && !this.jwtHelper.isTokenExpired(this.token)) {
-      return Promise.resolve();
+      return this.ensureOwnInstitutionLoaded();
     }
     // Si la cookie existe y es válida el backend devuelve un nuevo accessToken
     // Si no hay cookie o expiró, el backend responde 401 y limpiamos memoria
     return this.refreshAccessToken().toPromise().then((res: any) => {
       if (res?.accessToken) {
         this.token = res.accessToken;
+        return this.ensureOwnInstitutionLoaded();
       }
+      return Promise.resolve(); 
     }).catch(() => {
       this.token = null;
     });
+  }
+
+  private ensureOwnInstitutionLoaded(): Promise<void> {
+    const institutionId = this.getInstitutionId();
+    if (!institutionId) return Promise.resolve();
+    return firstValueFrom(this.userState.loadOwnInstitution(institutionId)).then(() => void 0);
   }
 }
