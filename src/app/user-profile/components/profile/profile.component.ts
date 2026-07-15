@@ -8,6 +8,11 @@ import { UserService } from '../../services/user.service';
 import { map, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
 
+type PhotoAction =
+  | { type: 'upload'; media: UploadedMedia }
+  | { type: 'delete' }
+  | { type: 'none' };
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -21,6 +26,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   public readonly MAX_NAME_LENGTH = 50;
   public readonly MAX_LASTNAME_LENGTH = 80;
+  public readonly MIN_PHONE_LENGTH = 7;
   public readonly MAX_PHONE_LENGTH = 15;
 
   currentUser!: UserDetail;
@@ -30,8 +36,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   formUser!: FormGroup;
 
   imageFileProfileToCreate?: File;
-  imageProfile = '';
-  currentPhotoUuid: string = '';
+  imageProfilePreview = '';
   photoProfileMarkedForDeletion = false;
   @ViewChild('fileInputProfile') fileInputProfile!: ElementRef;
   @ViewChild('toast') toast!: CustomToastComponent;
@@ -46,7 +51,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe(user => {
           this.currentUser = user;
-          this.currentPhotoUuid = this.extractUuidFromUrl(user.photo_profile_path);
           this.formUser.patchValue({
             name: this.currentUser.name,
             lastName: this.currentUser.lastName,
@@ -61,31 +65,36 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.toast.showInfo('Guardando cambios...', 'Procesando');
 
-    // undefined = sin cambios | null = fue borrada | UploadedMedia = nueva
-    let photoAction$: Observable<UploadedMedia | null | undefined>;
+    let photoAction$: Observable<PhotoAction>;
 
     if (this.imageFileProfileToCreate) {
       photoAction$ = this.userService.postUserPhotoProfile(
         this.createFormData(this.imageFileProfileToCreate)
+      ).pipe(
+        map((media) => ({ type: 'upload', media } as PhotoAction))
       );
-    } else if (this.photoProfileMarkedForDeletion && this.currentPhotoUuid) {
-      photoAction$ = this.userService.deleteUserPhotoProfile(this.currentPhotoUuid).pipe(
-        map(() => null)
+    } else if (this.photoProfileMarkedForDeletion && this.currentUser.photoProfileFileUuid) {
+      photoAction$ = this.userService.deleteUserPhotoProfile(this.currentUser.photoProfileFileUuid).pipe(
+        map(() => ({ type: 'delete' } as PhotoAction))
       );
     } else {
-      photoAction$ = of(null);
+      photoAction$ = of({ type: 'none' } as PhotoAction);
     }
 
     photoAction$.pipe(
-      switchMap((result) => {
+      switchMap((action) => {
         let photoProfileFileUuid: string | null;
 
-        if (result === undefined) {
-          photoProfileFileUuid = this.currentPhotoUuid;   // sin cambios
-        } else if (result === null) {
-          photoProfileFileUuid = null;    // se borró -> valor null por default
-        } else {
-          photoProfileFileUuid = result.uuid; // nueva imagen
+        switch (action.type) {
+          case 'upload':
+            photoProfileFileUuid = action.media.uuid; // cuando se crea o reemplaza la img
+            break;
+          case 'delete':
+            photoProfileFileUuid = null; // cuando se borra la img
+            break;
+          case 'none':
+            photoProfileFileUuid = this.currentUser!.photoProfileFileUuid; // sin cambios
+            break;
         }
 
         const updateData: UserDetail = {
@@ -101,7 +110,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       next: (userData: UserDetail) => {
         this.isLoading = false;
         this.currentUser = userData;
-        this.currentPhotoUuid = this.extractUuidFromUrl(userData.photo_profile_path);
         this.imageFileProfileToCreate = undefined;
         this.photoProfileMarkedForDeletion = false;
         this.toast.showSuccess('Perfil actualizado correctamente');
@@ -115,10 +123,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   onDeletePhotoProfile(): void {
+    this.currentUser.photo_profile_path = null;
     this.imageFileProfileToCreate = undefined;
     this.photoProfileMarkedForDeletion = true;
-    this.currentUser.photoProfileFileUuid = undefined;
-    this.currentUser.photo_profile_path = undefined;
   }
 
   private createFormData(file: File): FormData {
@@ -140,7 +147,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       // Preview local
       const reader = new FileReader();
       reader.onload = () => {
-        this.imageProfile = reader.result as string;
+        this.imageProfilePreview = reader.result as string;
       };
       reader.readAsDataURL(this.imageFileProfileToCreate);
     }
@@ -166,17 +173,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  private extractUuidFromUrl(url: string | null | undefined): string {
-    if (!url) return '';
-    const parts = url.split('/');
-    return parts.pop() || '';
-  }
-
   private initForm(): void {
     this.formUser = new FormGroup({
       name: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_NAME_LENGTH), this.onlyLettersValidator()]),
       lastName: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LASTNAME_LENGTH), this.onlyLettersValidator()]),
-      phone: new FormControl('', [Validators.maxLength(this.MAX_PHONE_LENGTH), this.numbersOnlyValidator()]),
+      phone: new FormControl('', [Validators.maxLength(this.MAX_PHONE_LENGTH), Validators.minLength(this.MIN_PHONE_LENGTH), this.numbersOnlyValidator()]),
     });
   }
 
