@@ -10,7 +10,5 @@ export interface Comment {
     user_photo: string;
     userId: string;
     replyCount: number;
-    reactions?: any[];
-    totalReactions?: number;
     replies?: Reply[]; 
 }

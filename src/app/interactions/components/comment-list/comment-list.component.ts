@@ -12,6 +12,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-replies/modal-list-reactions-replies.component'; // Ajusta la ruta si es necesario
 import { HttpErrorResponse } from '@angular/common/http';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
+import { CreateReactionToComments } from '../../../shared/models/create-reaction';
 
 @Component({
   selector: 'app-comment-list',
@@ -121,7 +122,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     // Si ya hay reacción y es un cambio forzado (click en emoji diferente), actualiza la reacción
-    const body = {
+    const body: CreateReactionToComments = {
       emojiTypeId: emojiTypeUuid,
       reactionDate: new Date().toISOString()
     };
@@ -143,23 +144,9 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
   }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['comments']) {
-      this.initializeReplyLimits();
       this.loadUserReactionsForComments();
       this.loadCommentsReactionsCount();
     }
-  }
-
-  private initializeReplyLimits(): void {
-    this.comments.forEach(comment => {
-      this.replyLimit[comment.uuid] = 0;
-      this.replyVisibility[comment.uuid] = false;
-
-      if (comment.replies) {
-        comment.replies.forEach(reply => {
-          this.initializeReply(reply);
-        });
-      }
-    });
   }
 
   private initializeReply(reply: Reply): void {
