@@ -1,5 +1,7 @@
 export interface UserDetail {
     uuid:                   string;
+    enable:                 boolean;
+    institutionId:          string;
     name:                   string;
     lastName:               string;
     password:               string;

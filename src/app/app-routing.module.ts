@@ -25,7 +25,7 @@ const routes: Routes = [
   {
     path: ':slug',
     component: HomeComponent,  // Este componente contiene header/footer del tenant
-    // canActivate: [tenantGuard],
+    canActivate: [tenantGuard],
     children: [
       // Rutas protegidas
       {
