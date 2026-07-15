@@ -4,10 +4,10 @@
         <div class="side-image">
     
             <div class="logo-overlay">
-                <!-- <div class="remove-img" title="Eliminar imagen de perfil" (click)="onDeletePhotoProfile()" (keypress)="onDeletePhotoProfile()" >
+                <div *ngIf="currentUser && currentUser.photoProfileFileUuid" class="remove-img" title="Eliminar imagen de perfil" (click)="onDeletePhotoProfile()" (keypress)="onDeletePhotoProfile()" >
                     <i class="bi bi-trash3-fill"></i>
-                </div> -->
-                <img *ngIf="currentUser" [src]="imageProfile || currentUser.photo_profile_path || 'assets/user-icon.png'" alt="Foto ususario" class="user-logo">
+                </div>
+                <img *ngIf="currentUser" [src]="imageProfilePreview || currentUser.photo_profile_path || 'assets/user-icon.png'" alt="Foto ususario" class="user-logo">
                 <input #fileInputProfile type="file" id="input-photo-profile" (change)="changeInputMediaProfile($event)"
                  hidden accept="image/jpg, image/png, image/jpeg">
                 <div class="edit-info" (click)="openInputFileProfile()" (keypress)="openInputFileProfile()" >
@@ -68,10 +68,15 @@
                 <label for="phone">Teléfono:</label>
                 <div class="input-wrapper">
                     <input type="tel" pInputText class="form-control" id="phone" formControlName="phone" autocomplete="off"
-                        [class.is-invalid]="hasError('phone', 'maxlength') || hasError('phone', 'numbersOnly')">
+                        [class.is-invalid]="hasError('phone', 'minlength') ||
+                                            hasError('phone', 'maxlength') || 
+                                            hasError('phone', 'numbersOnly')">
                     <div class="error-messages">
+                        <div class="invalid-feedback" *ngIf="hasError('phone', 'minlength')">
+                            El teléfono debe tener mínimo {{ MAX_PHONE_LENGTH }} dígitos
+                        </div>
                         <div class="invalid-feedback" *ngIf="hasError('phone', 'maxlength')">
-                            El teléfono no puede exceder los {{ MAX_PHONE_LENGTH }} caracteres
+                            El teléfono no puede exceder los {{ MAX_PHONE_LENGTH }} dígitos
                         </div>
                         <div class="invalid-feedback" *ngIf="hasError('phone', 'numbersOnly')">
                             El teléfono solo debe contener números
