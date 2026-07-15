@@ -4,7 +4,6 @@ import { InstitutionService } from '../../../institution/services/institution.se
 import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
 import { TenantService } from '../../../core/services/tenant.service';
-import { MediaInstitution } from '../../../shared/models/media-institution';
 
 @Component({
   selector: 'app-media-gallery',
@@ -20,6 +19,10 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
   photos: {url: string, postUuid: string}[] = [];
   videos: {url: string, postUuid: string}[] = [];
   documents: {url: string, postUuid: string}[] = [];
+
+  photosPage = { page: 0, size: 12, totalElements: 0 };
+  videosPage = { page: 0, size: 9, totalElements: 0 };
+  documentosPage = { page: 0, size: 20, totalElements: 0 };
 
   photosState: 'idle' | 'loading' | 'loaded' | 'error' = 'idle';
   videosState: 'idle' | 'loading' | 'loaded' | 'error' = 'idle';
@@ -74,20 +77,22 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadPhotos() {
-    if (!this.institution || this.photosState !== 'idle') return;
-    
+  loadPhotos(page: number = 0) {
+    if (!this.institution || this.photosState === 'loading') return;
+
     this.photosState = 'loading';
     this.cdr.detectChanges();
 
-    this.institutionService.getInstitutionPhotos(this.institution.uuid)
+    this.institutionService.getInstitutionPhotos(this.institution.uuid, page, this.photosPage.size)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (photos: MediaInstitution[]) => {
-          this.photos = photos.map(photo => ({
+        next: (res) => {
+          this.photos = res.content.map(photo => ({
             url: `${photo.path}`,
             postUuid: `${photo.uuid_post}`
           }));
+          this.photosPage.page = res.number;
+          this.photosPage.totalElements = res.totalElements;
           this.photosState = 'loaded';
           this.cdr.detectChanges();
         },
@@ -99,20 +104,22 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
       });
   }
 
-  loadVideos() {
-    if (!this.institution || this.videosState !== 'idle') return;
-    
+  loadVideos(page: number = 0) {
+    if (!this.institution || this.videosState === 'loading') return;
+
     this.videosState = 'loading';
     this.cdr.detectChanges();
 
-    this.institutionService.getInstitutionVideos(this.institution.uuid)
+    this.institutionService.getInstitutionVideos(this.institution.uuid, page, this.videosPage.size)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (videos: MediaInstitution[]) => {
-          this.videos = videos.map(video => ({
+        next: (res) => {
+          this.videos = res.content.map(video => ({
             url: `${video.path}`,
             postUuid: `${video.uuid_post}`
           }));
+          this.videosPage.page = res.number;
+          this.videosPage.totalElements = res.totalElements;
           this.videosState = 'loaded';
           this.cdr.detectChanges();
         },
@@ -124,20 +131,22 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
       });
   }
 
-  loadDocumentos() {
-    if (!this.institution || this.documentosState !== 'idle') return;
-    
+  loadDocumentos(page: number = 0) {
+    if (!this.institution || this.documentosState === 'loading') return;
+
     this.documentosState = 'loading';
     this.cdr.detectChanges();
 
-    this.institutionService.getInstitutionDocuments(this.institution.uuid)
+    this.institutionService.getInstitutionDocuments(this.institution.uuid, page, this.documentosPage.size)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (documents: MediaInstitution[]) => {
-          this.documents = documents.map(doc => ({
+        next: (res) => {
+          this.documents = res.content.map(doc => ({
             url: `${doc.path}`,
             postUuid: `${doc.uuid_post}`
           }));
+          this.documentosPage.page = res.number;
+          this.documentosPage.totalElements = res.totalElements;
           this.documentosState = 'loaded';
           this.cdr.detectChanges();
         },
@@ -147,6 +156,18 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         }
       });
+  }
+
+  onPhotosPageChange(event: { page?: number }) {
+    this.loadPhotos(event.page ?? 0);
+  }
+
+  onVideosPageChange(event: { page?: number }) {
+    this.loadVideos(event.page ?? 0);
+  }
+
+  onDocumentosPageChange(event: { page?: number }) {
+    this.loadDocumentos(event.page ?? 0);
   }
 
   openViewPost(postUuid: string, mediaUrl: string) {

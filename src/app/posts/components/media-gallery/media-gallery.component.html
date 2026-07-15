@@ -21,16 +21,24 @@
           <div *ngIf="photosState === 'loaded'">
             <div class="media-container" *ngIf="photos.length > 0">
               @for (photo of photos; track photo.url) {
-                <img [src]="photo.url" 
-                  alt="" 
-                  class="photo" 
-                  (click)="openViewPost(photo.postUuid, photo.url)" 
+                <img [src]="photo.url"
+                  alt=""
+                  class="photo"
+                  (click)="openViewPost(photo.postUuid, photo.url)"
                   (keypress)="openViewPost(photo.postUuid, photo.url)" />
               }
             </div>
             <div class="no-media" *ngIf="photos.length === 0">
               No hay Fotos.
             </div>
+
+            <p-paginator
+              *ngIf="photosPage.totalElements > photosPage.size"
+              [rows]="photosPage.size"
+              [totalRecords]="photosPage.totalElements"
+              [first]="photosPage.page * photosPage.size"
+              (onPageChange)="onPhotosPageChange({ page: $event.page })">
+            </p-paginator>
           </div>
         </div>
       </ng-template>
@@ -53,9 +61,9 @@
           <div *ngIf="videosState === 'loaded'">
             <div class="media-container" *ngIf="videos.length > 0">
               @for (video of videos; track video.url) {
-                <video [src]="video.url" 
-                       muted playsinline 
-                       class="video" 
+                <video [src]="video.url"
+                       muted playsinline
+                       class="video"
                        (click)="openViewPost(video.postUuid, video.url)"
                        (keypress)="openViewPost(video.postUuid, video.url)">
                 </video>
@@ -64,6 +72,14 @@
             <div class="no-media" *ngIf="videos.length === 0">
               No hay Videos.
             </div>
+
+            <p-paginator
+              *ngIf="videosPage.totalElements > videosPage.size"
+              [rows]="videosPage.size"
+              [totalRecords]="videosPage.totalElements"
+              [first]="videosPage.page * videosPage.size"
+              (onPageChange)="onVideosPageChange({ page: $event.page })">
+            </p-paginator>
           </div>
         </div>
       </ng-template>
@@ -87,13 +103,13 @@
             <div class="media-container" *ngIf="documents.length > 0">
               @for (doc of documents; track doc.url) {
                 <a [href]="doc.url" target="_blank" class="text-decoration-none">
-                  <pdf-viewer [src]="doc.url" 
+                  <pdf-viewer [src]="doc.url"
                               [page]="1"
                               [show-all]="false"
-                              [render-text]="false" 
-                              [original-size]="false" 
-                              [autoresize]="true" 
-                              
+                              [render-text]="false"
+                              [original-size]="false"
+                              [autoresize]="true"
+
                               class="document">
                   </pdf-viewer>
                 </a>
@@ -102,6 +118,14 @@
             <div class="no-media" *ngIf="documents.length === 0">
               No hay Documentos.
             </div>
+
+            <p-paginator
+              *ngIf="documentosPage.totalElements > documentosPage.size"
+              [rows]="documentosPage.size"
+              [totalRecords]="documentosPage.totalElements"
+              [first]="documentosPage.page * documentosPage.size"
+              (onPageChange)="onDocumentosPageChange({ page: $event.page })">
+            </p-paginator>
           </div>
         </div>
       </ng-template>
