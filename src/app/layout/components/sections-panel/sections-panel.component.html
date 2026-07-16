@@ -32,8 +32,7 @@
 		}@else {
 			<!-- Vista para usuarios normales -->
 			@for(section of sections; track section.uuid; let i = $index){
-				<!-- Condicional: Si un navItem tiene el mismo nombre de la unica seccion se oculta a cualquier user -->
-				<li *ngIf="!(sections.length === 1 && section.name === currentNavItem.label)">
+				<li>
 					<a [routerLink]="isMobile ? currentNavItem.path +'/'+ section.path : section.path" 
 					routerLinkActive="active"  
 					(click)="closeMobileMenu()"
