@@ -20,18 +20,6 @@
   }
 }
 
-/* comment-box > comment-row > comment-img */
-.comment-img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  margin-right: 8px;
-  border: 2px solid white;
-  box-sizing: content-box;
-  position: relative;
-  z-index: 1;
-}
-
 /* comment-box > comment-row > comment-bubble */
 .comment-bubble {
   background: #f0f2f5;
@@ -200,24 +188,13 @@
 /* reply-box (input para responder al comentario principal) */
 .reply-box {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   margin-top: 16px;
   margin-bottom: 16px;
   margin-left: 45px;
 }
 
-.reply-img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-top: 2px;
-  border: 2px solid #fff;
-  box-sizing: content-box;
-  position: relative;
-  z-index: 1;
-}
 
 .reply-input-container {
   display: flex;

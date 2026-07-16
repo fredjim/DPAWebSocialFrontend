@@ -4,7 +4,7 @@
       <!-- Cabecera del comentario -->
       <div class="d-flex align-items-start comment-row">
         <!-- Avatar -->
-        <img [src]="comment.user_photo || 'assets/default-avatar.png'" (error)="onImgError($event)" alt="Foto de perfil" class="comment-img" />
+        <app-user-avatar [userImg]="comment.user_photo" [size]="'xsmall'" [style]="{marginRight: '5px'}"></app-user-avatar>
 
         <!-- Burbuja del comentario -->
         <div class="comment-bubble">
@@ -61,8 +61,8 @@
 
       <!-- Input para responder al comentario principal -->
       <div *ngIf="replyInputVisible[comment.uuid]" class="reply-box">
-        <img [src]="currentUser?.photo_profile_path || 'assets/default-avatar.png'" alt="Foto de perfil"
-          class="reply-img" />
+        <app-user-avatar [user]="currentUser" [size]="'xsmall'"></app-user-avatar>
+        
         <div class="reply-input-container">
           <input [(ngModel)]="replyText[comment.uuid]" placeholder="Escribe una respuesta..." class="reply-input"
             (keydown.enter)="addReply(comment.uuid, comment.uuid, true)" />

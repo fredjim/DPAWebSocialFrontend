@@ -77,7 +77,7 @@
   <!-- Modal Footer -->
   <div class="modal-footer" *ngIf="authenticated && post.commentsEnabled">
     <div class="comment-section d-flex flex-row align-items-center">
-      <img *ngIf="currentUser" [src]="currentUser.photo_profile_path || 'assets/default-avatar.png'" alt="Foto de perfil" class="comment-img" />
+      <app-user-avatar [user]="currentUser" [size]="'small'" [responsive]="true"></app-user-avatar>
       <div class="comment-box d-flex align-items-center">
         <input [(ngModel)]="newComment" placeholder="Escribe un comentario..." class="comment-input" (keydown.enter)="addComment()" />
         <button (click)="addComment()" class="send-comment-button">
