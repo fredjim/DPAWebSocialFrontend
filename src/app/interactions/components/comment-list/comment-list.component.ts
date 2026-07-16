@@ -275,10 +275,6 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  onImgError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/default-avatar.png';
-  }
-
   showModalDeleteComment(comment: Comment, indexComment: number): void {
     this.commentToDelete = comment;
     this.indexCommentDelete = indexComment;

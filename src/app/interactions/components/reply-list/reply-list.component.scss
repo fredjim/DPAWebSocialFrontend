@@ -47,14 +47,6 @@
   margin-bottom: 12px;
 }
 
-.comment-img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  margin-right: 8px;
-  margin-top: 2px;
-}
-
 .comment-bubble {
   background: #f0f2f5;
   border-radius: 18px;
@@ -120,16 +112,6 @@
   width: 2px;
   background-color: #d3d6db; /* Color gris claro */
   z-index: 0;
-}
-
-/* Avatar de la respuesta */
-.reply-img {
-  position: relative;
-  z-index: 1;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  margin-right: 10px;
 }
 
 /* Contenido de la respuesta */
@@ -210,17 +192,6 @@
   margin-top: 8px;
   position: relative;
   z-index: 2;
-}
-
-/* Ajuste fino para los avatares */
-.comment-img, .reply-img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid white; /* Para que cubra la línea */
-  box-sizing: content-box;
-  position: relative;
-  z-index: 1;
 }
 
 

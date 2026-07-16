@@ -10,6 +10,7 @@ import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-repl
 import { Reply } from '../../models/reply'; 
 import { HttpErrorResponse } from '@angular/common/http';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component'; 
+import { UserDetail } from '../../../shared/models/user-detail';
 
 @Component({
   selector: 'app-reply-list',
@@ -20,7 +21,7 @@ export class ReplyListComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   @Input() parentUuid: string = '';
   @Input() replies: any[] = [];
-  @Input() currentUser: any;
+  @Input() currentUser!: UserDetail | null;
   @Input() replyInputVisible: { [key: string]: boolean } = {};
   @Input() replyText: { [key: string]: string } = {};
   @Input() replyLimit: { [key: string]: number } = {};
@@ -207,10 +208,6 @@ export class ReplyListComponent implements OnInit, OnDestroy {
       modalRef.componentInstance.commentOrReplyUuid = replyUuid;
       modalRef.componentInstance.reactionsCount = reactionsCount; 
     });
-  }
-
-  onImgError(event: Event): void {
-    (event.target as HTMLImageElement).src = 'assets/default-avatar.png';
   }
   
   showModalDeleteReply(currentReply: Reply, indexReply: number): void {

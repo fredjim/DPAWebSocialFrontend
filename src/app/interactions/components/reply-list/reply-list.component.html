@@ -2,7 +2,8 @@
   <div *ngFor="let reply of replies | slice:0:getLimit(parentUuid); let i = index" class="reply-wrapper">
     <!-- Contenido de la respuesta -->
     <div class="d-flex align-items-start reply-row">
-      <img [src]="reply.user_photo || 'assets/default-avatar.png'" (error)="onImgError($event)" alt="Foto de perfil" class="reply-img" />
+      <app-user-avatar [userImg]="reply.user_photo" [size]="'xsmall'" [style]="{ marginRight: '5px' }"></app-user-avatar>
+      
       <div class="comment-bubble">
         <div class="comment-bubble-header">
           <strong>{{ reply.name }} {{ reply.lastName }}</strong>
