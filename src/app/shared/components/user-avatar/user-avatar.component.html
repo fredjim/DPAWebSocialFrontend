@@ -1,6 +1,6 @@
-@if(user || userImg) {
+@if(user || userImgPath) {
   <img
-    [src]="user?.photo_profile_path || formatUserImg() || DEFAULT_AVATAR"
+    [src]="user?.photo_profile_path || userImgPath || DEFAULT_AVATAR"
     [alt]="'Foto de ' + (user?.name || 'usuario')"
     (error)="onImgError($event)"
     [ngClass]="'size-' + size"
