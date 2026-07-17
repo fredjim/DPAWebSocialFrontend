@@ -1,6 +1,6 @@
 .user-photo {
   border-radius: 50%;
-  object-fit: contain;
+  object-fit: cover;
   border: 1px solid #e2e5e9;
 
   &.size-xsmall {
@@ -30,8 +30,8 @@
 }
 
 @media (max-width: 768px) {
-    img.user-photo.responsive {
-        width: 36px;
-        height: 36px;
-    }
+  img.user-photo.responsive {
+    width: 36px;
+    height: 36px;
+  }
 }

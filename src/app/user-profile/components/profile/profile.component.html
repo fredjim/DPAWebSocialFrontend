@@ -7,7 +7,12 @@
                 <div *ngIf="currentUser && currentUser.photoProfileFileUuid" class="remove-img" title="Eliminar imagen de perfil" (click)="onDeletePhotoProfile()" (keypress)="onDeletePhotoProfile()" >
                     <i class="bi bi-trash3-fill"></i>
                 </div>
-                <img *ngIf="currentUser" [src]="imageProfilePreview || currentUser.photo_profile_path || 'assets/user-icon.png'" alt="Foto ususario" class="user-logo">
+                <app-user-avatar 
+                    *ngIf="currentUser"
+                    [userImgPath]="imageProfilePreview || currentUser.photo_profile_path" 
+                    [size]="'xlarge'" 
+                    class="user-logo"
+                ></app-user-avatar>
                 <input #fileInputProfile type="file" id="input-photo-profile" (change)="changeInputMediaProfile($event)"
                  hidden accept="image/jpg, image/png, image/jpeg">
                 <div class="edit-info" (click)="openInputFileProfile()" (keypress)="openInputFileProfile()" >

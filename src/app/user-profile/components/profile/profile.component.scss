@@ -14,15 +14,14 @@
 				align-items: center;
 				justify-content: center;
 				position: relative;
-				width: fit-content; // Se ajusta al contenido
-    			margin: 0 auto; // Centrar horizontalmente
+				width: fit-content;
+    			margin: 0 auto;
 	
 				.user-logo {
 					width: 150px;
 					height: 150px;
 					border-radius: 50%;
 					box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-					object-fit: cover;
 				}
 
 				.remove-img, .edit-info {

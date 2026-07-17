@@ -8,7 +8,7 @@ import { UserDetail } from '../../models/user-detail';
 })
 export class UserAvatarComponent {
   @Input() user!: UserDetail | null;
-  @Input() userImg: string | null = null;
+  @Input() userImgPath: string | null = null;
   @Input() size: 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge' = 'medium';
   @Input() responsive: boolean = false;
 
@@ -20,10 +20,4 @@ export class UserAvatarComponent {
       img.src = this.DEFAULT_AVATAR;
     }
   }
-
-  formatUserImg(): string | null {
-    if(!this.userImg) return null;
-    return `https://dpa.umss.edu.bo${this.userImg}`;
-  }
-
 }
