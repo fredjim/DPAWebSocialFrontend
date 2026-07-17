@@ -13,6 +13,14 @@ type PhotoAction =
   | { type: 'delete' }
   | { type: 'none' };
 
+interface PasswordValidationErrors {
+  passwordLength?: true;
+  missingLowercase?: true;
+  missingUppercase?: true;
+  missingNumber?: true;
+  missingSpecialChar?: true;
+}
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -28,12 +36,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
   public readonly MAX_LASTNAME_LENGTH = 80;
   public readonly MIN_PHONE_LENGTH = 7;
   public readonly MAX_PHONE_LENGTH = 15;
+  public readonly MAX_LENGTH_PASSWORD = 16;
+  public readonly MIN_LENGTH_PASSWORD = 8;
 
   currentUser!: UserDetail;
   authenticated: boolean = false;
   currentSlug: string = '';
   isLoading = false;
   formUser!: FormGroup;
+  hidePassword = true;
+  typeInputPassword: 'password' | 'text' = 'password';
 
   imageFileProfileToCreate?: File;
   imageProfilePreview = '';
@@ -110,6 +122,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       next: (userData: UserDetail) => {
         this.isLoading = false;
         this.currentUser = userData;
+        this.formUser.get('password')?.setValue('');
         this.imageFileProfileToCreate = undefined;
         this.photoProfileMarkedForDeletion = false;
         this.toast.showSuccess('Perfil actualizado correctamente');
@@ -178,6 +191,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       name: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_NAME_LENGTH), this.onlyLettersValidator()]),
       lastName: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LASTNAME_LENGTH), this.onlyLettersValidator()]),
       phone: new FormControl('', [Validators.maxLength(this.MAX_PHONE_LENGTH), Validators.minLength(this.MIN_PHONE_LENGTH), this.numbersOnlyValidator()]),
+      password: new FormControl('', [this.passwordValidator()])
     });
   }
 
@@ -210,5 +224,34 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const control = this.formUser.get(controlName);
     if (!control) return false;
     return control.touched && control.hasError(errorName);
+  }
+
+  private passwordValidator(): ValidatorFn {
+    return (control: AbstractControl): PasswordValidationErrors | null => {
+      const value = control.value as string;
+
+      if (!value) return null;
+
+      const errors: PasswordValidationErrors = {};
+
+      const validations: Array<[keyof PasswordValidationErrors, boolean]> = [
+        ['passwordLength', value.length < this.MIN_LENGTH_PASSWORD || value.length > this.MAX_LENGTH_PASSWORD],
+        ['missingLowercase', !/[a-z]/.test(value)],
+        ['missingUppercase', !/[A-Z]/.test(value)],
+        ['missingNumber',    !/\d/.test(value)],
+        ['missingSpecialChar', !/[!@#$%^&*()_+]/.test(value)],
+      ];
+
+      for (const [key, failed] of validations) {
+        if (failed) errors[key] = true;
+      }
+
+      return Object.keys(errors).length > 0 ? errors : null;
+    };
+  }
+
+  togglePasswordVisibility(): void {
+    this.hidePassword = !this.hidePassword;
+    this.typeInputPassword = this.hidePassword ? 'password' : 'text';
   }
 }
