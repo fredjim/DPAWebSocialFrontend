@@ -93,6 +93,42 @@
                 </div>
             </div>
 
+            <div class="field field-password">
+                <label for="password">Cambiar contraseña:</label>
+                <div class="input-wrapper">
+                    <div class="input-password">
+                        <input [type]="typeInputPassword" pInputText class="form-control" id="password"
+                            [class.is-invalid]="hasError('password', 'passwordLength') ||
+                            hasError('password', 'missingLowercase') ||
+                            hasError('password', 'missingUppercase') ||
+                            hasError('password', 'missingNumber') ||
+                            hasError('password', 'missingSpecialChar')"
+                            formControlName="password" placeholder="********"/>
+                        <div class="eye" (click)="togglePasswordVisibility()" (keypress)="togglePasswordVisibility()">
+                            <i class="bi bi-eye-fill" *ngIf="!hidePassword"></i>
+                            <i class="bi bi-eye-slash-fill" *ngIf="hidePassword"></i>
+                        </div>
+                    </div>
+                    <div class="error-messages">
+                        <div class="invalid-feedback" *ngIf="hasError('password', 'passwordLength')">
+                            La contraseña debe tener entre {{ MIN_LENGTH_PASSWORD }} y {{ MAX_LENGTH_PASSWORD }} caracteres
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('password', 'missingLowercase')">
+                            Debe contener al menos una letra minúscula
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('password', 'missingUppercase')">
+                            Debe contener al menos una letra mayúscula
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('password', 'missingNumber')">
+                            Debe contener al menos un número
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('password', 'missingSpecialChar')">
+                            Debe contener al menos un carácter especial: <span>!&#64;#$%^&amp;*()_+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="d-flex justify-content-center gap-4 pt-2">
                 <ui-button
                   label="Guardar"
