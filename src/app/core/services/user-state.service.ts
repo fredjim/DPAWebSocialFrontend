@@ -17,6 +17,12 @@ export class UserStateService {
     );
   }
 
+  updateUser(body: Partial<UserDetail>): Observable<UserDetail> {
+    return this.userService.updateUserDate(body).pipe(
+      tap(updatedUser => this.currentUserSubject.next(updatedUser))
+    );
+  }
+
   getUserSnapshot(): UserDetail | null {
     return this.currentUserSubject.getValue();
   }

@@ -42,7 +42,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   public readonly MIN_LENGTH_PASSWORD = 8;
 
   currentUser!: UserDetail;
-  authenticated: boolean = false;
+  pathPhotoCurrentUser: string | null = null;
   currentSlug: string = '';
   isLoading = false;
   formUser!: FormGroup;
@@ -58,21 +58,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentSlug = this.tenantService.getSlug();
     this.initForm();
-
-    this.authenticated = this.authService.isAuthenticated();
-    if(this.authenticated){
-      this.userStateService.currentUser$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(user => {
-          if(!user) return;
-          this.currentUser = user;
-          this.formUser.patchValue({
-            name: this.currentUser.name,
-            lastName: this.currentUser.lastName,
-            phone: this.currentUser.phone,
-          });
+    this.userStateService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        if(!user) return;
+        this.currentUser = user;
+        this.pathPhotoCurrentUser = user.photo_profile_path;
+        this.formUser.patchValue({
+          name: this.currentUser.name,
+          lastName: this.currentUser.lastName,
+          phone: this.currentUser.phone,
         });
-    }
+      });
   }
 
   onSubmit(): void {
@@ -125,7 +122,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           photoProfileFileUuid
         };
 
-        return this.userService.updateUserDate(updateData);
+        return this.userStateService.updateUser(updateData);
       }),
       takeUntil(this.destroy$)
     ).subscribe({
@@ -134,6 +131,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.currentUser = userData;
         this.formUser.get('password')?.setValue('');
         this.imageFileProfileToCreate = undefined;
+        this.imageProfilePreview = '';
         this.photoProfileMarkedForDeletion = false;
         this.toast.showSuccess('Perfil actualizado correctamente');
       },
@@ -146,8 +144,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   onDeletePhotoProfile(): void {
-    this.currentUser.photo_profile_path = null;
+    this.pathPhotoCurrentUser = null;
     this.imageFileProfileToCreate = undefined;
+    this.imageProfilePreview = '';
     this.photoProfileMarkedForDeletion = true;
   }
 
