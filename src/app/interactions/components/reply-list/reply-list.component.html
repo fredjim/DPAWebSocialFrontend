@@ -2,7 +2,7 @@
   <div *ngFor="let reply of replies | slice:0:getLimit(parentUuid); let i = index" class="reply-wrapper">
     <!-- Contenido de la respuesta -->
     <div class="d-flex align-items-start reply-row">
-      <app-user-avatar [userImg]="reply.user_photo" [size]="'xsmall'" [style]="{ marginRight: '5px' }"></app-user-avatar>
+      <app-user-avatar [userImgPath]="reply.user_photo" [size]="'xsmall'" [style]="{ marginRight: '5px' }"></app-user-avatar>
       
       <div class="comment-bubble">
         <div class="comment-bubble-header">

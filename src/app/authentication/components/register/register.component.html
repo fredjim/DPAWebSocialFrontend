@@ -44,7 +44,7 @@
 
             <!-- Email -->
             <div class="mb-3 mt-3">
-              <label for="email" class="form-label">Correo Electrónico</label>
+              <label for="emailRG" class="form-label">Correo Electrónico</label>
               <input type="email" class="form-control"
                      [class.is-invalid]="hasErrors('email', 'required') || hasErrors('email', 'email') || hasBackendError('email')"
                      id="emailRG" formControlName="email" />
@@ -56,7 +56,7 @@
 
             <!-- Password -->
             <div class="mb-3">
-              <label for="password" class="form-label">Contraseña</label>
+              <label for="passwordRG" class="form-label">Contraseña</label>
               <div class="input-password">
                 <div class="input-eye">
                   <input [type]="inputType" class="form-control"

@@ -15,13 +15,15 @@
         </span>
         
         @if (authenticated && user) {
-            @if (user.photo_profile_path){
-                <img src="{{ user.photo_profile_path }}" alt="Foto de perfil" (click)="menu.toggle($event)" (keypress)="menu.toggle($event)" class="logo user-image">
-            } @else {
-                <img src="assets/user-icon.png" alt="" (click)="menu.toggle($event)" (keypress)="menu.toggle($event)" class="logo user-image">
-            }
+            <app-user-avatar 
+                [user]="user" 
+                [size]="'medium'" 
+                (click)="menu.toggle($event)" 
+                (keypress)="menu.toggle($event)"
+                class="user-image"
+            ></app-user-avatar>
         } @else {
-            <img src="assets/user-icon-1.png" alt="" (click)="menu.toggle($event)" (keypress)="menu.toggle($event)" class="logo user-image">
+            <img src="assets/user-icon-1.png" alt="" (click)="menu.toggle($event)" (keypress)="menu.toggle($event)" class="user-image">
         }
 		
         <div class="burger-menu" (click)="toggleMobileMenu()" (keypress)="toggleMobileMenu()">

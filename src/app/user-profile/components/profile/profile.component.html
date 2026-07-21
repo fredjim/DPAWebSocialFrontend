@@ -7,7 +7,12 @@
                 <div *ngIf="currentUser && currentUser.photoProfileFileUuid" class="remove-img" title="Eliminar imagen de perfil" (click)="onDeletePhotoProfile()" (keypress)="onDeletePhotoProfile()" >
                     <i class="bi bi-trash3-fill"></i>
                 </div>
-                <img *ngIf="currentUser" [src]="imageProfilePreview || currentUser.photo_profile_path || 'assets/user-icon.png'" alt="Foto ususario" class="user-logo">
+                <app-user-avatar 
+                    *ngIf="currentUser"
+                    [userImgPath]="imageProfilePreview || currentUser.photo_profile_path" 
+                    [size]="'xlarge'" 
+                    class="user-logo"
+                ></app-user-avatar>
                 <input #fileInputProfile type="file" id="input-photo-profile" (change)="changeInputMediaProfile($event)"
                  hidden accept="image/jpg, image/png, image/jpeg">
                 <div class="edit-info" (click)="openInputFileProfile()" (keypress)="openInputFileProfile()" >
@@ -84,6 +89,42 @@
                         <small class="form-text text-muted" *ngIf="!formUser.get('phone')?.invalid && formUser.get('phone')?.value">
                             Formato válido: solo números
                         </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field field-password">
+                <label for="password">Cambiar contraseña:</label>
+                <div class="input-wrapper">
+                    <div class="input-password">
+                        <input [type]="typeInputPassword" pInputText class="form-control" id="password"
+                            [class.is-invalid]="hasError('password', 'passwordLength') ||
+                            hasError('password', 'missingLowercase') ||
+                            hasError('password', 'missingUppercase') ||
+                            hasError('password', 'missingNumber') ||
+                            hasError('password', 'missingSpecialChar')"
+                            formControlName="password" placeholder="********"/>
+                        <div class="eye" (click)="togglePasswordVisibility()" (keypress)="togglePasswordVisibility()">
+                            <i class="bi bi-eye-fill" *ngIf="!hidePassword"></i>
+                            <i class="bi bi-eye-slash-fill" *ngIf="hidePassword"></i>
+                        </div>
+                    </div>
+                    <div class="error-messages">
+                        <div class="invalid-feedback" *ngIf="hasError('password', 'passwordLength')">
+                            La contraseña debe tener entre {{ MIN_LENGTH_PASSWORD }} y {{ MAX_LENGTH_PASSWORD }} caracteres
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('password', 'missingLowercase')">
+                            Debe contener al menos una letra minúscula
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('password', 'missingUppercase')">
+                            Debe contener al menos una letra mayúscula
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('password', 'missingNumber')">
+                            Debe contener al menos un número
+                        </div>
+                        <div class="invalid-feedback" *ngIf="hasError('password', 'missingSpecialChar')">
+                            Debe contener al menos un carácter especial: <span>!&#64;#$%^&amp;*()_+</span>
+                        </div>
                     </div>
                 </div>
             </div>
