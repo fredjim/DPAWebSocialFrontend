@@ -110,14 +110,21 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
 
         // Verificar valor de password para para actualizarlo o no
-        let password = this.formUser.get('password')?.value;
-        if(password.trim() === ''){
+        let password: string | null = this.formUser.get('password')?.value;
+        if(password?.trim() === ''){
           password = null;
+        }
+
+        // Verificar valor de phone
+        let phone: string | null = this.formUser.get('phone')?.value;
+        if(phone?.trim() === ''){
+          phone = null;
         }
 
         const updateData: UserDetail = {
           ...this.currentUser,
           ...this.formUser.value,
+          phone,
           password,
           photoProfileFileUuid
         };
