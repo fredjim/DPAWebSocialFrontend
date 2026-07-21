@@ -15,7 +15,7 @@
         <div class="container">
           <form [formGroup]="loginForm" (ngSubmit)="login()" class="needs-validation" novalidate>
             <div class="mb-3 mt-3">
-              <label for="email" class="form-label">Correo Electrónico</label>
+              <label for="emailLG" class="form-label">Correo Electrónico</label>
               <input type="email" class="form-control"
                 [ngClass]="{'is-invalid': hasErrors('username', 'required') || hasErrors('username', 'email') || !correctCredentials || credentialsAnotherInstitution }"
                 id="emailLG" formControlName="username" />
@@ -27,7 +27,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="password" class="form-label">Contraseña</label>
+              <label for="passwordLG" class="form-label">Contraseña</label>
               <div class="input-password">
                 <input [type]="inputType" class="form-control" [ngClass]="{ 'is-invalid': hasErrors('password', 'required') || 
                         !correctCredentials || 

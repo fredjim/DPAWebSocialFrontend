@@ -21,8 +21,7 @@ export class PostComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   @Input({ required: true }) post!: Post;
   @Output() reactionChanged = new EventEmitter<void>(); // Nuevo Output para emitir eventos de cambio de reacción
-  @Input() currentUser!: UserDetail;
-  @Input() authenticated: boolean = false;
+  @Input() currentUser: UserDetail | null = null;
   @Input() openInParent: boolean = false;
 
   @Output() requestDeletePost = new EventEmitter<string>();

@@ -1,26 +1,27 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, tap } from "rxjs";
-import { InstitutionService } from "../../institution/services/institution.service";
-import { Institution } from "../../shared/models/institution";
+import { BehaviorSubject, Observable, shareReplay, tap } from "rxjs";
+import { UserDetail } from "../../shared/models/user-detail";
+import { UserService } from "../../user-profile/services/user.service";
 
 @Injectable({ providedIn: 'root' })
 export class UserStateService {
-  private readonly ownInstitutionSlugSubject = new BehaviorSubject<string | null>(null);
-  readonly ownInstitutionSlug$ = this.ownInstitutionSlugSubject.asObservable();
+  private readonly currentUserSubject = new BehaviorSubject<UserDetail | null>(null);
+  readonly currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private readonly institutionService: InstitutionService) {}
+  constructor(private readonly userService: UserService) {}
 
-  loadOwnInstitution(institutionId: string): Observable<Institution> {
-    return this.institutionService.getInstitution(institutionId).pipe(
-      tap(institution => this.ownInstitutionSlugSubject.next(institution.slug))
+  loadUser(): Observable<UserDetail> {
+    return this.userService.getUser().pipe(
+      tap(user => this.currentUserSubject.next(user)),
+      shareReplay(1)
     );
   }
 
-  getOwnInstitutionSlugSnapshot(): string | null {
-    return this.ownInstitutionSlugSubject.getValue();
+  getUserSnapshot(): UserDetail | null {
+    return this.currentUserSubject.getValue();
   }
 
-  clear(): void {
-    this.ownInstitutionSlugSubject.next(null);
+  clearUser(): void {
+    this.currentUserSubject.next(null);
   }
 }

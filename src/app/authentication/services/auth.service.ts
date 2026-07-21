@@ -5,8 +5,9 @@ import { map, switchMap } from 'rxjs/operators';
 import { NewUser } from '../models/new-user';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { TenantService } from '../../core/services/tenant.service';
+import { OwnInstitutionStateService } from '../../core/services/own-institution-state.service';
+import { firstValueFrom, forkJoin, from, of } from 'rxjs';
 import { UserStateService } from '../../core/services/user-state.service';
-import { firstValueFrom, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,8 @@ export class AuthService {
   constructor(
     private readonly http: HttpClient,
     private readonly tenantService: TenantService,
-    private readonly userState: UserStateService
+    private readonly institutionStateService: OwnInstitutionStateService,
+    private readonly userStateService: UserStateService
   ) {
   }
 
@@ -32,14 +34,11 @@ export class AuthService {
 
   login(username: string, password: string) {
     const user = { email: username, password };
-    return this.http.post<any>(this.ROOT_URL + '/login', user, { withCredentials: true }).pipe(
+    return this.http.post<{ accessToken: string, tokenType: string }>(this.ROOT_URL + '/login', user, { withCredentials: true }).pipe(
       switchMap(res => {
         this.token = res.accessToken;
         // refreshToken llega como cookie HttpOnly — el browser lo almacena solo
-        const institutionId = this.getInstitutionId();
-        return institutionId
-          ? this.userState.loadOwnInstitution(institutionId).pipe(map(() => true))
-          : of(true);
+        return from(this.ensureSessionStateLoaded()).pipe(map(() => true));
       })
     );
   }
@@ -121,7 +120,8 @@ export class AuthService {
 
   logout(): void {
     this.token = null;
-    this.userState.clear();
+    this.institutionStateService.clear();
+    this.userStateService.clearUser();
 
     const redirect = () => {
       globalThis.location.href = `/${this.tenantService.getSlug()}`;
@@ -147,14 +147,14 @@ export class AuthService {
   // Refresca el token al inicializar la app usando la cookie HttpOnly
   tryRefreshOnStartup(): Promise<void> {
     if (this.token && !this.jwtHelper.isTokenExpired(this.token)) {
-      return this.ensureOwnInstitutionLoaded();
+      return this.ensureSessionStateLoaded();
     }
     // Si la cookie existe y es válida el backend devuelve un nuevo accessToken
     // Si no hay cookie o expiró, el backend responde 401 y limpiamos memoria
     return this.refreshAccessToken().toPromise().then((res: any) => {
       if (res?.accessToken) {
         this.token = res.accessToken;
-        return this.ensureOwnInstitutionLoaded();
+        return this.ensureSessionStateLoaded();
       }
       return Promise.resolve(); 
     }).catch(() => {
@@ -162,9 +162,16 @@ export class AuthService {
     });
   }
 
-  private ensureOwnInstitutionLoaded(): Promise<void> {
+  // Carga en paralelo el estado de institución propia y del usuario logueado
+  private ensureSessionStateLoaded(): Promise<void> {
     const institutionId = this.getInstitutionId();
-    if (!institutionId) return Promise.resolve();
-    return firstValueFrom(this.userState.loadOwnInstitution(institutionId)).then(() => void 0);
+
+    const institution$ = institutionId
+      ? this.institutionStateService.loadOwnInstitution(institutionId)
+      : of(null);
+
+    return firstValueFrom(
+      forkJoin([institution$, this.userStateService.loadUser()])
+    ).then(() => void 0);
   }
 }

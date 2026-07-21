@@ -2,7 +2,7 @@ import { Component, ElementRef, Input, OnInit, ViewChildren, QueryList, AfterVie
 import { Subject, takeUntil } from 'rxjs';
 import { CommentService } from '../../services/comment.service'; 
 import { ReplyService } from '../../services/reply.service'; 
-import { UserService } from '../../../user-profile/services/user.service';
+import { UserStateService } from '../../../core/services/user-state.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Comment } from '../../models/comment';
 import { Institution } from '../../../shared/models/institution';
@@ -37,7 +37,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private readonly commentService: CommentService,
     private readonly replyService: ReplyService,
-    private readonly userService: UserService,
+    private readonly userStateService: UserStateService,
     public modal: NgbModal,
     private readonly authService: AuthService
   ) {}
@@ -94,15 +94,15 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadCurrentUser(): void {
-    this.userService.getUser()
+    this.userStateService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (user: UserDetail) => {
-          this.currentUser = user || null;
+        next: (user) => {
+          if (!user) return;
+          this.currentUser = user;
         },
         error: (error) => {
           console.error('Error al obtener el usuario actual', error);
-          this.currentUser = null;
         },
       });
   }

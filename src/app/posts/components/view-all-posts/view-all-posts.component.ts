@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/co
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { PostService } from '../../services/post.service';
-import { UserService } from '../../../user-profile/services/user.service';
+import { UserStateService } from '../../../core/services/user-state.service';
 import { InstitutionService } from '../../../institution/services/institution.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { Post } from '../../models/post';
@@ -25,13 +25,12 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   private sidebarTopOffset = 80;
   private lastScrollTop = 0;
 
-  authenticated: boolean = false;
   posts: Post[] = [];
-  currentUser!: UserDetail;
+  currentUser: UserDetail | null = null;
   currentInstitution!: Institution;
   selectedPostReactions: any = null;
   selectedPostUuid: string = '';
-  loading = false;
+  loadingPosts = false;
   pageCounter = 0;
   showScrollButton = false;
   hasMorePosts = true;
@@ -43,7 +42,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly postService: PostService,
-    private readonly userService: UserService,
+    private readonly userStateService: UserStateService,
     private readonly institutionService: InstitutionService,
     private readonly authService: AuthService,
     private readonly tenantService: TenantService,
@@ -55,7 +54,6 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   
   ngOnInit(){
     this.setupScrollListener();
-    this.authenticated = this.authService.isAuthenticated();
 
     this.route.paramMap
       .pipe(takeUntil(this.destroy$))
@@ -76,18 +74,17 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
         this.currentInstitution = institution;
       });
 
-    if(this.authenticated === true) {
-      this.userService.getUser()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next:(user: UserDetail) => {
-            this.currentUser = user;
-          },
-          error:(error) => {
-            console.error('Error al obtener el usuario actual', error);
-          }
-        });
-    }
+    this.userStateService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next:(user) => {
+          if(!user) return;
+          this.currentUser = user;
+        },
+        error:(error) => {
+          console.error('Error al obtener el usuario actual', error);
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -160,7 +157,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
 
   private checkForMorePosts(): void {
     // Si ya está cargando, no hay más posts, o estamos en carga inicial - no hacer nada
-    if (this.loading || !this.hasMorePosts) return;
+    if (this.loadingPosts || !this.hasMorePosts) return;
     
     // Calcular posición actual
     const scrollPosition = window.innerHeight + window.scrollY;
@@ -183,9 +180,9 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
 
   loadPosts(reset: boolean = false): void {
     // No cargar si ya está cargando o no hay más posts (excepto cuando se resetea)
-    if (this.loading || (!this.hasMorePosts && !reset)) return;
+    if (this.loadingPosts || (!this.hasMorePosts && !reset)) return;
     
-    this.loading = true;
+    this.loadingPosts = true;
 
     // Si es reset, reiniciamos pageCounter
     if (reset) {
@@ -215,11 +212,11 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
           this.hasMorePosts = data.length === 5; // Asumiendo que size=5
           
           this.pageCounter = reset ? 1 : this.pageCounter + 1;
-          this.loading = false;
+          this.loadingPosts = false;
         },
         error: (error) => {
           console.error('Error al obtener los posts paginados', error);
-          this.loading = false;
+          this.loadingPosts = false;
           // Deshabilitar más intentos si el error es 404 o similar
           if (error.status === 404) {
             this.hasMorePosts = false;

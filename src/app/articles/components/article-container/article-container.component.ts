@@ -5,7 +5,7 @@ import { SectionService } from '../../../layout/services/section.service';
 import { ArticleService } from '../../services/article.service';
 import { Section } from '../../../shared/models/section';
 import { AuthService } from '../../../authentication/services/auth.service';
-import { UserService } from '../../../user-profile/services/user.service';
+import { UserStateService } from '../../../core/services/user-state.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Article } from '../../models/article';
 import { UserDetail } from '../../../shared/models/user-detail';
@@ -30,7 +30,7 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   private readonly sectionService = inject(SectionService);
   private readonly articleService = inject(ArticleService);
   private readonly authService = inject(AuthService);
-  private readonly userService = inject(UserService);
+  private readonly userStateService = inject(UserStateService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly sectionStateService = inject(SectionStateService);
   private readonly tenantService = inject(TenantService);
@@ -39,8 +39,7 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   private currentSlug = '';
   
   currentSection!: Section;
-  articles: Article[] = [];
-  public isAuthenticated: boolean = false; 
+  articles: Article[] = []; 
   public currentUser!: UserDetail;
   public currentInstitution!: Institution;
   public currentNavItem!: NavItem;
@@ -60,12 +59,12 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.currentSlug = this.tenantService.getSlug();
-    this.isAuthenticated = this.authService.isAuthenticated();
-    if(this.isAuthenticated){
-      this.userService.getUser().subscribe(user => {
+    this.subscriptions.add(
+      this.userStateService.currentUser$.subscribe(user => {
+        if (!user) return;
         this.currentUser = user;
-      });
-    }
+      })
+    )
 
     this.subscriptions.add(
       this.route.parent?.paramMap.pipe(

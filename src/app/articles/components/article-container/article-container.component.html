@@ -12,9 +12,6 @@
 	@if(currentNavItem && currentSection && currentNavItem.label !== currentSection.name){
 		<div class="header-section">
 			<div class="data-user">
-				<!-- @if (currentInstitution) {
-					<app-institution-avatar [institution]="currentInstitution" size="small" id="logo-inst" class="img-profile"></app-institution-avatar>
-				} -->
 				<div class="info-user">
 					<h2 *ngIf="currentSection">{{ currentSection.name }}</h2>
 				</div>
@@ -24,7 +21,7 @@
 
 	<div class="page-section no-border-bottom">
 		@for(article of articles; track article.uuid;  let i = $index){
-			@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+			@if(currentUser && currentUser.role === 'ADMIN'){
 				<!-- View admin -->
 				<!-- Mostrar form de edicion del articulo -->
 				@if(idArticleToEdit === article.uuid){
@@ -114,7 +111,7 @@
 				</div>
 			}
 		}
-		@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+		@if(currentUser && currentUser.role === 'ADMIN'){
 			@if(showButtonNewArticle){
 				<ui-button
 					label="Agregar artículo"

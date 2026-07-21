@@ -1,6 +1,6 @@
 <nav>
 	<ul>
-		@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+		@if(currentUser && currentUser.role === 'ADMIN'){
 			@for(section of sections; track section.uuid; let i = $index){
 				@if(uuidSectionToEdit === section.uuid){
 					<!-- Vista de form edit section -->
@@ -42,7 +42,7 @@
 			}
 		}
 	</ul>
-	@if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+	@if(currentUser && currentUser.role === 'ADMIN'){
 		@if(showButtonNewSection){
 			<ui-button
 				label="Agregar sección"
