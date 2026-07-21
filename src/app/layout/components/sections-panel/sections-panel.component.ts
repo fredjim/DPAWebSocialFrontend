@@ -3,7 +3,7 @@ import { SectionService } from '../../services/section.service';
 import { Section } from '../../../shared/models/section';
 import { UserDetail } from '../../../shared/models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
-import { UserService } from '../../../user-profile/services/user.service';
+import { UserStateService } from '../../../core/services/user-state.service';
 import { NavItem } from '../../../shared/models/nav-item';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
@@ -17,13 +17,12 @@ import { CustomToastComponent } from '../../../shared/components/custom-toast/cu
 export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
   private readonly sectionService = inject(SectionService);
   private readonly authService = inject(AuthService);
-  private readonly userService = inject(UserService);
+  private readonly userStateService = inject(UserStateService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroy$ = new Subject<void>();
   public sections: Section[] = []; 
   isMobileMenuOpen = false;
-  public isAuthenticated: boolean = false; 
   public currentUser!: UserDetail;
   public showButtonNewSection = true;
 
@@ -34,14 +33,13 @@ export class SectionsPanelComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('customToast') customToast!: CustomToastComponent;
 
   ngOnInit(): void {
-    this.isAuthenticated = this.authService.isAuthenticated();
-    if(this.isAuthenticated){
-      this.userService.getUser().pipe(
-        takeUntil(this.destroy$)
-      ).subscribe(user => {
-        this.currentUser = user;
-      });
-    }
+    this.userStateService.currentUser$
+      .pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(user => {
+      if(!user) return;
+      this.currentUser = user;
+    });
 
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),

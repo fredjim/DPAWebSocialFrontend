@@ -9,7 +9,7 @@
                 </div>
                 <app-user-avatar 
                     *ngIf="currentUser"
-                    [userImgPath]="imageProfilePreview || currentUser.photo_profile_path" 
+                    [userImgPath]="imageProfilePreview || pathPhotoCurrentUser" 
                     [size]="'xlarge'" 
                     class="user-logo"
                 ></app-user-avatar>

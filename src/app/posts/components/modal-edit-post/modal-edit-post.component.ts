@@ -4,7 +4,7 @@ import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PostService } from '../../services/post.service';
-import { UserService } from '../../../user-profile/services/user.service';
+import { UserStateService } from '../../../core/services/user-state.service';
 import { Media } from '../../../shared/models/media';
 import { CreatePost } from '../../models/create-post';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
@@ -43,8 +43,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   private listOldMediaFile!: Media[]; //Lista de media editada que existe en el post
   private listNewDocFile: File[] = []; //Docs añadidos en edicion
   private currentUser!: UserDetail;
-  private currentPostType!: string;
-  private isAuthenticated: boolean = false;
+  private readonly currentPostType: string = 'GENERAL';
   public typeMedia = {
     img_vid : 'images-videos',
     doc: 'document'
@@ -52,7 +51,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
 
   constructor(
       private readonly postService: PostService,
-      private readonly userService: UserService,
+      private readonly userStateService: UserStateService,
       private readonly formBuilder: FormBuilder,
       private readonly authService: AuthService
   ){}
@@ -64,7 +63,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
         this.disableLoadDoc.set(true)
     }
     this.commentsEnabled = this.postToEdit.commentsEnabled ?? true;
-    this.getTypeByRol()
+    this.getUser()
     this.buildForm()
     
     // Inicializar listOldMediaFile con los medios existentes del post
@@ -204,39 +203,23 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
     }
   }
 
-  getTypeByRol() {
-    this.isAuthenticated = this.authService.isAuthenticated();
-    if (this.isAuthenticated) {
-      this.userService.getUser()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next:(user: UserDetail) => {
-            this.currentUser = user;
-            this.currentPostType = this.determinePostType(this.currentUser.role);
-          },
-          error:(error) => {
-            console.error('Error al obtener el usuario actual', error);
-          }
-        });
-    }
+  getUser() {
+    this.userStateService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next:(user) => {
+          if(!user) return;
+          this.currentUser = user;
+        },
+        error:(error) => {
+          console.error('Error al obtener el usuario actual', error);
+        }
+      });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private determinePostType(role: string): string {
-    switch (role) {
-      case 'ADMIN_BECAS':
-        return 'BECAS';
-      case 'ADMIN_CONVENIOS':
-        return 'CONVENIOS';
-      case 'ADMIN_PROYECTOS':
-        return 'PROYECTOS';
-      default:
-        return 'GENERAL';
-    }
   }
 
   private async optimizeImages(files: File[]): Promise<File[]> {

@@ -12,7 +12,7 @@
 			</div>
 		</div>
 		}
-		@if(authenticated === true && currentUser && currentUser.role === 'ADMIN'){
+		@if(currentUser && currentUser.role === 'ADMIN'){
 			<div class="options-post d-flex justify-content-center align-items-center"
 				(click)="showOptions.set(!showOptions())" (keypress)="showOptions.set(!showOptions())">
 				<i class="bi bi-three-dots"></i>
@@ -21,7 +21,7 @@
 	</div>
 
 	<!-- Popup de opciones post Editar/Eliminar -->
-	<app-options-post *ngIf="showOptions() && authenticated === true && currentUser.role === 'ADMIN'"
+	<app-options-post *ngIf="showOptions() && currentUser && currentUser.role === 'ADMIN'"
 		(clickOutside)="showOptions.set(false)" [postReference]="post.uuid"
 		(openEdit)="openModalEdit.set(true)"></app-options-post>
 
@@ -99,11 +99,11 @@
 				<i class="fa fa-share icon"></i>
 			</div>
 		</div>
-		<hr [hidden]="!authenticated">
+		<hr [hidden]="!currentUser">
 	</ng-container>
 	
 	<!-- Botones de reaccionar, comentar y compartir -->
-	<div class="bottuns" *ngIf="authenticated">
+	<div class="bottuns" *ngIf="currentUser">
 		<!-- Boton de Reaccionar -->
 		<button type="button" class="btn icon-btn" [ngClass]="myReaction.class" id="btn-like"
 			(click)="reactUserBoton(post.uuid)">
