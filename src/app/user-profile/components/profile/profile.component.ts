@@ -5,8 +5,9 @@ import { TenantService } from '../../../core/services/tenant.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
-import { map, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { from, map, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
+import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
 
 type PhotoAction =
   | { type: 'upload'; media: UploadedMedia }
@@ -23,6 +24,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly tenantService = inject(TenantService);
+  private readonly imageOptimizationService = inject(ImageOptimizationService);
 
   public readonly MAX_NAME_LENGTH = 50;
   public readonly MAX_LASTNAME_LENGTH = 80;
@@ -68,9 +70,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
     let photoAction$: Observable<PhotoAction>;
 
     if (this.imageFileProfileToCreate) {
-      photoAction$ = this.userService.postUserPhotoProfile(
-        this.createFormData(this.imageFileProfileToCreate)
-      ).pipe(
+      photoAction$ = from(this.imageOptimizationService.optimizeImages([this.imageFileProfileToCreate])).pipe(
+        switchMap((optimizedFiles) =>
+          this.userService.postUserPhotoProfile(this.createFormData(optimizedFiles[0]))
+        ),
         map((media) => ({ type: 'upload', media } as PhotoAction))
       );
     } else if (this.photoProfileMarkedForDeletion && this.currentUser.photoProfileFileUuid) {

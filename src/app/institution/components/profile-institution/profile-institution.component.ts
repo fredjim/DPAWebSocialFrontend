@@ -3,9 +3,10 @@ import { CustomToastComponent } from '../../../shared/components/custom-toast/cu
 import { Institution } from '../../../shared/models/institution';
 import { TenantService } from '../../../core/services/tenant.service';
 import { InstitutionService } from '../../services/institution.service';
-import { forkJoin, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { forkJoin, from, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
 
 @Component({
   selector: 'app-profile-institution',
@@ -16,6 +17,7 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly institutionService = inject(InstitutionService);
   private readonly tenantService = inject(TenantService);
+  private readonly imageOptimizationService = inject(ImageOptimizationService);
 
   public readonly MAX_NAME_LENGTH = 150;
   public readonly MAX_DESCRIPTION_LENGTH = 300;
@@ -76,12 +78,20 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
 
     this.toast.showInfo('Guardando cambios...', 'Procesando');
     
-    const uploadLogo$: Observable<UploadedMedia | null> = this.imageFileLogoToCreate 
-      ? this.institutionService.postInstitutionPhotoProfile(this.createFormData(this.imageFileLogoToCreate))
+    const uploadLogo$: Observable<UploadedMedia | null> = this.imageFileLogoToCreate
+      ? from(this.imageOptimizationService.optimizeImages([this.imageFileLogoToCreate])).pipe(
+          switchMap((optimizedFiles) =>
+            this.institutionService.postInstitutionPhotoProfile(this.createFormData(optimizedFiles[0]))
+          )
+        )
       : of(null);
 
     const uploadCover$: Observable<UploadedMedia | null> = this.imageFileCoverToCreate
-      ? this.institutionService.postInstitutionPhotoCover(this.createFormData(this.imageFileCoverToCreate))
+      ? from(this.imageOptimizationService.optimizeImages([this.imageFileCoverToCreate])).pipe(
+          switchMap((optimizedFiles) =>
+            this.institutionService.postInstitutionPhotoCover(this.createFormData(optimizedFiles[0]))
+          )
+        )
       : of(null);
 
     forkJoin([uploadLogo$, uploadCover$]).pipe(
