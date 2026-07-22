@@ -1,5 +1,4 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { AuthService } from "../../authentication/services/auth.service";
+import { HttpClient } from "@angular/common/http";
 import { environment } from "../../../environments/environment";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
@@ -13,30 +12,27 @@ export class UserService {
 
   private readonly ROOT_URL = `${environment.BACK_END_HOST_DEV}`;
 
-  private readonly reqHeader = { headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }) };
-
   private readonly userUrl: string = 'users/me';
 
   constructor(
-    private readonly http: HttpClient, 
-    private readonly authService: AuthService
+    private readonly http: HttpClient
   ) {}
 
   //Método para obtener el user logueado
   getUser(): Observable<UserDetail> {
-    return this.http.get<UserDetail>(`${this.ROOT_URL}/${this.userUrl}`, this.reqHeader)
+    return this.http.get<UserDetail>(`${this.ROOT_URL}/${this.userUrl}`);
   }
 
   updateUserDate(body: Partial<UserDetail>): Observable<UserDetail> {
-    return this.http.put<UserDetail>(`${this.ROOT_URL}/${this.userUrl}`, body, this.reqHeader);
+    return this.http.put<UserDetail>(`${this.ROOT_URL}/${this.userUrl}`, body);
   }
 
   postUserPhotoProfile(formData: FormData): Observable<UploadedMedia> {
     const url = `${this.ROOT_URL}/images/user-profile`;
-    return this.http.post<UploadedMedia>(url, formData, this.reqHeader);
+    return this.http.post<UploadedMedia>(url, formData);
   }
 
   deleteUserPhotoProfile(imgUuid: string): Observable<void> {
-    return this.http.delete<void>(`${this.ROOT_URL}/images/${imgUuid}`, this.reqHeader);
+    return this.http.delete<void>(`${this.ROOT_URL}/images/${imgUuid}`);
   }
 }

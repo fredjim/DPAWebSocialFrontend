@@ -5,6 +5,7 @@ import { TenantService } from '../../../core/services/tenant.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
+import { UserStateService } from '../../../core/services/user-state.service';
 import { from, map, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
@@ -30,6 +31,7 @@ interface PasswordValidationErrors {
 export class ProfileComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly authService = inject(AuthService);
+  private readonly userStateService = inject(UserStateService);
   private readonly userService = inject(UserService);
   private readonly tenantService = inject(TenantService);
   private readonly imageOptimizationService = inject(ImageOptimizationService);
@@ -42,7 +44,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   public readonly MIN_LENGTH_PASSWORD = 8;
 
   currentUser!: UserDetail;
-  authenticated: boolean = false;
+  pathPhotoCurrentUser: string | null = null;
   currentSlug: string = '';
   isLoading = false;
   formUser!: FormGroup;
@@ -58,20 +60,18 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentSlug = this.tenantService.getSlug();
     this.initForm();
-
-    this.authenticated = this.authService.isAuthenticated();
-    if(this.authenticated){
-      this.userService.getUser()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(user => {
-          this.currentUser = user;
-          this.formUser.patchValue({
-            name: this.currentUser.name,
-            lastName: this.currentUser.lastName,
-            phone: this.currentUser.phone,
-          });
+    this.userStateService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        if(!user) return;
+        this.currentUser = user;
+        this.pathPhotoCurrentUser = user.photo_profile_path;
+        this.formUser.patchValue({
+          name: this.currentUser.name,
+          lastName: this.currentUser.lastName,
+          phone: this.currentUser.phone,
         });
-    }
+      });
   }
 
   onSubmit(): void {
@@ -113,19 +113,26 @@ export class ProfileComponent implements OnInit, OnDestroy {
         }
 
         // Verificar valor de password para para actualizarlo o no
-        let password = this.formUser.get('password')?.value;
-        if(password.trim() === ''){
+        let password: string | null = this.formUser.get('password')?.value;
+        if(password?.trim() === ''){
           password = null;
+        }
+
+        // Verificar valor de phone
+        let phone: string | null = this.formUser.get('phone')?.value;
+        if(phone?.trim() === ''){
+          phone = null;
         }
 
         const updateData: UserDetail = {
           ...this.currentUser,
           ...this.formUser.value,
+          phone,
           password,
           photoProfileFileUuid
         };
 
-        return this.userService.updateUserDate(updateData);
+        return this.userStateService.updateUser(updateData);
       }),
       takeUntil(this.destroy$)
     ).subscribe({
@@ -134,6 +141,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.currentUser = userData;
         this.formUser.get('password')?.setValue('');
         this.imageFileProfileToCreate = undefined;
+        this.imageProfilePreview = '';
         this.photoProfileMarkedForDeletion = false;
         this.toast.showSuccess('Perfil actualizado correctamente');
       },
@@ -146,8 +154,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   onDeletePhotoProfile(): void {
-    this.currentUser.photo_profile_path = null;
+    this.pathPhotoCurrentUser = null;
     this.imageFileProfileToCreate = undefined;
+    this.imageProfilePreview = '';
     this.photoProfileMarkedForDeletion = true;
   }
 

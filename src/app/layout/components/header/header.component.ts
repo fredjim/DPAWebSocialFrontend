@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Institution } from '../../../shared/models/institution';
-import { UserService } from '../../../user-profile/services/user.service';
+import { UserStateService } from '../../../core/services/user-state.service';
 import { TenantService } from '../../../core/services/tenant.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Modal } from 'bootstrap';
@@ -27,7 +27,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   menuItemsPopup: MenuItem[] = [];
 
   constructor(private readonly authService: AuthService,
-    private readonly userService: UserService,
+    private readonly userStateService: UserStateService,
     private readonly tenantService: TenantService) {
     this.authenticated = authService.isAuthenticated();
   }
@@ -83,7 +83,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private openModal(id: string) {
     const el = document.getElementById(id);
     if (el) {
-      const modal = new (globalThis as any).bootstrap.Modal(el);
+      const modal = Modal.getOrCreateInstance(el);
       modal.show();
     }
   }
@@ -100,22 +100,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private getUser() {
-    if (this.authenticated) {
-      this.userService.getUser()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (infoUser) => {
-            this.user = infoUser;
-            this.buildMenu();
-          },
-          error: (error) => {
-            console.log('Error al obtener al user', error);
-            this.buildMenu(); // menú sin datos de usuario
-          }
-        });
-    } else {
-      this.buildMenu(); // para usuario no autenticado
-    }
+    this.userStateService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user) => {
+          this.authenticated = !!user;
+          this.user = user;
+          this.buildMenu();
+        },
+        error: (error) => {
+          console.log('Error al obtener al user', error);
+          this.authenticated = false;
+          this.user = null;
+          this.buildMenu();
+        }
+      });
   }
 
   logout() {

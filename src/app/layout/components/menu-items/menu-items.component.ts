@@ -3,11 +3,12 @@ import { Subject, takeUntil } from 'rxjs';
 import { NavItem } from '../../../shared/models/nav-item';
 import { UserDetail } from '../../../shared/models/user-detail';
 import { AuthService } from '../../../authentication/services/auth.service';
-import { UserService } from '../../../user-profile/services/user.service';
+import { UserStateService } from '../../../core/services/user-state.service';
 import { NavItemService } from '../../services/nav-item.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 import { TenantService } from '../../../core/services/tenant.service';
+import { Modal } from 'bootstrap';
 
 @Component({
   selector: 'app-menu-items',
@@ -18,15 +19,14 @@ export class MenuItemsComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly navItemService = inject(NavItemService);
   private readonly authService = inject(AuthService);
-  private readonly userService = inject(UserService);
+  private readonly userStateService = inject(UserStateService);
   private readonly tenantService = inject(TenantService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   @ViewChild('customToast') customToast!: CustomToastComponent;
 
-  public isAuthenticated: boolean = false; 
-  public currentUser!: UserDetail;
+  public currentUser: UserDetail | null = null;
   public navItemToEdit!: NavItem | null;
   public typeForm: 'create' | 'edit' = 'create';
   public navItems: NavItem[] = [];
@@ -48,14 +48,12 @@ export class MenuItemsComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.isAuthenticated = this.authService.isAuthenticated();
-    if(this.isAuthenticated){
-      this.userService.getUser()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(user => {
-          this.currentUser = user;
-        });
-    }
+    this.userStateService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        if(!user) return;
+        this.currentUser = user;
+      });
   }
 
   ngOnDestroy(): void {
@@ -67,7 +65,7 @@ export class MenuItemsComponent implements OnInit, OnDestroy {
     this.closeMenuHamburguer.emit();
     const el = document.getElementById(id);
     if (el) {
-      const modal = new (globalThis as any).bootstrap.Modal(el);
+      const modal = Modal.getOrCreateInstance(el);
       modal.show();
     }
   }

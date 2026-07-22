@@ -1,7 +1,7 @@
 <nav>
   <ul>
     <div class="options-user">
-      @if(isAuthenticated && currentUser) {
+      @if(currentUser) {
         <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="profile" routerLinkActive="active">Ver perfil</a></li>
         <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="institution" routerLinkActive="active">Ver página</a></li>
         <li><a (click)="logout()" (keypress)="logout()">Cerrar sesión</a></li>
@@ -12,10 +12,9 @@
     </div>
 
     <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="posts" routerLinkActive="active">Publicaciones</a></li>
-    <!-- <li><a (click)="closeMenuNav()" (keypress)="closeMenuNav()" routerLink="fotos" routerLinkActive="active">Galería</a></li> -->
 
     @for(navItem of navItems; track navItem.uuid){
-      @if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+      @if(currentUser && currentUser.role === 'ADMIN'){
         <li>
           <a (click)="closeMenuNav()" (keypress)="closeMenuNav()" [routerLink]="navItem.path" routerLinkActive="active">{{ navItem.label }}</a>
           <div class="edit-info" (click)="showModalEdit(navItem)" (keypress)="showModalEdit(navItem)">
@@ -34,7 +33,7 @@
         </li>
       }
     }
-    @if(isAuthenticated && currentUser && currentUser.role === 'ADMIN'){
+    @if(currentUser && currentUser.role === 'ADMIN'){
       <ui-button
         icon="pi pi-plus"
         type="button"

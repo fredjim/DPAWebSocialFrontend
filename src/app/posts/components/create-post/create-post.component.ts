@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, signal, ViewChild } from '@angular/core';
-import { UserService } from '../../../user-profile/services/user.service';
+import { UserStateService } from '../../../core/services/user-state.service';
 import { PostService } from '../../services/post.service';
 import * as bootstrap from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -35,7 +35,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   listFileDoc: File[] = [];
   isFbSwitchOn: boolean = false;
   currentUser!: UserDetail;
-  currentPostType!: string;
+  currentPostType: string = 'GENERAL';
   @ViewChild('modalCreatePost') modalCreatePost!: ElementRef;
   private modalInstance: bootstrap.Modal | null = null;
   @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
@@ -46,7 +46,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private readonly postService: PostService,
-    private readonly userService: UserService,
+    private readonly userStateService: UserStateService,
     private readonly formBuilder: FormBuilder,
     private readonly tenantService: TenantService,
     private readonly imageOptimizationService: ImageOptimizationService
@@ -208,12 +208,12 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getTypeByRol() {
-    this.userService.getUser()
+    this.userStateService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next:(user: UserDetail) => {
+        next:(user) => {
+          if(!user) return;
           this.currentUser = user;
-          this.currentPostType = this.determinePostType(this.currentUser.role);
         },
         error:(error) => {
           console.error('Error al obtener el usuario actual', error);
@@ -225,21 +225,6 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modalCreatePost.nativeElement.removeEventListener('hidden.bs.modal', this.modalHiddenListener);
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private determinePostType(role: string): string {
-    switch (role) {
-      case 'ADMIN_BECAS':
-        return 'BECAS';
-      case 'ADMIN_CONVENIOS':
-        return 'CONVENIOS';
-      case 'ADMIN_PROYECTOS':
-        return 'PROYECTOS';
-      case 'ADMIN_CUDIE':
-        return 'CUDIE'
-      default:
-        return 'GENERAL';
-    }
   }
 
   async post() {
