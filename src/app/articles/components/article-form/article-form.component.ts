@@ -8,7 +8,7 @@ import { PostService } from '../../../posts/services/post.service';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { MediaArticle } from '../../models/media-article';
 import { Link } from '../../models/link';
-import imageCompression from 'browser-image-compression';
+import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
 import { CreateUpdateArticle } from '../../models/create-update-article';
 
 @Component({
@@ -19,6 +19,7 @@ import { CreateUpdateArticle } from '../../models/create-update-article';
 export class ArticleFormComponent implements OnInit, OnChanges, OnDestroy {
   private initTimeout?: ReturnType<typeof setTimeout>;
   private readonly postService = inject(PostService);
+  private readonly imageOptimizationService = inject(ImageOptimizationService);
   @Input() typeForm: 'create' | 'edit' = 'create';
   @Input() currentArticle!: Article | undefined;
   @Input() currentSectionUuid!: string;
@@ -159,7 +160,7 @@ export class ArticleFormComponent implements OnInit, OnChanges, OnDestroy {
     this.isLoading = true;
 
     const uploadImages$ = this.imageFilesToCreate.length > 0
-      ? from(this.optimizeImages(this.imageFilesToCreate)).pipe(
+      ? from(this.imageOptimizationService.optimizeImages(this.imageFilesToCreate)).pipe(
           switchMap(optimizedImages => {
             const formData = new FormData();
             optimizedImages.forEach(file => {
@@ -273,51 +274,6 @@ export class ArticleFormComponent implements OnInit, OnChanges, OnDestroy {
     })
   }
 
-  private async optimizeImages(files: File[]): Promise<File[]> {
-    const compressionOptions = {
-      maxSizeMB: 1, // Máximo 1MB por imagen
-      maxWidthOrHeight: 1920, // Resolución máxima
-      useWebWorker: true, // No bloquear UI
-      fileType: 'image/webp', // Convertir a WebP
-      initialQuality: 0.8, // Calidad 80%
-      alwaysKeepResolution: false,
-      preserveExif: false
-    };
-
-    // Optimizar cada imagen en paralelo
-    const optimizationPromises = files.map(async (file, index) => {
-      if (!file.type.includes('image')) {
-        return file; // Si no es imagen, devolver sin cambios
-      }
-
-      // Si ya es WebP y es pequeño, no optimizar
-      if (file.type === 'image/webp' && file.size < 1024 * 500) { // < 500KB
-        return file;
-      }
-
-      try {
-        // Optimizar la imagen
-        const compressedFile = await imageCompression(file, compressionOptions);
-        
-        // Mantener el nombre original pero cambiar extensión a .webp
-        const originalName = file.name.replace(/\.[^/.]+$/, "");
-        const optimizedName = `${originalName}_optimized_${Date.now()}.webp`;
-        
-        return new File([compressedFile], optimizedName, {
-          type: 'image/webp'
-        });
-        
-      } catch (error) {
-        console.warn(`No se pudo optimizar ${file.name}:`, error);
-        return file; // Fallback al archivo original
-      }
-    });
-
-    // Esperar a que todas se optimicen
-    const results = await Promise.all(optimizationPromises);
-    return results.filter((file): file is File => file !== null);
-  }
-
   private updatedArticle(): void {
     if (!this.currentArticle) return;
 
@@ -330,7 +286,7 @@ export class ArticleFormComponent implements OnInit, OnChanges, OnDestroy {
 
     // Crear observables para cada operación
     const uploadImages$ = this.imageFilesToCreate.length > 0
-      ? from(this.optimizeImages(this.imageFilesToCreate)).pipe(
+      ? from(this.imageOptimizationService.optimizeImages(this.imageFilesToCreate)).pipe(
           switchMap(optimizedImages => {
             const formData = new FormData();
             optimizedImages.forEach(file => {

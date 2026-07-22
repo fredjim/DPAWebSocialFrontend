@@ -10,7 +10,7 @@ import { Institution } from '../../../shared/models/institution';
 import moment from 'moment';
 import { TenantService } from '../../../core/services/tenant.service';
 import { UserDetail } from '../../../shared/models/user-detail';
-import imageCompression from 'browser-image-compression';
+import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 import { Post } from '../../models/post';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -48,7 +48,8 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly postService: PostService,
     private readonly userStateService: UserStateService,
     private readonly formBuilder: FormBuilder,
-    private readonly tenantService: TenantService
+    private readonly tenantService: TenantService,
+    private readonly imageOptimizationService: ImageOptimizationService
   ) { }
 
   ngOnInit() {
@@ -226,52 +227,6 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private async optimizeImages(files: File[]): Promise<File[]> {
-    const compressionOptions = {
-      maxSizeMB: 1, // Máximo 1MB por imagen
-      maxWidthOrHeight: 1920, // Resolución máxima
-      useWebWorker: true, // No bloquear UI
-      fileType: 'image/webp', // Convertir a WebP
-      initialQuality: 0.8, // Calidad 80%
-      alwaysKeepResolution: false,
-      preserveExif: false
-    };
-
-    // Optimizar cada imagen en paralelo
-    const optimizationPromises = files.map(async (file, index) => {
-      if (!file.type.includes('image')) {
-        return file; // Si no es imagen, devolver sin cambios
-      }
-
-      // Si ya es WebP y es pequeño, no optimizar
-      if (file.type === 'image/webp' && file.size < 1024 * 500) { // < 500KB
-        console.log(`Imagen ${file.name} ya es WebP y pequeña, omitiendo optimización`);
-        return file;
-      }
-
-      try {
-        // Optimizar la imagen
-        const compressedFile = await imageCompression(file, compressionOptions);
-        
-        // Mantener el nombre original pero cambiar extensión a .webp
-        const originalName = file.name.replace(/\.[^/.]+$/, "");
-        const optimizedName = `${originalName}_optimized_${Date.now()}.webp`;
-        
-        return new File([compressedFile], optimizedName, {
-          type: 'image/webp'
-        });
-        
-      } catch (error) {
-        console.warn(`No se pudo optimizar ${file.name}:`, error);
-        return file; // Fallback al archivo original
-      }
-    });
-
-    // Esperar a que todas se optimicen
-    const results = await Promise.all(optimizationPromises);
-    return results.filter((file): file is File => file !== null);
-  }
-
   async post() {
     this.isLoading = true;
     const valueFormPost = this.postForm.value;
@@ -290,7 +245,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     if (valueFormPost.contentPost != '' || this.listFile || this.listFileDoc.length > 0) {
 
       if (this.listFile && this.listFile.length > 0) {
-        const optimizedFiles = await this.optimizeImages(this.listFile).catch(() => this.listFile);
+        const optimizedFiles = await this.imageOptimizationService.optimizeImages(this.listFile).catch(() => this.listFile);
 
         Array.from(optimizedFiles).forEach((file) => {
           file.type.includes('image') ? formData.append('images', file) : formData.append('videos', file);
