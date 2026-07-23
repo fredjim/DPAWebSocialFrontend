@@ -1,6 +1,5 @@
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpErrorResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Router } from "@angular/router";
 import { Observable, throwError, BehaviorSubject } from "rxjs";
 import { catchError, switchMap, filter, take, map } from 'rxjs/operators';
 import { AuthService } from "../../authentication/services/auth.service";
@@ -21,7 +20,7 @@ export class AuthInterceptor implements HttpInterceptor {
     }
   }
 
-  constructor(private readonly authService: AuthService, private router: Router) {}
+  constructor(private readonly authService: AuthService) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     // Excluir login, refresh y registro del manejo de token y refresh

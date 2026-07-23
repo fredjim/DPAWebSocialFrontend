@@ -3,13 +3,13 @@ import { ReactionService } from '../../../interactions/services/reaction.service
 import { CreateReaction } from '../../../shared/models/create-reaction';
 import { Post } from '../../models/post';
 import { Institution } from '../../../shared/models/institution';
-import { ReactionsByType } from '../../models/reactions-by-type';
 import { Media } from '../../../shared/models/media';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { UserDetail } from '../../../shared/models/user-detail';
 import { TenantService } from '../../../core/services/tenant.service';
 import { environment } from '../../../../environments/environment';
+import { EmojiName, EmojiType } from '../../../shared/models/emoji-type';
 
 @Component({
   selector: 'app-post',
@@ -36,12 +36,10 @@ export class PostComponent implements OnInit {
     emoji: 'fa-regular fa-thumbs-up',
     name: 'Me gusta'
   };
-  emoji_type_id = {
-    thumbs_up: "3f696a78-c73f-475c-80a6-f5a858648af1",
-    red_heart: "7v236a78-c73f-475c-80a6-f5a858648af1",
-    crying_face: "n1596a78-c73f-475c-80a6-f5a858648af1",
-    angry_face: "4c806a78-c73f-475c-80a6-f5a858648af1"
-  }
+
+  listEmojiType: EmojiType[] = [];
+  mapEmojiType: Map<EmojiName, EmojiType> = new Map();
+
   typeImages = ['image', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
   typeVideos = ['video', 'video/mp4'];
   totalReactions = signal(0);
@@ -54,6 +52,12 @@ export class PostComponent implements OnInit {
   
   ngOnInit() {
     this.listMediaPost = this.loadMediaPost();
+    this.reactionService.getEmojisType().subscribe((emojis) => {
+      this.mapEmojiType = new Map(
+        emojis.map(emoji => [emoji.emoji_name as EmojiName, emoji])
+      );
+      this.listEmojiType = emojis;
+    });
 
     if (this.post.reactions) {
       this.totalReactions.set(this.post.reactions.total_reactions);
@@ -145,10 +149,10 @@ export class PostComponent implements OnInit {
   }
 
 
-  reactUserBoton(postUuid: string) {
-    if (!this.like) { //No seleccionaron ningun emoji por default Me gusta
+  reactUserBoton(postUuid: string, emojiType: EmojiType | undefined) {
+    if (!this.like && emojiType) { //No seleccionaron ningun emoji por default Me gusta
       
-      this.react(postUuid, this.emoji_type_id.thumbs_up)
+      this.react(postUuid, emojiType.uuid)
       this.myReaction = {
         class: 'thumbs-up',
         emoji: 'fa-solid fa-thumbs-up',
@@ -186,18 +190,6 @@ export class PostComponent implements OnInit {
       return 'PRESENTACIÓN';
     else
       return 'DOCUMENTO';
-  }
-
-  getReactions(index: number) {
-    const reactionsByType: ReactionsByType[] = this.post.reactions.reactions_by_type;
-    const arrayOrdered: any[] = [...reactionsByType].sort((a: any, b: any) => b.amount - a.amount)
-    const arrayFinal = arrayOrdered.filter((reaction) => reaction.amount > 0)
-    // return arrayOrdered[index].emoji_type
-    if (arrayFinal[index]) {
-      return arrayFinal[index].emoji_type
-    } else {
-      return 'no hay mas reacciones'
-    }
   }
 
   amountReactions() {
@@ -242,8 +234,9 @@ export class PostComponent implements OnInit {
     }
   }
 
-  clickReaction(postUuid: string, typeReaction: string, event: Event) {
+  clickReaction(postUuid: string, typeReaction: EmojiName, event: Event) {
     event.stopPropagation(); // Detener la propagación del evento de clic
+    let emojiUuid = '';
     
     if (typeReaction === 'thumbs-up') {
       this.myReaction = {
@@ -252,7 +245,8 @@ export class PostComponent implements OnInit {
         name: 'Me gusta'
       }
       this.incrementTotalReactions()
-      this.react(postUuid, this.emoji_type_id.thumbs_up)
+      emojiUuid = this.mapEmojiType.get('thumbs-up')?.uuid || '';
+      this.react(postUuid, emojiUuid)
     } else if (typeReaction === 'red-heart') {
       this.myReaction = {
         class: typeReaction,
@@ -260,7 +254,8 @@ export class PostComponent implements OnInit {
         name: 'Me encanta'
       }
       this.incrementTotalReactions()
-      this.react(postUuid, this.emoji_type_id.red_heart)
+      emojiUuid = this.mapEmojiType.get('red-heart')?.uuid || '';
+      this.react(postUuid, emojiUuid)
     } else if (typeReaction === 'crying-face') {
       this.myReaction = {
         class: typeReaction,
@@ -268,7 +263,8 @@ export class PostComponent implements OnInit {
         name: 'Me entristece'
       }
       this.incrementTotalReactions()
-      this.react(postUuid, this.emoji_type_id.crying_face)
+      emojiUuid = this.mapEmojiType.get('crying-face')?.uuid || '';
+      this.react(postUuid, emojiUuid)
     } else if (typeReaction === 'angry-face') {
       this.myReaction = {
         class: typeReaction,
@@ -276,7 +272,8 @@ export class PostComponent implements OnInit {
         name: 'Me enfada'
       }
       this.incrementTotalReactions()
-      this.react(postUuid, this.emoji_type_id.angry_face)
+      emojiUuid = this.mapEmojiType.get('angry-face')?.uuid || '';
+      this.react(postUuid, emojiUuid)
     }
   }
 
