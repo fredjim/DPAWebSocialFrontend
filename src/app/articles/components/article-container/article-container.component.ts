@@ -12,7 +12,6 @@ import { UserDetail } from '../../../shared/models/user-detail';
 import { SectionStateService } from '../../../layout/services/sections-state.service';
 import { Subscription, switchMap } from 'rxjs';
 import { TenantService } from '../../../core/services/tenant.service';
-import { Institution } from '../../../shared/models/institution';
 import { Link } from '../../models/link';
 import { MediaArticle } from '../../models/media-article';
 import { NavItem } from '../../../shared/models/nav-item';
@@ -41,7 +40,6 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   currentSection!: Section;
   articles: Article[] = []; 
   public currentUser!: UserDetail;
-  public currentInstitution!: Institution;
   public currentNavItem!: NavItem;
   public idArticleToEdit: string = '';
   public isEditReady = false;
@@ -87,10 +85,6 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
         }
       })
     );
-
-    this.tenantService.getInstitution().subscribe(institution => {
-      this.currentInstitution = institution;
-    });
 
     this.subscriptions.add(
       this.route.paramMap.subscribe(params => {

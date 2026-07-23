@@ -1,11 +1,11 @@
 import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 import { Institution } from '../../../shared/models/institution';
-import { TenantService } from '../../../core/services/tenant.service';
 import { InstitutionService } from '../../services/institution.service';
 import { forkJoin, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { OwnInstitutionStateService } from '../../../core/services/own-institution-state.service';
 
 @Component({
   selector: 'app-profile-institution',
@@ -15,7 +15,7 @@ import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from
 export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly institutionService = inject(InstitutionService);
-  private readonly tenantService = inject(TenantService);
+  private readonly ownInstitutionStateService = inject(OwnInstitutionStateService);
 
   public readonly MAX_NAME_LENGTH = 150;
   public readonly MAX_DESCRIPTION_LENGTH = 300;
@@ -24,14 +24,14 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   public readonly MAX_PHONE_LENGTH = 20;
   public readonly MAX_URL_LENGTH = 80;
 
-  institution!: Institution;
+  institution: Institution | null = null;
   imageFileCoverToCreate?: File;
   imageFileLogoToCreate?: File;
   imageCover: string = '';
   imageLogo: string = '';
   currentLogoUuid: string = '';
   currentBackgroundUuid: string = '';
-  currentSlug: string = '';
+  currentSlug: string | null = '';
 
   @ViewChild('fileInputCover') fileInputCover!: ElementRef;
   @ViewChild('fileInputLogo') fileInputLogo!: ElementRef;
@@ -40,12 +40,13 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   formInstitution!: FormGroup;
 
   ngOnInit(): void {
-    this.currentSlug = this.tenantService.getSlug();
+    this.currentSlug = this.ownInstitutionStateService.getOwnInstitutionSlugSnapshot();
     this.initForm();
 
-    this.tenantService.getInstitution()
+    this.ownInstitutionStateService.ownInstitution$
       .pipe(takeUntil(this.destroy$))
       .subscribe(institutionData => {
+        if(!institutionData) return;
         this.institution = institutionData;
         this.currentLogoUuid = this.extractUuidFromUrl(institutionData.logo_url);
         this.currentBackgroundUuid = this.extractUuidFromUrl(institutionData.background_url);
@@ -72,7 +73,7 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.formInstitution.invalid) return;
+    if (!this.institution || this.formInstitution.invalid) return;
 
     this.toast.showInfo('Guardando cambios...', 'Procesando');
     
@@ -89,7 +90,7 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
         if (logoMedia) this.currentLogoUuid = logoMedia.uuid;
         if (coverMedia) this.currentBackgroundUuid = coverMedia.uuid;
 
-        return this.institutionService.updateInstitutionData({
+        return this.ownInstitutionStateService.updateOwnInstitution({
           ...this.institution,
           ...this.formInstitution.value,
           logoFileUuid: this.currentLogoUuid,
@@ -98,13 +99,11 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
       }),
       takeUntil(this.destroy$)
     ).subscribe({
-      next: (institution: Institution) => {
-        this.institution = institution;
+      next: () => {
+        // this.institution ya no hace falta asignarlo aquí manualmente:
+        // la suscripción a ownInstitution$ en ngOnInit lo recibe automáticamente
         this.imageFileLogoToCreate = undefined;
         this.imageFileCoverToCreate = undefined;
-        // Invalidar caché del TenantService para que header y hero-profile
-        // obtengan datos actualizados cuando el usuario vuelva a la página principal
-        this.tenantService.clearCache();
         this.toast.showSuccess('Información de la institución actualizada correctamente');
       },
       error: (error) => {

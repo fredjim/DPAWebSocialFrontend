@@ -11,6 +11,9 @@ import { PaginatedResponse } from "../../shared/models/paginated-response";
 @Injectable({
   providedIn: 'root'
 })
+/**
+ * Todas las llamadas HTTP al Backend
+ */
 export class InstitutionService {
 
   private readonly ROOT_URL = `${environment.BACK_END_HOST_DEV}`;
@@ -20,8 +23,16 @@ export class InstitutionService {
     private readonly http: HttpClient
   ) {}
 
-  getInstitution(uuid: string): Observable<Institution> {
+  getInstitutionByUuid(uuid: string): Observable<Institution> {
     return this.http.get<Institution>(`${this.ROOT_URL}/${this.institutionUrl}/${uuid}`);
+  }
+
+  /**
+   * Devuelve el Observable de la institución activa del slug de la URL.
+   * Llama a GET /institutions/current (el backend usa el header X-Tenant-Slug para resolverla).
+   */
+  getCurrentTenantInstitution(): Observable<Institution> {
+    return this.http.get<Institution>(`${this.ROOT_URL}/${this.institutionUrl}/current`);
   }
 
   postInstitutionPhotoProfile(formData: FormData): Observable<UploadedMedia> {

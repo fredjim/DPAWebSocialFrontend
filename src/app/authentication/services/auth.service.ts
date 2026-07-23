@@ -6,7 +6,7 @@ import { NewUser } from '../models/new-user';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { TenantService } from '../../core/services/tenant.service';
 import { OwnInstitutionStateService } from '../../core/services/own-institution-state.service';
-import { firstValueFrom, forkJoin, from, of } from 'rxjs';
+import { firstValueFrom, forkJoin, from, Observable, of } from 'rxjs';
 import { UserStateService } from '../../core/services/user-state.service';
 
 @Injectable({
@@ -32,7 +32,7 @@ export class AuthService {
     return !this.jwtHelper.isTokenExpired(this.token);
   }
 
-  login(username: string, password: string) {
+  login(username: string, password: string): Observable<boolean> {
     const user = { email: username, password };
     return this.http.post<{ accessToken: string, tokenType: string }>(this.ROOT_URL + '/login', user, { withCredentials: true }).pipe(
       switchMap(res => {
@@ -140,8 +140,8 @@ export class AuthService {
   }
 
   // El browser envía la cookie refresh_token automáticamente (withCredentials)
-  refreshAccessToken() {
-    return this.http.post<any>(`${this.ROOT_URL}/refresh`, {}, { withCredentials: true });
+  refreshAccessToken(): Observable<{ accessToken: string, tokenType: string }> {
+    return this.http.post<{ accessToken: string, tokenType: string }>(`${this.ROOT_URL}/refresh`, {}, { withCredentials: true });
   }
 
   // Refresca el token al inicializar la app usando la cookie HttpOnly
@@ -151,8 +151,8 @@ export class AuthService {
     }
     // Si la cookie existe y es válida el backend devuelve un nuevo accessToken
     // Si no hay cookie o expiró, el backend responde 401 y limpiamos memoria
-    return this.refreshAccessToken().toPromise().then((res: any) => {
-      if (res?.accessToken) {
+    return firstValueFrom(this.refreshAccessToken()).then((res) => {
+      if (res.accessToken) {
         this.token = res.accessToken;
         return this.ensureSessionStateLoaded();
       }

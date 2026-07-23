@@ -4,11 +4,11 @@ import { Location } from '@angular/common';
 import { PostService } from '../../services/post.service';
 import { UserStateService } from '../../../core/services/user-state.service';
 import { InstitutionService } from '../../../institution/services/institution.service';
-import { AuthService } from '../../../authentication/services/auth.service';
 import { Post } from '../../models/post';
 import { UserDetail } from '../../../shared/models/user-detail';
 import { Institution } from '../../../shared/models/institution';
 import { TenantService } from '../../../core/services/tenant.service';
+import { TenantInstitutionStateService } from '../../../core/services/tenant-institution-state.service';
 import { delay, distinctUntilChanged, fromEvent, Subject, takeUntil, throttleTime } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
@@ -44,7 +44,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
     private readonly postService: PostService,
     private readonly userStateService: UserStateService,
     private readonly institutionService: InstitutionService,
-    private readonly authService: AuthService,
+    private readonly tenantInstitutionStateService: TenantInstitutionStateService,
     private readonly tenantService: TenantService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -68,9 +68,10 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
     // Cargar primera página, carga inicial
     this.loadPosts(true);
 
-    this.tenantService.getInstitution()
+    this.tenantInstitutionStateService.currentTenantInstitution$
       .pipe(takeUntil(this.destroy$))
       .subscribe(institution => {
+        if(!institution) return;
         this.currentInstitution = institution;
       });
 
@@ -290,7 +291,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   }
 
   private openPostModal(post: Post, initialMediaIndex: number = 0): void {
-    this.institutionService.getInstitution(post.institution_id)
+    this.institutionService.getInstitutionByUuid(post.institution_id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (institution) => {

@@ -3,7 +3,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { InstitutionService } from '../../../institution/services/institution.service';
 import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
-import { TenantService } from '../../../core/services/tenant.service';
+import { TenantInstitutionStateService } from '../../../core/services/tenant-institution-state.service';
 
 @Component({
   selector: 'app-media-gallery',
@@ -33,16 +33,17 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
 
 
   constructor(
-    private readonly tenantService: TenantService,
+    private readonly tenantInstitutionStateService: TenantInstitutionStateService,
     private readonly institutionService: InstitutionService,
     private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-    this.tenantService.getInstitution()
+    this.tenantInstitutionStateService.currentTenantInstitution$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (dataInstitution: Institution) => {
+        next: (dataInstitution) => {
+          if(!dataInstitution) return;
           this.institution = dataInstitution;
           this.loadDataForCurrentTab();
           this.cdr.detectChanges();

@@ -5,7 +5,7 @@ import { InstitutionService } from '../../../institution/services/institution.se
 import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TenantService } from '../../../core/services/tenant.service';
+import { TenantInstitutionStateService } from '../../../core/services/tenant-institution-state.service';
 
 @Component({
   selector: 'home-photos-section',
@@ -20,23 +20,22 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
   photos: {url: string, postUuid: string}[] = [];
   isLoading: boolean = true;
   currentPost !: Post;
-  currentSlug: string = '';
   visibleModalGallery: boolean = false;
   visibleModalPost: boolean = false;
   indexImage: number = 0;
 
   constructor(
     private readonly postService: PostService,
-    private readonly tenantService: TenantService,
+    private readonly tenantInstitutionStateService: TenantInstitutionStateService,
     private readonly institutionService: InstitutionService
   ) {}
 
   ngOnInit(){
-    this.currentSlug = this.tenantService.getSlug();
-    this.tenantService.getInstitution()
+    this.tenantInstitutionStateService.currentTenantInstitution$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (dataInstitution: Institution) => {
+        next: (dataInstitution) => {
+          if(!dataInstitution) return;
           this.institution = dataInstitution;
           this.loadPhotos();
         },

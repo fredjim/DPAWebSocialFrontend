@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output, signal, WritableSignal, inject, OnInit } from '@angular/core';
-import { InstitutionService } from '../../../institution/services/institution.service';
 import { ReactionService } from '../../../interactions/services/reaction.service';
 import { CreateReaction } from '../../../shared/models/create-reaction';
 import { Post } from '../../models/post';
@@ -22,12 +21,12 @@ export class PostComponent implements OnInit {
   @Input({ required: true }) post!: Post;
   @Output() reactionChanged = new EventEmitter<void>(); // Nuevo Output para emitir eventos de cambio de reacción
   @Input() currentUser: UserDetail | null = null;
+  @Input() institution!: Institution;
   @Input() openInParent: boolean = false;
 
   @Output() requestDeletePost = new EventEmitter<string>();
   @Output() requestUpdatePost = new EventEmitter<Post>();
   @Output() openPostDetail = new EventEmitter<{ post: Post; initialMediaIndex: number }>();
-  institution!: Institution;
   listMediaPost!: Media[]; // Lista de imagenes videos o documento del post 
   showOptions: WritableSignal<boolean> = signal(false); // Controla la visibilidad de las opciones del post
   openModalEdit: WritableSignal<boolean> = signal(false);
@@ -49,22 +48,12 @@ export class PostComponent implements OnInit {
   totalComments = signal(0);
 
   constructor(
-    private readonly institutionService: InstitutionService,
     private readonly reactionService: ReactionService,
     private readonly tenantService: TenantService
   ) {}
   
   ngOnInit() {
     this.listMediaPost = this.loadMediaPost();
-  
-    this.institutionService.getInstitution(this.post.institution_id).subscribe({
-      next: (institutionData) => {
-        this.institution = institutionData;
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
 
     if (this.post.reactions) {
       this.totalReactions.set(this.post.reactions.total_reactions);
