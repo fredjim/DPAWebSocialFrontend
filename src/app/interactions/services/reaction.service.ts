@@ -1,7 +1,6 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { AuthService } from '../../authentication/services/auth.service';
+import { Observable, shareReplay } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CreateReaction, CreateReactionToComments } from '../../shared/models/create-reaction';
 import { EmojiType } from '../../shared/models/emoji-type';
@@ -20,19 +19,19 @@ export class ReactionService {
   private readonly commentUrl = 'comment';
   private readonly replyReactionsUrl = 'reply-reactions';
 
-  private readonly reqHeader = {
-    headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() })
-  };
+  private emojisType$: Observable<EmojiType[]> | null = null;
 
   constructor(
-    private readonly http: HttpClient,
-    private readonly authService: AuthService
+    private readonly http: HttpClient
   ) {}
 
   // ── Tipos de emoji ────────────────────────────────────────────────────────────
 
   getEmojisType(): Observable<EmojiType[]> {
-    return this.http.get<EmojiType[]>(`${this.ROOT_URL}/emoji-type`);
+    this.emojisType$ ??= this.http.get<EmojiType[]>(`${this.ROOT_URL}/emoji-type`).pipe(
+      shareReplay(1)
+    );
+    return this.emojisType$;
   }
 
   // ── Reacciones a posts ────────────────────────────────────────────────────────
@@ -40,15 +39,13 @@ export class ReactionService {
   reactToPost(postUuid: string, body: CreateReaction): Observable<ReactionUserToPost> {
     return this.http.post<ReactionUserToPost>(
       `${this.ROOT_URL}/${this.postsUrl}/${postUuid}/${this.reactionsUrl}`,
-      body,
-      this.reqHeader
+      body
     );
   }
 
   deletePostReaction(postUuid: string): Observable<void> {
     return this.http.delete<void>(
-      `${this.ROOT_URL}/${this.postsUrl}/${postUuid}/${this.reactionsUrl}`,
-      this.reqHeader
+      `${this.ROOT_URL}/${this.postsUrl}/${postUuid}/${this.reactionsUrl}`
     );
   }
 
@@ -63,23 +60,20 @@ export class ReactionService {
   reactToComment(commentUuid: string, reactionData: CreateReactionToComments): Observable<ReactionUserToComment> {
     return this.http.post<ReactionUserToComment>(
       `${this.ROOT_URL}/${this.commentUrl}/${commentUuid}/${this.reactionsUrl}`,
-      reactionData,
-      this.reqHeader
+      reactionData
     );
   }
 
   updateCommentReaction(reactionUuid: string, reactionData: CreateReaction): Observable<ReactionUserToComment> {
     return this.http.put<ReactionUserToComment>(
       `${this.ROOT_URL}/${this.reactionsUrl}/${reactionUuid}`,
-      reactionData,
-      this.reqHeader
+      reactionData
     );
   }
 
   deleteCommentReaction(commentUuid: string): Observable<void> {
     return this.http.delete<void>(
-      `${this.ROOT_URL}/${this.commentUrl}/${commentUuid}/${this.reactionsUrl}`,
-      this.reqHeader
+      `${this.ROOT_URL}/${this.commentUrl}/${commentUuid}/${this.reactionsUrl}`
     );
   }
 
@@ -94,23 +88,20 @@ export class ReactionService {
   reactToReply(replyUuid: string, reactionData: CreateReaction): Observable<ReactionUserToReply> {
     return this.http.post<ReactionUserToReply>(
       `${this.ROOT_URL}/${this.replyReactionsUrl}/${replyUuid}`,
-      reactionData,
-      this.reqHeader
+      reactionData
     );
   }
 
   updateReplyReaction(reactionUuid: string, reactionData: CreateReaction): Observable<ReactionUserToReply> {
     return this.http.put<ReactionUserToReply>(
       `${this.ROOT_URL}/${this.replyReactionsUrl}/${reactionUuid}`,
-      reactionData,
-      this.reqHeader
+      reactionData
     );
   }
 
   deleteReplyReaction(replyUuid: string): Observable<void> {
     return this.http.delete<void>(
-      `${this.ROOT_URL}/${this.replyReactionsUrl}/${replyUuid}/${this.reactionsUrl}`,
-      this.reqHeader
+      `${this.ROOT_URL}/${this.replyReactionsUrl}/${replyUuid}/${this.reactionsUrl}`
     );
   }
 }
