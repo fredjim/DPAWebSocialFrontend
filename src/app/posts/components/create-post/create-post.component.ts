@@ -48,7 +48,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly postService: PostService,
     private readonly userStateService: UserStateService,
     private readonly formBuilder: FormBuilder,
-    private readonly ownIsntitutionStateService: OwnInstitutionStateService
+    private readonly ownIsntitutionStateService: OwnInstitutionStateService,
     private readonly imageOptimizationService: ImageOptimizationService
   ) { }
 
