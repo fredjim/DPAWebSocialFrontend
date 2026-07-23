@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { TenantService } from '../../../core/services/tenant.service';
+import { OwnInstitutionStateService } from '../../../core/services/own-institution-state.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -13,18 +13,19 @@ export class InstitutionAdminComponent implements OnInit, OnDestroy {
   institutionUuid = signal('');
   isLoading = signal(true);
 
-  constructor(private readonly tenantService: TenantService) {}
+  constructor(private readonly ownInstitutionStateService: OwnInstitutionStateService) {}
 
   ngOnInit(): void {
-    this.tenantService.getInstitution()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: inst => {
-          this.institutionUuid.set(inst.uuid);
-          this.isLoading.set(false);
-        },
-        error: () => this.isLoading.set(false)
-      });
+    this.ownInstitutionStateService.ownInstitution$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (inst) => {
+        if (!inst) return;
+        this.institutionUuid.set(inst.uuid);
+        this.isLoading.set(false);
+      },
+      error: () => this.isLoading.set(false)
+    });
   }
 
   ngOnDestroy(): void {

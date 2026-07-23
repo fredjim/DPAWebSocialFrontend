@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { TenantService } from '../../../core/services/tenant.service';
+import { Institution } from '../../../shared/models/institution';
+import { TenantInstitutionStateService } from '../../../core/services/tenant-institution-state.service';
 
 @Component({
   selector: 'app-department-details',
@@ -7,14 +8,17 @@ import { TenantService } from '../../../core/services/tenant.service';
   styleUrl: './department-details.component.scss'
 })
 export class DepartmentDetailsComponent implements OnInit {
-  institution: any;
+  institution!: Institution;
 
-  constructor(private readonly tenantService: TenantService) {}
+  constructor(private readonly tenantInstitutionStateService: TenantInstitutionStateService) {}
 
   ngOnInit(): void {
-    this.tenantService.getInstitution().subscribe({
-      next: (data) => { this.institution = data; },
-      error: (error) => { console.error('Error al obtener los datos de la institución', error); }
+    this.tenantInstitutionStateService.currentTenantInstitution$.subscribe({
+      next: (data) => { 
+        if(!data) return;
+        this.institution = data; 
+      },
+      error: (error) => console.error('Error al obtener los datos de la institución', error)
     });
   }
 }

@@ -1,14 +1,14 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, signal, ViewChild } from '@angular/core';
 import { UserStateService } from '../../../core/services/user-state.service';
 import { PostService } from '../../services/post.service';
-import * as bootstrap from 'bootstrap';
+import { Modal } from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { concatMap, Subject, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { CreatePost } from '../../models/create-post';
 import { Institution } from '../../../shared/models/institution';
 import moment from 'moment';
-import { TenantService } from '../../../core/services/tenant.service';
+import { OwnInstitutionStateService } from '../../../core/services/own-institution-state.service';
 import { UserDetail } from '../../../shared/models/user-detail';
 import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
@@ -37,7 +37,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   currentUser!: UserDetail;
   currentPostType: string = 'GENERAL';
   @ViewChild('modalCreatePost') modalCreatePost!: ElementRef;
-  private modalInstance: bootstrap.Modal | null = null;
+  private modalInstance: Modal | null = null;
   @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
   public visibleModalCreate: boolean = false;
   public maxLengthText = 1200;
@@ -48,15 +48,16 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly postService: PostService,
     private readonly userStateService: UserStateService,
     private readonly formBuilder: FormBuilder,
-    private readonly tenantService: TenantService,
+    private readonly ownIsntitutionStateService: OwnInstitutionStateService
     private readonly imageOptimizationService: ImageOptimizationService
   ) { }
 
   ngOnInit() {
-    this.tenantService.getInstitution()
+    this.ownIsntitutionStateService.ownInstitution$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (institutionData: Institution) => {
+        next: (institutionData) => {
+          if(!institutionData) return;
           this.institution = institutionData;
         },
         error: (error) => {
@@ -122,7 +123,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openModalCreatePost() {
-    this.modalInstance = new bootstrap.Modal(this.modalCreatePost.nativeElement);
+    this.modalInstance = new Modal(this.modalCreatePost.nativeElement);
     this.modalInstance.show();
     this.visibleModalCreate = true;
     this.disabledPublishButton.set(true);

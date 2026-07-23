@@ -1,5 +1,4 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Institution } from '../../../shared/models/institution';
 import { UserStateService } from '../../../core/services/user-state.service';
 import { TenantService } from '../../../core/services/tenant.service';
 import { Subject, takeUntil } from 'rxjs';
@@ -15,7 +14,6 @@ import { MenuItem } from 'primeng/api';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
 
-  institution!: Institution
   authenticated: boolean = false;
   
   isMobileMenuOpen = false;
@@ -34,7 +32,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.currentSlug = this.tenantService.getSlug();
-    this.getInstitution();
     this.getUser();
   }
 
@@ -86,17 +83,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       const modal = Modal.getOrCreateInstance(el);
       modal.show();
     }
-  }
-
-  private getInstitution() {
-    this.tenantService.getInstitution()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (institutionData) => {
-          this.institution = institutionData;
-        },
-        error: () => {}
-      });
   }
 
   private getUser() {

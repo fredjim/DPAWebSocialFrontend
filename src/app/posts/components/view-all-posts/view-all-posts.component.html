@@ -20,6 +20,7 @@
       <app-post *ngFor="let post of posts" 
         [post]="post" 
         [currentUser]="currentUser"
+        [institution]="currentInstitution"
         [openInParent]="true"
         (openPostDetail)="handleOpenPost($event.post, $event.initialMediaIndex)"
         (requestDeletePost)="deletePost($event)"

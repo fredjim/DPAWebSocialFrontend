@@ -1,20 +1,22 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, shareReplay } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Institution } from '../../shared/models/institution';
 
 @Injectable({
   providedIn: 'root'
 })
+/**
+ * Solo resolver el slug desde la URL
+ */
 export class TenantService {
-
-  private institution$: Observable<Institution> | null = null;
 
   // Rutas de Angular que NO son slugs de tenant
   private readonly RESERVED_PATHS = ['profile', 'institution', 'login', 'register', 'admin'];
+  private currentSlug: string | null = null;
 
-  constructor(private readonly http: HttpClient) {}
+  // Llamado por el guard, fuente autoritativa (route.paramMap)
+  setSlug(slug: string): void {
+    this.currentSlug = slug;
+  }
 
   /**
    * Devuelve el slug del tenant activo leyendo el primer segmento del path de la URL.
@@ -22,6 +24,11 @@ export class TenantService {
    * Fallback en desarrollo: environment.DEFAULT_TENANT_SLUG
    */
   getSlug(): string {
+    
+    if (this.currentSlug) {
+      return this.currentSlug;
+    }
+
     const segments = globalThis.location.pathname
       .split('/')
       .filter(s => s.length > 0);
@@ -36,25 +43,5 @@ export class TenantService {
     }
 
     return environment.DEFAULT_TENANT_SLUG ?? '';
-  }
-
-  /**
-   * Devuelve el Observable de la institución activa.
-   * Llama a GET /institutions/current (el backend usa el header X-Tenant-Slug para resolverla).
-   * El resultado se cachea con shareReplay(1) durante la vida de la sesión.
-   */
-  getInstitution(): Observable<Institution> {
-    this.institution$ ??= this.http
-      .get<Institution>(`${environment.BACK_END_HOST_DEV}/institutions/current`)
-      .pipe(shareReplay(1));
-    
-    return this.institution$;
-  }
-
-  /**
-   * Limpia el caché de institución. Útil si el tenant cambia (ej. navegación cross-tenant).
-   */
-  clearCache(): void {
-    this.institution$ = null;
   }
 }
