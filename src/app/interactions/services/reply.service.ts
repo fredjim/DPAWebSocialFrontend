@@ -1,7 +1,6 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthService } from '../../authentication/services/auth.service';
 import { environment } from '../../../environments/environment';
 import { Reply } from '../models/reply';
 import { CreateReply } from '../models/create-reply';
@@ -15,13 +14,8 @@ export class ReplyService {
   private readonly commentsUrl = 'comments';
   private readonly repliesUrl = 'replies';
 
-  private readonly reqHeader = {
-    headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() })
-  };
-
   constructor(
-    private readonly http: HttpClient,
-    private readonly authService: AuthService
+    private readonly http: HttpClient
   ) {}
 
   getRepliesByCommentUuid(commentUuid: string): Observable<Reply[]> {
@@ -33,15 +27,13 @@ export class ReplyService {
   addReply(commentUuid: string, replyData: CreateReply): Observable<Reply> {
     return this.http.post<Reply>(
       `${this.ROOT_URL}/${this.commentsUrl}/${commentUuid}/${this.repliesUrl}`,
-      replyData,
-      this.reqHeader
+      replyData
     );
   }
 
   deleteReply(replyUuid: string): Observable<void> {
     return this.http.delete<void>(
-      `${this.ROOT_URL}/${this.repliesUrl}/${replyUuid}`,
-      this.reqHeader
+      `${this.ROOT_URL}/${this.repliesUrl}/${replyUuid}`
     );
   }
 }
