@@ -202,7 +202,6 @@ $font-size-large: 1.2rem;
 
   img {
     max-width: 100%;
-    max-height: 500px;
     object-fit: contain;
   }
 
@@ -342,9 +341,5 @@ $font-size-large: 1.2rem;
 @media screen and (max-width: 576px) {
   ::ng-deep .p-carousel-item {
     height: auto;     
-
-    img, video {
-      max-height: 250px;
-    }
   }
 }
