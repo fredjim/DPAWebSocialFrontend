@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AuthService } from '../../authentication/services/auth.service';
+import { HttpClient } from '@angular/common/http';
 import { forkJoin, Observable, switchMap } from 'rxjs';
 import { NavItem } from '../../shared/models/nav-item';
 
@@ -11,14 +10,10 @@ import { NavItem } from '../../shared/models/nav-item';
 export class NavItemService {
 
   private readonly ROOT_URL = `${environment.BACK_END_HOST_DEV}`;
-
-  private readonly reqHeader = { headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }) };
-
   private readonly navItemUrl: string = 'navitems';
 
   constructor(
-    private readonly http: HttpClient, 
-    private readonly authService: AuthService
+    private readonly http: HttpClient
   ) {}
 
   // NavItem
@@ -33,7 +28,7 @@ export class NavItemService {
 
   // PUT nav item
   updateNavItem(updatedNavItem: NavItem): Observable<NavItem[]> {
-    return this.http.put<NavItem>(`${this.ROOT_URL}/${this.navItemUrl}/${updatedNavItem.uuid}`, updatedNavItem, this.reqHeader).pipe(
+    return this.http.put<NavItem>(`${this.ROOT_URL}/${this.navItemUrl}/${updatedNavItem.uuid}`, updatedNavItem).pipe(
       switchMap(updatedItem => {
         return this.getAllNavItems().pipe(
           switchMap(allItems => {
@@ -48,7 +43,7 @@ export class NavItemService {
   
   // POST nav item
   createNavItem(newNavItem: Omit<NavItem, 'uuid' | 'user_id' | 'createdDate' | 'lastModifiedDate'>): Observable<NavItem[]> {
-    return this.http.post<NavItem>(`${this.ROOT_URL}/${this.navItemUrl}`, newNavItem, this.reqHeader).pipe(
+    return this.http.post<NavItem>(`${this.ROOT_URL}/${this.navItemUrl}`, newNavItem).pipe(
       switchMap(createdItem => {
         return this.getAllNavItems().pipe(
           switchMap(allItems => {
@@ -100,7 +95,7 @@ export class NavItemService {
 
   // DELETE nav item
   deleteNavItem(uuid: string): Observable<void> {
-    return this.http.delete<void>(`${this.ROOT_URL}/${this.navItemUrl}/${uuid}`, this.reqHeader);
+    return this.http.delete<void>(`${this.ROOT_URL}/${this.navItemUrl}/${uuid}`);
   }
 
 }

@@ -1,7 +1,6 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthService } from '../../authentication/services/auth.service';
 import { environment } from '../../../environments/environment';
 import { Comment } from '../models/comment';
 
@@ -14,13 +13,8 @@ export class CommentService {
   private readonly commentsUrl = 'comments';
   private readonly postsUrl = 'posts';
 
-  private readonly reqHeader = {
-    headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() })
-  };
-
   constructor(
-    private readonly http: HttpClient,
-    private readonly authService: AuthService
+    private readonly http: HttpClient
   ) {}
 
   // ── Comentarios ───────────────────────────────────────────────────────────────
@@ -34,15 +28,13 @@ export class CommentService {
   addComment(postUuid: string, commentData: { content: string }): Observable<Comment> {
     return this.http.post<Comment>(
       `${this.ROOT_URL}/post/${postUuid}/${this.commentsUrl}`,
-      commentData,
-      this.reqHeader
+      commentData
     );
   }
 
   deleteComment(postUuid: string, commentUuid: string): Observable<void> {
     return this.http.delete<void>(
-      `${this.ROOT_URL}/${this.postsUrl}/${postUuid}/${this.commentsUrl}/${commentUuid}`,
-      this.reqHeader
+      `${this.ROOT_URL}/${this.postsUrl}/${postUuid}/${this.commentsUrl}/${commentUuid}`
     );
   }
 }
