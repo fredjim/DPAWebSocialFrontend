@@ -207,11 +207,12 @@ hr {
 	margin: 0;
 	padding: 0 30px;
 
-	#btn-like {
+	#btn-reaction {
 		display: flex;
 		justify-content: center;
-		padding: 0;
-		width: 124px;
+		padding: 0 3px;
+		min-width: 135px;
+		width: auto;
 		align-items: center;
 		font-weight: 600;
 		border: none;
@@ -221,7 +222,7 @@ hr {
 		}
 	}
 
-	#btn-like:hover {
+	#btn-reaction:hover {
 		background-color: #F2F2F2;
 
 		.option-reactions {
@@ -243,10 +244,10 @@ hr {
 			.fa-thumbs-up {
 				background-color: #087CFE;
 				border-radius: 50%;
-				font-size: 25px;
+				font-size: 22px;
 				padding: 5px;
-				height: 35px;
-				width: 35px;
+				height: 32px;
+				width: 32px;
 				display: flex;
 				justify-content: center;
 				align-items: center;
@@ -256,107 +257,47 @@ hr {
 			}
 
 			.fa-thumbs-up:hover {
-				transform: scale(1.2);
-
+				transform: scale(1.1);
 			}
 
-			.fa-heart {
-				background-color: #FB4D70;
-				border-radius: 50%;
+			span {
 				font-size: 25px;
-				padding: 5px;
-				height: 35px;
-				width: 35px;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				color: #fff;
 				transition: transform 0.3s ease;
-				cursor: pointer;
-			}
 
-			.fa-heart:hover {
-				transform: scale(1.2);
-			}
-
-			.crying-face {
-				height: 40px;
-				transition: transform 0.3s ease;
-				cursor: pointer;
-			}
-
-			.crying-face:hover {
-				transform: scale(1.2);
-			}
-
-			.angry-face {
-				height: 40px;
-				transition: transform 0.3s ease;
-				cursor: pointer;
-			}
-
-			.angry-face:hover {
-				transform: scale(1.2);
+				&:hover {
+					transform: scale(1.2);
+				}
 			}
 		}
 	}
 
-	.btn.default {
-		color: #606367;
-
-		i {
-			font-size: 20px;
+	#btn-reaction.btn {
+		&.default {
+			color: #606367;
 		}
-	}
-
-	.btn.thumbs-up {
-		color: #005FF2;
-
-		i {
-			font-size: 20px;
+		&.thumbs-up {
+			color: #005FF2;
 		}
-	}
-
-	.btn.red-heart {
-		i {
-			background-color: #FB4D70;
-			border-radius: 50%;
-			font-size: 14px;
-			padding: 10px;
-			height: 19px;
-			width: 19px;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			color: #fff;
-		}
-
-		span {
+		&.red-heart {
 			color: #FB4D70;
 		}
-	}
-
-	.btn.crying-face {
-
-		img {
-			height: 20px;
-		}
-
-		span {
+		&.crying-face, 
+		&.grinning-squinting-face,
+		&.astonished-face {
 			color: #EAA823;
 		}
-	}
-
-	.btn.angry-face {
-
-		img {
-			height: 20px;
-		}
-
-		span {
+		&.angry-face {
 			color: #DD6B0E;
 		}
+		& span.emoji {
+			font-size: 20px;
+		}
 	}
+}
+
+::ng-deep .p-tooltip {
+	margin: revert-layer;
+	padding: revert-layer;
 }
 
 .post-medias {

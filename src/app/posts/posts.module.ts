@@ -31,6 +31,7 @@ import { TabViewModule } from 'primeng/tabview';
 import { CarouselModule } from 'primeng/carousel';
 import { MessagesModule } from 'primeng/messages';
 import { PaginatorModule } from 'primeng/paginator';
+import { TooltipModule } from 'primeng/tooltip';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import { PaginatorModule } from 'primeng/paginator';
     TabViewModule,
     CarouselModule,
     MessagesModule,
-    PaginatorModule
+    PaginatorModule,
+    TooltipModule
   ],
   exports: [
     ViewAllPostsComponent,
