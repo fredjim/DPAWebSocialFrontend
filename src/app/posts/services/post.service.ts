@@ -1,8 +1,7 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AuthService } from '../../authentication/services/auth.service';
 import { environment } from '../../../environments/environment';
 import { Post } from '../models/post';
 import { CreatePost } from '../models/create-post';
@@ -16,14 +15,8 @@ export class PostService {
   private readonly ROOT_URL = `${environment.BACK_END_HOST_DEV}`;
   private readonly postsUrl = 'posts';
 
-  private readonly reqHeader = {
-    headers: new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.getToken() }),
-    withCredentials: true
-  };
-
   constructor(
-    private readonly http: HttpClient,
-    private readonly authService: AuthService
+    private readonly http: HttpClient
   ) {}
 
   // ── Lectura ──────────────────────────────────────────────────────────────────
@@ -33,11 +26,7 @@ export class PostService {
   }
 
   getPosts(): Observable<Post[]> {
-    const token = this.authService.getToken();
-    const headers = token
-      ? new HttpHeaders({ 'Authorization': `Bearer ${token}` })
-      : undefined;
-    return this.http.get<Post[]>(`${this.ROOT_URL}/${this.postsUrl}`, { headers });
+    return this.http.get<Post[]>(`${this.ROOT_URL}/${this.postsUrl}`);
   }
 
   getPostsByType(postType: string): Observable<Post[]> {
@@ -53,21 +42,19 @@ export class PostService {
   // ── Escritura ─────────────────────────────────────────────────────────────────
 
   createPost(dataPost: CreatePost): Observable<Post> {
-    return this.http.post<Post>(`${this.ROOT_URL}/${this.postsUrl}`, dataPost, this.reqHeader);
+    return this.http.post<Post>(`${this.ROOT_URL}/${this.postsUrl}`, dataPost);
   }
 
   updatePost(postUuid: string, dataPost: CreatePost): Observable<Post> {
     return this.http.put<Post>(
       `${this.ROOT_URL}/${this.postsUrl}/${postUuid}`,
-      dataPost,
-      this.reqHeader
+      dataPost
     );
   }
 
   deletePost(postUuid: string): Observable<Post> {
     return this.http.delete<Post>(
-      `${this.ROOT_URL}/${this.postsUrl}/${postUuid}`,
-      this.reqHeader
+      `${this.ROOT_URL}/${this.postsUrl}/${postUuid}`
     );
   }
 
@@ -76,16 +63,14 @@ export class PostService {
   uploadImages(formData: FormData): Observable<UploadedMedia[]> {
     return this.http.post<UploadedMedia[]>(
       `${this.ROOT_URL}/images/posts`,
-      formData,
-      this.reqHeader
+      formData
     );
   }
 
   uploadVideos(formData: FormData): Observable<UploadedMedia[]> {
     return this.http.post<UploadedMedia[]>(
       `${this.ROOT_URL}/videos/posts`,
-      formData,
-      this.reqHeader
+      formData
     );
   }
 
@@ -110,8 +95,7 @@ export class PostService {
   uploadDocument(formData: FormData): Observable<UploadedMedia[]> {
     return this.http.post<UploadedMedia[]>(
       `${this.ROOT_URL}/documents/posts`,
-      formData,
-      this.reqHeader
+      formData
     );
   }
 }
