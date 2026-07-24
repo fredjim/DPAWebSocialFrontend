@@ -104,23 +104,33 @@
 	<!-- Botones de reaccionar, comentar y compartir -->
 	<div class="bottuns" *ngIf="currentUser">
 		<!-- Boton de Reaccionar -->
-		<button type="button" class="btn icon-btn" [ngClass]="myReaction.class" id="btn-like"
-			(click)="reactUserBoton(post.uuid, mapEmojiType.get('thumbs-up'))">
-			<i class="{{ myReaction.emoji }}"
-				*ngIf="myReaction.class == 'thumbs-up' || myReaction.class == 'red-heart' || myReaction.class == 'default'"></i>
-			<img src="assets/{{myReaction.class}}.png" class="{{myReaction.class}}" alt=""
-				*ngIf="myReaction.class == 'crying-face' || myReaction.class == 'angry-face'">
-			<span class="ms-1">{{ myReaction.name }}</span>
+		<button type="button" class="btn icon-btn" [ngClass]="myReaction.class" id="btn-reaction"
+			(click)="reactUserBoton(post.uuid, mapEmojiTypeExtended.get('thumbs-up'))">
+			
+			<!-- Icono del boton -->
+			@if(myReaction.class === 'default' || myReaction.class === 'thumbs-up') {
+				<span class="{{ myReaction.emoji }} emoji"></span>
+			}@else {
+				<span class="emoji">{{ myReaction.emoji }}</span>
+			}
+			
+			<!-- Nombre de reaccion -->
+			<span>{{ myReaction.name }}</span>
+
 			<!-- Opciones de reaccion  -->
 			<div class="option-reactions">
-				<i class="fa-solid fa-thumbs-up" (keypress)="clickReaction(post.uuid, 'thumbs-up', $event)"
-					(click)="clickReaction(post.uuid, 'thumbs-up', $event)"></i>
-				<i class="fa-solid fa-heart" (keypress)="clickReaction(post.uuid, 'red-heart', $event)"
-					(click)="clickReaction(post.uuid, 'red-heart', $event)"></i>
-				<img src="assets/crying-face.png" alt="" class="crying-face" (keypress)="clickReaction(post.uuid, 'crying-face', $event)"
-					(click)="clickReaction(post.uuid, 'crying-face', $event)">
-				<img src="assets/angry-face.png" class="angry-face" alt="" (keypress)="clickReaction(post.uuid, 'angry-face', $event)"
-					(click)="clickReaction(post.uuid, 'angry-face', $event)">
+				@for (emoji of listEmojiTypeExtended; track $index) {
+					@if(emoji.emoji_name === 'thumbs-up'){
+						<span class="fa-solid fa-thumbs-up" pTooltip="Me gusta" tooltipPosition="top" 
+						(keypress)="clickReaction(post.uuid, 'thumbs-up', $event)"
+						(click)="clickReaction(post.uuid, 'thumbs-up', $event)"></span>
+					}@else {
+						<span [pTooltip]="emoji.name_translated" tooltipPosition="top"
+						(click)="clickReaction(post.uuid, emoji.emoji_name, $event)"
+						(keypress)="clickReaction(post.uuid, emoji.emoji_name, $event)"
+						>{{ emoji.emoji_code }}</span>
+					}
+				}
 			</div>
 		</button>
 		<!-- Boton de Comentar -->
