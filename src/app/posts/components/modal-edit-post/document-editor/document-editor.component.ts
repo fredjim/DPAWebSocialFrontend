@@ -11,7 +11,7 @@ export class DocumentEditorComponent implements OnInit {
 
   @Input() listDocsPost: Media[] = []; //Documentos que se recibe del post
   public fileMediaDocs: Media[] = []; //Los docs del post - not undefined
-  public fileDocs: File[] = []; //Los docs nuevos que se pueden añadir
+  public fileNewDocs: File[] = []; //Los docs nuevos que se pueden añadir
 
   @Output() closeAreaDocEvent = new EventEmitter<boolean>(); 
   @Output() loadNewFileDoc = new EventEmitter<File[]>(); 
@@ -109,18 +109,19 @@ export class DocumentEditorComponent implements OnInit {
       this.preloadIcon();
     }
 
-    this.fileDocs = [...this.fileDocs, ...newFiles];
+    this.fileNewDocs = [...this.fileNewDocs, ...newFiles];
     
     this.showPreviewDoc = true;      
-    this.loadNewFileDoc.emit(this.fileDocs);
+    this.loadNewFileDoc.emit(this.fileNewDocs);
   }
 
   removeNewDoc(index: number) {
-    this.fileDocs.splice(index, 1);
+    this.fileNewDocs.splice(index, 1);
     this.checkPreviewState();
-    this.loadNewFileDoc.emit(this.fileDocs);
+    this.loadNewFileDoc.emit(this.fileNewDocs);
   }
 
+  // Se envian los docs eliminados 
   removeExistingDoc(index: number) {
     let listRemoved = this.fileMediaDocs.splice(index, 1);
     this.checkPreviewState();
@@ -128,7 +129,7 @@ export class DocumentEditorComponent implements OnInit {
   }
 
   checkPreviewState() {
-    if (this.fileDocs.length === 0 && this.fileMediaDocs.length === 0) {
+    if (this.fileNewDocs.length === 0 && this.fileMediaDocs.length === 0) {
       this.showPreviewDoc = false;
     }
   }
@@ -167,7 +168,7 @@ export class DocumentEditorComponent implements OnInit {
   }
 
   closeCleanPreviewDoc(){
-    this.fileDocs = [];
+    this.fileNewDocs = [];
     this.fileMediaDocs = [];
     this.showPreviewDoc = false;
     this.showAreaDoc.set(false);
@@ -176,8 +177,8 @@ export class DocumentEditorComponent implements OnInit {
       this.fileInput.nativeElement.value = '';
     }
     
-    this.loadNewFileDoc.emit(this.fileDocs);
-    this.loadOldDocsRemoved.emit(this.fileMediaDocs);
+    this.loadNewFileDoc.emit(this.fileNewDocs);
+    this.loadOldDocsRemoved.emit(this.listDocsPost); // Enviar todos los docs para removerlos
     this.closeAreaDocEvent.emit(this.showAreaDoc());
   }
 

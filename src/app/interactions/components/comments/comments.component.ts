@@ -31,6 +31,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   authenticated: boolean = false;
   currentUser: UserDetail | null = null;
   docsPost: Media[] = [];
+  mediaPost: Media[] = [];
 
   private readonly destroy$ = new Subject<void>();
   private carouselElement: HTMLElement | null = null;
@@ -50,6 +51,8 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
     for (const media of this.post.content.media) {
       if(media.type === 'document')
         this.docsPost.push(media);
+      else
+        this.mediaPost.push(media);
     }
 
     if (this.authenticated) {

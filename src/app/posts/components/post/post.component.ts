@@ -254,9 +254,6 @@ export class PostComponent implements OnInit {
       this.like = false;
     }
   }
-  mostrar(){
-    console.log(this.post)
-  }
 
   clickReaction(postUuid: string, typeReaction: EmojiName, event: Event) {
     event.stopPropagation(); // Detener la propagación del evento de clic

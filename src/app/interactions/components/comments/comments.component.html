@@ -38,13 +38,13 @@
 
         <!-- Imagen o contenido multimedia -->
         <div class="object-fit-md-contain border rounded">
-          <ng-container *ngIf="post.content.media">
-            <p-carousel [value]="post.content.media" 
+          <ng-container *ngIf="mediaPost.length > 0">
+            <p-carousel [value]="mediaPost" 
                         [numVisible]="1" 
                         [numScroll]="1" 
-                        [circular]="true"
+                        [circular]="mediaPost.length > 1"
                         [showIndicators]="false" 
-                        [showNavigators]="post.content.media.length > 1"
+                        [showNavigators]="mediaPost.length > 1"
                         [page]="initialMediaIndex">
               <ng-template pTemplate="item" let-media>
                 <div class="image-box text-center">

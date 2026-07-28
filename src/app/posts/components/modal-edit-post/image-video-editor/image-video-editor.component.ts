@@ -56,7 +56,7 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
     this.showAreaMedia.set(false);
     this.resetFileInput();
 
-    this.loadOldMediaRemoved.emit(this.listFileMediaPost); //Enviar medias existentes "borradas"
+    this.loadOldMediaRemoved.emit(this.listMediaPost); //Enviar todas las medias para removerlas
     this.loadNewFilesMediaEvent.emit(this.listFileMediaAdded);
     this.closeAreaMediaEvent.emit(this.showAreaMedia());
   }
