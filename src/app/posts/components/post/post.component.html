@@ -38,46 +38,49 @@
 	</ng-template>
 
 	<!-- Si hay contenido multi media (imagenes/videos, documento) -->
-	<ng-container *ngIf="listMediaPost.length > 0">
+	 
+	<!-- Visualizar documentos de post -->
+	<div *ngIf="listDocsPost.length > 0" class="documents-list d-flex flex-column gap-2 mt-2 px-2">
+		<ng-container *ngFor="let doc of listDocsPost">
+			<a [href]="doc.path" target="_blank" class="text-decoration-none">
+				<i class="bi bi-file-earmark-pdf-fill"></i> {{ doc.name || 'Documento PDF' }}
+			</a>
+		</ng-container>
+	</div>
 
-		<!-- Visualizar posts con imagenes y/o videos -->
-		<div *ngIf="post.content.media[0].type != 'document'" class="post-medias"
-			[ngClass]="getGridClass(listMediaPost)">
-			<ng-container *ngFor="let media of listMediaPost; let i = index">
-				<!-- Mostrar las primeras 4 imágenes/videos directamente -->
-				<div *ngIf="i < 3 || listMediaPost.length == 4" class="media-post"
-					[ngClass]="{'three': listMediaPost.length == 3 && i == 0}">
+	<!-- Visualizar posts con imagenes y/o videos -->
+	<div class="post-medias" *ngIf="listMediaPost.length > 0"
+		[ngClass]="getGridClass(listMediaPost)">
+		<ng-container *ngFor="let media of listMediaPost; let i = index">
+			<!-- Mostrar las primeras 4 imágenes/videos directamente -->
+			<div *ngIf="(i < 3 || listMediaPost.length == 4) && media.type !== 'document'" class="media-post"
+				[ngClass]="{'three': listMediaPost.length == 3 && i == 0}">
+				<img *ngIf="typeImages.includes(media.type); else mostrarVideo" 
+					[src]="media.path"
+					[alt]="media.name || 'Media del post'" 
+					(click)="openViewPostComments(post, i)"
+					(keypress)="openViewPostComments(post, i)">
+				<ng-template #mostrarVideo>
+					<video [src]="media.path" 
+						(click)="openViewPostComments(post, i)"
+						(keypress)="openViewPostComments(post, i)"
+					></video>
+				</ng-template>
+			</div>
+			<!-- Quinta imagen/video: Con superposición si hay más media -->
+			<div *ngIf="(i === 3 && listMediaPost.length > 4) && media.type !== 'document'" class="media-post">
+				<div class="more" (click)="openViewPostComments(post, 3)">
 					<img *ngIf="typeImages.includes(media.type); else mostrarVideo" [src]="media.path"
-						[alt]="media.name || 'Media del post'" (click)="openViewPostComments(post, i)" style="cursor: pointer;">
+						[alt]="media.name || 'Media del post'">
 					<ng-template #mostrarVideo>
-						<video [src]="media.path" (click)="openViewPostComments(post, i)" style="cursor: pointer;"></video>
+						<video [src]="media.path" controls></video>
 					</ng-template>
+					<div class="overlay">+{{ listMediaPost.length - 4 }}</div>
 				</div>
-				<!-- Quinta imagen/video: Con superposición si hay más media -->
-				<div *ngIf="i === 3 && listMediaPost.length > 4" class="media-post">
-					<div class="more" (click)="openViewPostComments(post, 3)">
-						<img *ngIf="typeImages.includes(media.type); else mostrarVideo" [src]="media.path"
-							[alt]="media.name || 'Media del post'">
-						<ng-template #mostrarVideo>
-							<video [src]="media.path" controls></video>
-						</ng-template>
-						<div class="overlay">+{{ listMediaPost.length - 4 }}</div>
-					</div>
-				</div>
-			</ng-container>
-		</div>
-
-		<!-- Visualizar post con documentos -->
-		<ng-container *ngIf="post.content.media[0].type == 'document'">
-			<div class="documents-list d-flex flex-column gap-2 mt-2 px-2">
-				<ng-container *ngFor="let doc of post.content.media">
-					<a *ngIf="doc.type === 'document'" [href]="doc.path" target="_blank" class="text-decoration-none">
-						<i class="bi bi-file-earmark-pdf-fill"></i> {{ doc.name || 'Documento PDF' }}
-					</a>
-				</ng-container>
 			</div>
 		</ng-container>
-	</ng-container>
+	</div>
+
 	<!-- Cantidad de reacciones y comentarios -->
 	<!-- Mostrar solo si hay reacciones o comentarios -->
 	<ng-container *ngIf="amountReactions() > 0 || amountComments() > 0">

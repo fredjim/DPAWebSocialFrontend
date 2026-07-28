@@ -35,26 +35,26 @@
               <!-- Seleccionar imagen (es) -->
               <app-image-video-editor 
                 [showAreaMedia]="visibleAreaMedia" 
-                (closeAreaMediaEvent)="closeAreaMedia($event)" 
-                (loadOldFilesMediaEvent)="setFilesMediaPostOld($event)" 
+                (closeAreaMediaEvent)="closeAreaMedia()" 
+                (loadOldMediaRemoved)="setFilesMediaPostOld($event)" 
                 (loadNewFilesMediaEvent)="setFilesMediaPostAdded($event)"
-                [listMediaPost]="sendMedia(typeMedia.img_vid)"></app-image-video-editor>
+                [listMediaPost]="listImagesVideosPost"></app-image-video-editor>
               
               <!-- Seleccionar archivo -->
               <app-document-editor 
-                [showAreaDoc]="visibleAreaMediaDoc" 
-                (closeAreaDocEvent)="closeAreaDoc($event)" 
+                [showAreaDoc]="visibleAreaDocs" 
+                (closeAreaDocEvent)="closeAreaDoc()" 
                 (loadNewFileDoc)="setFileDocPostAdded($event)" 
-                (loadOldFileDoc)="setFileDocPostOld($event)"
-                [mediaDocPost]="sendMedia(typeMedia.doc)"></app-document-editor>
+                (loadOldDocsRemoved)="setFileDocPostOld($event)"
+                [listDocsPost]="listDocsPost"></app-document-editor>
             </div>
 
             <!-- Añadir a la publicacion -->
             <div class="add-media d-flex flex-row align-items-center justify-content-between">
               <p class="fw-semibold">Añadir a tu publicación</p>
               <div class="add-post d-flex ">
-                <span class="d-flex align-items-center" [ngClass]="{'disabled': disableLoadImage()}" (click)="!disableLoadImage() && showAreaMedia()" (keypress)="!disableLoadImage() && showAreaMedia()"><i class="bi bi-image fs-5"></i></span>
-                <span class="d-flex align-items-center" [ngClass]="{'disabled': disableLoadDoc()}" (click)="!disableLoadDoc() && showAreaDoc()" (keypress)="!disableLoadDoc() && showAreaDoc()"><i class="bi bi-file-earmark-text-fill fs-5"></i></span>
+                <span class="d-flex align-items-center" title="Agregar imagen o video" (click)="showAreaMedia()" (keypress)="showAreaMedia()"><i class="bi bi-image fs-5"></i></span>
+                <span class="d-flex align-items-center" title="Agregar pdf" (click)="showAreaDoc()" (keypress)="showAreaDoc()"><i class="bi bi-file-earmark-text-fill fs-5"></i></span>
               </div>
             </div>
             <ui-button
@@ -63,7 +63,6 @@
               severity="success"
               [disabled]="disabledSaveButton()"
               [loading]="isLoading"
-              [bsDismiss]="'modal'"
               (clicked)="updatePost()"
             ></ui-button>
           </form>

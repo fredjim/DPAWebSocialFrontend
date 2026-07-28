@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal, ViewChild, WritableSignal } from '@angular/core';
-import { Subject, takeUntil, concatMap } from 'rxjs';
+import { Subject, takeUntil, concatMap, Observable, of, forkJoin } from 'rxjs';
 import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -10,7 +10,6 @@ import { CreatePost } from '../../models/create-post';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { Modal } from 'bootstrap';
 import { UserDetail } from '../../../shared/models/user-detail';
-import { AuthService } from '../../../authentication/services/auth.service';
 import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -32,43 +31,37 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   public commentsEnabled: boolean = true;
   public maxLegthTextPost = 1200;
   public visibleAreaMedia = signal(false); //Mostrar seleccion y prevista de imagenes
-  public visibleAreaMediaDoc = signal(false); //Mostrar seleccion y prevista de documentos
-
-  public disableLoadImage = signal(false); //Deshabilitar el boton de cargar imagenes
-  public disableLoadDoc = signal(false); //Deshabilitar el boton de cargar documentos
+  public visibleAreaDocs = signal(false); //Mostrar seleccion y prevista de documentos
 
   public disabledSaveButton = signal(true); //Deshabilitar el boton de guardar
   public postForm!: FormGroup;
+  public listImagesVideosPost: Media[] = [];  //Lista para enviar a 'image-video-editor' component
+  public listDocsPost: Media[] = [];        //Lista para enviar a 'document-editor' component
   private listNewMediaFile: File[] = []; //Lista de media editada obtenida de 'image-video-editor' component
-  private listOldMediaFile!: Media[]; //Lista de media editada que existe en el post
   private listNewDocFile: File[] = []; //Docs añadidos en edicion
+  private listContentMediaPost!: Media[]; //Lista de media (imgs vids docs) que existe en el post
   private currentUser!: UserDetail;
   private readonly currentPostType: string = 'GENERAL';
-  public typeMedia = {
-    img_vid : 'images-videos',
-    doc: 'document'
-  }
 
   constructor(
       private readonly postService: PostService,
       private readonly userStateService: UserStateService,
       private readonly formBuilder: FormBuilder,
-      private readonly authService: AuthService,
       private readonly imageOptimizationService: ImageOptimizationService
   ){}
 
   ngOnInit(){
-    if(this.postToEdit.content.media.length > 0) { 
-      this.postToEdit.content.media[0].type === 'document' ?
-        this.disableLoadImage.set(true) :
-        this.disableLoadDoc.set(true)
-    }
     this.commentsEnabled = this.postToEdit.commentsEnabled ?? true;
-    this.getUser()
-    this.buildForm()
+    this.getUser();
+    this.buildForm();
     
-    // Inicializar listOldMediaFile con los medios existentes del post
-    this.listOldMediaFile = [...this.postToEdit.content.media];
+    // Inicializar listContentMediaPost con los medios existentes del post
+    this.listContentMediaPost = this.postToEdit.content.media;
+    for (const media of this.postToEdit.content.media) {
+      media.type === 'document' ? 
+        this.listDocsPost.push(media) : 
+        this.listImagesVideosPost.push(media)
+    }
   }
 
   private buildForm() {
@@ -88,12 +81,10 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   //Mostrar area de imagenes y deshabilitar el boton de cargar documentos
   showAreaMedia(){
     this.visibleAreaMedia.set(true);
-    this.disableLoadDoc.set(true);
   }
   
   //Ocultar area de imagenes
-  closeAreaMedia(option: boolean){
-    this.disableLoadDoc.set(option); //Habilitar el boton de cargar documentos
+  closeAreaMedia(){
     //Deshabilitar el boton de guardar si no hay info
     this.checkDisableSaveButton();
   }
@@ -105,63 +96,44 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
   }
 
   //Establecer VIEJAS imagenes-videos ya existentes y verificar deshabilitar boton Guardar
-  setFilesMediaPostOld(fileMedia: Media[]){
-    // Asignar fileMedia o un array vacío si es undefined
-    this.listOldMediaFile = fileMedia;
+  setFilesMediaPostOld(oldMediaRemoved: Media[]){
+    this.listContentMediaPost = this.listContentMediaPost.filter(
+      media => !oldMediaRemoved.some(removed => removed.uuid === media.uuid)
+    );
+    this.checkDisableSaveButton();
+  }
+
+  //Establecer los Docs preexistentes
+  setFileDocPostOld(oldDocsRemoved: Media[]){
+    this.listContentMediaPost = this.listContentMediaPost.filter(
+      doc => !oldDocsRemoved.some(removed => removed.uuid === doc.uuid)
+    );
     this.checkDisableSaveButton();
   }
   
   //Mostrar area de documentos y deshabilitar el boton de cargar imagenes
   showAreaDoc(){
-    this.visibleAreaMediaDoc.set(true);
-    this.disableLoadImage.set(true);
+    this.visibleAreaDocs.set(true);
   }
   
   //Ocultar area de documentos
-  closeAreaDoc(option: boolean){
-    this.disableLoadImage.set(option);
-    // Limpiar si selecciono un File para Doc y la lista de Medias si habia un Doc 
-    this.listNewDocFile = [];//Limpiar el archivo
-    this.listOldMediaFile = [];
+  closeAreaDoc(){
+    // Limpiar si selecciono un File para Doc y la lista de docs se 
+    this.listNewDocFile = [];//Limpiar los nuevos docs
     this.checkDisableSaveButton();
   }
   
-  //Establecer los Docs editados y verificar deshabilitar boton Guardar
+  //Establecer los Nuevos Docs y verificar deshabilitar boton Guardar
   setFileDocPostAdded(docs: File[]){
     this.listNewDocFile = docs;
     this.checkDisableSaveButton();
-  }
-
-  //Establecer los Docs preexistentes
-  setFileDocPostOld(oldDocs: Media[]){
-    this.listOldMediaFile = oldDocs;
-    this.checkDisableSaveButton();
-  }
-
-  sendMedia(type: string){
-    // Verificar si el post tiene contenido media
-    if (!this.postToEdit.content.media || this.postToEdit.content.media.length === 0) {
-      return []; // Retornar un array vacío si no hay media
-    }
-    
-    if(type == this.typeMedia.img_vid){
-      if(this.postToEdit.content.media.length > 0 && this.postToEdit.content.media[0].type != 'document')
-        return this.postToEdit.content.media;
-      else
-        return []; // Retornar un array vacío en lugar de undefined
-    }else{
-      if(this.postToEdit.content.media.length > 0 && this.postToEdit.content.media[0].type == 'document')
-        return this.postToEdit.content.media;
-      else
-        return []; // Retornar un array vacío en lugar de undefined
-    }
   }
 
   private checkDisableSaveButton(){
     const textPost: string = this.postForm.get('contentPost')?.value ?? '';
     const commentsEnabledChanged = this.commentsEnabled !== (this.postToEdit.commentsEnabled ?? true);
     if((textPost === '' || textPost.length > this.maxLegthTextPost) && (this.listNewMediaFile.length === 0
-      && this.listOldMediaFile.length === 0 && this.listNewDocFile.length === 0) && !commentsEnabledChanged){
+      && this.listContentMediaPost.length === 0 && this.listNewDocFile.length === 0) && !commentsEnabledChanged){
       this.disabledSaveButton.set(true);
     }else{
       this.disabledSaveButton.set(false);
@@ -182,7 +154,7 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
       this.showModalEdit.set(false);
       this.listNewMediaFile = [];
       this.listNewDocFile = [];
-      this.listOldMediaFile = this.postToEdit.content.media;
+      this.listContentMediaPost = this.postToEdit.content.media;
       this.postForm.get('contentPost')?.setValue(this.postToEdit.content.text);
       this.disabledSaveButton.set(true);
     }
@@ -223,12 +195,10 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
   
-  async updatePost(){
+  async updatePost() {
     this.isLoading = true;
     const valueFormPost = this.postForm.value;
-    const formData = new FormData();
-    const responseMedia: Media[] = []; //Respuesta de imagenes y videos guardados
-    let responseDoc: Media;
+
     const editedPost: CreatePost = {
       date: this.postToEdit.date,
       commentsEnabled: this.commentsEnabled,
@@ -238,110 +208,83 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
         media: []
       },
       fb_post_enable: false
+    };
+
+    const hasNewMedia = this.listNewMediaFile && this.listNewMediaFile.length > 0;
+    const hasNewDocs = this.listNewDocFile && this.listNewDocFile.length > 0;
+    const hasContent = valueFormPost.contentPost != '' || this.listContentMediaPost.length > 0;
+
+    // Si no hay ni texto, ni media existente, ni nuevos archivos, no hacemos nada
+    if (!hasContent && !hasNewMedia && !hasNewDocs) {
+      this.isLoading = false;
+      return;
     }
 
-    //Si hay info para postear (texto, imagen o video, documento)
-    if(valueFormPost.contentPost != '' || this.listOldMediaFile.length > 0 || this.listNewMediaFile.length > 0 || this.listNewDocFile.length > 0){
+    const amountExistingMedia = this.listContentMediaPost.length;
 
-      //Si hay nuevas imagenes-videos se los procesa Y imgs-videos eliminados se actualiza
-      if(this.listNewMediaFile && this.listNewMediaFile.length > 0){ 
-
-        try {
-          // 1. Optimizar nuevas imágenes
-          const optimizedFiles = await this.imageOptimizationService.optimizeImages(this.listNewMediaFile);
-          
-          // 2. Crear FormData con archivos optimizados
-          Array.from(optimizedFiles).forEach((file) => {
-            file.type.includes('image') ? formData.append('images', file) : formData.append('videos', file);
-          });
-        } catch (error) {
-          console.warn('Error en optimización, usando archivos originales:', error);
-          // Fallback a archivos originales
-          Array.from(this.listNewMediaFile).forEach((file) => {
-            file.type.includes('image') ? formData.append('images', file) : formData.append('videos', file);
-          });
-        }
-
-        const amountImagesPost = this.postToEdit.content.media.length;
-
-        //Subir las nuevas imagenes-videos
-        this.postService.uploadMedia(formData).pipe(
-          concatMap((uploadResponse: UploadedMedia[]) => {
-            uploadResponse.forEach((media, index) => {
-
-              responseMedia.push({
-                number: index + 1 + amountImagesPost,
-                type: media.mimeType.includes('image') ? 'image' : 'video',
-                file_name: media.name,
-                uploaded_file_uuid: media.uuid
-              });
-            });
-
-            //Asignar las imgs/videos que ya habian en el post
-            // Puede tener medias [{},{}] o ser un array vacio []
-            editedPost.content.media = this.listOldMediaFile;
-
-            //Añadir las nuevas medias que se agregaron
-            Array.from(responseMedia).forEach((newMedia) => {
-              editedPost.content.media.push(newMedia);
-            });
-
-            //Actualizar el post
-            return this.postService.updatePost(this.postToEdit.uuid, editedPost);
-          })
-        ).subscribe({
-          next: (updatedPost)=> this.updateSuccessPost(updatedPost),
-          error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar publicación con contenido media', error)
-        })
-      }else if(this.listNewDocFile && this.listNewDocFile.length > 0){//Si hay nuevos archivos
-        //Convertir el archivo en form data
-        Array.from(this.listNewDocFile).forEach((file) => {
-          formData.append('files', file);
-        });
-
-        const amountMediaPost = this.postToEdit.content.media?.length || 0;
-
-        this.postService.uploadDocument(formData).pipe(
-          concatMap((uploadResponse: UploadedMedia[]) => {
-  
-            uploadResponse.forEach((media, index) => {
-              responseMedia.push({
-                number: index + 1 + amountMediaPost,
-                type: 'document',
-                file_name: media.name,
-                uploaded_file_uuid: media.uuid
-              });
-            });
-
-            editedPost.content.media = [...this.listOldMediaFile];
-
-            Array.from(responseMedia).forEach((newDoc) => {
-              editedPost.content.media.push(newDoc);
-            });
-
-            editedPost.fb_post_enable = false;
-            return this.postService.updatePost(this.postToEdit.uuid, editedPost);
-          })
-        ).subscribe({
-          next: (updatedPost)=> this.updateSuccessPost(updatedPost),
-          error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar publicación con archivo', error)
-        })      
-      }else if(valueFormPost.contentPost != '' || this.listOldMediaFile.length > 0 || this.listOldMediaFile.length === 0){//Si solo tiene texto O si se eliminaron medios
-        // Usar directamente listOldMediaFile que ya contiene solo los medios que NO fueron eliminados
-        // O si fueron eliminados listOldMediaFile es un []
-        editedPost.content.media = [...this.listOldMediaFile];
-
-        this.postService.updatePost(this.postToEdit.uuid, editedPost).subscribe({
-          next: (updatedPost) => this.updateSuccessPost(updatedPost),
-          error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar publicación', error)
-        })
+    // Upload de nuevas imágenes/videos (con optimización previa), si corresponde
+    let mediaUpload$: Observable<UploadedMedia[]> = of([]);
+    if (hasNewMedia) {
+      let filesToUpload: File[] = this.listNewMediaFile;
+      try {
+        filesToUpload = await this.imageOptimizationService.optimizeImages(this.listNewMediaFile);
+      } catch (error) {
+        console.warn('Error en optimización, usando archivos originales:', error);
       }
+
+      const formDataMedia = new FormData();
+      Array.from(filesToUpload).forEach((file: File) => {
+        file.type.includes('image')
+          ? formDataMedia.append('images', file)
+          : formDataMedia.append('videos', file);
+      });
+
+      mediaUpload$ = this.postService.uploadMedia(formDataMedia);
     }
+
+    // Upload de nuevos documentos, si corresponde
+    let docsUpload$: Observable<UploadedMedia[]> = of([]);
+    if (hasNewDocs) {
+      const formDataDocs = new FormData();
+      Array.from(this.listNewDocFile).forEach((file: File) => {
+        formDataDocs.append('files', file);
+      });
+
+      docsUpload$ = this.postService.uploadDocument(formDataDocs);
+    }
+
+    // Ambos uploads en paralelo (los que no aplican resuelven de inmediato con [])
+    forkJoin([mediaUpload$, docsUpload$]).pipe(
+      concatMap(([mediaResults, docResults]) => {
+        const newMediaItems = mediaResults.map((media, index) => ({
+          number: amountExistingMedia + index + 1,
+          type: media.mimeType.includes('image') ? 'image' : 'video',
+          file_name: media.name,
+          uploaded_file_uuid: media.uuid
+        }));
+
+        const newDocItems = docResults.map((media, index) => ({
+          number: amountExistingMedia + newMediaItems.length + index + 1,
+          type: 'document',
+          file_name: media.name,
+          uploaded_file_uuid: media.uuid
+        }));
+
+        // listContentMediaPost ya contiene solo los medios existentes que NO fueron eliminados
+        editedPost.content.media = [...this.listContentMediaPost, ...newMediaItems, ...newDocItems];
+
+        return this.postService.updatePost(this.postToEdit.uuid, editedPost);
+      })
+    ).subscribe({
+      next: (updatedPost) => this.updateSuccessPost(updatedPost),
+      error: (error: HttpErrorResponse) => this.updateErrorPost('Error al actualizar la publicación', error)
+    });
   }
 
   private updateSuccessPost(editedPost: Post): void {
     this.isLoading = false;
     this.postUpdatedEvent.emit(editedPost);
+    this.closeResetModalEdit(editedPost.uuid);
     this.toastRef.showSuccess('Publicación actualizada exitosamente', 'Éxito');
   }
 

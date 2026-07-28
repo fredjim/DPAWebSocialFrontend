@@ -12,7 +12,7 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
   @Input() isVisibleModal: boolean = false;
   @Output() closeAreaMediaEvent = new EventEmitter<boolean>();//Ocultar la seleccion y prevista de media
   @Output() loadNewFilesMediaEvent = new EventEmitter<File[]>(); //Devolver las imagenes/videos nuevos seleccionadas
-  @Output() loadOldFilesMediaEvent = new EventEmitter<Media[]>(); //Devolver las imagenes/videos nuevos seleccionadas
+  @Output() loadOldMediaRemoved = new EventEmitter<Media[]>(); //Devolver las imagenes/videos nuevos seleccionadas
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   
   showPreviewMedia = false; //Mostrar la prevista de imagenes y/o videos
@@ -56,7 +56,7 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
     this.showAreaMedia.set(false);
     this.resetFileInput();
 
-    this.loadOldFilesMediaEvent.emit(this.listFileMediaPost); //Enviar medias existentes "borradas"
+    this.loadOldMediaRemoved.emit(this.listMediaPost); //Enviar todas las medias para removerlas
     this.loadNewFilesMediaEvent.emit(this.listFileMediaAdded);
     this.closeAreaMediaEvent.emit(this.showAreaMedia());
   }
@@ -205,13 +205,13 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
   deleteExistingMedia(index: number): void {
     if (index >= 0 && index < this.listFileMediaPost.length) {
       // Eliminar de la lista del post
-      this.listFileMediaPost.splice(index, 1);
+      let mediaRemoved = this.listFileMediaPost.splice(index, 1);
       
       // Resetear el input file
       this.resetFileInput();
       
-      // Emitir solo la lista Old Media actualizada al padre
-      this.loadOldFilesMediaEvent.emit(this.listFileMediaPost);
+      // Emitir solo la lista Old Media de eliminados al padre
+      this.loadOldMediaRemoved.emit(mediaRemoved);
       
       // Si no hay más archivos, ocultar el preview o mostrar área vacía
       if (this.getAmountMedia() === 0) {

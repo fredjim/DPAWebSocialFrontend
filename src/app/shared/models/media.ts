@@ -5,4 +5,6 @@ export interface Media {
     name?:  string;
     path?:  string;
     uploaded_file_uuid: string;
+    fb_media_id?: string;
+    uuid?: string;
 }
