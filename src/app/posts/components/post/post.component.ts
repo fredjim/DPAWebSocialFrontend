@@ -27,7 +27,8 @@ export class PostComponent implements OnInit {
   @Output() requestDeletePost = new EventEmitter<string>();
   @Output() requestUpdatePost = new EventEmitter<Post>();
   @Output() openPostDetail = new EventEmitter<{ post: Post; initialMediaIndex: number }>();
-  listMediaPost!: Media[]; // Lista de imagenes videos o documento del post 
+  listMediaPost!: Media[]; // Lista de imagenes videos del post 
+  listDocsPost!: Media[]; // Lista de documentos del post 
   showOptions: WritableSignal<boolean> = signal(false); // Controla la visibilidad de las opciones del post
   openModalEdit: WritableSignal<boolean> = signal(false);
   like = false
@@ -61,6 +62,7 @@ export class PostComponent implements OnInit {
   
   ngOnInit() {
     this.listMediaPost = this.loadMediaPost();
+    this.listDocsPost = this.loadDocsPost();
     this.getEmojis();
 
     this.totalComments.set(this.post.commentCounter.totalComments);
@@ -136,9 +138,20 @@ export class PostComponent implements OnInit {
   loadMediaPost() {
     let mediaOfPost: Media[] = []
     for (const media of this.post.content.media) {
-      mediaOfPost.push(media);
+      if(media.type !== 'document') 
+        mediaOfPost.push(media);
     }
     return mediaOfPost;
+  }
+
+  // Cargar las imagenes o videos del post
+  loadDocsPost() {
+    let docsOfPost: Media[] = []
+    for (const media of this.post.content.media) {
+      if(media.type === 'document') 
+        docsOfPost.push(media);
+    }
+    return docsOfPost;
   }
 
   calculateTimePost() {
@@ -240,6 +253,9 @@ export class PostComponent implements OnInit {
     } else {
       this.like = false;
     }
+  }
+  mostrar(){
+    console.log(this.post)
   }
 
   clickReaction(postUuid: string, typeReaction: EmojiName, event: Event) {

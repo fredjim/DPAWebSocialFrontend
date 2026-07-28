@@ -12,6 +12,7 @@ import { UserDetail } from '../../../shared/models/user-detail';
 import moment from 'moment-timezone';
 import { CreateReply } from '../../models/create-reply';
 import { Reply } from '../../models/reply';
+import { Media } from '../../../shared/models/media';
 
 @Component({
   selector: 'app-comments',
@@ -29,6 +30,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   comments: Comment[] = [];
   authenticated: boolean = false;
   currentUser: UserDetail | null = null;
+  docsPost: Media[] = [];
 
   private readonly destroy$ = new Subject<void>();
   private carouselElement: HTMLElement | null = null;
@@ -45,6 +47,11 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.authenticated = this.authService.isAuthenticated();
     this.loadComments();
+    for (const media of this.post.content.media) {
+      if(media.type === 'document')
+        this.docsPost.push(media);
+    }
+
     if (this.authenticated) {
       this.loadCurrentUser();
     }

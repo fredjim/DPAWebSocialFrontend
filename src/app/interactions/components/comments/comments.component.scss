@@ -139,6 +139,24 @@ $font-size-large: 1.2rem;
   font-size: $font-size-medium;
 }
 
+.documents-list {
+	a {
+    font-family: var(--primary-font-family);
+		color: var(--blue-color, #003770);
+		font-size: 14px;
+		
+		&:hover {
+			text-decoration: underline !important;
+		}
+
+		i {
+			font-size: 18px;
+			color: var(--red-color, #dc3545);
+			margin-right: 5px;
+		}
+	}
+}
+
 .info-user {
   h2 {
     font-size: $font-size-medium;
@@ -209,22 +227,6 @@ $font-size-large: 1.2rem;
     max-width: 100%;
     max-height: 500px;
     object-fit: contain;
-  }
-}
-
-// PDF viewer
-::ng-deep .pdf-viewer {
-  width: 90vw;
-  max-width: 700px;
-  height: 500px;
-
-  @media (max-width: 768px) {
-    height: 400px;
-  }
-
-  @media (max-width: 480px) {
-    width: 95vw;
-    height: 350px;
   }
 }
 

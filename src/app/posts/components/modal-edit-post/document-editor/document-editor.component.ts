@@ -9,13 +9,13 @@ import { Media } from '../../../../shared/models/media';
 export class DocumentEditorComponent implements OnInit {
   @Input() showAreaDoc!: WritableSignal<boolean>;
 
-  @Input() mediaDocPost!: Media[] | undefined; //Documentos que se recibe del post
+  @Input() listDocsPost: Media[] = []; //Documentos que se recibe del post
   public fileMediaDocs: Media[] = []; //Los docs del post - not undefined
   public fileDocs: File[] = []; //Los docs nuevos que se pueden añadir
 
   @Output() closeAreaDocEvent = new EventEmitter<boolean>(); 
   @Output() loadNewFileDoc = new EventEmitter<File[]>(); 
-  @Output() loadOldFileDoc = new EventEmitter<Media[]>(); 
+  @Output() loadOldDocsRemoved = new EventEmitter<Media[]>(); 
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   public readonly SIZE = 100;
@@ -33,8 +33,8 @@ export class DocumentEditorComponent implements OnInit {
   isHovering = false;
 
   ngOnInit(){
-    if(this.mediaDocPost && this.mediaDocPost.length > 0){
-      this.fileMediaDocs = [...this.mediaDocPost];
+    if(this.listDocsPost && this.listDocsPost.length > 0){
+      this.fileMediaDocs = [...this.listDocsPost];
       this.showAreaDoc.set(true);
       this.showPreviewDoc = true;
     }
@@ -122,9 +122,9 @@ export class DocumentEditorComponent implements OnInit {
   }
 
   removeExistingDoc(index: number) {
-    this.fileMediaDocs.splice(index, 1);
+    let listRemoved = this.fileMediaDocs.splice(index, 1);
     this.checkPreviewState();
-    this.loadOldFileDoc.emit(this.fileMediaDocs);
+    this.loadOldDocsRemoved.emit(listRemoved);
   }
 
   checkPreviewState() {
@@ -177,7 +177,7 @@ export class DocumentEditorComponent implements OnInit {
     }
     
     this.loadNewFileDoc.emit(this.fileDocs);
-    this.loadOldFileDoc.emit(this.fileMediaDocs);
+    this.loadOldDocsRemoved.emit(this.fileMediaDocs);
     this.closeAreaDocEvent.emit(this.showAreaDoc());
   }
 

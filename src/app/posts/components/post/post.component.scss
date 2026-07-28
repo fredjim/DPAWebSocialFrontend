@@ -320,6 +320,7 @@ hr {
 			border-radius: 10px;
 			border: 1px solid #ddd;
 			background: black;
+			cursor: pointer;
 		}
 
 		img {
@@ -329,6 +330,7 @@ hr {
 			object-fit: cover;
 			object-position: center top;
 			max-height: 600px;
+			cursor: pointer;
 		}
 
 		& > .more {

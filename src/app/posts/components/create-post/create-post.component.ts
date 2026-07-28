@@ -3,7 +3,7 @@ import { UserStateService } from '../../../core/services/user-state.service';
 import { PostService } from '../../services/post.service';
 import { Modal } from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { concatMap, Subject, takeUntil } from 'rxjs';
+import { concatMap, forkJoin, Observable, of, Subject, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { CreatePost } from '../../models/create-post';
 import { Institution } from '../../../shared/models/institution';
@@ -27,8 +27,6 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   commentsEnabled: boolean = true;
   visibleAreaMedia = signal(false); //Mostrar seleccion y prevista de imagenes
   visibleAreaMediaDoc = signal(false); //Mostrar seleccion y prevista de documentos
-  disableLoadImage = signal(false); //Deshabilitar el boton de cargar imagenes
-  disableLoadDoc = signal(false); //Deshabilitar el boton de cargar documentos
   disabledPublishButton = signal(true); //Deshabilitar el boton de publicar
   postForm!: FormGroup;
   listFile: File[] = [];
@@ -139,17 +137,10 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   //Mostrar area de imagenes y deshabilitar el boton de cargar documentos
   showAreaMedia() {
     this.visibleAreaMedia.set(true);
-    
-    // Siempre deshabilitar la opción de documentos cuando se está trabajando con imágenes
-    this.disableLoadDoc.set(true);
   }
 
   //Ocultar area de imagenes
-  closeAreaMedia(option: boolean) {
-    if(!this.isFbSwitchOn){
-      this.disableLoadDoc.set(option); //Habilitar el boton de cargar documentos
-    }
-    
+  closeAreaMedia() {
     // Actualizar estado del botón de publicar basado en el texto y la lista de archivos
     const contentPost = this.postForm.get('contentPost')?.value;
     const hasMedia = this.listFile && this.listFile.length > 0;
@@ -174,12 +165,10 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   //Mostrar area de documentos y deshabilitar el boton de cargar imagenes
   showAreaDoc() {
     this.visibleAreaMediaDoc.set(true);
-    this.disableLoadImage.set(true);
   }
 
   //Ocultar area de documentos
-  closeAreaDoc(option: boolean) {
-    this.disableLoadImage.set(option);
+  closeAreaDoc() {
     const contentPost = this.postForm.get('contentPost')?.value;
     contentPost === '' ? this.disabledPublishButton.set(true) : this.disabledPublishButton.set(false);
     this.listFileDoc = [];//Limpiar el archivo
@@ -228,7 +217,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   async post() {
     this.isLoading = true;
     const valueFormPost = this.postForm.value;
-    const formData = new FormData();
+
     const post: CreatePost = {
       date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
       commentsEnabled: this.commentsEnabled,
@@ -240,57 +229,68 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
       fb_post_enable: this.isFbSwitchOn
     };
 
-    if (valueFormPost.contentPost != '' || this.listFile || this.listFileDoc.length > 0) {
+    const hasMedia = this.listFile && this.listFile.length > 0;
+    const hasDocs = this.listFileDoc && this.listFileDoc.length > 0;
+    const hasText = valueFormPost.contentPost !== '';
 
-      if (this.listFile && this.listFile.length > 0) {
-        const optimizedFiles = await this.imageOptimizationService.optimizeImages(this.listFile).catch(() => this.listFile);
-
-        Array.from(optimizedFiles).forEach((file) => {
-          file.type.includes('image') ? formData.append('images', file) : formData.append('videos', file);
-        });
-
-        this.postService.uploadMedia(formData).pipe(
-          concatMap((uploadResponse: UploadedMedia[]) => {
-            post.content.media = uploadResponse.map((media, index) => ({
-              number: index + 1,
-              type: media.mimeType.includes('image') ? 'image' : 'video',
-              file_name: media.name,
-              uploaded_file_uuid: media.uuid
-            }));
-            return this.postService.createPost(post);
-          })
-        ).subscribe({
-          next: (createdPost) => this.createSuccessPost(createdPost),
-          error: (error: HttpErrorResponse) => this.createErrorPost('Error al crear publicación con media', error)
-        });
-
-      } else if (this.listFileDoc && this.listFileDoc.length > 0) {
-        Array.from(this.listFileDoc).forEach((file) => {
-          formData.append('files', file);
-        });
-
-        this.postService.uploadDocument(formData).pipe(
-          concatMap((uploadResponse: UploadedMedia[]) => {
-            post.content.media = uploadResponse.map((media, index) => ({
-              number: index + 1,
-              type: 'document',
-              file_name: media.name,
-              uploaded_file_uuid: media.uuid
-            }));
-            return this.postService.createPost(post);
-          })
-        ).subscribe({
-          next: (createdPost) => this.createSuccessPost(createdPost),
-          error: (error: HttpErrorResponse) => this.createErrorPost('Error al crear el publicación con archivo', error)
-        });
-
-      } else if (valueFormPost.contentPost != '') {
-        this.postService.createPost(post).subscribe({
-          next: (createdPost) => this.createSuccessPost(createdPost),
-          error: (error: HttpErrorResponse) => this.createErrorPost('Error al subir publicación solo texto', error)
-        });
-      }
+    if (!hasText && !hasMedia && !hasDocs) {
+      this.isLoading = false;
+      return;
     }
+
+    // Upload de imágenes/videos (con optimización previa), si corresponde
+    let mediaUpload$: Observable<UploadedMedia[]> = of([]);
+    if (hasMedia) {
+      const optimizedFiles = await this.imageOptimizationService
+        .optimizeImages(this.listFile)
+        .catch(() => this.listFile);
+
+      const formDataMedia = new FormData();
+      Array.from(optimizedFiles).forEach((file: File) => {
+        file.type.includes('image')
+          ? formDataMedia.append('images', file)
+          : formDataMedia.append('videos', file);
+      });
+
+      mediaUpload$ = this.postService.uploadMedia(formDataMedia);
+    }
+
+    // Upload de documentos, si corresponde
+    let docsUpload$: Observable<UploadedMedia[]> = of([]);
+    if (hasDocs) {
+      const formDataDocs = new FormData();
+      Array.from(this.listFileDoc).forEach((file: File) => {
+        formDataDocs.append('files', file);
+      });
+
+      docsUpload$ = this.postService.uploadDocument(formDataDocs);
+    }
+
+    // Ambos uploads en paralelo (los que no aplican resuelven de inmediato con [])
+    forkJoin([mediaUpload$, docsUpload$]).pipe(
+      concatMap(([mediaResults, docResults]) => {
+        const mediaItems = mediaResults.map((media, index) => ({
+          number: index + 1,
+          type: media.mimeType.includes('image') ? 'image' : 'video',
+          file_name: media.name,
+          uploaded_file_uuid: media.uuid
+        }));
+
+        const docItems = docResults.map((media, index) => ({
+          number: mediaItems.length + index + 1,
+          type: 'document',
+          file_name: media.name,
+          uploaded_file_uuid: media.uuid
+        }));
+
+        post.content.media = [...mediaItems, ...docItems];
+
+        return this.postService.createPost(post);
+      })
+    ).subscribe({
+      next: (createdPost) => this.createSuccessPost(createdPost),
+      error: (error: HttpErrorResponse) => this.createErrorPost('Error al crear la publicación', error)
+    });
   }
 
   private createSuccessPost(createdPost: Post): void {
