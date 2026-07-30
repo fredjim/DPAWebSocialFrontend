@@ -2,6 +2,7 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpErrorResponse
 import { Injectable } from "@angular/core";
 import { Observable, throwError, BehaviorSubject } from "rxjs";
 import { catchError, switchMap, filter, take, map } from 'rxjs/operators';
+import { MessageService } from "primeng/api";
 import { AuthService } from "../../authentication/services/auth.service";
 
 @Injectable()
@@ -20,13 +21,41 @@ export class AuthInterceptor implements HttpInterceptor {
     }
   }
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly messageService: MessageService
+  ) {}
+
+  /**
+   * Rate limiting: el backend responde 429 (por IP o por bloqueo de cuenta) con un
+   * mensaje listo que ya incluye el tiempo de espera. Lo mostramos en el toast global
+   * (key="global", montado en app.component) para notificar en cualquier pantalla.
+   */
+  private handleRateLimit(error: HttpErrorResponse): void {
+    if (error.status === 429) {
+      const detail = error?.error?.message
+        ?? 'Demasiadas solicitudes. Espera unos minutos e inténtalo de nuevo.';
+      this.messageService.add({
+        key: 'global',
+        severity: 'error',
+        summary: 'Demasiados intentos',
+        detail,
+        life: 6000
+      });
+    }
+  }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     // Excluir login, refresh y registro del manejo de token y refresh
     const isAuthRequest = request.url.includes('/login') || request.url.includes('/refresh') || request.url.includes('/register') || request.url.includes('/logout') || request.url.includes('/verify-email') || request.url.includes('/forgot-password') || request.url.includes('/reset-password');
     if (isAuthRequest) {
-      return next.handle(request);
+      // No se maneja token/refresh, pero sí notificamos el rate limit (429) globalmente.
+      return next.handle(request).pipe(
+        catchError((error: HttpErrorResponse) => {
+          this.handleRateLimit(error);
+          return throwError(() => error);
+        })
+      );
     }
     // Añadir access token si existe
     const token = this.authService.token;
@@ -41,6 +70,8 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
+        // Rate limit (429): notificar globalmente. El error sigue propagándose igual.
+        this.handleRateLimit(error);
         // Access token expirado (500 con mensaje, o 401 y el token está expirado manualmente)
         if (
           (error.status === 500 && error.error?.message === 'JWT has expired or is incorrect') ||
