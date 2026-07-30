@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, OnInit, ViewChildren, QueryList, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChildren, QueryList, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CommentService } from '../../services/comment.service'; 
 import { ReplyService } from '../../services/reply.service'; 
@@ -13,6 +13,7 @@ import moment from 'moment-timezone';
 import { CreateReply } from '../../models/create-reply';
 import { Reply } from '../../models/reply';
 import { Media } from '../../../shared/models/media';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-comments',
@@ -23,6 +24,7 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() initialMediaIndex: number = 0; // image-video
   @Input() modalBoostrap: boolean = true;
   @ViewChildren('videoPlayer') videos!: QueryList<ElementRef<HTMLVideoElement>>;
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
   @Input({ required: true }) institution!: Institution;
   @Input({ required: true }) post!: Post;
 
@@ -252,5 +254,36 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
     return false;
+  }
+
+  async downloadMedia(media: Media, event: MouseEvent): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation(); // evita que el click llegue al <video> o <img> de atrás
+
+    if(!media.path) return;
+    try {
+      const response = await fetch(media.path);
+      const originalBlob = await response.blob();
+
+      // Forzamos el tipo genérico para que el navegador no intente "previsualizar"
+      // el archivo y en su lugar dispare la descarga directa.
+      const forcedBlob = new Blob([originalBlob], { type: 'application/octet-stream' });
+
+      const blobUrl = window.URL.createObjectURL(forcedBlob);
+      const filename = media.name || media.path.split('/').pop() || `media-${Date.now()}`;
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error al descargar el archivo', error);
+      this.toastRef.showError('Error al descargar el archivo', 'Error');
+    }
   }
 }

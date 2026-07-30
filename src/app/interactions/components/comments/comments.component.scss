@@ -217,6 +217,7 @@ $font-size-large: 1.2rem;
 // Imagen y video dentro del carousel
 .image-box {
   width: 100%;
+  position: relative;
 
   img {
     max-width: 100%;
@@ -227,6 +228,20 @@ $font-size-large: 1.2rem;
     max-width: 100%;
     max-height: 500px;
     object-fit: contain;
+  }
+
+  .download-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    color: white;
+    cursor: pointer;
   }
 }
 

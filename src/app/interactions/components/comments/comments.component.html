@@ -57,6 +57,15 @@
                     <video [src]="media.path" controls class="video"></video>
                   </ng-container>
 
+                  <button
+                    type="button"
+                    class="download-btn"
+                    (click)="downloadMedia(media, $event)"
+                    title="Descargar"
+                    aria-label="Descargar">
+                    <i class="pi pi-download"></i>
+                  </button>
+
                 </div>
               </ng-template>
             </p-carousel>
@@ -88,3 +97,5 @@
     </div>
   </div>
 </div>
+
+<app-custom-toast #toastRef key="donwloadMedia" position="top-right"></app-custom-toast>
