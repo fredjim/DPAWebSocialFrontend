@@ -96,19 +96,19 @@
 				<span class="quantity">{{ totalComments() }}</span>
 				<i class="bi bi-chat-left-text icon"></i>
 			</div>
-			<div class="item" hidden>
-				<span class="quantity">20</span>
-				<i class="fa fa-share icon"></i>
-			</div>
 		</div>
 		<hr [hidden]="!currentUser">
 	</ng-container>
 	
 	<!-- Botones de reaccionar, comentar y compartir -->
-	<div class="bottuns" *ngIf="currentUser">
+	<div class="buttons" *ngIf="currentUser">
 		<!-- Boton de Reaccionar -->
-		<button type="button" class="btn icon-btn" [ngClass]="myReaction.class" id="btn-reaction"
-			(click)="reactUserBoton(post.uuid, mapEmojiTypeExtended.get('thumbs-up'))">
+		<button type="button" class="btn icon-btn" [ngClass]="[myReaction.class, showOptions() ? 'show-options' : '']" 
+			id="btn-reaction"
+			(click)="reactUserBoton(post.uuid, mapEmojiTypeExtended.get('thumbs-up'))"
+			(touchstart)="onTouchStart(post.uuid, $event)"
+			(touchend)="onTouchEnd()"
+			(touchmove)="cancelLongPress()">
 			
 			<!-- Icono del boton -->
 			@if(myReaction.class === 'default' || myReaction.class === 'thumbs-up') {
@@ -118,7 +118,7 @@
 			}
 			
 			<!-- Nombre de reaccion -->
-			<span>{{ myReaction.name }}</span>
+			<span class="text-button">{{ myReaction.name }}</span>
 
 			<!-- Opciones de reaccion  -->
 			<div class="option-reactions">
@@ -140,12 +140,14 @@
 		@if(post.commentsEnabled){
 			<button type="button" class="btn icon-btn" id="btn-comment" (click)="openViewPostComments(post)">
 				<i class="bi bi-chat-left-text"></i>
-				Comentar</button>
+				<span class="text-button comment">Comentar</span>
+			</button>
 		}
 		<!-- Boton de Compartir -->
 		<button type="button" class="btn icon-btn" id="btn-share" (click)="onShare()">
 			<i class="fa-solid fa-share"></i>
-			Compartir</button>
+			<span class="text-button share">Compartir</span>
+		</button>
 	</div>
 
 </div>

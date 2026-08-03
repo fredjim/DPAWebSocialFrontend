@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, signal, WritableSignal, inject, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal, WritableSignal, inject, OnInit, HostListener } from '@angular/core';
 import { ReactionService } from '../../../interactions/services/reaction.service';
 import { CreateReaction } from '../../../shared/models/create-reaction';
 import { Post } from '../../models/post';
@@ -54,6 +54,11 @@ export class PostComponent implements OnInit {
   typeVideos = ['video', 'video/mp4'];
   totalReactions = signal(0);
   totalComments = signal(0);
+
+  // Reactions
+  showOptionsReactions = signal(false);
+  private longPressTimer?: ReturnType<typeof setTimeout>;
+  private readonly LONG_PRESS_MS = 400;
 
   constructor(
     private readonly reactionService: ReactionService,
@@ -257,6 +262,7 @@ export class PostComponent implements OnInit {
 
   clickReaction(postUuid: string, typeReaction: EmojiName, event: Event) {
     event.stopPropagation(); // Detener la propagación del evento de clic
+    this.showOptions.set(false);
     let emojiUuid = this.mapEmojiTypeExtended.get(typeReaction)?.uuid || '';
     
     this.myReaction = {
@@ -332,5 +338,38 @@ export class PostComponent implements OnInit {
     const base = environment.URL_BASE;
     const slugSegment = slug ? `/${slug}` : '';
     return `${base}${slugSegment}/posts/${postUuid}`;
+  }
+
+  onTouchStart(uuid: string, event: TouchEvent) {
+    this.longPressTimer = setTimeout(() => {
+      this.showOptions.set(true);
+    }, this.LONG_PRESS_MS);
+  }
+
+  onTouchEnd() {
+    this.cancelLongPress();
+  }
+
+  cancelLongPress() {
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = undefined;
+    }
+  }
+
+  onButtonClick(uuid: string) {
+    // Si las opciones ya están abiertas (por long-press), un click normal
+    // no debería disparar el "me gusta" por defecto
+    if (this.showOptions()) {
+      return;
+    }
+    this.reactUserBoton(uuid, this.mapEmojiTypeExtended.get('thumbs-up'));
+  }
+
+  @HostListener('document:touchstart', ['$event'])
+  onDocumentTouch(event: TouchEvent) {
+    if (!(event.target as HTMLElement).closest('#btn-reaction') && this.showOptions()) {
+      this.showOptions.set(false);
+    }
   }
 }
