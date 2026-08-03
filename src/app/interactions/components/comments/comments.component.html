@@ -45,12 +45,35 @@
                         [circular]="mediaPost.length > 1"
                         [showIndicators]="false" 
                         [showNavigators]="mediaPost.length > 1"
-                        [page]="initialMediaIndex">
+                        [page]="initialMediaIndex"
+                        (onPage)="onCarouselPageChange()">
               <ng-template pTemplate="item" let-media>
                 <div class="image-box text-center">
 
                   <ng-container *ngIf="media.type.includes('image')">
-                    <img [src]="media.path" alt="" />
+                    <div class="zoom-container" [class.zoomed]="zoomLevel > 1">
+                      <img
+                        [src]="media.path"
+                        alt=""
+                        draggable="false"
+                        [style.transform]="'scale(' + zoomLevel + ') translate(' + panX + 'px, ' + panY + 'px)'"
+                        (pointerdown)="startPan($event)"
+                        (pointermove)="onPan($event)"
+                        (pointerup)="endPan($event)"
+                        (pointercancel)="endPan($event)" />
+                    </div>
+
+                    <div class="zoom-controls">
+                      <button type="button" (click)="zoomOut()" [disabled]="zoomLevel <= minZoom" aria-label="Alejar">
+                        <i class="pi pi-search-minus"></i>
+                      </button>
+                      <button type="button" (click)="resetZoom()" [disabled]="zoomLevel === 1" aria-label="Restablecer zoom">
+                        <i class="pi pi-refresh"></i>
+                      </button>
+                      <button type="button" (click)="zoomIn()" [disabled]="zoomLevel >= maxZoom" aria-label="Acercar">
+                        <i class="pi pi-search-plus"></i>
+                      </button>
+                    </div>
                   </ng-container>
 
                   <ng-container *ngIf="media.type.includes('video')">
