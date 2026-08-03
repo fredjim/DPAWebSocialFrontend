@@ -11,6 +11,13 @@
 	justify-content: center;
 	align-items: center;
 	margin-right: 5px;
+	height: 30px;
+
+	// Alinear icono de comentarios
+	.bi.bi-chat-left-text { 
+		display: flex;
+		align-items: center;
+	}
 }
 
 .divisor {
@@ -200,11 +207,15 @@ hr {
 	}
 }
 
-.bottuns {
+.buttons {
 	display: flex;
 	justify-content: space-around;
 	margin: 0;
-	padding: 0 30px;
+	padding: 5px 30px;
+
+	button .text-button.comment, .text-button.share {
+		margin-left: 0.5rem;
+	}
 
 	#btn-reaction {
 		display: flex;
@@ -218,14 +229,6 @@ hr {
 
 		.option-reactions {
 			display: none;
-		}
-	}
-
-	#btn-reaction:hover {
-		background-color: #F2F2F2;
-
-		.option-reactions {
-			display: flex;
 			align-items: center;
 			justify-content: center;
 			gap: 5px;
@@ -270,6 +273,14 @@ hr {
 		}
 	}
 
+	#btn-reaction:hover {
+		background-color: #F2F2F2;
+
+		.option-reactions {
+			display: flex;
+		}
+	}
+
 	#btn-reaction.btn {
 		&.default {
 			color: #606367;
@@ -292,6 +303,13 @@ hr {
 			font-size: 20px;
 		}
 	}
+}
+
+// Touch: mostramos solo cuando el botón tiene la clase de estado
+@media (hover: none), (pointer: coarse) {
+  #btn-reaction.show-options .option-reactions {
+    display: flex;
+  }
 }
 
 ::ng-deep .p-tooltip {
@@ -426,67 +444,6 @@ hr {
 	max-height: 220px;
 }
 
-.reactions-comments {
-	margin: 0.5rem 1rem;
-
-	.likes {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		align-items: center;
-		cursor: pointer;
-
-		span {
-			margin-left: 5px;
-			color: #838689;
-		}
-
-		.fa-thumbs-up {
-			background-color: #087CFE;
-			border-radius: 50%;
-			font-size: 13px;
-			padding: 3px;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			color: #fff;
-		}
-
-		.fa-heart {
-			background-color: #FB4D70;
-			border-radius: 50%;
-			font-size: 11px;
-			padding: 4px;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			color: #fff;
-		}
-
-		.fa-face-angry {
-			color: #FEE179;
-			height: 22px;
-		}
-
-		.fa-face-sad-tear {
-			color: #FEE179;
-			height: 22px;
-		}
-	}
-
-	.comments {
-
-		span {
-			color: #838689;
-			margin-right: 5px;
-		}
-
-		.bi-chat-fill {
-			color: #5F6771;
-		}
-	}
-}
-
 @media screen and (max-width: 768px) {
 	#inst-avatar {
 		display: none !important;
@@ -514,6 +471,36 @@ hr {
 					font-size: 20px;
 				}
 			}
+		}
+	}
+}
+
+@media screen and (max-width: 576px) {
+	// Estilos opciones reaccion comentario compartir vista mobile
+	.buttons {
+		justify-content: flex-start;
+		padding: 5px 15px;
+
+		.btn {
+			padding: 0 1rem;
+		}
+
+		#btn-reaction {
+			min-width: auto;
+			padding: 0 1rem;
+
+			.option-reactions {
+				transform: translateY(-44px) translateX(90px);
+			}
+		}
+
+		button#btn-comment.btn {
+			display: flex;
+			align-items: flex-start;
+		}
+
+		.text-button {
+			display: none;
 		}
 	}
 }
