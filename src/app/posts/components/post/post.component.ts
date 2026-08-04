@@ -29,7 +29,7 @@ export class PostComponent implements OnInit {
   @Output() openPostDetail = new EventEmitter<{ post: Post; initialMediaIndex: number }>();
   listMediaPost!: Media[]; // Lista de imagenes videos del post 
   listDocsPost!: Media[]; // Lista de documentos del post 
-  showOptions: WritableSignal<boolean> = signal(false); // Controla la visibilidad de las opciones del post
+  showOptionsPost: WritableSignal<boolean> = signal(false); // Controla la visibilidad de las opciones del post
   openModalEdit: WritableSignal<boolean> = signal(false);
   like = false
   myReaction = {
@@ -262,7 +262,7 @@ export class PostComponent implements OnInit {
 
   clickReaction(postUuid: string, typeReaction: EmojiName, event: Event) {
     event.stopPropagation(); // Detener la propagación del evento de clic
-    this.showOptions.set(false);
+    this.showOptionsReactions.set(false);
     let emojiUuid = this.mapEmojiTypeExtended.get(typeReaction)?.uuid || '';
     
     this.myReaction = {
@@ -342,7 +342,7 @@ export class PostComponent implements OnInit {
 
   onTouchStart(uuid: string, event: TouchEvent) {
     this.longPressTimer = setTimeout(() => {
-      this.showOptions.set(true);
+      this.showOptionsReactions.set(true);
     }, this.LONG_PRESS_MS);
   }
 
@@ -360,7 +360,7 @@ export class PostComponent implements OnInit {
   onButtonClick(uuid: string) {
     // Si las opciones ya están abiertas (por long-press), un click normal
     // no debería disparar el "me gusta" por defecto
-    if (this.showOptions()) {
+    if (this.showOptionsReactions()) {
       return;
     }
     this.reactUserBoton(uuid, this.mapEmojiTypeExtended.get('thumbs-up'));
@@ -368,8 +368,8 @@ export class PostComponent implements OnInit {
 
   @HostListener('document:touchstart', ['$event'])
   onDocumentTouch(event: TouchEvent) {
-    if (!(event.target as HTMLElement).closest('#btn-reaction') && this.showOptions()) {
-      this.showOptions.set(false);
+    if (!(event.target as HTMLElement).closest('#btn-reaction') && this.showOptionsReactions()) {
+      this.showOptionsReactions.set(false);
     }
   }
 }
