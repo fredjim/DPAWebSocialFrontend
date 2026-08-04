@@ -13,15 +13,15 @@
 		}
 		@if(currentUser && currentUser.role === 'ADMIN'){
 			<div class="options-post d-flex justify-content-center align-items-center"
-				(click)="showOptions.set(!showOptions())" (keypress)="showOptions.set(!showOptions())">
+				(click)="showOptionsPost.set(!showOptionsPost())" (keypress)="showOptionsPost.set(!showOptionsPost())">
 				<i class="bi bi-three-dots"></i>
 			</div>
 		}
 	</div>
 
 	<!-- Popup de opciones post Editar/Eliminar -->
-	<app-options-post *ngIf="showOptions() && currentUser && currentUser.role === 'ADMIN'"
-		(clickOutside)="showOptions.set(false)" [postReference]="post.uuid"
+	<app-options-post *ngIf="showOptionsPost() && currentUser && currentUser.role === 'ADMIN'"
+		(clickOutside)="showOptionsPost.set(false)" [postReference]="post.uuid"
 		(openEdit)="openModalEdit.set(true)"></app-options-post>
 
 	<!-- Modals de editar y eliminar post -->
@@ -103,7 +103,7 @@
 	<!-- Botones de reaccionar, comentar y compartir -->
 	<div class="buttons" *ngIf="currentUser">
 		<!-- Boton de Reaccionar -->
-		<button type="button" class="btn icon-btn" [ngClass]="[myReaction.class, showOptions() ? 'show-options' : '']" 
+		<button type="button" class="btn icon-btn" [ngClass]="[myReaction.class, showOptionsReactions() ? 'show-options' : '']" 
 			id="btn-reaction"
 			(click)="reactUserBoton(post.uuid, mapEmojiTypeExtended.get('thumbs-up'))"
 			(touchstart)="onTouchStart(post.uuid, $event)"
@@ -126,7 +126,8 @@
 					@if(emoji.emoji_name === 'thumbs-up'){
 						<span class="fa-solid fa-thumbs-up" pTooltip="Me gusta" tooltipPosition="top" 
 						(keypress)="clickReaction(post.uuid, 'thumbs-up', $event)"
-						(click)="clickReaction(post.uuid, 'thumbs-up', $event)"></span>
+						(click)="clickReaction(post.uuid, 'thumbs-up', $event)"
+						></span>
 					}@else {
 						<span [pTooltip]="emoji.name_translated" tooltipPosition="top"
 						(click)="clickReaction(post.uuid, emoji.emoji_name, $event)"
