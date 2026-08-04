@@ -17,8 +17,8 @@ export const environment = {
   production: false,
   BACK_END_HOST_PROD: 'https://devpws.cs.umss.edu.bo/api/v1',
   /*BACK_END_HOST_DEV: 'http://dpa.umss.net/api/v1',*/
-  BACK_END_HOST_DEV: 'http://localhost:9091/api/v1',
-  BACK_END_HOST_DEV_AUTH: 'http://localhost:9091/api/auth',
+  BACK_END_HOST_DEV: 'http://192.168.1.43:9091/api/v1',
+  BACK_END_HOST_DEV_AUTH: 'http://192.168.1.43:9091/api/auth',
 
 };
 /*

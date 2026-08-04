@@ -273,14 +273,21 @@ hr {
 		}
 	}
 
-	#btn-reaction:hover {
-		background-color: #F2F2F2;
-
-		.option-reactions {
+	@media (hover: hover) and (pointer: fine) {
+		#btn-reaction:hover {
+			background-color: #F2F2F2;
+		}
+		#btn-reaction:hover .option-reactions {
 			display: flex;
 		}
 	}
 
+	// Touch: mostramos solo cuando el botón tiene la clase de estado
+	@media (hover: none), (pointer: coarse) {
+	  #btn-reaction.show-options .option-reactions {
+		display: flex;
+	  }
+	}
 	#btn-reaction.btn {
 		&.default {
 			color: #606367;
@@ -305,12 +312,6 @@ hr {
 	}
 }
 
-// Touch: mostramos solo cuando el botón tiene la clase de estado
-@media (hover: none), (pointer: coarse) {
-  #btn-reaction.show-options .option-reactions {
-    display: flex;
-  }
-}
 
 ::ng-deep .p-tooltip {
 	margin: revert-layer;
