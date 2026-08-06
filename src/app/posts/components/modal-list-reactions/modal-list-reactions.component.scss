@@ -80,6 +80,10 @@
       position: absolute;
       right: 20px;
       font-size: x-large;
+      
+      & > span.fa-solid.fa-thumbs-up {
+        color: #005FF2;
+      }
     }
   }
 }

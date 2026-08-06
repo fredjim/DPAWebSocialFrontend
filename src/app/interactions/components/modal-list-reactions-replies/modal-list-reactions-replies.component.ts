@@ -18,6 +18,7 @@ export class ModalListReactionsRepliesComponent implements AfterViewInit {
     userName: string;
     userPhoto: string;
     emoji: string;
+    emojiUuid: string;
   }[];
   @Input() commentOrReplyUuid!: string; //Uuid del comentario/respuesta que sera id del modal
   @Input() listEmojiType!: EmojiType[]; //Lista de los tipos de emojis guardados en el back
