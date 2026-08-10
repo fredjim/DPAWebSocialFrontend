@@ -181,8 +181,23 @@ export class ReplyListComponent implements OnInit, OnDestroy {
 
   // Calcula el tiempo desde la fecha
   calculateTimeFromNow(date: string): string {
-    return moment.utc(date).local().fromNow();
+    const diff = moment.duration(moment().diff(moment.utc(date).local()));
+    
+    const years = Math.floor(diff.asYears());
+    const months = Math.floor(diff.asMonths());
+    const days = Math.floor(diff.asDays());
+    const hours = Math.floor(diff.asHours());
+    const minutes = Math.floor(diff.asMinutes());
+    const seconds = Math.floor(diff.asSeconds());
+    
+    if (years > 0) return `${years} a`;
+    if (months > 0) return `${months} m`;
+    if (days > 0) return `${days} d`;
+    if (hours > 0) return `${hours} h`;
+    if (minutes > 0) return `${minutes} min`;
+    return `${seconds} s`;
   }
+
   openReplyReactionsModal(replyUuid: string) {
     this.reactionService.getReplyReactions(replyUuid)
       .pipe(takeUntil(this.destroy$))
