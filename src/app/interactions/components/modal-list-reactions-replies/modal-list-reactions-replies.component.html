@@ -25,12 +25,11 @@
       <div class="info-users d-flex flex-column">
         <ng-container *ngFor="let reaction of detailReactions">
           <div class="reactions-by-user d-flex flex-row gap-3">
-            <div class="img-profile">
-              <img
-                [src]="reaction.userPhoto || 'assets/default-avatar.png'"
-                [alt]="'Foto de perfil'"
-              />
-            </div>
+            <app-user-avatar 
+              [userImgPath]="reaction.userPhoto"
+              [size]="'medium'"
+            ></app-user-avatar>
+
             <div class="name-user d-flex align-items-center">
               <p class="fw-semibold fs-6 mb-0">{{ reaction.userName }}</p>
             </div>
@@ -51,12 +50,11 @@
         <div class="info-users d-flex flex-column">
           <ng-container *ngFor="let reactionUser of getUsersReactionsType(reactionType.emoji)">
             <div class="reactions-by-user d-flex flex-row gap-3">
-              <div class="img-profile">
-                <img
-                  [src]="reactionUser.userPhoto || 'assets/default-avatar.png'"
-                  [alt]="'Foto de perfil'" 
-                />
-              </div>
+              <app-user-avatar
+                [userImgPath]="reactionUser.userPhoto"
+                size="medium"
+              ></app-user-avatar>
+              
               <div class="name-user d-flex align-items-center">
                 <p class="fw-semibold fs-6 mb-0">{{ reactionUser.userName }}</p>
               </div>
