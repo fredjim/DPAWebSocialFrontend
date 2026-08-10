@@ -410,4 +410,8 @@ $font-size-large: 1.2rem;
   ::ng-deep .p-carousel-item {
     height: auto;     
   }
+
+  .comment-section .comment-box {
+    padding: 0px 12px;
+  }
 }

@@ -29,11 +29,11 @@
                   }@else {
                     <span class="emoji">{{ getSelectedEmoji(reply.uuid)?.emoji_code }}</span>
                   }
-                  <span class="label">{{ getEmojiLabel(getSelectedEmoji(reply.uuid)?.emoji_name) }}</span>
+                  <span class="label-reaction">{{ getEmojiLabel(getSelectedEmoji(reply.uuid)?.emoji_name) }}</span>
                 </ng-container>
                 <ng-template #defaultLike>
                   <i class="fa-regular fa-thumbs-up"></i>
-                  <span class="label">Me gusta</span>
+                  <span class="label-reaction">Me gusta</span>
                 </ng-template>
               </button>
               <div class="fb-emoji-options" *ngIf="showEmojiOptions[reply.uuid]">
