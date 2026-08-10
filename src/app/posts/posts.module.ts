@@ -24,7 +24,6 @@ import { InteractionsModule } from '../interactions/interactions.module';
 import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { PopupInfoUserComponent } from './components/popup-info-user/popup-info-user.component';
 import { AppRoutingModule } from "../app-routing.module";
 import { SharedModule } from '../shared/shared.module';
 import { TabViewModule } from 'primeng/tabview';
@@ -52,7 +51,6 @@ import { TooltipModule } from 'primeng/tooltip';
     ViewPostDetailComponent,
     MediaGalleryComponent,
     HomePhotosSectionComponent,
-    PopupInfoUserComponent,
   ],
   imports: [
     CommonModule,

@@ -13,6 +13,7 @@ import { ModalListReactionsRepliesComponent } from '../modal-list-reactions-repl
 import { HttpErrorResponse } from '@angular/common/http';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 import { CreateReactionToComments } from '../../../shared/models/create-reaction';
+import { ReactionUserToComment } from '../../models/reaction-user-to-comment';
 
 @Component({
   selector: 'app-comment-list',
@@ -252,10 +253,11 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(reactions => {
       // Mapea los datos para el modal
-      const detailReactions = reactions.map((r: any) => ({
-        userName: r.userName || r.user_name, // Ajusta según tu backend
-        userPhoto: r.userPhoto || r.user_photo,
-        emoji: this.emojis.find(e => e.uuid === (r.emojiTypeId || r.emoji_type_id))?.emoji_code || ''
+      const detailReactions = reactions.map((r: ReactionUserToComment) => ({
+        userName: r.userName,
+        userPhoto: r.userPhoto,
+        emoji: this.emojis.find(e => e.uuid === r.emojiTypeId)?.emoji_code || '',
+        emojiUuid: r.emojiTypeId
       }));
 
       // Calcula el conteo de reacciones por tipo de emoji
@@ -263,7 +265,7 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
         .map(e => ({
           emojiTypeId: e.uuid,
           emoji: e.emoji_code,
-          count: reactions.filter((r: any) => (r.emojiTypeId || r.emoji_type_id) === e.uuid).length
+          count: reactions.filter((r: ReactionUserToComment) => (r.emojiTypeId) === e.uuid).length
         }))
         .filter(rc => rc.count > 0);
 

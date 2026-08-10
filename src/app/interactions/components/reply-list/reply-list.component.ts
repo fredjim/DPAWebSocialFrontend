@@ -11,6 +11,7 @@ import { Reply } from '../../models/reply';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component'; 
 import { UserDetail } from '../../../shared/models/user-detail';
+import { ReactionUserToReply } from '../../models/reaction-user-to-reply';
 
 @Component({
   selector: 'app-reply-list',
@@ -187,10 +188,11 @@ export class ReplyListComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(reactions => {
       // Mapea los datos para el modal
-      const detailReactions = reactions.map((r: any) => ({
+      const detailReactions = reactions.map((r: ReactionUserToReply) => ({
         userName: r.userName,
         userPhoto: r.userPhoto,
-        emoji: this.emojis.find(e => e.uuid === r.emoji_type_id)?.emoji_code || ''
+        emoji: this.emojis.find(e => e.uuid === r.emoji_type_id)?.emoji_code || '',
+        emojiUuid: r.emoji_type_id
       }));
 
       // Calcula el conteo de reacciones por tipo de emoji

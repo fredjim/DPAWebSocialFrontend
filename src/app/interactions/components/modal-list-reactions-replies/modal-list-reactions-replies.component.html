@@ -7,7 +7,11 @@
       </li>
       <ng-container *ngFor="let reactionType of reactionsCount">
         <li class="nav-item">
-          <a class="nav-link emoji" [ngClass]="{'active show': reactionsCount.length == 1}" data-bs-toggle="tab" [attr.data-bs-target]="'#'+getReactionType(reactionType.emojiTypeId)+'-tab-pane-'+commentOrReplyUuid">{{ reactionType.emoji }}</a>
+          @if(getReactionType(reactionType.emojiTypeId) === 'thumbs-up') {
+            <span class="nav-link emoji fa-solid fa-thumbs-up" [ngClass]="{'active show': reactionsCount.length == 1}" data-bs-toggle="tab" [attr.data-bs-target]="'#'+getReactionType(reactionType.emojiTypeId)+'-tab-pane-'+commentOrReplyUuid"></span>
+          }@else {
+            <a class="nav-link emoji" [ngClass]="{'active show': reactionsCount.length == 1}" data-bs-toggle="tab" [attr.data-bs-target]="'#'+getReactionType(reactionType.emojiTypeId)+'-tab-pane-'+commentOrReplyUuid">{{ reactionType.emoji }}</a>
+          }
         </li>
       </ng-container>
     </ul>
@@ -21,17 +25,20 @@
       <div class="info-users d-flex flex-column">
         <ng-container *ngFor="let reaction of detailReactions">
           <div class="reactions-by-user d-flex flex-row gap-3">
-            <div class="img-profile">
-              <img
-                [src]="reaction.userPhoto || 'assets/default-avatar.png'"
-                [alt]="'Foto de perfil'"
-              />
-            </div>
+            <app-user-avatar 
+              [userImgPath]="reaction.userPhoto"
+              [size]="'medium'"
+            ></app-user-avatar>
+
             <div class="name-user d-flex align-items-center">
               <p class="fw-semibold fs-6 mb-0">{{ reaction.userName }}</p>
             </div>
             <div *ngIf="listEmojiType" class="emoji-reaction d-flex align-items-center" >
-              {{ reaction.emoji }}
+              @if(getReactionType(reaction.emojiUuid) === 'thumbs-up') {
+                <span class="fa-solid fa-thumbs-up"></span>
+              }@else {
+                {{ reaction.emoji }}
+              }
             </div>
           </div>
         </ng-container>
@@ -43,17 +50,20 @@
         <div class="info-users d-flex flex-column">
           <ng-container *ngFor="let reactionUser of getUsersReactionsType(reactionType.emoji)">
             <div class="reactions-by-user d-flex flex-row gap-3">
-              <div class="img-profile">
-                <img
-                  [src]="reactionUser.userPhoto || 'assets/default-avatar.png'"
-                  [alt]="'Foto de perfil'" 
-                />
-              </div>
+              <app-user-avatar
+                [userImgPath]="reactionUser.userPhoto"
+                size="medium"
+              ></app-user-avatar>
+              
               <div class="name-user d-flex align-items-center">
                 <p class="fw-semibold fs-6 mb-0">{{ reactionUser.userName }}</p>
               </div>
               <div *ngIf="listEmojiType" class="emoji-reaction d-flex align-items-center" >
-                {{ reactionUser.emoji }}
+                @if(getReactionType(reactionUser.emojiUuid) === 'thumbs-up') {
+                  <span class="fa-solid fa-thumbs-up"></span>
+                }@else {
+                  {{ reactionUser.emoji }}
+                }
               </div>
             </div>
           </ng-container>
