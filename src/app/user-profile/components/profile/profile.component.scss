@@ -249,3 +249,11 @@
 		}
 	}
 }
+
+@media screen and (max-width: 400px) {
+	
+	.section-container .side-right .field {
+		align-items: start;
+		flex-direction: column;
+	}
+}
