@@ -9,13 +9,13 @@
         <!-- Burbuja del comentario -->
         <div class="comment-bubble">
           <div class="comment-bubble-header">
-            <strong>{{ comment.user_name }}</strong>
+            <strong class="name-user-comment">{{ comment.user_name }}</strong>
             @if(authenticated && currentUser?.role === 'ADMIN'){
               <i class="bi bi-trash3-fill icon-delete-comment" title="Eliminar comentario"
                  (click)="showModalDeleteComment(comment, i)" (keypress)="showModalDeleteComment(comment, i)"></i>
             }
           </div>
-          <p class="mb-1">{{ comment.content }}</p>
+          <p class="text-comment mb-1">{{ comment.content }}</p>
           <div class="comment-actions mt-1">
             <span class="comment-time">{{ calculateTimeFromNow(comment.date) }}</span>
             <span class="mx-1">·</span>

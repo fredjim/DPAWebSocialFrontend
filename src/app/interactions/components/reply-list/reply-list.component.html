@@ -6,13 +6,13 @@
       
       <div class="comment-bubble">
         <div class="comment-bubble-header">
-          <strong>{{ reply.name }} {{ reply.lastName }}</strong>
+          <strong class="name-user-comment">{{ reply.name }} {{ reply.lastName }}</strong>
           @if(authenticated && currentUser?.role === 'ADMIN'){
             <i class="bi bi-trash3-fill icon-delete-comment" title="Eliminar respuesta"
               (click)="showModalDeleteReply(reply, i)" (keypress)="showModalDeleteReply(reply, i)"></i>
           }
         </div>
-        <p class="mb-1">{{ reply.content }}</p>
+        <p class="text-comment mb-1">{{ reply.content }}</p>
 
         <div class="comment-actions mt-1">
           <span class="comment-time">{{ calculateTimeFromNow(reply.createdDate) }}</span>

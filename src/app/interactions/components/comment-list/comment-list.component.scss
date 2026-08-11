@@ -41,6 +41,7 @@
       font-size: 15px;
       cursor: pointer;
       transition: color 0.2s;
+      margin-left: 10px;
 
       &:hover {
         color: #e4606d;
@@ -363,6 +364,10 @@
 }
 
 @media screen and (max-width: 576px) {
+  .name-user-comment, .text-comment {
+    font-size: 14px;
+  }
+
   .fb-reaction-btn {
     .label-reaction {
       display: none;
