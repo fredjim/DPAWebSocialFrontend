@@ -20,6 +20,7 @@ import { UserProfileModule } from './user-profile/user-profile.module';
 import { InstitutionModule } from './institution/institution.module';
 import { CoreModule } from './core/core.module';
 import { LayoutModule } from './layout/layout.module';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -35,6 +36,7 @@ import { LayoutModule } from './layout/layout.module';
     InstitutionModule,
     LayoutModule,
     PostsModule,
+    SharedModule,
     UserProfileModule,
   ],
   providers: [
