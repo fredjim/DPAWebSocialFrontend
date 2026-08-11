@@ -9,7 +9,6 @@ import { Institution } from '../../../shared/models/institution';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Post } from '../../../posts/models/post';
 import { UserDetail } from '../../../shared/models/user-detail';
-import moment from 'moment-timezone';
 import { CreateReply } from '../../models/create-reply';
 import { Reply } from '../../models/reply';
 import { Media } from '../../../shared/models/media';
@@ -189,12 +188,6 @@ export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         error: (error) => console.error('Error al agregar respuesta:', error),
     });
-  }
-
- 
-
-  calculateTimeFromNow(date: string): string {
-    return moment.utc(date).local().fromNow();
   }
 
   calculateTimePost(): string {

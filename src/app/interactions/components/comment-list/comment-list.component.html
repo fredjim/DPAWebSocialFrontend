@@ -36,11 +36,11 @@
                     }@else {
                       <span class="emoji">{{ getSelectedEmoji(comment.uuid)?.emoji_code }}</span>
                     }
-                    <span class="label">{{ getEmojiLabel(getSelectedEmoji(comment.uuid)?.emoji_name) }}</span>
+                    <span class="label-reaction">{{ getEmojiLabel(getSelectedEmoji(comment.uuid)?.emoji_name) }}</span>
                   </ng-container>
                   <ng-template #defaultLike>
                     <i class="fa-regular fa-thumbs-up"></i>
-                    <span class="label">Me gusta</span>
+                    <span class="label-reaction">Me gusta</span>
                   </ng-template>
                 </button>
                 <!-- Opciones de emojis al hacer hover -->

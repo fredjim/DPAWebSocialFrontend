@@ -361,3 +361,11 @@
 ::ng-deep .p-dialog .p-dialog-header {
   padding: 0.5rem 2rem;
 }
+
+@media screen and (max-width: 576px) {
+  .fb-reaction-btn {
+    .label-reaction {
+      display: none;
+    }
+  }
+}
