@@ -104,6 +104,8 @@ export class ResetPasswordComponent implements OnInit {
           setTimeout(() => this.router.navigate(['/', environment.DEFAULT_TENANT_SLUG]), 4000);
         },
         error: (err) => {
+          // Rate limit (429): lo notifica el interceptor global; evitamos un toast duplicado.
+          if (err?.status === 429) return;
           this.toastRef.showError(
             err?.error?.message || 'Ha ocurrido un error. Inténtalo de nuevo.',
             'Error al actualizar',

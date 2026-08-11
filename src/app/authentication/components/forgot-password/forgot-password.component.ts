@@ -42,9 +42,12 @@ export class ForgotPasswordComponent {
         this.isLoading = false;
         this.sent = true;
       },
-      error: () => {
-        // La API siempre retorna 200; en caso de error inesperado mostramos el mismo mensaje
+      error: (err) => {
         this.isLoading = false;
+        // Rate limit (429): lo notifica el interceptor global. No marcamos "enviado"
+        // para no mostrar un mensaje de éxito contradictorio con el toast de bloqueo.
+        if (err?.status === 429) return;
+        // La API siempre retorna 200; en caso de error inesperado mostramos el mismo mensaje
         this.sent = true;
       }
     });

@@ -120,6 +120,9 @@ export class RegisterComponent implements OnInit {
         error: (error: HttpErrorResponse) => {
           console.error('Error al registrar', error);
 
+          // Rate limit (429): lo notifica el interceptor global; evitamos un toast duplicado.
+          if (error.status === 429) return;
+
           const backendMessage = error?.error?.message || error?.error?.detail || '';
 
           if (backendMessage.includes('The user email is already registered')) {
