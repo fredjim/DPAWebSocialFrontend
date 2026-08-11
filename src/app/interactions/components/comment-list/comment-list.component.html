@@ -31,7 +31,11 @@
                 <button type="button" class="fb-reaction-btn" [ngClass]="getEmojiClass(comment.uuid)"
                   (click)="reactToComment(comment.uuid, getSelectedEmoji(comment.uuid)?.uuid || defaultEmoji.uuid)">
                   <ng-container *ngIf="getSelectedEmoji(comment.uuid); else defaultLike">
-                    <span class="emoji">{{ getSelectedEmoji(comment.uuid)?.emoji_code }}</span>
+                    @if (getSelectedEmoji(comment.uuid)?.emoji_name === 'thumbs-up') {
+                      <span class="emoji fa-solid fa-thumbs-up"></span>
+                    }@else {
+                      <span class="emoji">{{ getSelectedEmoji(comment.uuid)?.emoji_code }}</span>
+                    }
                     <span class="label">{{ getEmojiLabel(getSelectedEmoji(comment.uuid)?.emoji_name) }}</span>
                   </ng-container>
                   <ng-template #defaultLike>
@@ -42,10 +46,16 @@
                 <!-- Opciones de emojis al hacer hover -->
                 <div class="fb-emoji-options" *ngIf="showEmojiOptions[comment.uuid]">
                   <ng-container *ngFor="let emoji of emojis">
-                    <span class="emoji-option" [title]="emoji.emoji_name"
-                      (click)="reactToComment(comment.uuid, emoji.uuid, true); showEmojiOptions[comment.uuid]=false">
-                      {{ emoji.emoji_code }}
-                    </span>
+                    @if(emoji.emoji_name === 'thumbs-up'){
+                      <span class="emoji-option fa-solid fa-thumbs-up" [title]="emoji.emoji_name"
+                        (click)="reactToComment(comment.uuid, emoji.uuid, true); showEmojiOptions[comment.uuid]=false">
+                      </span>
+                    }@else {
+                      <span class="emoji-option" [title]="emoji.emoji_name"
+                        (click)="reactToComment(comment.uuid, emoji.uuid, true); showEmojiOptions[comment.uuid]=false">
+                        {{ emoji.emoji_code }}
+                      </span>
+                    }
                   </ng-container>
                 </div>
               </div>
