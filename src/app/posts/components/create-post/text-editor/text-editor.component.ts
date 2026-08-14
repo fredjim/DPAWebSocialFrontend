@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Output, ViewChild, ElementRef, Input, OnChanges, SimpleChanges, AfterViewInit, OnDestroy } from '@angular/core';
 import { debounceTime, distinctUntilChanged, fromEvent, map, Subscription } from 'rxjs';
+import { buildLinkedHtml } from '../../../../shared/utils/url.utils';
 
 @Component({
   selector: 'app-text-editor',
@@ -8,7 +9,7 @@ import { debounceTime, distinctUntilChanged, fromEvent, map, Subscription } from
 })
 export class TextEditorComponent implements OnChanges, AfterViewInit, OnDestroy {
   @Output() textChangeEvent = new EventEmitter<string>();
-  @ViewChild('textareaRef') textarea!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('editorRef') editor!: ElementRef<HTMLDivElement>;
   @Input() isVisibleModal: boolean = false;
   @Input() maxLength: number = 1200;
 
@@ -16,103 +17,212 @@ export class TextEditorComponent implements OnChanges, AfterViewInit, OnDestroy 
   isExceeded: boolean = false;
 
   private readonly subscription = new Subscription();
-  private shouldClearTextarea = false;
+  private shouldClearEditor = false;
   private currentValue: string = '';
+  private isComposing = false; // IME (acentos compuestos, etc.)
 
   ngOnChanges(changes: SimpleChanges): void {
-    if(changes['isVisibleModal'] && !this.isVisibleModal){
-      // Marcar que debemos limpiar el textarea cuando esté disponible
-      this.shouldClearTextarea = true;
-      
-      // Si el textarea ya está disponible, limpiarlo de inmediato
-      if (this.textarea) {
-        this.clearTextarea();
+    if (changes['isVisibleModal'] && !this.isVisibleModal) {
+      this.shouldClearEditor = true;
+      if (this.editor) {
+        this.clearEditor();
       }
     }
   }
-  
-  ngAfterViewInit(): void {
-    this.setupObservable();
 
-    // Si se ha marcado para limpiar y ahora el textarea está disponible
-    if (this.shouldClearTextarea && this.textarea) {
-      this.clearTextarea();
+  ngAfterViewInit(): void {
+    this.setupListeners();
+    this.updateEmptyState();
+
+    if (this.shouldClearEditor && this.editor) {
+      this.clearEditor();
     }
   }
 
-  private setupObservable(): void {
-    const textAreaInput$ = fromEvent(this.textarea.nativeElement, 'input').pipe(
-      debounceTime(500),
-      distinctUntilChanged(),
-      map((event: Event) => (event.target as HTMLTextAreaElement).value),
-      // Cortar el texto si excede el límite (prevención)
-      map(value => {
-        if (value.length >= this.maxLength) {
-          this.isExceeded = true;
-          return value.substring(0, this.maxLength);
-        }
-        this.isExceeded = false;
-        return value;
+  private setupListeners(): void {
+    const el = this.editor.nativeElement;
+    const input$ = fromEvent(el, 'input');
+
+    // Inmediato: trunca por maxLength y actualiza contador en cada tecla
+    this.subscription.add(
+      input$.subscribe(() => this.handleInput())
+    );
+
+    // Debounced: reconstruye los links después de que el usuario deja de escribir
+    this.subscription.add(
+      input$.pipe(
+        debounceTime(500),
+        map(() => el.textContent ?? ''),
+        distinctUntilChanged()
+      ).subscribe(text => {
+        if (this.isComposing) return;
+        this.relinkContent(text);
+        this.currentValue = text;
+        this.currentLength = Math.min(text.length, this.maxLength);
+        this.textChangeEvent.emit(this.currentValue);
       })
     );
-    
+
+    // Composición IME: no tocar el DOM mientras el usuario compone un carácter
     this.subscription.add(
-      textAreaInput$.subscribe(controlledValue => {
-        // Si se recortó el valor, actualizar el textarea
-        if (controlledValue !== this.textarea.nativeElement.value) {
-          this.textarea.nativeElement.value = controlledValue;
-        }
-        
-        this.currentValue = controlledValue;
-        this.currentLength = controlledValue.length;
-        this.textChangeEvent.emit(controlledValue);
+      fromEvent(el, 'compositionstart').subscribe(() => (this.isComposing = true))
+    );
+    this.subscription.add(
+      fromEvent(el, 'compositionend').subscribe(() => {
+        this.isComposing = false;
+        this.handleInput();
       })
+    );
+
+    // Pegar solo texto plano (evita traer HTML/estilos del origen)
+    this.subscription.add(
+      fromEvent<ClipboardEvent>(el, 'paste').subscribe(event => this.handlePaste(event))
+    );
+
+    // Enter -> salto de línea plano, sin crear <div>/<p> anidados
+    this.subscription.add(
+      fromEvent<KeyboardEvent>(el, 'keydown').subscribe(event => this.handleKeydown(event))
+    );
+
+    // Clic sobre un link -> abrir en nueva pestaña
+    this.subscription.add(
+      fromEvent<MouseEvent>(el, 'click').subscribe(event => this.handleClick(event))
     );
   }
 
-  // Método manual para control en tiempo real y evitar excesos rápidos
-  onManualInput(event: Event): void {
-    const rawValue = (event.target as HTMLTextAreaElement).value;
-    
-    if (rawValue.length > this.maxLength) {
-      // Cortar inmediatamente para evitar que el usuario siga escribiendo
-      const truncated = rawValue.substring(0, this.maxLength);
-      this.textarea.nativeElement.value = truncated;
+  private handleInput(): void {
+    if (this.isComposing) return;
+
+    const el = this.editor.nativeElement;
+    const text = el.textContent ?? '';
+
+    if (text.length > this.maxLength) {
+      this.truncateContent();
       this.isExceeded = true;
       this.currentLength = this.maxLength;
-      this.currentValue = truncated;
-      this.textChangeEvent.emit(truncated);
+      this.currentValue = el.textContent ?? '';
+      this.textChangeEvent.emit(this.currentValue);
     } else {
       this.isExceeded = false;
-      this.currentLength = rawValue.length;
-      this.currentValue = rawValue;
-      // No emitimos aquí para no duplicar con el observable
+      this.currentLength = text.length;
+      this.currentValue = text;
     }
-    
-    this.adjustTextAreaHeight();
+
+    this.updateEmptyState();
   }
-  
-  private clearTextarea(): void {
-    if(this.textarea){
-      this.textarea.nativeElement.value = '';
+
+  private handlePaste(event: ClipboardEvent): void {
+    event.preventDefault();
+    const text = event.clipboardData?.getData('text/plain') ?? '';
+    document.execCommand('insertText', false, text);
+    // execCommand dispara 'input' automáticamente -> handleInput() se ejecuta solo
+  }
+
+  private handleKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      document.execCommand('insertText', false, '\n');
+    }
+  }
+
+  private handleClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const anchor = target.closest('a');
+    if (!anchor) return;
+
+    event.preventDefault(); // evita que solo posicione el cursor
+    const href = anchor.getAttribute('href');
+    if (!href) return;
+
+    if (href.startsWith('mailto:')) {
+      window.location.href = href;
+    } else {
+      window.open(href, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  private relinkContent(text: string): void {
+    const el = this.editor.nativeElement;
+    const caretOffset = this.getCaretOffset();
+
+    el.innerHTML = buildLinkedHtml(text);
+
+    this.setCaretOffset(Math.min(caretOffset, text.length));
+    this.updateEmptyState();
+  }
+
+  private truncateContent(): void {
+    const el = this.editor.nativeElement;
+    const text = el.textContent ?? '';
+    const caretOffset = Math.min(this.getCaretOffset(), this.maxLength);
+
+    el.textContent = text.substring(0, this.maxLength);
+    this.setCaretOffset(caretOffset);
+  }
+
+  private updateEmptyState(): void {
+    const el = this.editor.nativeElement;
+    const isEmpty = (el.textContent ?? '').length === 0;
+    el.classList.toggle('empty', isEmpty);
+  }
+
+  private clearEditor(): void {
+    const el = this.editor?.nativeElement;
+    if (el) {
+      el.innerHTML = '';
       this.currentValue = '';
       this.currentLength = 0;
       this.isExceeded = false;
+      this.updateEmptyState();
       this.textChangeEvent.emit('');
     }
-    this.shouldClearTextarea = false;
-    this.resetTextAreaHeight();
+    this.shouldClearEditor = false;
   }
 
-  private adjustTextAreaHeight(): void {
-    const textareaElement = this.textarea.nativeElement;
-    textareaElement.style.height = 'auto'; // Restablece la altura
-    textareaElement.style.height = `${textareaElement.scrollHeight}px`; // Ajusta la altura según el contenido
+  // --- Utilidades de posición de cursor (Range/Selection) ---
+
+  private getCaretOffset(): number {
+    const el = this.editor.nativeElement;
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return 0;
+
+    const range = selection.getRangeAt(0);
+    const preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(el);
+    preCaretRange.setEnd(range.endContainer, range.endOffset);
+    return preCaretRange.toString().length;
   }
 
-  private resetTextAreaHeight(): void {
-    const textareaElement = this.textarea.nativeElement;
-    textareaElement.style.height = 'auto'; // Restablece la altura
+  private setCaretOffset(offset: number): void {
+    const el = this.editor.nativeElement;
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    let remaining = offset;
+    let targetNode: Node | null = null;
+
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      const len = node.textContent?.length ?? 0;
+      if (remaining <= len) {
+        targetNode = node;
+        break;
+      }
+      remaining -= len;
+    }
+
+    const range = document.createRange();
+    if (targetNode) {
+      range.setStart(targetNode, remaining);
+    } else {
+      range.selectNodeContents(el);
+      range.collapse(false);
+    }
+    range.collapse(true);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 
   ngOnDestroy(): void {

@@ -1,12 +1,14 @@
 <div class="textarea-container">
-    <textarea 
-        id="text-area" 
-        placeholder="¿Qué estás pensando?" 
-        rows="4" 
-        (input)="onTextChange($event)" 
+    <div
+        class="post-editor"
+        contenteditable="true"
+        role="textbox"
+        aria-multiline="true"
+        aria-label="Editar publicación"
+        data-placeholder="¿Qué estás pensando?"
         [class.exceeded]="isExceeded"
-        #textareaRef
-    ></textarea>
+        #editorRef
+    ></div>
 
     <div class="char-counter" [class.exceeded]="isExceeded">
         <span>{{ currentLength }}</span> / {{ maxLength }}
