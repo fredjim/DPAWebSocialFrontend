@@ -26,6 +26,7 @@ import { InstitutionAvatarComponent } from './components/institution-avatar/inst
 import { CustomToastComponent } from './components/custom-toast/custom-toast.component';
 import { UiButtonComponent } from './components/ui-button/ui-button.component';
 import { UserAvatarComponent } from './components/user-avatar/user-avatar.component';
+import { LinkifyPipe } from './pipes/linkify.pipe';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { UserAvatarComponent } from './components/user-avatar/user-avatar.compon
     InstitutionAvatarComponent,
     CustomToastComponent,
     UiButtonComponent,
-    UserAvatarComponent
+    UserAvatarComponent,
+    LinkifyPipe
   ],
   imports: [
     CommonModule,
@@ -79,7 +81,9 @@ import { UserAvatarComponent } from './components/user-avatar/user-avatar.compon
     CustomTableComponent,
     InstitutionAvatarComponent,
     CustomToastComponent,
-    UserAvatarComponent
+    UserAvatarComponent,
+    //Pipes
+    LinkifyPipe
   ]
 })
 export class SharedModule { }

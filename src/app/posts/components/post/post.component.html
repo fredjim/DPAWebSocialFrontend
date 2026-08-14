@@ -30,17 +30,22 @@
 	<app-modal-delete-post (confirmDeletePost)="deletePost($event)" [postReference]="post.uuid"></app-modal-delete-post>
 
 	<!-- Contenido de texto del post -->
-	<p *ngIf="post.content.text != '' && allowedTextLength(); else reduceText" class="text-post"
-		[innerHTML]="post.content.text"> </p>
+	<p
+		*ngIf="post.content.text != '' && (allowedTextLength() || isExpanded(post.uuid)); else reduceText"
+		class="text-post"
+		[innerHTML]="post.content.text | linkify">
+	</p>
 	<ng-template #reduceText>
-		<p id="{{'text-post-'+post.uuid}}" *ngIf="post.content.text != ''" class="text-post"
-		>{{adjustedTextLength()}}<span class="see-more fw-bold" (click)="showAllText(post.uuid)" (keypress)="showAllText(post.uuid)">Ver más</span></p>
-	</ng-template>
+    <p *ngIf="post.content.text != ''" class="text-post">
+        <span [innerHTML]="adjustedTextLength() | linkify"></span>
+        <span class="see-more fw-bold" (click)="showAllText(post.uuid)" (keypress)="showAllText(post.uuid)">Ver más</span>
+    </p>
+</ng-template>
 
 	<!-- Si hay contenido multi media (imagenes/videos, documento) -->
 	 
 	<!-- Visualizar documentos de post -->
-	<div *ngIf="listDocsPost.length > 0" class="documents-list d-flex flex-column gap-2 mt-2 px-2">
+	<div *ngIf="listDocsPost.length > 0" class="documents-list d-flex flex-column gap-2 my-2 px-2">
 		<ng-container *ngFor="let doc of listDocsPost">
 			<a [href]="doc.path" target="_blank" class="text-decoration-none">
 				<i class="bi bi-file-earmark-pdf-fill"></i> {{ doc.name || 'Documento PDF' }}

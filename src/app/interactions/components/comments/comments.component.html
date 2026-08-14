@@ -25,7 +25,7 @@
         </div>
 
         <!-- Descripción del post -->
-        <p class="post-description">{{ post.content.text }}</p>
+        <p class="post-description" [innerHTML]="post.content.text | linkify"></p>
 
         <!-- Visualizar documentos de post -->
         <div *ngIf="docsPost.length > 0" class="documents-list d-flex flex-column gap-2 mt-2 px-2">

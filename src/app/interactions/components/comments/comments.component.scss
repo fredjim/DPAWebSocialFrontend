@@ -137,6 +137,14 @@ $font-size-large: 1.2rem;
   margin-bottom: 20px;
   color: $primary-color;
   font-size: $font-size-medium;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  text-align: justify;
+
+  ::ng-deep a {
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
 }
 
 .documents-list {

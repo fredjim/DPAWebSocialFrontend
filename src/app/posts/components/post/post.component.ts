@@ -31,6 +31,8 @@ export class PostComponent implements OnInit {
   listDocsPost!: Media[]; // Lista de documentos del post 
   showOptionsPost: WritableSignal<boolean> = signal(false); // Controla la visibilidad de las opciones del post
   openModalEdit: WritableSignal<boolean> = signal(false);
+  private readonly LIMIT_EXTENDED_TEXT: number = 480;
+  expandedPosts = new Set<string>(); // guarda los uuid de posts expandidos
   like = false
   myReaction = {
     class: 'default',
@@ -304,19 +306,33 @@ export class PostComponent implements OnInit {
   }
 
   allowedTextLength(){
-    return this.post.content.text.length <= 480;
+    return this.post.content.text.length <= this.LIMIT_EXTENDED_TEXT;
   }
 
-  adjustedTextLength(){
-    return this.post.content.text.slice(0, 480)+'... ';
+  isExpanded(id: string): boolean {
+    return this.expandedPosts.has(id);
   }
 
-  showAllText(id: string){
-    const textPost = document.getElementById('text-post-'+id) as HTMLParagraphElement;
-    if(textPost){
-      textPost.innerHTML = `<p id="text-post" *ngIf="post.content.text != ''" class="text-post">${this.post.content.text}</p>`;
-    }
-    return textPost || '';
+  adjustedTextLength(): string {
+    const text = this.post.content.text;
+    const cut = this.safeSliceIndex(text, 480);
+    return text.slice(0, cut) + '... ';
+  }
+
+  showAllText(id: string): void {
+    this.expandedPosts.add(id);
+  }
+
+  // Evita cortar en medio de una URL/email: si el corte cae dentro de un
+  // token sin espacios (como una URL larga), retrocede hasta el espacio anterior.
+  private safeSliceIndex(text: string, maxIndex: number): number {
+    if (maxIndex >= text.length) return text.length;
+
+    const isInsideToken = text[maxIndex] !== ' ' && text[maxIndex - 1] !== ' ';
+    if (!isInsideToken) return maxIndex;
+
+    const lastSpace = text.lastIndexOf(' ', maxIndex);
+    return lastSpace > -1 ? lastSpace : maxIndex;
   }
 
   onShare() {
