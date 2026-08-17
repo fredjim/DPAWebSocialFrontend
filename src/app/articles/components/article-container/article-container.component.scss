@@ -189,23 +189,81 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 62vh;
+		margin-bottom: 10px;
     }
 }
 .container-img {
     margin: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     width: 100%;
+	position: relative;
+
+	.zoom-container {
+		overflow: hidden;
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.zoom-container img {
+		display: block;
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+        transition: transform 0.15s ease-out;
+	}
+
+	.zoom-container.zoomed img {
+		touch-action: none;       /* evita que el navegador interprete el gesto como scroll/zoom nativo */
+		-webkit-user-drag: none;  /* refuerzo para Safari, por si el atributo draggable no alcanza */
+		user-select: none;        /* evita selección de texto/imagen accidental mientras arrastrás */
+		cursor: grab;
+	}
+
+	.zoom-container.zoomed img:active {
+		cursor: grabbing;
+	}
+
+	.zoom-controls {
+		position: absolute;
+		top: 8px;
+		left: 50%;
+		transform: translateX(-50%);
+		display: flex;
+		gap: 6px;
+		z-index: 2;
+	}
+
+	.zoom-controls button {
+		background: rgba(0, 0, 0, 0.5);
+		border: none;
+		border-radius: 50%;
+		width: 32px;
+		height: 32px;
+		color: white;
+		cursor: pointer;
+	}
+
+	.zoom-controls button:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+
+	.download-btn {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		z-index: 2;
+		background: rgba(0, 0, 0, 0.5);
+		border: none;
+		border-radius: 50%;
+		width: 32px;
+		height: 32px;
+		color: white;
+		cursor: pointer;
+	}
 }
 
-.image-modal {
-    width: 100%;
-    height: auto;
-    max-height: 60vh;
-    object-fit: contain;
-}
 
 ::ng-deep button.p-dialog-header-icon.p-dialog-header-close {
 	position: absolute;
@@ -298,15 +356,6 @@
 			max-height: 300px;
 		}
 	}
-
-	::ng-deep .p-carousel-item {
-        height: 35vh;
-    }
-
-	.image-modal {
-		max-height: 25vh;
-	}
-
 }
 
 @media screen and (max-width: 576px) {
@@ -316,13 +365,5 @@
 				width: 95%;
 			}
 		}
-	}
-
-	::ng-deep .p-carousel-item {
-        height: 30vh;
-    }
-
-	.image-modal {
-		max-height: 30vh;
 	}
 }
