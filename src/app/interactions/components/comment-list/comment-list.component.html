@@ -26,10 +26,18 @@
               }
 
               <!-- Reaccionar y mostrar opciones de tipos de mojis -->
-              <div class="fb-reaction-btn-wrapper" (mouseenter)="showEmojiOptions[comment.uuid]=true"
-                (mouseleave)="showEmojiOptions[comment.uuid]=false">
-                <button type="button" class="fb-reaction-btn" [ngClass]="getEmojiClass(comment.uuid)"
-                  (click)="reactToComment(comment.uuid, getSelectedEmoji(comment.uuid)?.uuid || defaultEmoji.uuid)">
+              <div class="reaction-btn-wrapper" 
+                [attr.data-comment-uuid]="comment.uuid"
+                (mouseenter)="showEmojiOptions[comment.uuid]=true"
+                (mouseleave)="showEmojiOptions[comment.uuid]=false"
+                (touchstart)="onTouchStart(comment.uuid)"
+                (touchend)="onTouchEnd(comment.uuid)"
+                (touchmove)="cancelLongPress(comment.uuid)">
+
+                <button type="button" class="reaction-btn" 
+                  [ngClass]="getEmojiClass(comment.uuid)"
+                  (click)="onMainButtonClick(comment.uuid)">
+
                   <ng-container *ngIf="getSelectedEmoji(comment.uuid); else defaultLike">
                     @if (getSelectedEmoji(comment.uuid)?.emoji_name === 'thumbs-up') {
                       <span class="emoji fa-solid fa-thumbs-up"></span>
@@ -44,15 +52,17 @@
                   </ng-template>
                 </button>
                 <!-- Opciones de emojis al hacer hover -->
-                <div class="fb-emoji-options" *ngIf="showEmojiOptions[comment.uuid]">
+                <div class="emoji-options" *ngIf="showEmojiOptions[comment.uuid]">
                   <ng-container *ngFor="let emoji of emojis">
                     @if(emoji.emoji_name === 'thumbs-up'){
                       <span class="emoji-option fa-solid fa-thumbs-up" [title]="emoji.emoji_name"
-                        (click)="reactToComment(comment.uuid, emoji.uuid, true); showEmojiOptions[comment.uuid]=false">
+                        (click)="selectEmoji(comment.uuid, emoji.uuid)"
+                        (keypress)="selectEmoji(comment.uuid, emoji.uuid)">
                       </span>
                     }@else {
                       <span class="emoji-option" [title]="emoji.emoji_name"
-                        (click)="reactToComment(comment.uuid, emoji.uuid, true); showEmojiOptions[comment.uuid]=false">
+                        (click)="selectEmoji(comment.uuid, emoji.uuid)"
+                        (keypress)="selectEmoji(comment.uuid, emoji.uuid)">
                         {{ emoji.emoji_code }}
                       </span>
                     }
@@ -61,7 +71,8 @@
               </div>
             </ng-container>
             <span class="comment-reactions-count" *ngIf="getCommentReactionsCount(comment) > 0"
-              (click)="openCommentReactionsModal(comment)" style="cursor:pointer">
+              (click)="openCommentReactionsModal(comment)"
+              (keypress)="openCommentReactionsModal(comment)">
               {{ getCommentReactionsCount(comment) }}
               <i class="bi bi-hand-thumbs-up icon"></i>
             </span>

@@ -57,7 +57,7 @@ export class PostComponent implements OnInit {
   totalReactions = signal(0);
   totalComments = signal(0);
 
-  // Reactions
+  // Reactiones para vista mobil-touch
   showOptionsReactions = signal(false);
   private longPressTimer?: ReturnType<typeof setTimeout>;
   private readonly LONG_PRESS_MS = 400;
