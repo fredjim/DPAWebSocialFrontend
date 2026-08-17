@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, OnDestroy, SimpleChanges, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnDestroy, SimpleChanges, OnInit, ViewChild, signal, HostListener } from '@angular/core';
 import { Comment } from '../../models/comment';
 import { Reply } from '../../models/reply';
 import { UserDetail } from '../../../shared/models/user-detail';
@@ -58,6 +58,10 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
     'astonished-face': 'astonished-face'
   };
 
+  // Reactiones vista movil-touch
+  private longPressTimers: { [uuid: string]: ReturnType<typeof setTimeout> } = {};
+  private readonly LONG_PRESS_MS = 400;
+
   constructor(
     private readonly commentService: CommentService,
     private readonly reactionService: ReactionService,
@@ -114,6 +118,48 @@ export class CommentListComponent implements OnInit, OnChanges, OnDestroy {
   getSelectedEmoji(commentUuid: string) {
     const emojiUuid = this.selectedReactions[commentUuid];
     return this.emojis.find(e => e.uuid === emojiUuid);
+  }
+
+  onTouchStart(commentUuid: string) {
+    this.longPressTimers[commentUuid] = setTimeout(() => {
+      this.showEmojiOptions[commentUuid] = true;
+    }, this.LONG_PRESS_MS);
+  }
+
+  onTouchEnd(commentUuid: string) {
+    this.cancelLongPress(commentUuid);
+  }
+
+  cancelLongPress(commentUuid: string) {
+    if (this.longPressTimers[commentUuid]) {
+      clearTimeout(this.longPressTimers[commentUuid]);
+      delete this.longPressTimers[commentUuid];
+    }
+  }
+
+  // Evita que el tap principal reaccione con el emoji por defecto
+  // si lo que se quería era abrir el panel (igual que con el post)
+  onMainButtonClick(commentUuid: string) {
+    if (this.showEmojiOptions[commentUuid]) {
+      return;
+    }
+    this.reactToComment(commentUuid, this.getSelectedEmoji(commentUuid)?.uuid || this.defaultEmoji.uuid);
+  }
+
+  selectEmoji(commentUuid: string, emojiUuid: string) {
+    this.showEmojiOptions[commentUuid] = false;
+    this.reactToComment(commentUuid, emojiUuid, true);
+  }
+
+  // Cierra el panel de reacciones si el usuario toca afuera del wrapper
+  @HostListener('document:touchstart', ['$event'])
+  onDocumentTouch(event: TouchEvent) {
+    const target = event.target as HTMLElement;
+    for (const uuid in this.showEmojiOptions) {
+      if (this.showEmojiOptions[uuid] && !target.closest(`[data-comment-uuid="${uuid}"]`)) {
+        this.showEmojiOptions[uuid] = false;
+      }
+    }
   }
 
   reactToComment(commentUuid: string, emojiTypeUuid: string, forceChange: boolean = false) {

@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, Output, EventEmitter, ViewChild, HostListener } from '@angular/core';
 import moment from 'moment-timezone';
 import { ReplyService } from '../../services/reply.service';
 import { ReactionService } from '../../services/reaction.service';
@@ -56,6 +56,10 @@ export class ReplyListComponent implements OnInit, OnDestroy {
     'astonished-face': 'astonished-face'
   };
 
+  // Reactiones vista movil-touch
+  private longPressTimers: { [uuid: string]: ReturnType<typeof setTimeout> } = {};
+  private readonly LONG_PRESS_MS = 400;
+
   constructor(
     private readonly replyService: ReplyService,
     private readonly reactionService: ReactionService,
@@ -106,7 +110,48 @@ export class ReplyListComponent implements OnInit, OnDestroy {
     return this.emojis.find(e => e.uuid === emojiUuid);
   }
 
-  // ...existing code...
+  onTouchStart(replyUuid: string) {
+    this.longPressTimers[replyUuid] = setTimeout(() => {
+      this.showEmojiOptions[replyUuid] = true;
+    }, this.LONG_PRESS_MS);
+  }
+
+  onTouchEnd(replyUuid: string) {
+    this.cancelLongPress(replyUuid);
+  }
+
+  cancelLongPress(replyUuid: string) {
+    if (this.longPressTimers[replyUuid]) {
+      clearTimeout(this.longPressTimers[replyUuid]);
+      delete this.longPressTimers[replyUuid];
+    }
+  }
+
+  // Evita que el tap principal reaccione con el emoji por defecto
+  // si lo que se quería era abrir el panel (igual que con el post)
+  onMainButtonClick(replyUuid: string) {
+    if (this.showEmojiOptions[replyUuid]) {
+      return;
+    }
+    this.reactToReply(replyUuid, this.getSelectedEmoji(replyUuid)?.uuid || this.defaultEmoji.uuid);
+  }
+
+  selectEmoji(replyUuid: string, emojiUuid: string) {
+    this.showEmojiOptions[replyUuid] = false;
+    this.reactToReply(replyUuid, emojiUuid, true);
+  }
+
+  // Cierra el panel de reacciones si el usuario toca afuera del wrapper
+  @HostListener('document:touchstart', ['$event'])
+  onDocumentTouch(event: TouchEvent) {
+    const target = event.target as HTMLElement;
+    for (const uuid in this.showEmojiOptions) {
+      if (this.showEmojiOptions[uuid] && !target.closest(`[data-reply-uuid="${uuid}"]`)) {
+        this.showEmojiOptions[uuid] = false;
+      }
+    }
+  }
+  
   reactToReply(replyUuid: string, emojiTypeUuid: string, forceChange: boolean = false) {
     if (this.selectedReactions[replyUuid] && !forceChange) {
       this.removeReplyReaction(replyUuid);

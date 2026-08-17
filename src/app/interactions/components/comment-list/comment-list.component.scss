@@ -104,13 +104,13 @@
   }
 }
 
-/* comment-actions > fb-reaction-btn-wrapper */
-.fb-reaction-btn-wrapper {
+/* comment-actions > reaction-btn-wrapper */
+.reaction-btn-wrapper {
   position: relative;
   display: inline-block;
 }
 
-.fb-reaction-btn {
+.reaction-btn {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -147,7 +147,7 @@
   }
 }
 
-.fb-emoji-options {
+.emoji-options {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -196,6 +196,7 @@
   font-weight: 500;
   display: inline-flex;
   align-items: center;
+  cursor: pointer;
 
   .icon {
     margin-left: 3px;
@@ -368,9 +369,13 @@
     font-size: 14px;
   }
 
-  .fb-reaction-btn {
+  .reaction-btn {
     .label-reaction {
       display: none;
     }
+  }
+
+  .emoji-options {
+    left: -170px;
   }
 }
