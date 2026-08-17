@@ -16,6 +16,7 @@ import { Link } from '../../models/link';
 import { MediaArticle } from '../../models/media-article';
 import { NavItem } from '../../../shared/models/nav-item';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
+import { Media } from '../../../shared/models/media';
 
 @Component({
   selector: 'app-article-container',
@@ -54,6 +55,21 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   public currentNavItemPath!: string | null;
 
   @ViewChild('sectionToastRef') private readonly sectionToastRef!: CustomToastComponent;
+
+  // Variable para el zoom
+  zoomLevel = 1;
+  minZoom = 1;
+  maxZoom = 3;
+  zoomStep = 0.5;
+
+  panX = 0;
+  panY = 0;
+  private isPanning = false;
+  private lastX = 0;
+  private lastY = 0;
+  private pointerId: number | null = null;
+  private maxPanX = 0;
+  private maxPanY = 0;
 
   ngOnInit() {
     this.currentSlug = this.tenantService.getSlug();
@@ -181,10 +197,146 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   
   closeModalArticleMedias(): void {
     this.mediasToModal = [];
-
+    this.initialImageModal = 0;
+    this.resetZoom();
   }
 
   existTypeMedia(article: Article, typesExist: string[]): boolean {
     return article.medias.some(media => typesExist.includes(media.type));
+  }
+
+  // Metodos para el zoom en carousel
+  async downloadMedia(media: Media, event: MouseEvent): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation(); // evita que el click llegue al <video> o <img> de atrás
+
+    if(!media.path) return;
+    try {
+      const response = await fetch(media.path);
+      const originalBlob = await response.blob();
+
+      // Forzamos el tipo genérico para que el navegador no intente "previsualizar"
+      // el archivo y en su lugar dispare la descarga directa.
+      const forcedBlob = new Blob([originalBlob], { type: 'application/octet-stream' });
+
+      const blobUrl = window.URL.createObjectURL(forcedBlob);
+      const filename = media.name || media.path.split('/').pop() || `media-${Date.now()}`;
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error al descargar el archivo', error);
+      this.sectionToastRef.showError('Error al descargar el archivo', 'Error');
+    }
+  }
+
+  zoomIn(): void {
+    this.zoomLevel = Math.min(this.zoomLevel + this.zoomStep, this.maxZoom);
+    this.panX = 0;
+    this.panY = 0;
+  }
+
+  zoomOut(): void {
+    this.zoomLevel = Math.max(this.zoomLevel - this.zoomStep, this.minZoom);
+    this.panX = 0;
+    this.panY = 0;
+  }
+
+  resetZoom(): void {
+    this.zoomLevel = 1;
+    this.panX = 0;
+    this.panY = 0;
+  }
+
+  onCarouselPageChange(): void {
+    this.resetZoom();
+  }
+
+  startPan(event: PointerEvent): void {
+    if (this.zoomLevel === 1) return;
+    this.isPanning = true;
+    this.pointerId = event.pointerId;
+    (event.target as HTMLElement).setPointerCapture(event.pointerId);
+    this.lastX = event.clientX;
+    this.lastY = event.clientY;
+
+    this.calculatePanBounds(event.target as HTMLImageElement);
+  }
+
+
+  onPan(event: PointerEvent): void {
+    if (!this.isPanning || event.pointerId !== this.pointerId) return;
+
+    const deltaX = event.clientX - this.lastX;
+    const deltaY = event.clientY - this.lastY;
+
+    const newPanX = this.panX + deltaX / this.zoomLevel;
+    const newPanY = this.panY + deltaY / this.zoomLevel;
+
+    // clamp: no dejamos que el pan supere los límites calculados
+    this.panX = Math.max(-this.maxPanX, Math.min(this.maxPanX, newPanX));
+    this.panY = Math.max(-this.maxPanY, Math.min(this.maxPanY, newPanY));
+
+    this.lastX = event.clientX;
+    this.lastY = event.clientY;
+  }
+
+  endPan(event: PointerEvent): void {
+    this.isPanning = false;
+
+    if (this.pointerId !== null) {
+      const target = event.target as HTMLElement;
+      if (target.hasPointerCapture(this.pointerId)) {
+        target.releasePointerCapture(this.pointerId);
+      }
+    }
+
+    this.pointerId = null;
+  }
+
+  startPanTouch(event: TouchEvent): void {
+    if (this.zoomLevel === 1) return;
+    const touch = event.touches[0];
+    this.isPanning = true;
+    this.lastX = touch.clientX;
+    this.lastY = touch.clientY;
+  }
+
+  onPanTouch(event: TouchEvent): void {
+    if (!this.isPanning) return;
+    event.preventDefault(); // evita que el navegador haga scroll de la página mientras arrastrás
+    event.stopPropagation();
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - this.lastX;
+    const deltaY = touch.clientY - this.lastY;
+    this.panX += deltaX / this.zoomLevel;
+    this.panY += deltaY / this.zoomLevel;
+    this.lastX = touch.clientX;
+    this.lastY = touch.clientY;
+  }
+
+  private calculatePanBounds(imgEl: HTMLImageElement): void {
+    const container = imgEl.closest('.zoom-container') as HTMLElement;
+    if (!container) return;
+
+    // offsetWidth/offsetHeight dan el tamaño "de layout" sin el transform aplicado,
+    // que es lo que necesitamos como base antes de escalar
+    const scaledWidth = imgEl.offsetWidth * this.zoomLevel;
+    const scaledHeight = imgEl.offsetHeight * this.zoomLevel;
+
+    const overflowX = Math.max(0, scaledWidth - container.offsetWidth);
+    const overflowY = Math.max(0, scaledHeight - container.offsetHeight);
+
+    // dividimos por zoomLevel porque panX/panY se acumulan en unidades
+    // "pre-escala" (ver por qué en onPan: deltaX / zoomLevel)
+    this.maxPanX = overflowX / 2 / this.zoomLevel;
+    this.maxPanY = overflowY / 2 / this.zoomLevel;
   }
 }

@@ -74,20 +74,21 @@
                         <i class="pi pi-search-plus"></i>
                       </button>
                     </div>
+                    
+                    <button
+                      type="button"
+                      class="download-btn"
+                      (click)="downloadMedia(media, $event)"
+                      title="Descargar"
+                      aria-label="Descargar">
+                      <i class="pi pi-download"></i>
+                    </button>
                   </ng-container>
 
                   <ng-container *ngIf="media.type.includes('video')">
                     <video [src]="media.path" controls class="video"></video>
                   </ng-container>
 
-                  <button
-                    type="button"
-                    class="download-btn"
-                    (click)="downloadMedia(media, $event)"
-                    title="Descargar"
-                    aria-label="Descargar">
-                    <i class="pi pi-download"></i>
-                  </button>
 
                 </div>
               </ng-template>
