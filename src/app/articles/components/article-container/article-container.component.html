@@ -1,0 +1,189 @@
+<div class="page-container">
+
+	<!-- Vista mobile -->
+	<div class="header-navitem">
+		<div class="data-user">
+			<div class="info-user">
+				<h2 *ngIf="currentNavItem">{{ currentNavItem.label }}</h2>
+			</div>
+		</div>
+	</div>
+	<!-- Si el menuItem tiene el mismo nombre que la seccion -> se oculta -->
+	@if(currentNavItem && currentSection && currentNavItem.label !== currentSection.name){
+		<div class="header-section">
+			<div class="data-user">
+				<div class="info-user">
+					<h2 *ngIf="currentSection">{{ currentSection.name }}</h2>
+				</div>
+			</div>
+		</div>
+	}
+
+	<div class="page-section no-border-bottom">
+		@for(article of articles; track article.uuid;  let i = $index){
+			@if(currentUser && currentUser.role === 'ADMIN'){
+				<!-- View admin -->
+				<!-- Mostrar form de edicion del articulo -->
+				@if(idArticleToEdit === article.uuid){
+					<app-article-form
+						[currentArticle]="article"
+						typeForm="edit"
+						(onCloseEdit)="closeEdit()"
+						(onEditedArticle)="onUpdateArticle($event)"
+						(onDeletedArticle)="onDeleteArticle($event)"
+						(onComponentReady)="onEditComponentReady()"
+					></app-article-form>
+				}@else {
+					<div class="edit-section-content">
+						<div class="section-content">
+							<h3>{{ article.title }}</h3>
+							<div class="text" *ngIf="article" [innerHTML]="safeText(article.text)"></div>
+
+							<!-- Documents article -->
+							<div class="documents" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeDocs)">
+								@for(media of article.medias; track media.uuid){
+									@if(typeDocs.includes(media.type)){
+										<a [href]="media.path" target="_blank"><i class="bi bi-file-earmark-pdf-fill"></i> {{ media.name }}</a>
+									}
+								}
+							</div>
+
+							<!-- Buttons article -->
+							<div class="buttons" *ngIf="article.links.length > 0">
+								@for(button of article.links; track button.uuid){
+									<div class="attach-files">
+										<a [href]="button.url" target="_blank">
+											<img src="assets/icon-link.png" alt="icon-link"> {{ button.name }}
+										</a>
+									</div>
+								}
+							</div>
+
+							<div class="media-container" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeImages)" >
+								@for(media of article.medias; track media.uuid){
+									@if(media.type.includes('image')){
+										<img [src]="media.path" [alt]="media.name"
+											(click)="showModalArticleMedias(article.medias, media.uuid)" 
+											(keypress)="showModalArticleMedias(article.medias, media.uuid)">
+									}
+								}
+							</div>
+
+						</div>
+						<div class="edit-info" (click)="editInfo(article.uuid)" (keypress)="editInfo(article.uuid)">
+							<i class="bi bi-pencil-fill"></i>
+						</div>
+					</div>
+				}
+			}@else {
+				<!-- View general user -->
+				<div class="section-content">
+					<h3>{{ article.title }}</h3>
+					<div class="text" [innerHTML]="safeText(article.text)"></div>
+
+					<!-- Documents article -->
+					<div class="documents" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeDocs)">
+						@for(media of article.medias; track media.uuid){
+							@if(typeDocs.includes(media.type)){
+								<a [href]="media.path" target="_blank"><i class="bi bi-file-earmark-pdf-fill"></i> {{ media.name }}</a>
+							}
+						}
+					</div>
+
+					<!-- Buttons article -->
+					<div class="buttons" *ngIf="article.links.length > 0">
+						@for(button of article.links; track button.uuid){
+							<div class="attach-files">
+								<a [href]="button.url" target="_blank">
+									<img src="assets/icon-link.png" alt="icon-link"> {{ button.name }}
+								</a>
+							</div>
+						}
+					</div>
+
+					<div class="media-container" *ngIf="article.medias.length > 0 && existTypeMedia(article, typeImages)" >
+						@for(media of article.medias; track media.uuid){
+							@if(media.type.includes('image')){
+								<img [src]="media.path" [alt]="media.name"
+									(click)="showModalArticleMedias(article.medias, media.uuid)" 
+									(keypress)="showModalArticleMedias(article.medias, media.uuid)">
+							}
+						}
+					</div>
+				</div>
+			}
+		}
+		@if(currentUser && currentUser.role === 'ADMIN'){
+			@if(showButtonNewArticle){
+				<ui-button
+					label="Agregar artículo"
+					icon="pi pi-plus"
+					(clicked)="hideButtonNewArticle()"
+				></ui-button>
+			}@else{
+				<app-article-form
+					typeForm="create"
+					[currentSectionUuid]="currentSection.uuid"
+					(onCloseNew)="showButtonNewArticle = $event"
+					(onCreateArticle)="onCreateArticle($event)"
+					(onComponentReady)="onEditComponentReady()"
+				></app-article-form>
+			} 
+		}
+	</div>
+
+</div>
+<app-custom-toast #sectionToastRef key="sectionToast" position="top-right"></app-custom-toast>
+
+<p-dialog
+	[modal]="true"
+	[(visible)]="visibleModalImagesArticle"
+	[style]="{ width: '60rem' }" 
+	(onHide)="closeModalArticleMedias()"
+>
+	<p-carousel 
+		*ngIf="visibleModalImagesArticle && mediasToModal.length > 0"
+        [value]="mediasToModal" 
+        [numVisible]="1" 
+        [numScroll]="1"
+		[page]="initialImageModal" 
+		[showIndicators]="mediasToModal.length > 1"
+		[showNavigators]="mediasToModal.length > 1"
+        [circular]="mediasToModal.length > 1"
+		(onPage)="onCarouselPageChange()">
+            <ng-template let-image pTemplate="item">
+                <div class="container-img text-center">
+					<div class="zoom-container" [class.zoomed]="zoomLevel > 1">
+						<img [src]="image.path" alt=""
+							draggable="false"
+							[style.transform]="'scale(' + zoomLevel + ') translate(' + panX + 'px, ' + panY + 'px)'"
+							(pointerdown)="startPan($event)"
+							(pointermove)="onPan($event)"
+							(pointerup)="endPan($event)"
+							(pointercancel)="endPan($event)"/>
+					</div>
+
+					<div class="zoom-controls">
+                      <button type="button" (click)="zoomOut()" [disabled]="zoomLevel <= minZoom" aria-label="Alejar">
+                        <i class="pi pi-search-minus"></i>
+                      </button>
+                      <button type="button" (click)="resetZoom()" [disabled]="zoomLevel === 1" aria-label="Restablecer zoom">
+                        <i class="pi pi-refresh"></i>
+                      </button>
+                      <button type="button" (click)="zoomIn()" [disabled]="zoomLevel >= maxZoom" aria-label="Acercar">
+                        <i class="pi pi-search-plus"></i>
+                      </button>
+                    </div>
+                    
+                    <button
+                      type="button"
+                      class="download-btn"
+                      (click)="downloadMedia(image, $event)"
+                      title="Descargar"
+                      aria-label="Descargar">
+                      <i class="pi pi-download"></i>
+                    </button>
+                </div>
+            </ng-template>
+    </p-carousel>
+</p-dialog>

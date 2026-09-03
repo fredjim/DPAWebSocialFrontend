@@ -7,6 +7,9 @@
     [globalFilterFields]="globalFilterFields"
     [hasActions]="true"
     searchPlaceholder="Buscar administradores..."
+    [lazy]="true"
+    [totalRecords]="totalRecords"
+    (onLazyLoad)="onLazyLoad($event)"
   >
     <!-- Botón de añadir en el toolbar -->
     <p-button
@@ -32,9 +35,9 @@
         ></button>
         <button
           pButton
-          icon="fa-solid fa-trash-can"
+          icon="fa-solid fa-user-slash"
           class="p-button-text p-button-danger p-button-rounded"
-          pTooltip="Eliminar"
+          pTooltip="Deshabilitar"
           tooltipPosition="top"
           title=""
           (click)="confirmDelete(admin)"
@@ -60,16 +63,18 @@
           <label class="form-label" for="name">Nombre <span class="text-danger">*</span></label>
           <input pInputText id="name" formControlName="name" class="w-100" placeholder="Ej: Juan" />
           <small class="text-danger" *ngIf="hasError('name', 'required')">Obligatorio</small>
-          <small class="text-danger-msg" *ngIf="hasError('name', 'minlength')">Mínimo {{ MIN_LENGTH_NAME }} caracteres</small>
-          <small class="text-danger-msg" *ngIf="hasError('name', 'maxlength')">Máximo {{ MAX_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('name', 'minlength')">Mínimo {{ MIN_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('name', 'maxlength')">Máximo {{ MAX_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('name', 'pattern')">Solo letras y espacios</small>
         </div>
 
         <div class="col-md-6">
           <label class="form-label" for="lastName">Apellido <span class="text-danger">*</span></label>
           <input pInputText id="lastName" formControlName="lastName" class="w-100" placeholder="Ej: Pérez" />
           <small class="text-danger" *ngIf="hasError('lastName', 'required')">Obligatorio</small>
-          <small class="text-danger-msg" *ngIf="hasError('lastName', 'minlength')">Mínimo {{ MIN_LENGTH_NAME }} caracteres</small>
-          <small class="text-danger-msg" *ngIf="hasError('lastName', 'maxlength')">Máximo {{ MAX_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('lastName', 'minlength')">Mínimo {{ MIN_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('lastName', 'maxlength')">Máximo {{ MAX_LENGTH_NAME }} caracteres</small>
+          <small class="text-danger" *ngIf="hasError('lastName', 'pattern')">Solo letras y espacios</small>
         </div>
 
         <div class="col-12">
@@ -153,5 +158,4 @@
   </ng-template>
 </p-dialog>
 
-<p-confirmDialog />
 <app-custom-toast #toastRef key="adminUsersToast" position="top-right"></app-custom-toast>

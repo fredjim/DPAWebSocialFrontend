@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, QueryList, signal, ViewChildren, WritableSignal } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Reactions } from '../../models/reactions';
-import { PostService } from '../../services/post.service';
-import { EmojiType } from '../../models/emoji-type';
+import { ReactionService } from '../../../interactions/services/reaction.service'; 
+import { EmojiType } from '../../../shared/models/emoji-type';
 import { ReactionsByType } from '../../models/reactions-by-type';
 
 @Component({
@@ -21,11 +21,11 @@ export class ModalListReactionsComponent implements OnInit, AfterViewInit, OnDes
 
   public showPopupUser: WritableSignal<boolean> = signal(false);
 
-  constructor(private readonly postService: PostService) { }
+  constructor(private readonly reactionService: ReactionService) { }
 
   ngOnInit(){
     //Obtener los tipos de emoji
-    this.postService.getEmojisType()
+    this.reactionService.getEmojisType()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: EmojiType[]) => {

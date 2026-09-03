@@ -3,26 +3,25 @@
 	<div class="header-post">
 		@if (institution) {
 		<div class="data-user">
-			@if (institution) {
-				<app-institution-avatar [institution]="institution" size="small"></app-institution-avatar>
-			}
+			<app-institution-avatar [institution]="institution" size="small" id="inst-avatar"></app-institution-avatar>
+
 			<div class="info-user">
 				<h2>{{ institution.name }}</h2>
 				<p>{{ calculateTimePost() }} <strong>publicado por:</strong> {{ post.name }} </p>
 			</div>
 		</div>
 		}
-		@if(authenticated === true && currentUser && currentUser.role === 'ADMIN'){
+		@if(currentUser && currentUser.role === 'ADMIN'){
 			<div class="options-post d-flex justify-content-center align-items-center"
-				(click)="showOptions.set(!showOptions())" (keypress)="showOptions.set(!showOptions())">
+				(click)="showOptionsPost.set(!showOptionsPost())" (keypress)="showOptionsPost.set(!showOptionsPost())">
 				<i class="bi bi-three-dots"></i>
 			</div>
 		}
 	</div>
 
 	<!-- Popup de opciones post Editar/Eliminar -->
-	<app-options-post *ngIf="showOptions() && authenticated === true && currentUser.role === 'ADMIN'"
-		(clickOutside)="showOptions.set(false)" [postReference]="post.uuid"
+	<app-options-post *ngIf="showOptionsPost() && currentUser && currentUser.role === 'ADMIN'"
+		(clickOutside)="showOptionsPost.set(false)" [postReference]="post.uuid"
 		(openEdit)="openModalEdit.set(true)"></app-options-post>
 
 	<!-- Modals de editar y eliminar post -->
@@ -31,55 +30,62 @@
 	<app-modal-delete-post (confirmDeletePost)="deletePost($event)" [postReference]="post.uuid"></app-modal-delete-post>
 
 	<!-- Contenido de texto del post -->
-	<p *ngIf="post.content.text != '' && allowedTextLength(); else reduceText" class="text-post"
-		[innerHTML]="post.content.text"> </p>
+	<p
+		*ngIf="post.content.text != '' && (allowedTextLength() || isExpanded(post.uuid)); else reduceText"
+		class="text-post"
+		[innerHTML]="post.content.text | linkify">
+	</p>
 	<ng-template #reduceText>
-		<p id="{{'text-post-'+post.uuid}}" *ngIf="post.content.text != ''" class="text-post"
-		>{{adjustedTextLength()}}<span class="see-more fw-bold" (click)="showAllText(post.uuid)" (keypress)="showAllText(post.uuid)">Ver más</span></p>
-	</ng-template>
+    <p *ngIf="post.content.text != ''" class="text-post">
+        <span [innerHTML]="adjustedTextLength() | linkify"></span>
+        <span class="see-more fw-bold" (click)="showAllText(post.uuid)" (keypress)="showAllText(post.uuid)">Ver más</span>
+    </p>
+</ng-template>
 
 	<!-- Si hay contenido multi media (imagenes/videos, documento) -->
-	<!--@if (listMediaPost.length > 0) {-->
-	<ng-container *ngIf="listMediaPost.length > 0">
+	 
+	<!-- Visualizar documentos de post -->
+	<div *ngIf="listDocsPost.length > 0" class="documents-list d-flex flex-column gap-2 my-2 px-2">
+		<ng-container *ngFor="let doc of listDocsPost">
+			<a [href]="doc.path" target="_blank" class="text-decoration-none">
+				<i class="bi bi-file-earmark-pdf-fill"></i> {{ doc.name || 'Documento PDF' }}
+			</a>
+		</ng-container>
+	</div>
 
-		<!-- Visualizar posts con imagenes y/o videos -->
-		<div *ngIf="post.content.media[0].type != 'document'" class="post-medias"
-			[ngClass]="getGridClass(listMediaPost)">
-			<ng-container *ngFor="let media of listMediaPost; let i = index">
-				<!-- Mostrar las primeras 4 imágenes/videos directamente -->
-				<div *ngIf="i < 3 || listMediaPost.length == 4" class="media-post"
-					[ngClass]="{'three': listMediaPost.length == 3 && i == 0}">
+	<!-- Visualizar posts con imagenes y/o videos -->
+	<div class="post-medias" *ngIf="listMediaPost.length > 0"
+		[ngClass]="getGridClass(listMediaPost)">
+		<ng-container *ngFor="let media of listMediaPost; let i = index">
+			<!-- Mostrar las primeras 4 imágenes/videos directamente -->
+			<div *ngIf="(i < 3 || listMediaPost.length == 4) && media.type !== 'document'" class="media-post"
+				[ngClass]="{'three': listMediaPost.length == 3 && i == 0}">
+				<img *ngIf="typeImages.includes(media.type); else mostrarVideo" 
+					[src]="media.path"
+					[alt]="media.name || 'Media del post'" 
+					(click)="openViewPostComments(post, i)"
+					(keypress)="openViewPostComments(post, i)">
+				<ng-template #mostrarVideo>
+					<video [src]="media.path" 
+						(click)="openViewPostComments(post, i)"
+						(keypress)="openViewPostComments(post, i)"
+					></video>
+				</ng-template>
+			</div>
+			<!-- Quinta imagen/video: Con superposición si hay más media -->
+			<div *ngIf="(i === 3 && listMediaPost.length > 4) && media.type !== 'document'" class="media-post">
+				<div class="more" (click)="openViewPostComments(post, 3)">
 					<img *ngIf="typeImages.includes(media.type); else mostrarVideo" [src]="media.path"
-						[alt]="media.name || 'Imagen del post'" (click)="openViewPostComments(post, i)" style="cursor: pointer;">
+						[alt]="media.name || 'Media del post'">
 					<ng-template #mostrarVideo>
-						<video [src]="media.path" (click)="openViewPostComments(post, i)" style="cursor: pointer;"></video>
+						<video [src]="media.path" controls></video>
 					</ng-template>
+					<div class="overlay">+{{ listMediaPost.length - 4 }}</div>
 				</div>
-				<!-- Quinta imagen/video: Con superposición si hay más media -->
-				<div *ngIf="i === 3 && listMediaPost.length > 4" class="media-post">
-					<div class="more" (click)="openViewPostComments(post, 3)">
-						<img *ngIf="typeImages.includes(media.type); else mostrarVideo" [src]="media.path"
-							[alt]="media.name || 'Imagen del post'">
-						<ng-template #mostrarVideo>
-							<video [src]="media.path" controls></video>
-						</ng-template>
-						<div class="overlay">+{{ listMediaPost.length - 4 }}</div>
-					</div>
-				</div>
-			</ng-container>
-		</div>
-
-		<!-- Visualizar post con documentos -->
-		<ng-container *ngIf="post.content.media[0].type == 'document'">
-			<div class="documents-list d-flex flex-column gap-2 mt-2 px-2">
-				<ng-container *ngFor="let doc of post.content.media">
-					<a *ngIf="doc.type === 'document'" [href]="doc.path" target="_blank" class="text-decoration-none">
-						<i class="bi bi-file-earmark-pdf-fill"></i> {{ doc.name || 'Documento PDF' }}
-					</a>
-				</ng-container>
 			</div>
 		</ng-container>
-	</ng-container>
+	</div>
+
 	<!-- Cantidad de reacciones y comentarios -->
 	<!-- Mostrar solo si hay reacciones o comentarios -->
 	<ng-container *ngIf="amountReactions() > 0 || amountComments() > 0">
@@ -91,48 +97,63 @@
 			<app-modal-list-reactions [reactions]="post.reactions"
 				[postReference]="post.uuid"></app-modal-list-reactions>
 			<div class="divisor" *ngIf="amountComments() > 0"></div>
-			<div class="item" *ngIf="amountComments() > 0" (click)="openViewPostComments(post)">
+			<div class="item" *ngIf="amountComments() > 0" (click)="openViewPostComments(post)" (keypress)="openViewPostComments(post)">
 				<span class="quantity">{{ totalComments() }}</span>
 				<i class="bi bi-chat-left-text icon"></i>
 			</div>
-			<div class="item" hidden>
-				<span class="quantity">20</span>
-				<i class="fa fa-share icon"></i>
-			</div>
 		</div>
-		<hr [hidden]="!authenticated">
+		<hr [hidden]="!currentUser">
 	</ng-container>
 	
 	<!-- Botones de reaccionar, comentar y compartir -->
-	<div class="bottuns" *ngIf="authenticated">
+	<div class="buttons" *ngIf="currentUser">
 		<!-- Boton de Reaccionar -->
-		<button type="button" class="btn icon-btn" [ngClass]="myReaction.class" id="btn-like"
-			(click)="reactUserBoton(post.uuid)">
-			<i class="{{ myReaction.emoji }}"
-				*ngIf="myReaction.class == 'thumbs-up' || myReaction.class == 'red-heart' || myReaction.class == 'default'"></i>
-			<img src="assets/{{myReaction.class}}.png" class="{{myReaction.class}}"
-				*ngIf="myReaction.class == 'crying-face' || myReaction.class == 'angry-face'">
-			<span class="ms-1">{{ myReaction.name }}</span>
+		<button type="button" class="btn icon-btn" [ngClass]="[myReaction.class, showOptionsReactions() ? 'show-options' : '']" 
+			id="btn-reaction"
+			(click)="reactUserBoton(post.uuid, mapEmojiTypeExtended.get('thumbs-up'))"
+			(touchstart)="onTouchStart(post.uuid, $event)"
+			(touchend)="onTouchEnd()"
+			(touchmove)="cancelLongPress()">
+			
+			<!-- Icono del boton -->
+			@if(myReaction.class === 'default' || myReaction.class === 'thumbs-up') {
+				<span class="{{ myReaction.emoji }} emoji"></span>
+			}@else {
+				<span class="emoji">{{ myReaction.emoji }}</span>
+			}
+			
+			<!-- Nombre de reaccion -->
+			<span class="text-button">{{ myReaction.name }}</span>
+
 			<!-- Opciones de reaccion  -->
 			<div class="option-reactions">
-				<i class="fa-solid fa-thumbs-up" (click)="clickReaction(post.uuid, 'thumbs-up', $event)"></i>
-				<i class="fa-solid fa-heart" (click)="clickReaction(post.uuid, 'red-heart', $event)"></i>
-				<img src="assets/crying-face.png" class="crying-face"
-					(click)="clickReaction(post.uuid, 'crying-face', $event)">
-				<img src="assets/angry-face.png" class="angry-face"
-					(click)="clickReaction(post.uuid, 'angry-face', $event)">
+				@for (emoji of listEmojiTypeExtended; track $index) {
+					@if(emoji.emoji_name === 'thumbs-up'){
+						<span class="fa-solid fa-thumbs-up" pTooltip="Me gusta" tooltipPosition="top" 
+						(keypress)="clickReaction(post.uuid, 'thumbs-up', $event)"
+						(click)="clickReaction(post.uuid, 'thumbs-up', $event)"
+						></span>
+					}@else {
+						<span [pTooltip]="emoji.name_translated" tooltipPosition="top"
+						(click)="clickReaction(post.uuid, emoji.emoji_name, $event)"
+						(keypress)="clickReaction(post.uuid, emoji.emoji_name, $event)"
+						>{{ emoji.emoji_code }}</span>
+					}
+				}
 			</div>
 		</button>
 		<!-- Boton de Comentar -->
 		@if(post.commentsEnabled){
 			<button type="button" class="btn icon-btn" id="btn-comment" (click)="openViewPostComments(post)">
 				<i class="bi bi-chat-left-text"></i>
-				Comentar</button>
+				<span class="text-button comment">Comentar</span>
+			</button>
 		}
 		<!-- Boton de Compartir -->
 		<button type="button" class="btn icon-btn" id="btn-share" (click)="onShare()">
 			<i class="fa-solid fa-share"></i>
-			Compartir</button>
+			<span class="text-button share">Compartir</span>
+		</button>
 	</div>
 
 </div>

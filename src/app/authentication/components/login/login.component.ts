@@ -6,6 +6,8 @@ import { finalize } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ForgotPasswordComponent } from '../forgot-password/forgot-password.component';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
+import { TenantService } from '../../../core/services/tenant.service';
+import { Modal } from 'bootstrap';
 
 @Component({
   selector: 'app-login',
@@ -27,14 +29,17 @@ export class LoginComponent implements OnInit {
   public emailNotVerified = false;
   public isLoggedIn = false;
   public isLoading = false;
+  private currentSlug: string = '';
 
   constructor(
     private readonly formBuilder: FormBuilder,
     private readonly auth: AuthService,
     private readonly router: Router,
+    private readonly tenantService: TenantService
   ) { }
 
   ngOnInit(): void {
+    this.currentSlug = this.tenantService.getSlug();
     this.buildForm();
   }
 
@@ -55,27 +60,30 @@ export class LoginComponent implements OnInit {
       this.auth.login(login.username, login.password)
         .pipe(finalize(() => this.isLoading = false))
         .subscribe({
-        next: () => {
-          this.isLoggedIn = true;
-          this.router.navigate(['/']);
-          globalThis.location.reload();
-        },
-        error: (error: HttpErrorResponse) => {
-          console.log('Error al iniciar sesión', error);
-          const msg: string = error?.error?.message ?? '';
-          if (msg === 'Debes verificar tu email antes de iniciar sesión.') {
-            this.emailNotVerified = true;
-            this.toastRef.showWarn('Revisa tu bandeja de entrada y verifica tu email para poder iniciar sesión.', 'Email no verificado');
-          } else if (error.status === 400 && msg.includes('El usuario no pertenece a esta institución.')) {
-            this.credentialsAnotherInstitution = true;
-            this.toastRef.showError('El usuario no pertenece a esta institución', 'Error al iniciar sesión');
-          } else if (error.status === 401) {
-            this.correctCredentials = false;
+          next: () => {
+            this.isLoggedIn = true;
+            this.closeModal();
+            this.router.navigate([`/${this.currentSlug}`]);
+            // sin reload: UserStateService y OwnInstitutionStateService ya emitieron
+            // el nuevo valor, y cada componente suscrito se actualiza automáticamente
+          },
+          error: (error: HttpErrorResponse) => {
+            console.log('Error al iniciar sesión', error);
+            const msg: string = error?.error?.message ?? '';
+            if (msg === 'Debes verificar tu email antes de iniciar sesión.') {
+              this.emailNotVerified = true;
+              this.toastRef.showWarn('Revisa tu bandeja de entrada y verifica tu email para poder iniciar sesión.', 'Email no verificado');
+            } else if (error.status === 400 && msg.includes('El usuario no pertenece a esta institución.')) {
+              this.credentialsAnotherInstitution = true;
+              this.toastRef.showError('El usuario no pertenece a esta institución', 'Error al iniciar sesión');
+            } else if (error.status === 401) {
+              this.correctCredentials = false;
+            } else if (error.status === 403) {
+              this.toastRef.showError('La cuenta está deshabilitada. Contacta al administrador.', 'Error al iniciar sesión');
+            }
           }
-        }
-      });
+        });
     }
-
   }
 
   hasErrors(controlName:string, errorType: string){
@@ -97,6 +105,12 @@ export class LoginComponent implements OnInit {
   openForgotPassword(): void {
     this.loginForm.reset();
     this.forgotPasswordComp?.show();
+  }
+
+  closeModal() {
+    const modalEl = document.getElementById('loginModal');
+    const instance = Modal.getInstance(modalEl!) ?? new Modal(modalEl!);
+    instance.hide();
   }
 
 }

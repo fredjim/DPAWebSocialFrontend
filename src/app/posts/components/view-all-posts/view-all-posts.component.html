@@ -3,13 +3,13 @@
     <app-department-details></app-department-details>
   </div>
   <div *ngIf="posts" class="main-container">
-    @if (authenticated && currentUser) {
+    @if (currentUser) {
       <app-create-post *ngIf="currentUser.role === 'ADMIN'" (onCreatePost)="createdNewPost($event)"></app-create-post>
     }
     <div class="header-section">
       <div class="data-user">
         @if (currentInstitution) {
-          <app-institution-avatar [institution]="currentInstitution" size="small"></app-institution-avatar>
+          <app-institution-avatar [institution]="currentInstitution" size="small" id="inst-avatar"></app-institution-avatar>
         }
         <div class="info-user">
           <h2>Publicaciones</h2>
@@ -20,13 +20,15 @@
       <app-post *ngFor="let post of posts" 
         [post]="post" 
         [currentUser]="currentUser"
-        [authenticated]="authenticated"
+        [institution]="currentInstitution"
         [openInParent]="true"
         (openPostDetail)="handleOpenPost($event.post, $event.initialMediaIndex)"
         (requestDeletePost)="deletePost($event)"
         (requestUpdatePost)="updatePost($event)" 
         (reactionChanged)="updateReactions(post.uuid)">
       </app-post>
+    }@else if(loadingPosts) {
+      <span class="d-flex justify-content-center text-no-posts text-blue">Cargando publicaciones...</span>
     }@else {
       <span class="text-danger d-flex justify-content-center text-no-posts">No hay publicaciones.</span>
     }

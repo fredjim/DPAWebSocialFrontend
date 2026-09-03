@@ -1,0 +1,15 @@
+<div class="hero-profile" >
+	<div class="hero-images">
+		<div class="hero-photo">
+			<img *ngIf="institution && hasBackgroundImage" [src]="institution.background_url"
+				alt="Portada de la institucion" (error)="onCoverError()">
+			<div *ngIf="institution && !hasBackgroundImage" class="hero-photo-placeholder">
+				<span class="placeholder-label">No tiene foto de portada</span>
+			</div>
+		</div>
+		<div class="profile-photo">
+			<app-institution-avatar [institution]="institution" size="xlarge"></app-institution-avatar>
+		</div>
+	</div>
+	<h3 class="profile-information" *ngIf="institution">{{ institution.name }}</h3>
+</div>

@@ -5,7 +5,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from "primeng/inputtext";
 import { RouterModule } from '@angular/router';
 import { UserProfileRoutingModule } from './user-profile-routing.module';
-import { AppModule } from '../app.module';
 import { SharedModule } from '../shared/shared.module';
 
 
@@ -19,8 +18,8 @@ import { SharedModule } from '../shared/shared.module';
     InputTextModule,
     RouterModule,
     UserProfileRoutingModule,
-    AppModule,
     SharedModule
-  ]
+  ],
+  exports: [ProfileComponent]
 })
 export class UserProfileModule { }

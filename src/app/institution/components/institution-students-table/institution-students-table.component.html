@@ -1,0 +1,31 @@
+<div class="inner-table-wrapper">
+  <app-custom-table
+    title="Estudiantes"
+    [data]="students"
+    [columns]="columns"
+    [loading]="isLoading()"
+    [globalFilterFields]="globalFilterFields"
+    [hasActions]="true"
+    searchPlaceholder="Buscar estudiantes..."
+    [lazy]="true"
+    [totalRecords]="totalRecords"
+    (onLazyLoad)="onLazyLoad($event)"
+  >
+    <ng-template #actions let-student>
+      <div class="d-flex justify-content-center">
+        <button
+          pButton
+          [icon]="student.enabled ? 'fa-solid fa-user-slash' : 'fa-solid fa-user-check'"
+          [class]="student.enabled ? 'p-button-text p-button-danger p-button-rounded' : 'p-button-text p-button-success p-button-rounded'"
+          [pTooltip]="student.enabled ? 'Deshabilitar estudiante' : 'Habilitar estudiante'"
+          tooltipPosition="top"
+          title=""
+          (click)="confirmToggle(student)"
+        ></button>
+      </div>
+    </ng-template>
+  </app-custom-table>
+</div>
+
+<p-confirmDialog />
+<app-custom-toast #toastRef key="studentsTableToast" position="top-right" />

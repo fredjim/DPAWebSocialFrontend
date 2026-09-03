@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit, Input, inject } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { PostService } from '../../services/post.service';
-import { Institution } from '../../models/institution';
+import { InstitutionService } from '../../../institution/services/institution.service';
+import { Institution } from '../../../shared/models/institution';
 import { Post } from '../../models/post';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommentsComponent } from './../comments/comments.component';
-import { TenantService } from '../../../services/tenant.service';
+import { TenantInstitutionStateService } from '../../../core/services/tenant-institution-state.service';
 
 @Component({
   selector: 'home-photos-section',
@@ -20,19 +20,22 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
   photos: {url: string, postUuid: string}[] = [];
   isLoading: boolean = true;
   currentPost !: Post;
-  currentSlug: string = '';
+  visibleModalGallery: boolean = false;
+  visibleModalPost: boolean = false;
+  indexImage: number = 0;
 
   constructor(
     private readonly postService: PostService,
-    private readonly tenantService: TenantService
+    private readonly tenantInstitutionStateService: TenantInstitutionStateService,
+    private readonly institutionService: InstitutionService
   ) {}
 
   ngOnInit(){
-    this.currentSlug = this.tenantService.getSlug();
-    this.tenantService.getInstitution()
+    this.tenantInstitutionStateService.currentTenantInstitution$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (dataInstitution: Institution) => {
+        next: (dataInstitution) => {
+          if(!dataInstitution) return;
           this.institution = dataInstitution;
           this.loadPhotos();
         },
@@ -45,11 +48,11 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
 
   loadPhotos() {
     if (this.institution) {
-      this.postService.getInstitutionPhotos(this.institution.uuid)
+      this.institutionService.getInstitutionPhotos(this.institution.uuid, 0, 9)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: (photos) => {
-            this.photos = photos.slice(-9).map(photo => ({
+          next: (res) => {
+            this.photos = res.content.map(photo => ({
               url: `${photo.path}`,
               postUuid: `${photo.uuid_post}`
             }));
@@ -63,33 +66,19 @@ export class HomePhotosSectionComponent implements OnInit, OnDestroy {
     }
   }
 
-  openViewPost(postUuid: string, photoUrl: string) {
+  openViewPost(postUuid: string, mediaUrl: string) {
     this.postService.getPost(postUuid)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (dataPost: Post) => {
           this.currentPost = dataPost;
-          const indexImage = this.currentPost.content.media.findIndex( (media) => media.path === photoUrl)
-          this.openModal(indexImage);
+          this.indexImage = this.currentPost.content.media.findIndex( (media) => media.path === mediaUrl)
+          this.visibleModalPost = true;
         },
         error: (error) => {
           console.log(error);
-          this.isLoading = false;
         }
       });
-  }
-
-  openModal(initialMediaIndex: number) {
-    const modalRef = this.modalService.open(CommentsComponent, { size: 'xl' });
-
-    modalRef.componentInstance.institution = this.institution;
-    modalRef.componentInstance.post = this.currentPost;
-    modalRef.componentInstance.postUuid = this.currentPost.uuid;
-    modalRef.componentInstance.postMedia = this.currentPost.content.media;
-    modalRef.componentInstance.postAuthor = this.institution.name;
-    modalRef.componentInstance.postDate = this.calculateTimePost;
-    modalRef.componentInstance.postDescription = this.currentPost.content.text;
-    modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
   }
 
   getPost(postUuid: string) {

@@ -2,14 +2,16 @@ import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/co
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { PostService } from '../../services/post.service';
-import { AuthService } from '../../../authentication/services/auth.service';
+import { UserStateService } from '../../../core/services/user-state.service';
+import { InstitutionService } from '../../../institution/services/institution.service';
 import { Post } from '../../models/post';
-import { UserDetail } from '../../models/user-detail';
-import { Institution } from '../../models/institution';
-import { TenantService } from '../../../services/tenant.service';
+import { UserDetail } from '../../../shared/models/user-detail';
+import { Institution } from '../../../shared/models/institution';
+import { TenantService } from '../../../core/services/tenant.service';
+import { TenantInstitutionStateService } from '../../../core/services/tenant-institution-state.service';
 import { delay, distinctUntilChanged, fromEvent, Subject, takeUntil, throttleTime } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CommentsComponent } from '../comments/comments.component';
+import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
@@ -23,13 +25,12 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   private sidebarTopOffset = 80;
   private lastScrollTop = 0;
 
-  authenticated: boolean = false;
   posts: Post[] = [];
-  currentUser!: UserDetail;
+  currentUser: UserDetail | null = null;
   currentInstitution!: Institution;
   selectedPostReactions: any = null;
   selectedPostUuid: string = '';
-  loading = false;
+  loadingPosts = false;
   pageCounter = 0;
   showScrollButton = false;
   hasMorePosts = true;
@@ -41,7 +42,9 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly postService: PostService,
-    private readonly authService: AuthService,
+    private readonly userStateService: UserStateService,
+    private readonly institutionService: InstitutionService,
+    private readonly tenantInstitutionStateService: TenantInstitutionStateService,
     private readonly tenantService: TenantService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -51,7 +54,6 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   
   ngOnInit(){
     this.setupScrollListener();
-    this.authenticated = this.authService.isAuthenticated();
 
     this.route.paramMap
       .pipe(takeUntil(this.destroy$))
@@ -66,24 +68,24 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
     // Cargar primera página, carga inicial
     this.loadPosts(true);
 
-    this.tenantService.getInstitution()
+    this.tenantInstitutionStateService.currentTenantInstitution$
       .pipe(takeUntil(this.destroy$))
       .subscribe(institution => {
+        if(!institution) return;
         this.currentInstitution = institution;
       });
 
-    if(this.authenticated === true) {
-      this.postService.getUser()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next:(user: UserDetail) => {
-            this.currentUser = user;
-          },
-          error:(error) => {
-            console.error('Error al obtener el usuario actual', error);
-          }
-        });
-    }
+    this.userStateService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next:(user) => {
+          if(!user) return;
+          this.currentUser = user;
+        },
+        error:(error) => {
+          console.error('Error al obtener el usuario actual', error);
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -156,7 +158,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
 
   private checkForMorePosts(): void {
     // Si ya está cargando, no hay más posts, o estamos en carga inicial - no hacer nada
-    if (this.loading || !this.hasMorePosts) return;
+    if (this.loadingPosts || !this.hasMorePosts) return;
     
     // Calcular posición actual
     const scrollPosition = window.innerHeight + window.scrollY;
@@ -179,9 +181,9 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
 
   loadPosts(reset: boolean = false): void {
     // No cargar si ya está cargando o no hay más posts (excepto cuando se resetea)
-    if (this.loading || (!this.hasMorePosts && !reset)) return;
+    if (this.loadingPosts || (!this.hasMorePosts && !reset)) return;
     
-    this.loading = true;
+    this.loadingPosts = true;
 
     // Si es reset, reiniciamos pageCounter
     if (reset) {
@@ -211,11 +213,11 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
           this.hasMorePosts = data.length === 5; // Asumiendo que size=5
           
           this.pageCounter = reset ? 1 : this.pageCounter + 1;
-          this.loading = false;
+          this.loadingPosts = false;
         },
         error: (error) => {
           console.error('Error al obtener los posts paginados', error);
-          this.loading = false;
+          this.loadingPosts = false;
           // Deshabilitar más intentos si el error es 404 o similar
           if (error.status === 404) {
             this.hasMorePosts = false;
@@ -289,18 +291,13 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   }
 
   private openPostModal(post: Post, initialMediaIndex: number = 0): void {
-    this.postService.getInstitution(post.institution_id)
+    this.institutionService.getInstitutionByUuid(post.institution_id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (institution) => {
           const modalRef = this.modalService.open(CommentsComponent, { size: 'lg', centered: true });
           modalRef.componentInstance.institution = institution;
           modalRef.componentInstance.post = post;
-          modalRef.componentInstance.postUuid = post.uuid;
-          modalRef.componentInstance.postMedia = post.content.media;
-          modalRef.componentInstance.postAuthor = institution.name;
-          modalRef.componentInstance.postDate = this.calculateTimePost(post);
-          modalRef.componentInstance.postDescription = post.content.text;
           modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
 
           const resetUrl = () => {

@@ -1,0 +1,203 @@
+header {
+	position: relative;
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	margin: 0 15px;
+	padding: 15px 100px;
+	width: inherit;
+	height: 80px;
+	border-bottom: 2px solid var(--blue-color);
+	background-color: white;
+
+	img {
+		height: 50px;
+	}
+
+	.logo-brands {
+		justify-self: start;
+		display: flex;
+		gap: 30px;
+		align-items: center;
+
+		img {  // Logo de la UMSS
+			height: 50px;
+			width: auto;
+			object-fit: contain;
+		}
+	}
+
+	.main-logo {
+		justify-self: center;
+	}
+
+	.user-profile {
+		justify-self: end;
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+
+		.user-image {
+			transition: transform 0.3s ease;
+			border-radius: 50%;
+			height: 50px;
+			width: 50px;
+			object-fit: cover;
+
+			&:hover {
+				cursor: pointer;
+				transform: scale(1.05);
+			}
+		}
+
+		.burger-menu {
+			display: none;
+			width: 40px;
+			height: 40px;
+
+			.material-icons {
+				font-size: 40px;
+				font-weight: 100;
+				color: var(--blue-color);
+			}
+
+			&:hover {
+				cursor: pointer;
+			}
+		}
+
+		span.back-home {
+			display: flex;
+			align-items: center;
+			font-size: 30px;
+			color: var(--blue-color);
+			cursor: pointer;
+			width: 25px;
+			margin-left: 5px;
+			transition: transform 0.3s ease;
+
+			&:hover {
+				transform: scale(1.05);
+				color: var(--primary-hover);
+			}
+
+			i {
+				height: 40px;
+				display: flex;
+  				align-items: center;
+			}
+		}
+	}
+
+}
+
+::ng-deep .p-menu.p-menu-overlay {
+	width: auto;
+	transform: translateX(35%) !important;
+	.p-menu-list {
+		padding-left: 0;
+		margin: 0.5rem 0;
+
+		.p-menuitem-link {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0 40px;
+			height: 40px;
+			font-size: 1rem;
+			text-decoration: none;
+			cursor: pointer;
+			
+			&:hover {
+				background-color: #bbdbfb;
+				color: var(--blue-color);
+			}
+			
+			.p-menuitem-text {
+				color: var(--blue-color);
+			}
+		}
+		.p-menuitem-link-active {
+			background-color: var(--clear-blue);
+			.p-menuitem-text {
+				color: white;
+			}
+			&:hover {
+				.p-menuitem-text {
+					color: var(--blue-color);
+				}
+			}
+		}
+	}
+}
+
+// Ocultar en vista web
+.submenu {
+	display: none;
+}
+
+@media screen and (max-width: 768px) {
+	.open {
+		display: block;	
+	}
+
+	header {
+		margin: 0;
+		padding-left: 15px;
+		padding-right: 15px;
+		width: 100%;
+		min-height: 70px;
+		height: auto;
+
+		.logo-brands img,
+		.main-logo {
+			height: 40px;
+		}
+
+		.user-profile {
+			gap: 0.5rem;
+
+			.user-image {
+				display: none;
+			}
+
+			.burger-menu {
+				display: block;
+			}
+		}
+
+		::ng-deep .p-menu.p-menu-overlay {
+			transform: translateX(33%);
+		}
+
+	}
+}
+
+@media screen and (min-width: 1400px) {
+	::ng-deep .p-menu.p-menu-overlay {
+		transform: translateX(-35%) !important;
+	}
+}
+
+@media screen and (max-width: 576px) {
+	header {
+		img.main-logo {
+			height: 2.5rem;
+		}
+
+		.user-profile {
+
+			.user-image {
+				display: none;
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 374px) {
+	header {
+		img.main-logo {
+			height: 2.2rem;
+		}
+	}
+}

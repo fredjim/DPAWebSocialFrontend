@@ -1,0 +1,90 @@
+::ng-deep .p-dialog-header {
+    justify-content: center;
+    position: relative;
+    padding: 10px;
+    
+    span {
+        font-size: 18px;
+    }
+}
+
+::ng-deep .p-dialog-header-icon {
+    position: absolute;
+    right: 4px;
+}
+
+::ng-deep .p-dialog .p-dialog-content{
+    padding: 1rem;
+}
+
+::ng-deep p-inputnumber.ng-dirty.ng-invalid > .p-inputnumber > .p-inputtext {
+    border-color: #ef4444 !important;
+}
+
+
+.modal-body {
+    padding: 10px 25px 10px;
+
+    .input-field {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+
+        small {
+            position: absolute;
+            top: 4.5rem;
+        }
+
+        #input-menu, #input-path {
+            padding-left: 5px;
+            width: 100%;
+        }
+    }
+
+}
+::ng-deep p-inputnumber {
+    width: 100%;
+    .p-inputnumber {
+        width: 100% ;
+    }
+    .p-inputnumber-input {
+        padding-left: 5px;
+    }
+}
+
+.modal-footer {
+    gap: 10px;
+    margin: 10px;
+    justify-content: center;
+
+    .btn {
+        --bs-btn-border-color: none;
+        width: auto;
+        height: 34px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 600;
+        gap: 5px;
+    
+        .bi {
+            font-size: x-large;
+        }
+    }
+    .btn.save {
+        background-color: var(--blue-color);
+        --bs-btn-border-color: none;
+        &:hover {
+            background-color: var(--primary-hover);
+        }
+    }
+    
+    .btn.delete {
+        background-color: var(--red-color);
+        --bs-btn-border-color: none;
+        .bi {
+            font-size: large;
+        }
+    }
+}

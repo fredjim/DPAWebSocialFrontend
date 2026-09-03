@@ -16,8 +16,10 @@
   --blue-color: #003770;
   --primary-hover: #004c9e;
   --clear-blue: #0D6EFD;
+  --like: #005FF2;
   --red-color: #E30613;
   --blue-color-25: rgba(0, 54, 112, 0.25);
+  --text-comment: #212529;
   --primary-font-family: "Montserrat", sans-serif;
   --secondary-font-family: "Roboto", sans-serif;
   // ROOT Dashboard design tokens
@@ -260,6 +262,11 @@ body {
     }
   }
 }
+
+.p-dialog-mask {
+  background-color: rgba($color: #000000, $alpha: 0.4);
+}
+
 .p-component-overlay {
   background-color: rgba(15, 23, 42, 0.5);
   backdrop-filter: blur(4px);

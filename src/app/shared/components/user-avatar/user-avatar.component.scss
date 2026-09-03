@@ -1,0 +1,37 @@
+.user-photo {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e2e5e9;
+
+  &.size-xsmall {
+    width: 36px;
+    height: 36px;
+  }
+
+  &.size-small {
+    width: 40px;
+    height: 40px;
+  }
+
+  &.size-medium {
+    width: 50px;
+    height: 50px;
+  }
+
+  &.size-large {
+    width: 80px;
+    height: 80px;
+  }
+
+  &.size-xlarge {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 768px) {
+  img.user-photo.responsive {
+    width: 36px;
+    height: 36px;
+  }
+}

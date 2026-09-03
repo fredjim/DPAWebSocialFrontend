@@ -1,12 +1,12 @@
 import { RouterModule, Routes } from "@angular/router";
-import { ProfileInstitutionComponent } from "./components/profile-institution/profile-institution.component";
+import { InstitutionAdminComponent } from "./components/institution-admin/institution-admin.component";
 import { NgModule } from "@angular/core";
 
 
 const routes: Routes = [
     {
         path: '',
-        component: ProfileInstitutionComponent
+        component: InstitutionAdminComponent
     }
 ];
 

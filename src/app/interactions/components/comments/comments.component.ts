@@ -1,0 +1,400 @@
+import { Component, ElementRef, Input, OnInit, ViewChildren, QueryList, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
+import { CommentService } from '../../services/comment.service'; 
+import { ReplyService } from '../../services/reply.service'; 
+import { UserStateService } from '../../../core/services/user-state.service';
+import { AuthService } from '../../../authentication/services/auth.service';
+import { Comment } from '../../models/comment';
+import { Institution } from '../../../shared/models/institution';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Post } from '../../../posts/models/post';
+import { UserDetail } from '../../../shared/models/user-detail';
+import { CreateReply } from '../../models/create-reply';
+import { Reply } from '../../models/reply';
+import { Media } from '../../../shared/models/media';
+import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
+
+@Component({
+  selector: 'app-comments',
+  templateUrl: './comments.component.html',
+  styleUrls: ['./comments.component.scss'],
+})
+export class CommentsComponent implements OnInit, AfterViewInit, OnDestroy {
+  @Input() initialMediaIndex: number = 0; // image-video
+  @Input() modalBoostrap: boolean = true;
+  @ViewChildren('videoPlayer') videos!: QueryList<ElementRef<HTMLVideoElement>>;
+  @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
+  @Input({ required: true }) institution!: Institution;
+  @Input({ required: true }) post!: Post;
+
+  newComment: string = '';
+  comments: Comment[] = [];
+  authenticated: boolean = false;
+  currentUser: UserDetail | null = null;
+  docsPost: Media[] = [];
+  mediaPost: Media[] = [];
+
+  private readonly destroy$ = new Subject<void>();
+  private carouselElement: HTMLElement | null = null;
+  private slideEventHandler: any;
+
+  // Variable para el zoom
+  zoomLevel = 1;
+  minZoom = 1;
+  maxZoom = 3;
+  zoomStep = 0.5;
+
+  panX = 0;
+  panY = 0;
+  private isPanning = false;
+  private lastX = 0;
+  private lastY = 0;
+  private pointerId: number | null = null;
+  private maxPanX = 0;
+  private maxPanY = 0;
+
+  constructor(
+    private readonly commentService: CommentService,
+    private readonly replyService: ReplyService,
+    private readonly userStateService: UserStateService,
+    public modal: NgbModal,
+    private readonly authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    this.authenticated = this.authService.isAuthenticated();
+    this.loadComments();
+    for (const media of this.post.content.media) {
+      if(media.type === 'document')
+        this.docsPost.push(media);
+      else
+        this.mediaPost.push(media);
+    }
+
+    if (this.authenticated) {
+      this.loadCurrentUser();
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // Configurar el control de videos después de que la vista esté lista
+    setTimeout(() => {
+      this.setupVideoControls();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.cleanupVideoControls();
+  }
+
+  private setupVideoControls(): void {
+    this.carouselElement = document.getElementById('carouselMediaControls');
+    
+    if (this.carouselElement) {
+      this.slideEventHandler = () => this.stopAllVideos();
+      this.carouselElement.addEventListener('slide.bs.carousel', this.slideEventHandler);
+    }
+  }
+
+  private cleanupVideoControls(): void {
+    if (this.carouselElement && this.slideEventHandler) {
+      this.carouselElement.removeEventListener('slide.bs.carousel', this.slideEventHandler);
+    }
+    // También detener videos al destruir el componente
+    this.stopAllVideos();
+  }
+
+  private stopAllVideos(): void {
+    if (this.videos) {
+      this.videos.forEach(videoRef => {
+        const video = videoRef.nativeElement;
+        if (video && !video.paused) {
+          video.pause();
+          // Opcional: reiniciar el video
+          // video.currentTime = 0;
+        }
+      });
+    }
+  }
+
+  private loadCurrentUser(): void {
+    this.userStateService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user) => {
+          if (!user) return;
+          this.currentUser = user;
+        },
+        error: (error) => {
+          console.error('Error al obtener el usuario actual', error);
+        },
+      });
+  }
+
+  addComment(): void {
+    if (!this.newComment.trim() || !this.post?.uuid) return;
+
+    const commentData = {
+      content: this.newComment,
+    };
+
+    this.commentService.addComment(this.post.uuid, commentData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+      next: (newComment) => {
+        if (this.currentUser) {
+          this.comments.unshift(newComment);
+          this.newComment = '';
+        }
+      },
+      error: (err) => {
+        if (err.status === 403) {
+          console.error('Los comentarios están desactivados en esta publicación');
+        } else {
+          console.error('Error al agregar comentario', err);
+        }
+      },
+    });
+  }
+
+  handleAddReply(event: { parentUuid: string; replyText: string; isTopLevel: boolean }): void {
+    if (!event.replyText.trim()) return;
+
+    const replyData: CreateReply = {
+      content: event.replyText,
+      parentReplyUuid: event.isTopLevel ? null : event.parentUuid,
+    };
+
+    this.replyService.addReply(event.parentUuid, replyData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (newReply) => {
+          // El nuevo response del backend ya incluye name, lastName y user_photo,
+          // por lo tanto, no necesitamos llamar a getUser() nuevamente.
+
+          if (event.isTopLevel) {
+            const parentComment = this.comments.find(
+              (c) => c.uuid === event.parentUuid
+            );
+            if (parentComment) {
+              parentComment.replies = parentComment.replies || [];
+              parentComment.replies.unshift(newReply);
+            }
+          } else {
+            this.updateNestedReplies(this.comments, event.parentUuid, newReply);
+          }
+        },
+        error: (error) => console.error('Error al agregar respuesta:', error),
+    });
+  }
+
+  calculateTimePost(): string {
+    const postDate = new Date(this.post.date);
+    const currentDate = new Date();
+    const diferenciaMs = currentDate.getTime() - postDate.getTime();
+    const unMinuto = 60 * 1000;
+    const unaHora = 60 * unMinuto;
+    const unDia = 24 * unaHora;
+    const sieteDias = 7 * unDia;
+
+    if (diferenciaMs < unMinuto) return 'Hace un momento';
+    if (diferenciaMs < unaHora) return `Hace ${Math.floor(diferenciaMs / unMinuto)} min`;
+    if (diferenciaMs < unDia) return `Hace ${Math.floor(diferenciaMs / unaHora)} h`;
+    if (diferenciaMs < sieteDias) return `Hace ${Math.floor(diferenciaMs / unDia)} d`;
+    
+    return postDate.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  // Modificar loadComments para cargar también las respuestas
+  // Agrega este método para cargar respuestas de un comentario
+  private loadCommentReplies(comment: Comment): void {
+    this.replyService.getRepliesByCommentUuid(comment.uuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (replies) => {
+        comment.replies = replies.sort(
+          (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime()
+        );
+      },
+      error: (error) => console.error('Error al obtener respuestas:', error)
+    });
+  }
+
+  // Modifica loadComments para cargar también las respuestas
+  loadComments(): void {
+    this.commentService.getComments(this.post.uuid)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+      next: (data: Comment[]) => {
+        this.comments = data.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        // Cargar respuestas para cada comentario
+        this.comments.forEach(comment => {
+          this.loadCommentReplies(comment);
+        });
+      },
+      error: (error) => {
+        console.error('Error al obtener comentarios', error);
+      },
+    });
+  }
+
+  // Asegúrate que updateNestedReplies esté correctamente implementado
+  private updateNestedReplies(items: any[], parentUuid: string, newReply: Reply): boolean {
+    for (const item of items) {
+      if (item.uuid === parentUuid) {
+        item.replies = item.replies || [];
+        item.replies.unshift(newReply);
+        return true;
+      }
+      if (item.replies && item.replies.length > 0) {
+        const found = this.updateNestedReplies(item.replies, parentUuid, newReply);
+        if (found) return true;
+      }
+    }
+    return false;
+  }
+
+  async downloadMedia(media: Media, event: MouseEvent): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation(); // evita que el click llegue al <video> o <img> de atrás
+
+    if(!media.path) return;
+    try {
+      const response = await fetch(media.path);
+      const originalBlob = await response.blob();
+
+      // Forzamos el tipo genérico para que el navegador no intente "previsualizar"
+      // el archivo y en su lugar dispare la descarga directa.
+      const forcedBlob = new Blob([originalBlob], { type: 'application/octet-stream' });
+
+      const blobUrl = window.URL.createObjectURL(forcedBlob);
+      const filename = media.name || media.path.split('/').pop() || `media-${Date.now()}`;
+
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error al descargar el archivo', error);
+      this.toastRef.showError('Error al descargar el archivo', 'Error');
+    }
+  }
+
+  zoomIn(): void {
+    this.zoomLevel = Math.min(this.zoomLevel + this.zoomStep, this.maxZoom);
+    this.panX = 0;
+    this.panY = 0;
+  }
+
+  zoomOut(): void {
+    this.zoomLevel = Math.max(this.zoomLevel - this.zoomStep, this.minZoom);
+    this.panX = 0;
+    this.panY = 0;
+  }
+
+  resetZoom(): void {
+    this.zoomLevel = 1;
+    this.panX = 0;
+    this.panY = 0;
+  }
+
+  onCarouselPageChange(): void {
+    this.resetZoom();
+  }
+
+  startPan(event: PointerEvent): void {
+    if (this.zoomLevel === 1) return;
+    this.isPanning = true;
+    this.pointerId = event.pointerId;
+    (event.target as HTMLElement).setPointerCapture(event.pointerId);
+    this.lastX = event.clientX;
+    this.lastY = event.clientY;
+
+    this.calculatePanBounds(event.target as HTMLImageElement);
+  }
+
+
+  onPan(event: PointerEvent): void {
+    if (!this.isPanning || event.pointerId !== this.pointerId) return;
+
+    const deltaX = event.clientX - this.lastX;
+    const deltaY = event.clientY - this.lastY;
+
+    const newPanX = this.panX + deltaX / this.zoomLevel;
+    const newPanY = this.panY + deltaY / this.zoomLevel;
+
+    // clamp: no dejamos que el pan supere los límites calculados
+    this.panX = Math.max(-this.maxPanX, Math.min(this.maxPanX, newPanX));
+    this.panY = Math.max(-this.maxPanY, Math.min(this.maxPanY, newPanY));
+
+    this.lastX = event.clientX;
+    this.lastY = event.clientY;
+  }
+
+  endPan(event: PointerEvent): void {
+    this.isPanning = false;
+
+    if (this.pointerId !== null) {
+      const target = event.target as HTMLElement;
+      if (target.hasPointerCapture(this.pointerId)) {
+        target.releasePointerCapture(this.pointerId);
+      }
+    }
+
+    this.pointerId = null;
+  }
+
+  startPanTouch(event: TouchEvent): void {
+    if (this.zoomLevel === 1) return;
+    const touch = event.touches[0];
+    this.isPanning = true;
+    this.lastX = touch.clientX;
+    this.lastY = touch.clientY;
+  }
+
+  onPanTouch(event: TouchEvent): void {
+    if (!this.isPanning) return;
+    event.preventDefault(); // evita que el navegador haga scroll de la página mientras arrastrás
+    event.stopPropagation();
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - this.lastX;
+    const deltaY = touch.clientY - this.lastY;
+    this.panX += deltaX / this.zoomLevel;
+    this.panY += deltaY / this.zoomLevel;
+    this.lastX = touch.clientX;
+    this.lastY = touch.clientY;
+  }
+
+  private calculatePanBounds(imgEl: HTMLImageElement): void {
+    const container = imgEl.closest('.zoom-container') as HTMLElement;
+    if (!container) return;
+
+    // offsetWidth/offsetHeight dan el tamaño "de layout" sin el transform aplicado,
+    // que es lo que necesitamos como base antes de escalar
+    const scaledWidth = imgEl.offsetWidth * this.zoomLevel;
+    const scaledHeight = imgEl.offsetHeight * this.zoomLevel;
+
+    const overflowX = Math.max(0, scaledWidth - container.offsetWidth);
+    const overflowY = Math.max(0, scaledHeight - container.offsetHeight);
+
+    // dividimos por zoomLevel porque panX/panY se acumulan en unidades
+    // "pre-escala" (ver por qué en onPan: deltaX / zoomLevel)
+    this.maxPanX = overflowX / 2 / this.zoomLevel;
+    this.maxPanY = overflowY / 2 / this.zoomLevel;
+  }
+}

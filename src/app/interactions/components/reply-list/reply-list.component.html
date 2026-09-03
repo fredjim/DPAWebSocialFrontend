@@ -1,0 +1,119 @@
+<div class="replies mt-3">
+  <div *ngFor="let reply of replies | slice:0:getLimit(parentUuid); let i = index" class="reply-wrapper">
+    <!-- Contenido de la respuesta -->
+    <div class="d-flex align-items-start reply-row">
+      <app-user-avatar [userImgPath]="reply.user_photo" [size]="'xsmall'" [style]="{ marginRight: '5px' }"></app-user-avatar>
+      
+      <div class="comment-bubble">
+        <div class="comment-bubble-header">
+          <strong class="name-user-comment">{{ reply.name }} {{ reply.lastName }}</strong>
+          @if(authenticated && currentUser?.role === 'ADMIN'){
+            <i class="bi bi-trash3-fill icon-delete-comment" title="Eliminar respuesta"
+              (click)="showModalDeleteReply(reply, i)" (keypress)="showModalDeleteReply(reply, i)"></i>
+          }
+        </div>
+        <p class="text-comment mb-1">{{ reply.content }}</p>
+
+        <div class="comment-actions mt-1">
+          <span class="comment-time">{{ calculateTimeFromNow(reply.createdDate) }}</span>
+          <span class="mx-1">·</span>
+          <ng-container *ngIf="authenticated">
+
+            <div class="reaction-btn-wrapper"
+              [attr.data-reply-uuid]="reply.uuid"
+              (mouseenter)="showEmojiOptions[reply.uuid]=true"
+              (mouseleave)="showEmojiOptions[reply.uuid]=false"
+              (touchstart)="onTouchStart(reply.uuid)"
+              (touchend)="onTouchEnd(reply.uuid)"
+              (touchmove)="cancelLongPress(reply.uuid)">
+
+              <button type="button" class="reaction-btn" 
+                [ngClass]="getEmojiClass(reply.uuid)"
+                (click)="onMainButtonClick(reply.uuid)">
+
+                <ng-container *ngIf="getSelectedEmoji(reply.uuid); else defaultLike">
+                  @if(getSelectedEmoji(reply.uuid)?.emoji_name === 'thumbs-up') {
+                    <span class="emoji fa-solid fa-thumbs-up"></span>
+                  }@else {
+                    <span class="emoji">{{ getSelectedEmoji(reply.uuid)?.emoji_code }}</span>
+                  }
+                  <span class="label-reaction">{{ getEmojiLabel(getSelectedEmoji(reply.uuid)?.emoji_name) }}</span>
+                </ng-container>
+                <ng-template #defaultLike>
+                  <i class="fa-regular fa-thumbs-up"></i>
+                  <span class="label-reaction">Me gusta</span>
+                </ng-template>
+              </button>
+              <!-- Opciones de emoji -->
+              <div class="emoji-options" *ngIf="showEmojiOptions[reply.uuid]">
+                <ng-container *ngFor="let emoji of emojis">
+                  @if(emoji.emoji_name === 'thumbs-up'){
+                    <span class="emoji-option fa-solid fa-thumbs-up" [title]="emoji.emoji_name"
+                      (click)="selectEmoji(reply.uuid, emoji.uuid)"
+                      (keypress)="selectEmoji(reply.uuid, emoji.uuid)">
+                    </span>
+                  }@else {
+                    <span class="emoji-option" [title]="emoji.emoji_name"
+                      (click)="selectEmoji(reply.uuid, emoji.uuid)"
+                      (keypress)="selectEmoji(reply.uuid, emoji.uuid)">
+                      {{ emoji.emoji_code }}
+                    </span>
+                  }
+                </ng-container>
+              </div>
+            </div>
+          </ng-container>
+          <span class="reply-reactions-count" *ngIf="getReplyReactionsCount(reply) > 0"
+            (click)="openReplyReactionsModal(reply.uuid)"
+            (keypress)="openReplyReactionsModal(reply.uuid)">
+            {{ getReplyReactionsCount(reply) }}
+            <i class="bi bi-hand-thumbs-up icon"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Respuestas anidadas -->
+    <div *ngIf="reply.replies && reply.replies.length > 0">
+      <app-reply-list [parentUuid]="reply.uuid" [replies]="reply.replies" [currentUser]="currentUser"
+        [replyInputVisible]="replyInputVisible" [replyText]="replyText" [replyLimit]="replyLimit"
+        [authenticated]="authenticated" (toggleReplyInput)="toggleReplyInput.emit($event)"
+        (addReply)="addReply.emit($event)" (showAllReplies)="showAllReplies.emit($event)"
+        (showLessReplies)="showLessReplies.emit($event)">
+      </app-reply-list>
+      <button class="view-more-replies" *ngIf="getLimit(reply.uuid) < (reply.replies?.length || 0)"
+        (click)="showAllReplies.emit(reply.uuid)">
+        Ver más respuestas
+      </button>
+      <button class="view-less-replies"
+        *ngIf="getLimit(reply.uuid) === (reply.replies?.length || 0) && (reply.replies?.length || 0) > 1"
+        (click)="showLessReplies.emit(reply.uuid)">
+        Ver menos respuestas
+      </button>
+    </div>
+  </div>
+</div>
+
+<p-dialog header="Eliminar respuesta" [(visible)]="visibleModalDeleteReply" [style]="{ width: '25rem' }">
+  <span class="p-text-secondary block">¿Seguro que desea eliminar la respuesta?</span>
+  <div class="d-flex justify-content-end gap-2 mt-3">
+      <ui-button
+        label="Cancelar"
+        type="button"
+        severity="secondary"
+        [disabled]="isLoadingDeleteRyply"
+        (clicked)="visibleModalDeleteReply = false"
+      ></ui-button>
+      <ui-button
+        label="Eliminar"
+        type="button"
+        icon="pi pi-trash"
+        severity="danger"
+        [disabled]="isLoadingDeleteRyply"
+        [loading]="isLoadingDeleteRyply"
+        (clicked)="deleteReply()"
+      ></ui-button>
+  </div>
+</p-dialog>
+
+<app-custom-toast #toastRef key="replyToast" position="top-right"></app-custom-toast>

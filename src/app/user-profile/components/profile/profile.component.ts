@@ -1,13 +1,27 @@
 import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
-import { PostService } from '../../../posts/services/post.service';
-import { UserDetail } from '../../../posts/models/user-detail';
-import { TenantService } from '../../../services/tenant.service';
+import { UserDetail } from '../../../shared/models/user-detail';
+import { TenantService } from '../../../core/services/tenant.service';
 import { AuthService } from '../../../authentication/services/auth.service';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
-import { Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
-import { UploadedMedia } from '../../../posts/models/uploaded-media';
+import { UserStateService } from '../../../core/services/user-state.service';
+import { from, map, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { UploadedMedia } from '../../../shared/models/uploaded-media';
+import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
+
+type PhotoAction =
+  | { type: 'upload'; media: UploadedMedia }
+  | { type: 'delete' }
+  | { type: 'none' };
+
+interface PasswordValidationErrors {
+  passwordLength?: true;
+  missingLowercase?: true;
+  missingUppercase?: true;
+  missingNumber?: true;
+  missingSpecialChar?: true;
+}
 
 @Component({
   selector: 'app-profile',
@@ -16,73 +30,119 @@ import { UploadedMedia } from '../../../posts/models/uploaded-media';
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
-  private readonly postService = inject(PostService);
   private readonly authService = inject(AuthService);
+  private readonly userStateService = inject(UserStateService);
   private readonly userService = inject(UserService);
   private readonly tenantService = inject(TenantService);
+  private readonly imageOptimizationService = inject(ImageOptimizationService);
 
   public readonly MAX_NAME_LENGTH = 50;
   public readonly MAX_LASTNAME_LENGTH = 80;
+  public readonly MIN_PHONE_LENGTH = 7;
   public readonly MAX_PHONE_LENGTH = 15;
+  public readonly MAX_LENGTH_PASSWORD = 16;
+  public readonly MIN_LENGTH_PASSWORD = 8;
 
   currentUser!: UserDetail;
-  authenticated: boolean = false;
+  pathPhotoCurrentUser: string | null = null;
   currentSlug: string = '';
   isLoading = false;
   formUser!: FormGroup;
+  hidePassword = true;
+  typeInputPassword: 'password' | 'text' = 'password';
 
   imageFileProfileToCreate?: File;
-  imageProfile = '';
-  currentPhotoUuid: string = '';
+  imageProfilePreview = '';
+  photoProfileMarkedForDeletion = false;
   @ViewChild('fileInputProfile') fileInputProfile!: ElementRef;
   @ViewChild('toast') toast!: CustomToastComponent;
 
   ngOnInit(): void {
     this.currentSlug = this.tenantService.getSlug();
     this.initForm();
-
-    this.authenticated = this.authService.isAuthenticated();
-    if(this.authenticated){
-      this.postService.getUser()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(user => {
-          this.currentUser = user;
-          this.currentPhotoUuid = this.extractUuidFromUrl(user.photo_profile_path);
-          this.formUser.patchValue({
-            name: this.currentUser.name,
-            lastName: this.currentUser.lastName,
-            phone: this.currentUser.phone,
-          });
+    this.userStateService.currentUser$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        if(!user) return;
+        this.currentUser = user;
+        this.pathPhotoCurrentUser = user.photo_profile_path;
+        this.formUser.patchValue({
+          name: this.currentUser.name,
+          lastName: this.currentUser.lastName,
+          phone: this.currentUser.phone,
         });
-    }
+      });
   }
 
   onSubmit(): void {
     if (!this.currentUser || this.formUser.invalid) return;
-
     this.isLoading = true;
     this.toast.showInfo('Guardando cambios...', 'Procesando');
 
-    const upload$: Observable<UploadedMedia | null> = this.imageFileProfileToCreate
-      ? this.userService.postUserPhotoProfile(this.createFormData(this.imageFileProfileToCreate))
-      : of(null);
+    let photoAction$: Observable<PhotoAction>;
 
-    upload$.pipe(
-      switchMap((uploadedMedia) => {
-        const updateData: any = {
+    if (this.imageFileProfileToCreate) {
+      photoAction$ = from(this.imageOptimizationService.optimizeImages([this.imageFileProfileToCreate])).pipe(
+        switchMap((optimizedFiles) =>
+          this.userService.postUserPhotoProfile(this.createFormData(optimizedFiles[0]))
+        ),
+        map((media) => ({ type: 'upload', media } as PhotoAction))
+      );
+    } else if (this.photoProfileMarkedForDeletion && this.currentUser.photoProfileFileUuid) {
+      photoAction$ = this.userService.deleteUserPhotoProfile(this.currentUser.photoProfileFileUuid).pipe(
+        map(() => ({ type: 'delete' } as PhotoAction))
+      );
+    } else {
+      photoAction$ = of({ type: 'none' } as PhotoAction);
+    }
+
+    photoAction$.pipe(
+      switchMap((action) => {
+        let photoProfileFileUuid: string | null;
+
+        switch (action.type) {
+          case 'upload':
+            photoProfileFileUuid = action.media.uuid; // cuando se crea o reemplaza la img
+            break;
+          case 'delete':
+            photoProfileFileUuid = null; // cuando se borra la img
+            break;
+          case 'none':
+            photoProfileFileUuid = this.currentUser!.photoProfileFileUuid; // sin cambios
+            break;
+        }
+
+        // Verificar valor de password para para actualizarlo o no
+        let password: string | null = this.formUser.get('password')?.value;
+        if(password?.trim() === ''){
+          password = null;
+        }
+
+        // Verificar valor de phone
+        let phone: string | null = this.formUser.get('phone')?.value;
+        if(phone?.trim() === ''){
+          phone = null;
+        }
+
+        const updateData: UserDetail = {
+          ...this.currentUser,
           ...this.formUser.value,
-          photoProfileFileUuid: uploadedMedia ? uploadedMedia.uuid : this.currentPhotoUuid
+          phone,
+          password,
+          photoProfileFileUuid
         };
 
-        return this.userService.updateUserDate(updateData);
+        return this.userStateService.updateUser(updateData);
       }),
       takeUntil(this.destroy$)
     ).subscribe({
       next: (userData: UserDetail) => {
         this.isLoading = false;
         this.currentUser = userData;
-        this.currentPhotoUuid = this.extractUuidFromUrl(userData.photo_profile_path);
+        this.formUser.get('password')?.setValue('');
         this.imageFileProfileToCreate = undefined;
+        this.imageProfilePreview = '';
+        this.photoProfileMarkedForDeletion = false;
         this.toast.showSuccess('Perfil actualizado correctamente');
       },
       error: (error) => {
@@ -91,6 +151,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.toast.showError('Hubo un error al actualizar el perfil');
       }
     });
+  }
+
+  onDeletePhotoProfile(): void {
+    this.pathPhotoCurrentUser = null;
+    this.imageFileProfileToCreate = undefined;
+    this.imageProfilePreview = '';
+    this.photoProfileMarkedForDeletion = true;
   }
 
   private createFormData(file: File): FormData {
@@ -112,7 +179,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       // Preview local
       const reader = new FileReader();
       reader.onload = () => {
-        this.imageProfile = reader.result as string;
+        this.imageProfilePreview = reader.result as string;
       };
       reader.readAsDataURL(this.imageFileProfileToCreate);
     }
@@ -138,17 +205,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  private extractUuidFromUrl(url: string | null | undefined): string {
-    if (!url) return '';
-    const parts = url.split('/');
-    return parts.pop() || '';
-  }
-
   private initForm(): void {
     this.formUser = new FormGroup({
       name: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_NAME_LENGTH), this.onlyLettersValidator()]),
       lastName: new FormControl('', [Validators.required, Validators.maxLength(this.MAX_LASTNAME_LENGTH), this.onlyLettersValidator()]),
-      phone: new FormControl('', [Validators.maxLength(this.MAX_PHONE_LENGTH), this.numbersOnlyValidator()]),
+      phone: new FormControl('', [Validators.maxLength(this.MAX_PHONE_LENGTH), Validators.minLength(this.MIN_PHONE_LENGTH), this.numbersOnlyValidator()]),
+      password: new FormControl('', [this.passwordValidator()])
     });
   }
 
@@ -181,5 +243,34 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const control = this.formUser.get(controlName);
     if (!control) return false;
     return control.touched && control.hasError(errorName);
+  }
+
+  private passwordValidator(): ValidatorFn {
+    return (control: AbstractControl): PasswordValidationErrors | null => {
+      const value = control.value as string;
+
+      if (!value) return null;
+
+      const errors: PasswordValidationErrors = {};
+
+      const validations: Array<[keyof PasswordValidationErrors, boolean]> = [
+        ['passwordLength', value.length < this.MIN_LENGTH_PASSWORD || value.length > this.MAX_LENGTH_PASSWORD],
+        ['missingLowercase', !/[a-z]/.test(value)],
+        ['missingUppercase', !/[A-Z]/.test(value)],
+        ['missingNumber',    !/\d/.test(value)],
+        ['missingSpecialChar', !/[!@#$%^&*()_+]/.test(value)],
+      ];
+
+      for (const [key, failed] of validations) {
+        if (failed) errors[key] = true;
+      }
+
+      return Object.keys(errors).length > 0 ? errors : null;
+    };
+  }
+
+  togglePasswordVisibility(): void {
+    this.hidePassword = !this.hidePassword;
+    this.typeInputPassword = this.hidePassword ? 'password' : 'text';
   }
 }

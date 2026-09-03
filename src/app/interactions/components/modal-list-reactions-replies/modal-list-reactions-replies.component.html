@@ -1,0 +1,74 @@
+<div class="modal-header">
+  <div class="secction-title">
+    <!-- List-Tabs tipos de emoji del post -->
+    <ul class="nav nav-underline" id="{{'listTabs-'+commentOrReplyUuid}}">
+      <li *ngIf="reactionsCount.length > 1" class="nav-item">
+        <a class="nav-link active" aria-current="page" data-bs-toggle="tab" [attr.data-bs-target]="'#generalEmoji-tab-pane-'+commentOrReplyUuid">Todo</a>
+      </li>
+      <ng-container *ngFor="let reactionType of reactionsCount">
+        <li class="nav-item">
+          @if(getReactionType(reactionType.emojiTypeId) === 'thumbs-up') {
+            <span class="nav-link emoji fa-solid fa-thumbs-up" [ngClass]="{'active show': reactionsCount.length == 1}" data-bs-toggle="tab" [attr.data-bs-target]="'#'+getReactionType(reactionType.emojiTypeId)+'-tab-pane-'+commentOrReplyUuid"></span>
+          }@else {
+            <a class="nav-link emoji" [ngClass]="{'active show': reactionsCount.length == 1}" data-bs-toggle="tab" [attr.data-bs-target]="'#'+getReactionType(reactionType.emojiTypeId)+'-tab-pane-'+commentOrReplyUuid">{{ reactionType.emoji }}</a>
+          }
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+  <button type="button" class="btn-close" (click)="activeModal.dismiss('Cross click')" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+  <!-- Content-Tab general de reacciones -->
+  <div class="tab-content">
+    <div class="tab-pane fade show active" id="{{'generalEmoji-tab-pane-'+commentOrReplyUuid}}" role="tabpanel" aria-labelledby="generalEmoji-tab" tabindex="0">
+      <div class="info-users d-flex flex-column">
+        <ng-container *ngFor="let reaction of detailReactions">
+          <div class="reactions-by-user d-flex flex-row gap-3">
+            <app-user-avatar 
+              [userImgPath]="reaction.userPhoto"
+              [size]="'medium'"
+            ></app-user-avatar>
+
+            <div class="name-user d-flex align-items-center">
+              <p class="fw-semibold fs-6 mb-0">{{ reaction.userName }}</p>
+            </div>
+            <div *ngIf="listEmojiType" class="emoji-reaction d-flex align-items-center" >
+              @if(getReactionType(reaction.emojiUuid) === 'thumbs-up') {
+                <span class="fa-solid fa-thumbs-up"></span>
+              }@else {
+                {{ reaction.emoji }}
+              }
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+    <!-- Content-Tabs Lista de reacciones por filtro -->
+    <ng-container *ngFor="let reactionType of reactionsCount">
+      <div class="tab-pane fade" id="{{getReactionType(reactionType.emojiTypeId) +'-tab-pane-'+commentOrReplyUuid}}" role="tabpanel" [attr.aria-labelledby]="getReactionType(reactionType.emojiTypeId)+'-tab'" tabindex="0">
+        <div class="info-users d-flex flex-column">
+          <ng-container *ngFor="let reactionUser of getUsersReactionsType(reactionType.emoji)">
+            <div class="reactions-by-user d-flex flex-row gap-3">
+              <app-user-avatar
+                [userImgPath]="reactionUser.userPhoto"
+                size="medium"
+              ></app-user-avatar>
+              
+              <div class="name-user d-flex align-items-center">
+                <p class="fw-semibold fs-6 mb-0">{{ reactionUser.userName }}</p>
+              </div>
+              <div *ngIf="listEmojiType" class="emoji-reaction d-flex align-items-center" >
+                @if(getReactionType(reactionUser.emojiUuid) === 'thumbs-up') {
+                  <span class="fa-solid fa-thumbs-up"></span>
+                }@else {
+                  {{ reactionUser.emoji }}
+                }
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </div>        
+</div>

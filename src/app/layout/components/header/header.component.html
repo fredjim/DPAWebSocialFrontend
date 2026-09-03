@@ -1,0 +1,37 @@
+<header>
+    <div class="logo-brands">
+        <img src="assets/logo-umss.png" alt="Logo UMSS">
+    </div>
+
+    <img src="assets/logo-umss-horizontal.jpg" alt="Logo UMSS" class="main-logo">
+
+    <div class="user-profile">
+        <span *ngIf="hideArrowBackHome" class="back-home" title="Volver a inicio" [routerLink]="['/', currentSlug]">
+            <i class="bi bi-arrow-left"></i>
+        </span>
+        
+        @if (authenticated && user) {
+            <app-user-avatar 
+                [user]="user" 
+                [size]="'medium'" 
+                (click)="menu.toggle($event)" 
+                (keypress)="menu.toggle($event)"
+                class="user-image"
+            ></app-user-avatar>
+        } @else {
+            <img src="assets/user-icon-1.png" alt="" (click)="menu.toggle($event)" (keypress)="menu.toggle($event)" class="user-image">
+        }
+		
+        <div class="burger-menu" (click)="toggleMobileMenu()" (keypress)="toggleMobileMenu()">
+			<i class="material-icons">{{ isMobileMenuOpen ? "close" : "menu" }}</i>
+		</div>
+
+    </div>
+</header>
+<p-menu #menu [model]="menuItemsPopup" [popup]="true" appendTo="body" />
+
+<app-login></app-login>
+
+<app-register></app-register>
+
+<app-menu-items class="submenu" [class.open]="isMobileMenuOpen" [labelButtonNewMenu]="'Nuevo menú'" (closeMenuHamburguer)="closeMobileMenu()"></app-menu-items>

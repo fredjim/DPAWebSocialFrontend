@@ -59,6 +59,9 @@
 		.text-no-posts {
 			font-family: var(--primary-font-family);
 		}
+		.text-blue {
+			color: var(--blue-color);
+		}
 	}
 
 	.header-section {
@@ -123,6 +126,12 @@
 		}
 	}
 	.detail-photos {
+		display: none;
+	}
+}
+
+@media screen and (max-width: 768px) {
+	#inst-avatar {
 		display: none;
 	}
 }

@@ -1,0 +1,147 @@
+<div class="comments-section">
+  <div *ngFor="let comment of comments; let i = index">
+    <div class="comment-box">
+      <!-- Cabecera del comentario -->
+      <div class="d-flex align-items-start comment-row">
+        <!-- Avatar -->
+        <app-user-avatar [userImgPath]="comment.user_photo" [size]="'xsmall'" [style]="{marginRight: '5px'}"></app-user-avatar>
+
+        <!-- Burbuja del comentario -->
+        <div class="comment-bubble">
+          <div class="comment-bubble-header">
+            <strong class="name-user-comment">{{ comment.user_name }}</strong>
+            @if(authenticated && currentUser?.role === 'ADMIN'){
+              <i class="bi bi-trash3-fill icon-delete-comment" title="Eliminar comentario"
+                 (click)="showModalDeleteComment(comment, i)" (keypress)="showModalDeleteComment(comment, i)"></i>
+            }
+          </div>
+          <p class="text-comment mb-1">{{ comment.content }}</p>
+          <div class="comment-actions mt-1">
+            <span class="comment-time">{{ calculateTimeFromNow(comment.date) }}</span>
+            <span class="mx-1">·</span>
+            <ng-container *ngIf="authenticated">
+
+              @if (authenticated && commentsEnabled) {
+                <button  class="reply-btn" (click)="toggleReplyInput(comment.uuid)">Responder</button>
+              }
+
+              <!-- Reaccionar y mostrar opciones de tipos de mojis -->
+              <div class="reaction-btn-wrapper" 
+                [attr.data-comment-uuid]="comment.uuid"
+                (mouseenter)="showEmojiOptions[comment.uuid]=true"
+                (mouseleave)="showEmojiOptions[comment.uuid]=false"
+                (touchstart)="onTouchStart(comment.uuid)"
+                (touchend)="onTouchEnd(comment.uuid)"
+                (touchmove)="cancelLongPress(comment.uuid)">
+
+                <button type="button" class="reaction-btn" 
+                  [ngClass]="getEmojiClass(comment.uuid)"
+                  (click)="onMainButtonClick(comment.uuid)">
+
+                  <ng-container *ngIf="getSelectedEmoji(comment.uuid); else defaultLike">
+                    @if (getSelectedEmoji(comment.uuid)?.emoji_name === 'thumbs-up') {
+                      <span class="emoji fa-solid fa-thumbs-up"></span>
+                    }@else {
+                      <span class="emoji">{{ getSelectedEmoji(comment.uuid)?.emoji_code }}</span>
+                    }
+                    <span class="label-reaction">{{ getEmojiLabel(getSelectedEmoji(comment.uuid)?.emoji_name) }}</span>
+                  </ng-container>
+                  <ng-template #defaultLike>
+                    <i class="fa-regular fa-thumbs-up"></i>
+                    <span class="label-reaction">Me gusta</span>
+                  </ng-template>
+                </button>
+                <!-- Opciones de emojis al hacer hover -->
+                <div class="emoji-options" *ngIf="showEmojiOptions[comment.uuid]">
+                  <ng-container *ngFor="let emoji of emojis">
+                    @if(emoji.emoji_name === 'thumbs-up'){
+                      <span class="emoji-option fa-solid fa-thumbs-up" [title]="emoji.emoji_name"
+                        (click)="selectEmoji(comment.uuid, emoji.uuid)"
+                        (keypress)="selectEmoji(comment.uuid, emoji.uuid)">
+                      </span>
+                    }@else {
+                      <span class="emoji-option" [title]="emoji.emoji_name"
+                        (click)="selectEmoji(comment.uuid, emoji.uuid)"
+                        (keypress)="selectEmoji(comment.uuid, emoji.uuid)">
+                        {{ emoji.emoji_code }}
+                      </span>
+                    }
+                  </ng-container>
+                </div>
+              </div>
+            </ng-container>
+            <span class="comment-reactions-count" *ngIf="getCommentReactionsCount(comment) > 0"
+              (click)="openCommentReactionsModal(comment)"
+              (keypress)="openCommentReactionsModal(comment)">
+              {{ getCommentReactionsCount(comment) }}
+              <i class="bi bi-hand-thumbs-up icon"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input para responder al comentario principal -->
+      <div *ngIf="replyInputVisible[comment.uuid]" class="reply-box">
+        <app-user-avatar [user]="currentUser" [size]="'xsmall'"></app-user-avatar>
+        
+        <div class="reply-input-container">
+          <input [(ngModel)]="replyText[comment.uuid]" placeholder="Escribe una respuesta..." class="reply-input"
+            (keydown.enter)="addReply(comment.uuid, comment.uuid, true)" />
+          <button class="send-reply-btn" (click)="addReply(comment.uuid, comment.uuid, true)">
+            <i class="bi bi-send"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sección de respuestas -->
+      <div class="replies" *ngIf="comment.replies && comment.replies.length > 0">
+
+        <app-reply-list *ngIf="comment.replies && comment.replies.length > 0" [parentUuid]="comment.uuid"
+          [replies]="comment.replies" [currentUser]="currentUser" [replyInputVisible]="replyInputVisible"
+          [replyText]="replyText" [replyLimit]="replyLimit" [authenticated]="authenticated"
+          (toggleReplyInput)="toggleReplyInput($event)"
+          (addReply)="addReply(comment.uuid, $event.replyUuid, $event.isTopLevel)"
+          (showAllReplies)="showAllReplies($event)" (showLessReplies)="showLessReplies($event)">
+        </app-reply-list>
+
+        <!-- Controles para mostrar más/menos respuestas del comentario principal -->
+        <button *ngIf="(replyLimit[comment.uuid] || 0) < (comment.replies?.length || 0)" class="view-more-replies"
+          (click)="showAllReplies(comment.uuid)">
+          Ver respuestas
+        </button>
+        <button *ngIf="(replyLimit[comment.uuid] || 0) === (comment.replies?.length || 0)" class="view-less-replies"
+          (click)="showLessReplies(comment.uuid)">
+          Ver menos respuestas
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog header="Eliminar comentario" [(visible)]="visibleModalDeleteComment" [style]="{ width: '25rem' }">
+  @if(commentToDelete && commentToDelete.replyCount > 0){
+    <span class="p-text-secondary block">¿Seguro que desea eliminar el comentario y sus respuestas?</span>
+  }@else {
+    <span class="p-text-secondary block">¿Seguro que desea eliminar el comentario?</span>
+  }
+  <div class="d-flex justify-content-end gap-2 mt-3">
+      <ui-button
+        label="Cancelar"
+        type="button"
+        severity="secondary"
+        [disabled]="isLoadingDeleteComment"
+        (clicked)="visibleModalDeleteComment = false"
+      ></ui-button>
+      <ui-button
+        label="Eliminar"
+        type="button"
+        icon="pi pi-trash"
+        severity="danger"
+        [disabled]="isLoadingDeleteComment"
+        [loading]="isLoadingDeleteComment"
+        (clicked)="deleteComment()"
+      ></ui-button>
+  </div>
+</p-dialog>
+
+<app-custom-toast #toastRef key="commentToast" position="top-right"></app-custom-toast>

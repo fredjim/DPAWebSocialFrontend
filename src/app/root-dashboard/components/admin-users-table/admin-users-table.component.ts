@@ -27,6 +27,8 @@ export class AdminUsersTableComponent implements OnInit {
   @Input({ required: true }) institutionUuid!: string;
 
   admins: AdminUser[] = [];
+  totalRecords = 0;
+  lastLazyLoadEvent: any = null;
   isLoading = signal(false);
   showDialog = signal(false);
   isSaving = signal(false);
@@ -62,7 +64,6 @@ export class AdminUsersTableComponent implements OnInit {
 
   ngOnInit(): void {
     this.buildForm();
-    this.loadAdmins();
   }
 
   private buildForm(): void {
@@ -75,11 +76,12 @@ export class AdminUsersTableComponent implements OnInit {
     });
   }
 
-  loadAdmins(): void {
+  loadAdmins(page: number = 0, size: number = 20, search: string = '', sort?: string): void {
     this.isLoading.set(true);
-    this.adminUserService.getByInstitution(this.institutionUuid).subscribe({
-      next: data => {
-        this.admins = data;
+    this.adminUserService.getByInstitution(this.institutionUuid, page, size, search, 'ADMIN', true, sort).subscribe({
+      next: res => {
+        this.admins = res.content;
+        this.totalRecords = res.totalElements;
         this.isLoading.set(false);
       },
       error: () => {
@@ -87,6 +89,29 @@ export class AdminUsersTableComponent implements OnInit {
         this.toastRef.showError('No se pudieron cargar los administradores', 'Error');
       }
     });
+  }
+
+  onLazyLoad(event: any): void {
+    this.lastLazyLoadEvent = event;
+    const page = event.first / event.rows;
+    const size = event.rows;
+    const search = event.globalFilter || '';
+
+    let sort: string | undefined;
+    if (event.sortField) {
+      const direction = event.sortOrder === 1 ? 'asc' : 'desc';
+      sort = `${event.sortField},${direction}`;
+    }
+
+    this.loadAdmins(page, size, search, sort);
+  }
+
+  reloadAdmins(): void {
+    if (this.lastLazyLoadEvent) {
+      this.onLazyLoad(this.lastLazyLoadEvent);
+    } else {
+      this.loadAdmins(0, 10, '');
+    }
   }
 
   openCreateDialog(): void {
@@ -133,9 +158,9 @@ export class AdminUsersTableComponent implements OnInit {
         .pipe(finalize(() => this.isSaving.set(false)))
         .subscribe({
           next: created => {
-            this.admins = [...this.admins, created];
             this.toastRef.showSuccess('Administrador creado exitosamente', 'Creado');
             this.showDialog.set(false);
+            this.reloadAdmins();
           },
           error: err => this.toastRef.showError(err.error?.message ?? 'No se pudo crear el administrador', 'Error')
         });
@@ -144,22 +169,22 @@ export class AdminUsersTableComponent implements OnInit {
 
   confirmDelete(admin: AdminUser): void {
     this.confirmationService.confirm({
-      message: `¿Eliminar al administrador <strong>${admin.name} ${admin.lastName}</strong>?`,
-      header: 'Confirmar eliminación',
-      icon: 'fa-solid fa-user-minus',
-      acceptLabel: 'Eliminar',
+      message: `¿Deshabilitar al administrador <strong>${admin.name} ${admin.lastName}</strong>?`,
+      header: 'Confirmar deshabilitación',
+      icon: 'fa-solid fa-user-slash',
+      acceptLabel: 'Deshabilitar',
       rejectLabel: 'Cancelar',
       acceptButtonStyleClass: 'p-button-danger p-button-sm',
       rejectButtonStyleClass: 'p-button-secondary p-button-sm',
-      acceptIcon: 'fa-solid fa-trash-can me-2',
+      acceptIcon: 'fa-solid fa-user-slash me-2',
       rejectIcon: 'fa-solid fa-xmark me-2',
       accept: () => {
-        this.adminUserService.delete(admin.uuid).subscribe({
+        this.adminUserService.disable(admin.uuid).subscribe({
           next: () => {
-            this.admins = this.admins.filter(a => a.uuid !== admin.uuid);
-            this.toastRef.showSuccess('Administrador eliminado', 'Eliminado');
+            this.toastRef.showSuccess('Administrador deshabilitado', 'Éxito');
+            this.reloadAdmins();
           },
-          error: () => this.toastRef.showError('No se pudo eliminar', 'Error')
+          error: () => this.toastRef.showError('No se pudo deshabilitar', 'Error')
         });
       }
     });

@@ -1,15 +1,16 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, signal, ViewChild } from '@angular/core';
+import { UserStateService } from '../../../core/services/user-state.service';
 import { PostService } from '../../services/post.service';
-import * as bootstrap from 'bootstrap';
+import { Modal } from 'bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { concatMap, Subject, takeUntil } from 'rxjs';
-import { UploadedMedia } from '../../models/uploaded-media';
+import { concatMap, forkJoin, Observable, of, Subject, takeUntil } from 'rxjs';
+import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { CreatePost } from '../../models/create-post';
-import { Institution } from '../../models/institution';
+import { Institution } from '../../../shared/models/institution';
 import moment from 'moment';
-import { TenantService } from '../../../services/tenant.service';
-import { UserDetail } from '../../models/user-detail';
-import imageCompression from 'browser-image-compression';
+import { OwnInstitutionStateService } from '../../../core/services/own-institution-state.service';
+import { UserDetail } from '../../../shared/models/user-detail';
+import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 import { Post } from '../../models/post';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -26,17 +27,15 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   commentsEnabled: boolean = true;
   visibleAreaMedia = signal(false); //Mostrar seleccion y prevista de imagenes
   visibleAreaMediaDoc = signal(false); //Mostrar seleccion y prevista de documentos
-  disableLoadImage = signal(false); //Deshabilitar el boton de cargar imagenes
-  disableLoadDoc = signal(false); //Deshabilitar el boton de cargar documentos
   disabledPublishButton = signal(true); //Deshabilitar el boton de publicar
   postForm!: FormGroup;
   listFile: File[] = [];
   listFileDoc: File[] = [];
   isFbSwitchOn: boolean = false;
   currentUser!: UserDetail;
-  currentPostType!: string;
+  currentPostType: string = 'GENERAL';
   @ViewChild('modalCreatePost') modalCreatePost!: ElementRef;
-  private modalInstance: bootstrap.Modal | null = null;
+  private modalInstance: Modal | null = null;
   @ViewChild('toastRef') private readonly toastRef!: CustomToastComponent;
   public visibleModalCreate: boolean = false;
   public maxLengthText = 1200;
@@ -45,15 +44,18 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private readonly postService: PostService,
+    private readonly userStateService: UserStateService,
     private readonly formBuilder: FormBuilder,
-    private readonly tenantService: TenantService
+    private readonly ownIsntitutionStateService: OwnInstitutionStateService,
+    private readonly imageOptimizationService: ImageOptimizationService
   ) { }
 
   ngOnInit() {
-    this.tenantService.getInstitution()
+    this.ownIsntitutionStateService.ownInstitution$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (institutionData: Institution) => {
+        next: (institutionData) => {
+          if(!institutionData) return;
           this.institution = institutionData;
         },
         error: (error) => {
@@ -89,9 +91,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onSwitchChange(value: boolean) {
     this.isFbSwitchOn = value;
-    
-    value ? this.disableLoadDoc.set(true) : this.disableLoadDoc.set(false)
-    
+
     if(value){
       this.checkListFileForFacebook();
     }else if(this.listFile.length > 0 || this.listFileDoc.length > 0 || this.postForm.value.contentPost !== ''){
@@ -102,24 +102,23 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private checkListFileForFacebook(): void {
-    const hasDocument = this.listFileDoc.length > 0;
     const videoCount = this.listFile.filter(file => file.type.includes('video')).length;
     const imageCount = this.listFile.filter(file => file.type.includes('image')).length;
 
     const hasVideoWithImages = videoCount >= 1 && imageCount >= 1;
     const hasMoreThanOneVideo = videoCount > 1;
 
-    if (hasDocument || hasVideoWithImages || hasMoreThanOneVideo) {
+    if (hasVideoWithImages || hasMoreThanOneVideo) {
       this.disabledPublishButton.set(true);
       this.toastRef.showWarn(
-        'Solo se permite 1 video sin imágenes, o solo imágenes sin videos. No se permiten documentos.',
+        'Solo se permite 1 video sin imágenes, o solo imágenes sin videos.',
         'Restricciones de Facebook'
       );
     }
   }
 
   openModalCreatePost() {
-    this.modalInstance = new bootstrap.Modal(this.modalCreatePost.nativeElement);
+    this.modalInstance = new Modal(this.modalCreatePost.nativeElement);
     this.modalInstance.show();
     this.visibleModalCreate = true;
     this.disabledPublishButton.set(true);
@@ -138,17 +137,10 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   //Mostrar area de imagenes y deshabilitar el boton de cargar documentos
   showAreaMedia() {
     this.visibleAreaMedia.set(true);
-    
-    // Siempre deshabilitar la opción de documentos cuando se está trabajando con imágenes
-    this.disableLoadDoc.set(true);
   }
 
   //Ocultar area de imagenes
-  closeAreaMedia(option: boolean) {
-    if(!this.isFbSwitchOn){
-      this.disableLoadDoc.set(option); //Habilitar el boton de cargar documentos
-    }
-    
+  closeAreaMedia() {
     // Actualizar estado del botón de publicar basado en el texto y la lista de archivos
     const contentPost = this.postForm.get('contentPost')?.value;
     const hasMedia = this.listFile && this.listFile.length > 0;
@@ -173,12 +165,10 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   //Mostrar area de documentos y deshabilitar el boton de cargar imagenes
   showAreaDoc() {
     this.visibleAreaMediaDoc.set(true);
-    this.disableLoadImage.set(true);
   }
 
   //Ocultar area de documentos
-  closeAreaDoc(option: boolean) {
-    this.disableLoadImage.set(option);
+  closeAreaDoc() {
     const contentPost = this.postForm.get('contentPost')?.value;
     contentPost === '' ? this.disabledPublishButton.set(true) : this.disabledPublishButton.set(false);
     this.listFileDoc = [];//Limpiar el archivo
@@ -205,12 +195,12 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getTypeByRol() {
-    this.postService.getUser()
+    this.userStateService.currentUser$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next:(user: UserDetail) => {
+        next:(user) => {
+          if(!user) return;
           this.currentUser = user;
-          this.currentPostType = this.determinePostType(this.currentUser.role);
         },
         error:(error) => {
           console.error('Error al obtener el usuario actual', error);
@@ -224,71 +214,10 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private determinePostType(role: string): string {
-    switch (role) {
-      case 'ADMIN_BECAS':
-        return 'BECAS';
-      case 'ADMIN_CONVENIOS':
-        return 'CONVENIOS';
-      case 'ADMIN_PROYECTOS':
-        return 'PROYECTOS';
-      case 'ADMIN_CUDIE':
-        return 'CUDIE'
-      default:
-        return 'GENERAL';
-    }
-  }
-
-  private async optimizeImages(files: File[]): Promise<File[]> {
-    const compressionOptions = {
-      maxSizeMB: 1, // Máximo 1MB por imagen
-      maxWidthOrHeight: 1920, // Resolución máxima
-      useWebWorker: true, // No bloquear UI
-      fileType: 'image/webp', // Convertir a WebP
-      initialQuality: 0.8, // Calidad 80%
-      alwaysKeepResolution: false,
-      preserveExif: false
-    };
-
-    // Optimizar cada imagen en paralelo
-    const optimizationPromises = files.map(async (file, index) => {
-      if (!file.type.includes('image')) {
-        return file; // Si no es imagen, devolver sin cambios
-      }
-
-      // Si ya es WebP y es pequeño, no optimizar
-      if (file.type === 'image/webp' && file.size < 1024 * 500) { // < 500KB
-        console.log(`Imagen ${file.name} ya es WebP y pequeña, omitiendo optimización`);
-        return file;
-      }
-
-      try {
-        // Optimizar la imagen
-        const compressedFile = await imageCompression(file, compressionOptions);
-        
-        // Mantener el nombre original pero cambiar extensión a .webp
-        const originalName = file.name.replace(/\.[^/.]+$/, "");
-        const optimizedName = `${originalName}_optimized_${Date.now()}.webp`;
-        
-        return new File([compressedFile], optimizedName, {
-          type: 'image/webp'
-        });
-        
-      } catch (error) {
-        console.warn(`No se pudo optimizar ${file.name}:`, error);
-        return file; // Fallback al archivo original
-      }
-    });
-
-    // Esperar a que todas se optimicen
-    const results = await Promise.all(optimizationPromises);
-    return results.filter((file): file is File => file !== null);
-  }
-
   async post() {
     this.isLoading = true;
     const valueFormPost = this.postForm.value;
-    const formData = new FormData();
+
     const post: CreatePost = {
       date: moment().format('YYYY-MM-DDTHH:mm:ss.SSS'),
       commentsEnabled: this.commentsEnabled,
@@ -300,57 +229,68 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
       fb_post_enable: this.isFbSwitchOn
     };
 
-    if (valueFormPost.contentPost != '' || this.listFile || this.listFileDoc.length > 0) {
+    const hasMedia = this.listFile && this.listFile.length > 0;
+    const hasDocs = this.listFileDoc && this.listFileDoc.length > 0;
+    const hasText = valueFormPost.contentPost !== '';
 
-      if (this.listFile && this.listFile.length > 0) {
-        const optimizedFiles = await this.optimizeImages(this.listFile).catch(() => this.listFile);
-
-        Array.from(optimizedFiles).forEach((file) => {
-          file.type.includes('image') ? formData.append('images', file) : formData.append('videos', file);
-        });
-
-        this.postService.uploadMedia(formData).pipe(
-          concatMap((uploadResponse: UploadedMedia[]) => {
-            post.content.media = uploadResponse.map((media, index) => ({
-              number: index + 1,
-              type: media.mimeType.includes('image') ? 'image' : 'video',
-              file_name: media.name,
-              uploaded_file_uuid: media.uuid
-            }));
-            return this.postService.createPost(post);
-          })
-        ).subscribe({
-          next: (createdPost) => this.createSuccessPost(createdPost),
-          error: (error: HttpErrorResponse) => this.createErrorPost('Error al crear publicación con media', error)
-        });
-
-      } else if (this.listFileDoc && this.listFileDoc.length > 0) {
-        Array.from(this.listFileDoc).forEach((file) => {
-          formData.append('files', file);
-        });
-
-        this.postService.uploadDocument(formData).pipe(
-          concatMap((uploadResponse: UploadedMedia[]) => {
-            post.content.media = uploadResponse.map((media, index) => ({
-              number: index + 1,
-              type: 'document',
-              file_name: media.name,
-              uploaded_file_uuid: media.uuid
-            }));
-            return this.postService.createPost(post);
-          })
-        ).subscribe({
-          next: (createdPost) => this.createSuccessPost(createdPost),
-          error: (error: HttpErrorResponse) => this.createErrorPost('Error al crear el publicación con archivo', error)
-        });
-
-      } else if (valueFormPost.contentPost != '') {
-        this.postService.createPost(post).subscribe({
-          next: (createdPost) => this.createSuccessPost(createdPost),
-          error: (error: HttpErrorResponse) => this.createErrorPost('Error al subir publicación solo texto', error)
-        });
-      }
+    if (!hasText && !hasMedia && !hasDocs) {
+      this.isLoading = false;
+      return;
     }
+
+    // Upload de imágenes/videos (con optimización previa), si corresponde
+    let mediaUpload$: Observable<UploadedMedia[]> = of([]);
+    if (hasMedia) {
+      const optimizedFiles = await this.imageOptimizationService
+        .optimizeImages(this.listFile)
+        .catch(() => this.listFile);
+
+      const formDataMedia = new FormData();
+      Array.from(optimizedFiles).forEach((file: File) => {
+        file.type.includes('image')
+          ? formDataMedia.append('images', file)
+          : formDataMedia.append('videos', file);
+      });
+
+      mediaUpload$ = this.postService.uploadMedia(formDataMedia);
+    }
+
+    // Upload de documentos, si corresponde
+    let docsUpload$: Observable<UploadedMedia[]> = of([]);
+    if (hasDocs) {
+      const formDataDocs = new FormData();
+      Array.from(this.listFileDoc).forEach((file: File) => {
+        formDataDocs.append('files', file);
+      });
+
+      docsUpload$ = this.postService.uploadDocument(formDataDocs);
+    }
+
+    // Ambos uploads en paralelo (los que no aplican resuelven de inmediato con [])
+    forkJoin([mediaUpload$, docsUpload$]).pipe(
+      concatMap(([mediaResults, docResults]) => {
+        const mediaItems = mediaResults.map((media, index) => ({
+          number: index + 1,
+          type: media.mimeType.includes('image') ? 'image' : 'video',
+          file_name: media.name,
+          uploaded_file_uuid: media.uuid
+        }));
+
+        const docItems = docResults.map((media, index) => ({
+          number: mediaItems.length + index + 1,
+          type: 'document',
+          file_name: media.name,
+          uploaded_file_uuid: media.uuid
+        }));
+
+        post.content.media = [...mediaItems, ...docItems];
+
+        return this.postService.createPost(post);
+      })
+    ).subscribe({
+      next: (createdPost) => this.createSuccessPost(createdPost),
+      error: (error: HttpErrorResponse) => this.createErrorPost('Error al crear la publicación', error)
+    });
   }
 
   private createSuccessPost(createdPost: Post): void {

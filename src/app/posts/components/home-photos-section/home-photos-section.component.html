@@ -2,7 +2,7 @@
 
   <div class="section-title">
     <h3>Fotos</h3>
-    <a [routerLink]="['/', currentSlug, 'fotos']">Ver más</a>
+    <a (click)="visibleModalGallery = true">Ver más</a>
   </div>
 
   <div *ngIf="isLoading" class="loading-message">
@@ -24,4 +24,33 @@
   </div>
 
 </div>
+
+<p-dialog
+  [modal]="true"
+  [style]="{ width: '60rem' }"
+  [(visible)]="visibleModalGallery"
+  appendTo="body">
+
+  <app-media-gallery 
+    *ngIf="visibleModalGallery"
+    (openModalPostFromModalGallery)="openViewPost($event.postUuid, $event.mediaUrl)">
+  </app-media-gallery>
+</p-dialog>
+
+<p-dialog
+  [modal]="true"
+  [style]="{ width: '50rem' }"
+  [(visible)]="visibleModalPost"
+  appendTo="body"
+  contentStyleClass="dialog-post"
+  [header]="'Publicación de ' + institution.name">
+
+  <app-comments
+    *ngIf="visibleModalPost"
+    [modalBoostrap]="false"
+    [institution]="institution"
+    [post]="currentPost"
+    [initialMediaIndex]="indexImage"
+  ></app-comments>
+</p-dialog>
 

@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { NewUser } from '../models/new-user';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { TenantService } from '../../services/tenant.service';
+import { TenantService } from '../../core/services/tenant.service';
+import { OwnInstitutionStateService } from '../../core/services/own-institution-state.service';
+import { firstValueFrom, forkJoin, from, Observable, of } from 'rxjs';
+import { UserStateService } from '../../core/services/user-state.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,36 +18,29 @@ export class AuthService {
   private readonly jwtHelper = new JwtHelperService();
 
 
-  public token: any
+  public token: string | null = null;
   constructor(
     private readonly http: HttpClient,
-    private readonly router: Router,
-    private readonly tenantService: TenantService
+    private readonly tenantService: TenantService,
+    private readonly institutionStateService: OwnInstitutionStateService,
+    private readonly userStateService: UserStateService
   ) {
   }
 
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('token');
-    if (!token) return false;
-    return !this.jwtHelper.isTokenExpired(token);
+    if (!this.token) return false;
+    return !this.jwtHelper.isTokenExpired(this.token);
   }
 
-  login(username: string, password: string) {
-    let user = {
-      email: username,
-      password
-    }
-
-    return this.http.post<any>(this.ROOT_URL + '/login', user)
-      .pipe(
-        map(user => {
-          this.token = user.accessToken;
-          localStorage.setItem('token', this.token);
-          localStorage.setItem('refreshToken', user.refreshToken);
-
-          return true;
-        })
-      );
+  login(username: string, password: string): Observable<boolean> {
+    const user = { email: username, password };
+    return this.http.post<{ accessToken: string, tokenType: string }>(this.ROOT_URL + '/login', user, { withCredentials: true }).pipe(
+      switchMap(res => {
+        this.token = res.accessToken;
+        // refreshToken llega como cookie HttpOnly — el browser lo almacena solo
+        return from(this.ensureSessionStateLoaded()).pipe(map(() => true));
+      })
+    );
   }
 
   register(newUser: NewUser) {
@@ -65,7 +60,7 @@ export class AuthService {
   }
 
   getToken() {
-    return localStorage.getItem('token');
+    return this.token;
   }
 
   getUsername() {
@@ -73,16 +68,9 @@ export class AuthService {
   }
 
   getUserId() {
-    const token = this.getToken();
-
-    if (!token) {
-      console.warn("⚠️ No hay token en localStorage.");
-      return null;
-    }
-
+    if (!this.token) return null;
     try {
-      // 🔥 Decodificar el token para extraer el userId
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(this.token.split('.')[1]));
       return payload.userId ?? null;
     } catch (error) {
       console.error("Error al decodificar el token:", error);
@@ -91,10 +79,9 @@ export class AuthService {
   }
 
   getInstitutionId(): string | null {
-    const token = this.getToken();
-    if (!token) return null;
+    if (!this.token) return null;
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(this.token.split('.')[1]));
       return payload.institutionId ?? null;
     } catch {
       return null;
@@ -102,12 +89,9 @@ export class AuthService {
   }
 
   getRoles() {
-    const token = this.getToken();
-    if (!token) return [];
-    
+    if (!this.token) return [];
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      // Extraer roles del array en el payload
+      const payload = JSON.parse(atob(this.token.split('.')[1]));
       return payload.roles || [];
     } catch (error) {
       console.error("Error al extraer roles del token:", error);
@@ -129,73 +113,65 @@ export class AuthService {
     return expired;
   }
 
-  // Check if token is expired
   isTokenExpired(): boolean {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      return true;
-    }
-    const expired = this.jwtHelper.isTokenExpired(token);
-    return expired;
+    if (!this.token) return true;
+    return this.jwtHelper.isTokenExpired(this.token);
   }
 
-  // Logout usando refresh token
   logout(): void {
-    const refreshToken = localStorage.getItem('refreshToken');
-
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
+    this.token = null;
+    this.institutionStateService.clear();
+    this.userStateService.clearUser();
 
     const redirect = () => {
       globalThis.location.href = `/${this.tenantService.getSlug()}`;
     };
-    
-    if (refreshToken) {
-      this.http.post(`${this.ROOT_URL}/logout`, {}, {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`
-        }
-      }).subscribe({
+
+    // El browser envía la cookie refresh_token automáticamente (withCredentials)
+    // El backend la revoca en BD y responde borrando la cookie (Max-Age=0)
+    this.http.post(`${this.ROOT_URL}/logout`, {}, { withCredentials: true })
+      .subscribe({
         next: () => redirect(),
         error: (error) => {
           console.log('Error al cerrar sesión', error);
           redirect();
         }
       });
-    }else {
-      redirect();
-    }
   }
 
-  // Método para refrescar el access token
-  refreshAccessToken() {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) return null;
-    return this.http.post<any>(`${this.ROOT_URL}/refresh`, {}, {
-      headers: {
-        Authorization: `Bearer ${refreshToken}`
+  // El browser envía la cookie refresh_token automáticamente (withCredentials)
+  refreshAccessToken(): Observable<{ accessToken: string, tokenType: string }> {
+    return this.http.post<{ accessToken: string, tokenType: string }>(`${this.ROOT_URL}/refresh`, {}, { withCredentials: true });
+  }
+
+  // Refresca el token al inicializar la app usando la cookie HttpOnly
+  tryRefreshOnStartup(): Promise<void> {
+    if (this.token && !this.jwtHelper.isTokenExpired(this.token)) {
+      return this.ensureSessionStateLoaded();
+    }
+    // Si la cookie existe y es válida el backend devuelve un nuevo accessToken
+    // Si no hay cookie o expiró, el backend responde 401 y limpiamos memoria
+    return firstValueFrom(this.refreshAccessToken()).then((res) => {
+      if (res.accessToken) {
+        this.token = res.accessToken;
+        return this.ensureSessionStateLoaded();
       }
+      return Promise.resolve(); 
+    }).catch(() => {
+      this.token = null;
     });
   }
 
-  // Refresca el token antes de inicializar la app
-  tryRefreshOnStartup(): Promise<void> {
-    const token = localStorage.getItem('token');
-    if (!token || this.jwtHelper.isTokenExpired(token)) {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
-        const refreshObs = this.refreshAccessToken();
-        if (refreshObs) {
-          return refreshObs.toPromise().then((res: any) => {
-            if (res && res.accessToken) {
-              localStorage.setItem('token', res.accessToken);
-            }
-          }).catch(() => {
-            this.logout();
-          });
-        }
-      }
-    }
-    return Promise.resolve();
+  // Carga en paralelo el estado de institución propia y del usuario logueado
+  private ensureSessionStateLoaded(): Promise<void> {
+    const institutionId = this.getInstitutionId();
+
+    const institution$ = institutionId
+      ? this.institutionStateService.loadOwnInstitution(institutionId)
+      : of(null);
+
+    return firstValueFrom(
+      forkJoin([institution$, this.userStateService.loadUser()])
+    ).then(() => void 0);
   }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Institution } from '../posts/models/institution';
+import { Institution } from '../shared/models/institution';
 
 @Injectable({
   providedIn: 'root'

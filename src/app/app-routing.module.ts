@@ -1,16 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './components/home/home.component';
+import { HomeComponent } from './layout/components/home/home.component';
 import { ViewAllPostsComponent } from './posts/components/view-all-posts/view-all-posts.component';
-import { MediaGalleryComponent } from './posts/components/media-gallery/media-gallery.component';
-import { SectionContainerComponent } from './pages/section-container/section-container.component';
-import { PageContainerComponent } from './pages/page-container/page-container.component';
-import { SectionResolver } from './resolvers/section.resolver';
-import { ProfileComponent } from './user-profile/components/profile/profile.component';
-import { ProfileInstitutionComponent } from './institution/components/profile-institution/profile-institution.component';
 import { VerifyEmailComponent } from './authentication/components/verify-email/verify-email.component';
 import { ResetPasswordComponent } from './authentication/components/reset-password/reset-password.component';
 import { authGuard } from './authentication/services/auth.guard';
+import { tenantGuard } from './core/guards/tenant.guard';
 
 const routes: Routes = [
   // Rutas standalone — llegan desde links de email, sin contexto de subdominio de tenant
@@ -18,6 +13,8 @@ const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
 
   // ROOT dashboard — lazy loaded, tenant-agnostic (root.umss.net o /root)
+  // { path: 'not-found', component: NotFoundComponent },
+  // ROOT dashboard — lazy loaded, debe ir ANTES del wildcard :slug
   {
     path: 'root',
     loadChildren: () =>
@@ -27,40 +24,39 @@ const routes: Routes = [
   // Rutas del tenant — el tenant se resuelve desde el subdominio, no desde el path
   {
     path: '',
-    component: HomeComponent,
+    component: HomeComponent,  // Este componente contiene header/footer del tenant
+    canActivate: [tenantGuard],
     children: [
+      // Rutas protegidas
+      {
+        path: 'profile',
+        canActivate: [authGuard],
+        data: { hideHero: true, hideNavbar: true, showGoBack: true },
+        loadChildren: () => import('./user-profile/user-profile.module').then(m => m.UserProfileModule)
+      },
+      {
+        path: 'institution',
+        canActivate: [authGuard],
+        data: { roles: ['ADMIN'], hideHero: true, hideNavbar: true, showGoBack: true },
+        loadChildren: () => import('./institution/institution.module').then(m => m.InstitutionModule)
+      },
+      
+      // Rutas públicas
       { path: '', redirectTo: 'posts', pathMatch: 'full' },
 
       // Rutas públicas
       { path: 'posts', component: ViewAllPostsComponent },
       { path: 'posts/:id', component: ViewAllPostsComponent },
-      { path: 'fotos', component: MediaGalleryComponent,
-        data: { hideHero: true, hideNavbar: true, showGoBack: true } },
-      { path: 'videos', component: MediaGalleryComponent,
-        data: { hideHero: true, hideNavbar: true, showGoBack: true } },
-      { path: 'documentos', component: MediaGalleryComponent,
-        data: { hideHero: true, hideNavbar: true, showGoBack: true } },
-
-      // Rutas protegidas
-      { path: 'profile', component: ProfileComponent,
-        canActivate: [authGuard],
-        data: { hideHero: true, hideNavbar: true, showGoBack: true } },
-      { path: 'institution', component: ProfileInstitutionComponent,
-        canActivate: [authGuard],
-        data: { roles: ['ADMIN'], hideHero: true, hideNavbar: true, showGoBack: true } },
 
       // Secciones de navegación dinámica
+      // { path: 'fotos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  }  },
+      // { path: 'videos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  }  },
+      // { path: 'documentos', component: MediaGalleryComponent, data: { hideHero: true, hideNavbar: true, showGoBack: true  } },
       {
         path: ':pathNavItem',
-        component: PageContainerComponent,
-        children: [
-          {
-            path: ':pathSection',
-            component: SectionContainerComponent,
-            resolve: { section: SectionResolver }
-          }
-        ]
-      }
+        loadChildren: () => import('./articles/articles.module').then(m => m.ArticlesModule)
+      },
+      // { path: '**', component: NotFoundComponent } // ← sub-rutas inexistentes dentro de un slug válido
     ]
   },
 ];

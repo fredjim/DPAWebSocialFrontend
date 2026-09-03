@@ -1,0 +1,18 @@
+@if(user || userImgPath) {
+  <img
+    [src]="user?.photo_profile_path || userImgPath || DEFAULT_AVATAR"
+    [alt]="'Foto de ' + (user?.name || 'usuario')"
+    (error)="onImgError($event)"
+    [ngClass]="'size-' + size"
+    [class.responsive]="responsive"
+    class="user-photo"
+  />
+} @else {
+  <img 
+    [src]="DEFAULT_AVATAR" 
+    alt="Foto de usuario"
+    [ngClass]="'size-' + size"
+    [class.responsive]="responsive"
+    class="user-photo"
+  />
+}

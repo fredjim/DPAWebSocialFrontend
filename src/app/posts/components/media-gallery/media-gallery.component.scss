@@ -1,8 +1,7 @@
 .content {
   display: flex;
 	flex-direction: column;
-	min-height: 100vh;
-	min-height: 100dvh;
+	min-height: 27rem;
 }
 
 .tab-media {
@@ -12,11 +11,12 @@
 .media-gallery {
   display: grid;
   margin: 50px auto;
-  width: var(--container-width);
+  width: 100%;
+  max-width: var(--container-width);
 
   .media-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
 
     .photo,
@@ -41,12 +41,13 @@
 ::ng-deep .p-tabview-nav-container {
   position: relative;
   margin: 0 auto !important;
-  width: var(--container-width);
+  width: 100%;
+  max-width: var(--container-width);
   border-bottom: 1px solid var(--red-color);
 }
 
 ::ng-deep ul.p-tabview-nav {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   padding: 0 1rem;
   gap: 15px;
   border: none;
@@ -54,6 +55,8 @@
   li.p-highlight > a.p-tabview-nav-link  {
     color: var(--red-color);
     border-color: var(--red-color);
+    outline: 0 none !important;
+    box-shadow: none !important;
   }
 
   a.p-tabview-nav-link {
@@ -91,18 +94,6 @@
   margin-top: 20px;
 }
 
-footer {
-	text-align: center;
-	padding: 5px;
-	background-color: var(--blue-color);
-	color: white;
-	width: 100%;
-
-	p {
-		margin: 0;
-	}
-}
-
 @media screen and (max-width: 1201px) {
   .media-gallery {
     padding: 0 10px;
@@ -113,4 +104,10 @@ footer {
     width: 100%;
   }
 
+}
+
+@media screen and (max-width: 700px) {
+  .media-gallery .media-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
