@@ -45,7 +45,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   currentUser!: UserDetail;
   pathPhotoCurrentUser: string | null = null;
-  currentSlug: string = '';
   isLoading = false;
   formUser!: FormGroup;
   hidePassword = true;
@@ -58,7 +57,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   @ViewChild('toast') toast!: CustomToastComponent;
 
   ngOnInit(): void {
-    this.currentSlug = this.tenantService.getSlug();
     this.initForm();
     this.userStateService.currentUser$
       .pipe(takeUntil(this.destroy$))

@@ -7,8 +7,6 @@ import { Media } from '../../../shared/models/media';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommentsComponent } from '../../../interactions/components/comments/comments.component';
 import { UserDetail } from '../../../shared/models/user-detail';
-import { TenantService } from '../../../core/services/tenant.service';
-import { environment } from '../../../../environments/environment';
 import { EmojiName, EmojiType, EmojiTypeExtended, TranslatedName } from '../../../shared/models/emoji-type';
 
 @Component({
@@ -63,8 +61,7 @@ export class PostComponent implements OnInit {
   private readonly LONG_PRESS_MS = 400;
 
   constructor(
-    private readonly reactionService: ReactionService,
-    private readonly tenantService: TenantService
+    private readonly reactionService: ReactionService
   ) {}
   
   ngOnInit() {
@@ -350,10 +347,8 @@ export class PostComponent implements OnInit {
   }
 
   private buildPostUrl(postUuid: string): string {
-    const slug = this.tenantService.getSlug();
-    const base = environment.URL_BASE;
-    const slugSegment = slug ? `/${slug}` : '';
-    return `${base}${slugSegment}/posts/${postUuid}`;
+    const base = window.location.hostname;
+    return `${base}/posts/${postUuid}`;
   }
 
   onTouchStart(uuid: string, event: TouchEvent) {
