@@ -6,7 +6,6 @@ import { finalize } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ForgotPasswordComponent } from '../forgot-password/forgot-password.component';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
-import { TenantService } from '../../../core/services/tenant.service';
 import { Modal } from 'bootstrap';
 
 @Component({
@@ -29,17 +28,14 @@ export class LoginComponent implements OnInit {
   public emailNotVerified = false;
   public isLoggedIn = false;
   public isLoading = false;
-  private currentSlug: string = '';
 
   constructor(
     private readonly formBuilder: FormBuilder,
     private readonly auth: AuthService,
-    private readonly router: Router,
-    private readonly tenantService: TenantService
+    private readonly router: Router
   ) { }
 
   ngOnInit(): void {
-    this.currentSlug = this.tenantService.getSlug();
     this.buildForm();
   }
 
@@ -63,7 +59,7 @@ export class LoginComponent implements OnInit {
           next: () => {
             this.isLoggedIn = true;
             this.closeModal();
-            this.router.navigate([`/${this.currentSlug}`]);
+            this.router.navigate(['/posts']);
             // sin reload: UserStateService y OwnInstitutionStateService ya emitieron
             // el nuevo valor, y cada componente suscrito se actualiza automáticamente
           },

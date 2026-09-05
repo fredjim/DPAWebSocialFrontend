@@ -4,14 +4,12 @@ import { NavItemService } from '../../../layout/services/nav-item.service';
 import { SectionService } from '../../../layout/services/section.service';
 import { ArticleService } from '../../services/article.service';
 import { Section } from '../../../shared/models/section';
-import { AuthService } from '../../../authentication/services/auth.service';
 import { UserStateService } from '../../../core/services/user-state.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Article } from '../../models/article';
 import { UserDetail } from '../../../shared/models/user-detail';
 import { SectionStateService } from '../../../layout/services/sections-state.service';
 import { Subscription, switchMap } from 'rxjs';
-import { TenantService } from '../../../core/services/tenant.service';
 import { Link } from '../../models/link';
 import { MediaArticle } from '../../models/media-article';
 import { NavItem } from '../../../shared/models/nav-item';
@@ -29,14 +27,11 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   private readonly navItemService = inject(NavItemService);
   private readonly sectionService = inject(SectionService);
   private readonly articleService = inject(ArticleService);
-  private readonly authService = inject(AuthService);
   private readonly userStateService = inject(UserStateService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly sectionStateService = inject(SectionStateService);
-  private readonly tenantService = inject(TenantService);
   private sectionUpdateSubscription?: Subscription;
   private readonly subscriptions = new Subscription();
-  private currentSlug = '';
   
   currentSection!: Section;
   articles: Article[] = []; 
@@ -72,7 +67,6 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   private maxPanY = 0;
 
   ngOnInit() {
-    this.currentSlug = this.tenantService.getSlug();
     this.subscriptions.add(
       this.userStateService.currentUser$.subscribe(user => {
         if (!user) return;
@@ -97,7 +91,7 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
         if (navItemFinded) {
           this.currentNavItem = navItemFinded;
         } else {
-          this.router.navigate([`/${this.currentSlug}`]);
+          this.router.navigate(['/posts']);
         }
       })
     );
