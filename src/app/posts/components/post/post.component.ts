@@ -347,8 +347,7 @@ export class PostComponent implements OnInit {
   }
 
   private buildPostUrl(postUuid: string): string {
-    const base = window.location.hostname;
-    return `${base}/posts/${postUuid}`;
+    return `${window.location.origin}/posts/${postUuid}`;
   }
 
   onTouchStart(uuid: string, event: TouchEvent) {
