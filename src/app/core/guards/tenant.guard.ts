@@ -27,7 +27,7 @@ export const tenantGuard: CanActivateFn = (route, state) => {
         // Redirige a la raíz del subdominio correcto
         const hostname = window.location.hostname; // "dpa.umss.edu.bo"
         const dominio = hostname.substring(hostname.indexOf('.')); // ".umss.edu.bo"
-        const newUrl = `//${ownSlug}${dominio}`;
+        const newUrl = `//${ownSlug}${dominio}/`;
         window.location.replace(newUrl);
       }
     }
