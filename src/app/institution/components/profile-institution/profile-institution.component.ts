@@ -20,7 +20,7 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   private readonly imageOptimizationService = inject(ImageOptimizationService);
 
   public readonly MAX_NAME_LENGTH = 150;
-  public readonly MAX_DESCRIPTION_LENGTH = 300;
+  public readonly MAX_DESCRIPTION_LENGTH = 1000;
   public readonly MAX_LOCATION_LENGTH = 300;
   public readonly MAX_EMAIL_LENGTH = 80;
   public readonly MAX_PHONE_LENGTH = 20;
