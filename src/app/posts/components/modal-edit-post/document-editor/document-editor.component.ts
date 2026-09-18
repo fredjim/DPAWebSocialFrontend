@@ -131,14 +131,6 @@ export class DocumentEditorComponent implements OnInit {
     }
   }
 
-  private isValidFileType(type: string): boolean {
-    return type.includes('pdf');
-  }
-
-  private isValidFileSize(size: number): boolean {
-    return size <= this.MAX_FILE_SIZE;
-  }
-
   getTypeFile(type: string){
     if(type === this.typesDocs.pdf)
       return 'File PDF'

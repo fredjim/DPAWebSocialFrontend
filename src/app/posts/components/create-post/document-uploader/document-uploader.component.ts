@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, WritableSignal, ElementRef, ViewChild } from '@angular/core';
-import { MAX_LENGTH_NAME_FILE, MediaCategory, MediaValidationErrorType, validateMediaFiles } from '../../../../shared/utils/media-file-validation';
+import { MAX_LENGTH_NAME_FILE, MediaValidationErrorType, validateMediaFiles } from '../../../../shared/utils/media-file-validation';
 
 @Component({
   selector: 'app-document-uploader',
