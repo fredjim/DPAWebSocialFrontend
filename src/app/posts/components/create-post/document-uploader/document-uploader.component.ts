@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, WritableSignal, ElementRef, ViewChild } from '@angular/core';
+import { MAX_LENGTH_NAME_FILE, MediaCategory, MediaValidationErrorType, validateMediaFiles } from '../../../../shared/utils/media-file-validation';
 
 @Component({
   selector: 'app-document-uploader',
@@ -10,6 +11,7 @@ export class DocumentUploaderComponent implements OnChanges {
   @Input() isVisibleModal: boolean = false;
   @Output() closeAreaDocEvent = new EventEmitter<boolean>(); 
   @Output() loadFileDoc = new EventEmitter<File[]>(); 
+  @Output() toastRefEvent = new EventEmitter<string>();
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   public readonly SIZE = 100;
   private readonly MAX_FILE_SIZE = this.SIZE * 1024 * 1024; // 100MB en bytes
@@ -68,26 +70,21 @@ export class DocumentUploaderComponent implements OnChanges {
     }
   }
 
-  private handleFiles(newFiles: File[]) {
-    let hasError = false;
-
-    newFiles.forEach(file => {
-      // Validar tipo archivo pdf
-      if(!this.isValidFileType(file.type)){
-        alert(`Por favor, seleccione un documento tipo PDF. Archivo inválido: ${file.name}`);
-        hasError = true;
-        return;
-      }
-
-      // Validar tamaño de archivo
-      if(!this.isValidFileSize(file.size)){
-        alert(`El archivo ${file.name} es demasiado grande. Máximo permitido: ${this.SIZE}MB.`);
-        hasError = true;
-        return;
-      }
+  private handleFiles(newFiles: File[]): void {
+    const result = validateMediaFiles(newFiles, {
+      allowedMimeTypes: ['pdf', 'application/pdf'],
+      maxLengthFileName: MAX_LENGTH_NAME_FILE,
+      maxFileSizeBytes: this.MAX_FILE_SIZE,
+      messages: {
+        [MediaValidationErrorType.INVALID_TYPE]: (file) =>
+          `Por favor, seleccione un documento tipo PDF. Archivo inválido: ${file.name}`,
+        [MediaValidationErrorType.FILE_TOO_LARGE]: (file) =>
+          `El archivo ${file.name} es demasiado grande. Máximo permitido: ${this.SIZE}MB.`,
+      },
     });
 
-    if(hasError) {
+    if (!result.isValid) {
+      this.toastRefEvent.emit(result.errorMessage);
       return;
     }
 
@@ -99,14 +96,6 @@ export class DocumentUploaderComponent implements OnChanges {
     this.fileDocs = [...this.fileDocs, ...newFiles];
     this.showPreviewDoc = true;
     this.loadFileDoc.emit(this.fileDocs);
-  }
-
-  private isValidFileType(type: string): boolean {
-    return type.includes('pdf');
-  }
-
-  private isValidFileSize(size: number): boolean {
-    return size <= this.MAX_FILE_SIZE;
   }
 
   getTypeFile(type: string){

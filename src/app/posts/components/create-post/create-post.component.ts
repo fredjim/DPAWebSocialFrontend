@@ -305,4 +305,8 @@ export class CreatePostComponent implements OnInit, AfterViewInit, OnDestroy {
     this.toastRef.showError(errorMsg, 'Error');
     console.log(errorMsg, error); 
   }
+
+  showMessageErrorToast(message: string): void{
+    this.toastRef.showError(message);
+  }
 }

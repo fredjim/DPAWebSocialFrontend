@@ -1,5 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, WritableSignal, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { Media } from '../../../../shared/models/media';
+import { extractFilesFromEvent, MAX_LENGTH_NAME_FILE, MediaCategory, MediaValidationErrorType, validateMediaFiles } from '../../../../shared/utils/media-file-validation';
 
 @Component({
   selector: 'app-image-video-editor',
@@ -13,6 +14,7 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
   @Output() closeAreaMediaEvent = new EventEmitter<boolean>();//Ocultar la seleccion y prevista de media
   @Output() loadNewFilesMediaEvent = new EventEmitter<File[]>(); //Devolver las imagenes/videos nuevos seleccionadas
   @Output() loadOldMediaRemoved = new EventEmitter<Media[]>(); //Devolver las imagenes/videos nuevos seleccionadas
+  @Output() toastRefEvent = new EventEmitter<string>();
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   
   showPreviewMedia = false; //Mostrar la prevista de imagenes y/o videos
@@ -83,15 +85,19 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
   async changeInputMedia(event: Event | DragEvent){
     event.preventDefault();
     event.stopPropagation();
-    const newFiles = this.getFilesFromEvent(event);
+    const newFiles = extractFilesFromEvent(event);
 
-    if (!newFiles || newFiles.length === 0) {
-      return;
-    }
+    if (!newFiles || newFiles.length === 0) return;
 
-    if(newFiles && !this.isValidFileType(newFiles)){
-      alert('Por favor, seleccione solo imágenes o videos');
-       if (event.target instanceof HTMLInputElement) {
+    const result = validateMediaFiles(newFiles, {
+      allowedCategories: [MediaCategory.IMAGE, MediaCategory.VIDEO],
+      maxLengthFileName: MAX_LENGTH_NAME_FILE,
+      messages: { [MediaValidationErrorType.INVALID_TYPE]: 'Por favor, seleccione solo imágenes o videos' },
+    });
+
+    if(!result.isValid){
+      this.toastRefEvent.emit(result.errorMessage);
+      if (event.target instanceof HTMLInputElement) {
         event.target.files = new DataTransfer().files; // Limpiar el input
       }
       return;
@@ -117,22 +123,6 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
     event.preventDefault();
   }
 
-  private getFilesFromEvent(event: Event | DragEvent): File[] | null {
-    if (event instanceof DragEvent && event.dataTransfer?.files) {
-      return Array.from(event.dataTransfer.files);
-    } else if (event.target instanceof HTMLInputElement && event.target.files) {
-      return Array.from(event.target.files);
-    }
-    return null;
-  }
-
-  private isValidFileType(files: File[]): boolean {
-    return files.every(file => {
-      const fileType = file.type;
-      return fileType.startsWith('image/') || fileType.startsWith('video/');
-    });
-  }
-
   private hasOversizedVideo(files: File[]): boolean {
     return files.some(file => 
       file.type.startsWith('video/') && file.size > this.MAX_VIDEO_SIZE_GB
@@ -140,7 +130,7 @@ export class ImageVideoEditorComponent implements OnInit, OnChanges {
   }
 
   private handleOversizedVideoError(event: Event): void {
-    alert(`El tamaño del video no debe exceder los ${this.MAX_VIDEO_SIZE_GB / (1024 * 1024 * 1024)} GB.`);
+    this.toastRefEvent.emit(`El tamaño del video no debe exceder los ${this.MAX_VIDEO_SIZE_GB / (1024 * 1024 * 1024)} GB.`);
     
     // Limpiar el input si es un evento de input
     if (event.target instanceof HTMLInputElement) {
