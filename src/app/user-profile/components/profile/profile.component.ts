@@ -9,6 +9,7 @@ import { UserStateService } from '../../../core/services/user-state.service';
 import { from, map, Observable, of, Subject, switchMap, takeUntil } from 'rxjs';
 import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
+import { MAX_LENGTH_NAME_FILE, MediaCategory, validateMediaFile } from '../../../shared/utils/media-file-validation';
 
 type PhotoAction =
   | { type: 'upload'; media: UploadedMedia }
@@ -30,10 +31,8 @@ interface PasswordValidationErrors {
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
-  private readonly authService = inject(AuthService);
   private readonly userStateService = inject(UserStateService);
   private readonly userService = inject(UserService);
-  private readonly tenantService = inject(TenantService);
   private readonly imageOptimizationService = inject(ImageOptimizationService);
 
   public readonly MAX_NAME_LENGTH = 50;
@@ -166,13 +165,20 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   changeInputMediaProfile(event: Event): void {
     if (event.target instanceof HTMLInputElement && event.target.files){
-      this.imageFileProfileToCreate = event.target.files[0];
+      const file = event.target.files[0];
       // Validaciones
-      if(!this.isValidFileType(this.imageFileProfileToCreate)){
-        this.toast.showError('Por favor, seleccione una imagen válida');
+      const result = validateMediaFile(file, {
+        allowedCategories: [MediaCategory.IMAGE], // ['image/']
+        maxLengthFileName: MAX_LENGTH_NAME_FILE,
+      });
+
+      if (!result.isValid) {
+        this.toast.showError(result.errorMessage!);
         this.resetFileInput(this.fileInputProfile);
         return;
       }
+
+      this.imageFileProfileToCreate = file;
 
       // Preview local
       const reader = new FileReader();
@@ -186,10 +192,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private isValidFileType(file: File): boolean {
-    return file.type.startsWith('image/');
   }
 
   public openInputFileProfile(): void {

@@ -70,12 +70,16 @@
 						<!-- Seleccionar imagen (es) -->
 						<app-images-uploader [showAreaMedia]="visibleAreaMedia" [isVisibleModal]="visibleModalCreate"
 							(closeAreaMediaEvent)="closeAreaMedia()"
-							(loadFilesMediaEvent)="getFilesImagesPost($event)"></app-images-uploader>
+							(loadFilesMediaEvent)="getFilesImagesPost($event)"
+							(toastRefEvent)="showMessageErrorToast($event)"
+						></app-images-uploader>
 
 						<!-- Seleccionar archivo -->
 						<app-document-uploader [showAreaDoc]="visibleAreaMediaDoc" [isVisibleModal]="visibleModalCreate"
 							(closeAreaDocEvent)="closeAreaDoc()"
-							(loadFileDoc)="getFileDocPost($event)"></app-document-uploader>
+							(loadFileDoc)="getFileDocPost($event)"
+							(toastRefEvent)="showMessageErrorToast($event)"
+						></app-document-uploader>
 					</div>
 					
 					<!-- Añadir a la publicacion -->
