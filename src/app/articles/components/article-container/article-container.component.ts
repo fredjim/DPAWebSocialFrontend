@@ -148,7 +148,59 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
 
   public safeText(textToSanitizer: string): SafeHtml {
     const normalizedHtml = this.normalizeLineBreaks(textToSanitizer);
-    return this.sanitizer.bypassSecurityTrustHtml(normalizedHtml);
+    const articleDocument = new DOMParser().parseFromString(normalizedHtml, 'text/html');
+
+    articleDocument.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(link => {
+      const videoId = this.getYouTubeVideoId(link.href);
+      if (!videoId) return;
+
+      const preview = articleDocument.createElement('div');
+      preview.className = 'article-video-preview';
+
+      const iframe = articleDocument.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}`;
+      iframe.title = link.textContent?.trim() || 'Video de YouTube';
+      iframe.loading = 'lazy';
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+      iframe.setAttribute('allowfullscreen', 'true');
+
+      const videoLink = articleDocument.createElement('a');
+      videoLink.href = `https://www.youtube.com/watch?v=${videoId}`;
+      videoLink.target = '_blank';
+      videoLink.rel = 'noopener noreferrer';
+      videoLink.textContent = 'Abrir video en YouTube';
+
+      preview.append(iframe, videoLink);
+      link.replaceWith(preview);
+    });
+
+    return this.sanitizer.bypassSecurityTrustHtml(articleDocument.body.innerHTML);
+  }
+
+  private getYouTubeVideoId(url: string): string | null {
+    try {
+      const parsedUrl = new URL(url);
+      const hostname = parsedUrl.hostname.toLowerCase().replace(/^www\./, '');
+
+      if (hostname === 'youtu.be') {
+        return parsedUrl.pathname.slice(1).split('/')[0] || null;
+      }
+
+      if (hostname !== 'youtube.com' && hostname !== 'm.youtube.com') return null;
+
+      if (parsedUrl.pathname === '/watch') {
+        return parsedUrl.searchParams.get('v');
+      }
+
+      const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
+      if (pathParts[0] === 'shorts' || pathParts[0] === 'embed') {
+        return pathParts[1] || null;
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   private normalizeLineBreaks(html: string): string {
