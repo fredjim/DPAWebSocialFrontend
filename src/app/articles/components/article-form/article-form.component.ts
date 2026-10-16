@@ -10,6 +10,7 @@ import { MediaArticle } from '../../models/media-article';
 import { Link } from '../../models/link';
 import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
 import { CreateUpdateArticle } from '../../models/create-update-article';
+import { MAX_LENGTH_NAME_FILE, MediaCategory, MediaValidationErrorType, validateMediaFiles } from '../../../shared/utils/media-file-validation';
 
 @Component({
   selector: 'app-article-form',
@@ -486,8 +487,14 @@ export class ArticleFormComponent implements OnInit, OnChanges, OnDestroy {
       const newDocs = Array.from(event.target.files);
       
       // Validar tipos de los nuevos documentos
-      if(!this.isValidFileTypeDoc(newDocs)){
-        alert('Por favor, seleccione solo documentos pdf');
+      const result = validateMediaFiles(newDocs, {
+        allowedMimeTypes: this.typeDocs, 
+        maxLengthFileName: MAX_LENGTH_NAME_FILE,
+        messages: { [MediaValidationErrorType.INVALID_TYPE]: 'Por favor, seleccione solo documentos pdf' },
+      });
+
+      if (!result.isValid) {
+        this.toastRef.showError(result.errorMessage!);
         this.resetFileInput(this.fileInputDoc);
         return;
       }
@@ -508,10 +515,6 @@ export class ArticleFormComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private isValidFileTypeDoc(files: File[]): boolean {
-    return files.every(file => this.typeDocs.includes(file.type));
-  }
-
   public selectDocumentDeleteOfArticle(index: number): void {
     this.docsOfArticle.splice(index, 1);
   }
@@ -528,10 +531,17 @@ export class ArticleFormComponent implements OnInit, OnChanges, OnDestroy {
     if (event.target instanceof HTMLInputElement && event.target.files){
       // Convertir FileList a array
       const newFiles = Array.from(event.target.files);
+      if (!newFiles) return;
       
       // Validar tipos de los nuevos archivos
-      if(!this.isValidFileType(newFiles)){
-        alert('Por favor, seleccione solo imágenes');
+      const result = validateMediaFiles(newFiles, {
+        allowedCategories: [MediaCategory.IMAGE], //'image/'
+        maxLengthFileName: MAX_LENGTH_NAME_FILE,
+        messages: { [MediaValidationErrorType.INVALID_TYPE]: 'Por favor, seleccione solo imágenes' },
+      });
+
+      if (!result.isValid) {
+        this.toastRef.showError(result.errorMessage!);
         this.resetFileInput(this.fileInputImage);
         return;
       }
@@ -550,13 +560,6 @@ export class ArticleFormComponent implements OnInit, OnChanges, OnDestroy {
       // Resetear el input para permitir seleccionar los mismos archivos nuevamente
       this.resetFileInput(this.fileInputImage);
     }
-  }
-
-  private isValidFileType(files: File[]): boolean {
-    return files.every(file => {
-      const fileType = file.type;
-      return fileType.startsWith('image/');
-    });
   }
 
   public selectImageDeleteOfArticle(index: number): void {

@@ -1,6 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { UserStateService } from '../../../core/services/user-state.service';
-import { TenantService } from '../../../core/services/tenant.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Modal } from 'bootstrap';
 import { AuthService } from '../../../authentication/services/auth.service';
@@ -19,19 +18,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isMobileMenuOpen = false;
   @Input() hideArrowBackHome = true;
   user: UserDetail | null = null;
-  currentSlug: string = '';
   private readonly destroy$ = new Subject<void>();
   private modalInstance?: Modal; // Para gestionar el modal
   menuItemsPopup: MenuItem[] = [];
 
   constructor(private readonly authService: AuthService,
-    private readonly userStateService: UserStateService,
-    private readonly tenantService: TenantService) {
+    private readonly userStateService: UserStateService) {
     this.authenticated = authService.isAuthenticated();
   }
 
   ngOnInit() {
-    this.currentSlug = this.tenantService.getSlug();
     this.getUser();
   }
 
@@ -51,11 +47,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.menuItemsPopup = [
         {
           label: 'Ver perfil',
-          routerLink: ['/', this.currentSlug, 'profile'],
+          routerLink: ['/profile'],
         },
         {
           label: 'Ver página',
-          routerLink: ['/', this.currentSlug, 'institution'],
+          routerLink: ['/institution'],
           visible: this.user.role === 'ADMIN'
         },
         {

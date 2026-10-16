@@ -3,7 +3,6 @@ import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
-import { environment } from '../../../../environments/environment';
 import { finalize } from 'rxjs';
 import { CustomToastComponent } from '../../../shared/components/custom-toast/custom-toast.component';
 
@@ -101,7 +100,7 @@ export class ResetPasswordComponent implements OnInit {
             'Contraseña actualizada',
             4000
           );
-          setTimeout(() => this.router.navigate(['/', environment.DEFAULT_TENANT_SLUG]), 4000);
+          setTimeout(() => this.router.navigate(['/']), 4000);
         },
         error: (err) => {
           // Rate limit (429): lo notifica el interceptor global; evitamos un toast duplicado.
@@ -116,6 +115,6 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   goHome(): void {
-    this.router.navigate(['/', environment.DEFAULT_TENANT_SLUG]);
+    this.router.navigate(['/']);
   }
 }

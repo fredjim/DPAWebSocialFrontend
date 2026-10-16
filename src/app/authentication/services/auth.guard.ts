@@ -19,7 +19,7 @@ export const authGuard: CanActivateFn = (
       const userRoles = authService.getRoles();
       
       if (!requiredRoles.some(role => userRoles.includes(role))) {
-        return router.createUrlTree([`/${tenantService.getSlug()}`]);
+        return router.createUrlTree(['/']);
       }
     }
     return true;
@@ -27,7 +27,7 @@ export const authGuard: CanActivateFn = (
 
   // No autenticado - redirigir al login
   // authService.logout(); // Limpiar datos vencidos
-  return router.createUrlTree([`/${tenantService.getSlug()}`], {
+  return router.createUrlTree(['/'], {
     queryParams: { returnUrl: state.url }
   });
 };

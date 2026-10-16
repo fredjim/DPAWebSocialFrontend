@@ -124,7 +124,7 @@ export class AuthService {
     this.userStateService.clearUser();
 
     const redirect = () => {
-      globalThis.location.href = `/${this.tenantService.getSlug()}`;
+      globalThis.location.href = '/posts';
     };
 
     // El browser envía la cookie refresh_token automáticamente (withCredentials)

@@ -41,7 +41,7 @@ export class PageContainerComponent implements OnInit, OnDestroy {
         if (navItemFinded) {
           this.currentNavItem = navItemFinded;
         } else {
-          this.router.navigate([`/${this.tenantService.getSlug()}`]);
+          this.router.navigate(['/posts']);
         }
       })
     );

@@ -269,8 +269,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
   }
 
   handleOpenPost(post: Post, initialMediaIndex: number = 0): void {
-    const slug = this.tenantService.getSlug();
-    const url = this.router.createUrlTree(['/', slug, 'posts', post.uuid]).toString();
+    const url = this.router.createUrlTree(['/', 'posts', post.uuid]).toString();
     this.location.go(url);
     this.openPostModal(post, initialMediaIndex);
   }
@@ -301,8 +300,7 @@ export class ViewAllPostsComponent implements OnInit, OnDestroy {
           modalRef.componentInstance.initialMediaIndex = initialMediaIndex;
 
           const resetUrl = () => {
-            const slug = this.tenantService.getSlug();
-            const url = this.router.createUrlTree(['/', slug, 'posts']).toString();
+            const url = this.router.createUrlTree(['/', 'posts']).toString();
             this.location.go(url);
           };
 

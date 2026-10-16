@@ -38,7 +38,9 @@
                 (closeAreaMediaEvent)="closeAreaMedia()" 
                 (loadOldMediaRemoved)="setFilesMediaPostOld($event)" 
                 (loadNewFilesMediaEvent)="setFilesMediaPostAdded($event)"
-                [listMediaPost]="listImagesVideosPost"></app-image-video-editor>
+                (toastRefEvent)="showMessageErrorToast($event)"
+                [listMediaPost]="listImagesVideosPost"
+              ></app-image-video-editor>
               
               <!-- Seleccionar archivo -->
               <app-document-editor 
@@ -46,7 +48,9 @@
                 (closeAreaDocEvent)="closeAreaDoc()" 
                 (loadNewFileDoc)="setFileDocPostAdded($event)" 
                 (loadOldDocsRemoved)="setFileDocPostOld($event)"
-                [listDocsPost]="listDocsPost"></app-document-editor>
+                (toastRefEvent)="showMessageErrorToast($event)"
+                [listDocsPost]="listDocsPost"
+              ></app-document-editor>
             </div>
 
             <!-- Añadir a la publicacion -->
