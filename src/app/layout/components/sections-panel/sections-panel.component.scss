@@ -9,6 +9,7 @@ nav {
 		li {
 			line-height: 1.5rem;
 			margin-bottom: 1rem;
+			padding-right: 5px;
 
 			a {
 				text-decoration: none;
@@ -16,6 +17,7 @@ nav {
 
 				&:hover {
 					text-decoration: underline;
+					color: var(--red-color);
 				}
 			}
 
@@ -29,6 +31,7 @@ nav {
 			justify-content: space-between;
 			align-items: baseline;
 			color: var(--blue-color);
+			margin-right: 1rem;
 
 			div.edit-info {
 				cursor: pointer;
