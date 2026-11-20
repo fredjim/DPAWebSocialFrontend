@@ -1,4 +1,6 @@
 import { Component, EventEmitter, Input, Output, WritableSignal, ElementRef, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import { extractFilesFromEvent, MAX_LENGTH_NAME_FILE, MediaCategory, MediaValidationErrorType, validateMediaFiles } from '../../../../shared/utils/media-file-validation';
+import { CustomToastComponent } from '../../../../shared/components/custom-toast/custom-toast.component';
 
 @Component({
   selector: 'app-images-uploader',
@@ -11,6 +13,7 @@ export class ImagesUploaderComponent implements OnChanges {
   @Output() closeAreaMediaEvent = new EventEmitter<boolean>();//Ocultar la seleccion y prevista de media
   @Output() loadFilesMediaEvent = new EventEmitter<File[]>(); //Devolver las imagenes/videos seleccionadas
   @ViewChild('fileInput') fileInput!: ElementRef; // Referencia al input file
+  @Output() toastRefEvent = new EventEmitter<string>();
   showPreviewMedia = false; //Mostrar la prevista de imagenes y/o videos
   mediaListPreview: {type: string, url: string}[] = []; //Imagenes videos a mostrar en formato base64
   listFileMedia: File[] = []; //Lista de archivos seleccionados
@@ -58,16 +61,20 @@ export class ImagesUploaderComponent implements OnChanges {
     event.stopPropagation();
     
     // Obtener archivos según el tipo de evento
-    const files = this.getFilesFromEvent(event);
+    const files = extractFilesFromEvent(event);
     
-    if (!files || files.length === 0) {
-      return;
-    }
+    if (!files || files.length === 0) return;
 
-    if(files && !this.isValidFileType(files)){
-      alert('Por favor, seleccione solo imágenes o videos');
-       if (event.target instanceof HTMLInputElement) {
-        event.target.files = new DataTransfer().files; // Limpiar el input
+    const result = validateMediaFiles(files, {
+      allowedCategories: [MediaCategory.IMAGE, MediaCategory.VIDEO],
+      maxLengthFileName: MAX_LENGTH_NAME_FILE,
+      messages: { [MediaValidationErrorType.INVALID_TYPE]: 'Por favor, seleccione solo imágenes o videos' },
+    });
+
+    if (!result.isValid) {
+      this.toastRefEvent.emit(result.errorMessage!);
+      if (event.target instanceof HTMLInputElement) {
+        event.target.files = new DataTransfer().files;
       }
     
       // Resetear estado
@@ -78,22 +85,6 @@ export class ImagesUploaderComponent implements OnChanges {
     }
     
     this.processMediaFiles(files, event);
-  }
-
-  private isValidFileType(files: File[]): boolean {
-    return files.every(file => {
-      const fileType = file.type;
-      return fileType.startsWith('image/') || fileType.startsWith('video/');
-    });
-  }
-
-  private getFilesFromEvent(event: Event | DragEvent): File[] | null {
-    if (event instanceof DragEvent && event.dataTransfer?.files) {
-      return Array.from(event.dataTransfer.files);
-    } else if (event.target instanceof HTMLInputElement && event.target.files) {
-      return Array.from(event.target.files);
-    }
-    return null;
   }
 
   private processMediaFiles(files: File[], originalEvent: Event): void {
@@ -127,7 +118,7 @@ export class ImagesUploaderComponent implements OnChanges {
   }
 
   private handleOversizedVideoError(event: Event): void {
-    alert(`El tamaño del video no debe exceder los ${this.MAX_VIDEO_SIZE_GB / (1024 * 1024 * 1024)} GB.`);
+    this.toastRefEvent.emit(`El tamaño del video no debe exceder los ${this.MAX_VIDEO_SIZE_GB / (1024 * 1024 * 1024)} GB.`);
     
     // Limpiar el input si es un evento de input
     if (event.target instanceof HTMLInputElement) {

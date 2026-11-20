@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PrimeNGConfig } from 'primeng/api';
+import { Title } from '@angular/platform-browser';
+import { TenantService } from './core/services/tenant.service';
 
 @Component({
   selector: 'app-root',
@@ -7,9 +9,24 @@ import { PrimeNGConfig } from 'primeng/api';
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
-  constructor(private readonly primengConfig: PrimeNGConfig) {}
+  constructor(
+    private readonly primengConfig: PrimeNGConfig,
+    private readonly titleService: Title,
+    private readonly tenantService: TenantService
+  ) {}
 
   ngOnInit(): void{
+    this.setDynamicTitle();
+    this.configPrimeNG();
+  }
+
+  private setDynamicTitle() {
+    const subdomain = this.tenantService.getSlug();
+    const title = subdomain ? `${subdomain.toUpperCase()}-UMSS` : 'UMSS';
+    this.titleService.setTitle(title);
+  }
+
+  private configPrimeNG():void {
     this.primengConfig.ripple = true;
     this.primengConfig.setTranslation({
       startsWith: 'Empieza con',

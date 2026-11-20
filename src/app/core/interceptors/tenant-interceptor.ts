@@ -12,8 +12,8 @@ export class TenantInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     // Solo agregar el header en requests al propio backend
     const isBackendRequest =
-      request.url.includes(environment.BACK_END_HOST_DEV) ||
-      request.url.includes(environment.BACK_END_HOST_DEV_AUTH);
+      request.url.includes(environment.BACK_END_HOST) ||
+      request.url.includes(environment.BACK_END_HOST_AUTH);
 
     if (!isBackendRequest) {
       return next.handle(request);

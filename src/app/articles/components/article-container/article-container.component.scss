@@ -77,6 +77,39 @@
 				width: 100%;
 				max-width: 720px;
 
+				::ng-deep .article-video-preview {
+					width: 100%;
+					max-width: 680px;
+					margin: 1.25rem auto;
+					padding: 0.65rem;
+					border: 1px solid #dce5ee;
+					border-radius: 10px;
+					background: #17202b;
+					box-shadow: 0 4px 14px rgba(15, 23, 42, 0.14);
+
+					iframe {
+						display: block;
+						width: 100%;
+						min-width: 0;
+						aspect-ratio: 16 / 9;
+						border: 0;
+						border-radius: 6px;
+					}
+
+					a {
+						display: block;
+						margin: 0.65rem 0.35rem 0.15rem;
+						font-size: 0.85rem;
+						color: #dbeafe;
+						text-decoration: none;
+
+						&:hover {
+							color: #ffffff;
+							text-decoration: underline;
+						}
+					}
+				}
+
 				::ng-deep p {
 					margin-bottom: 0;
 					text-align: justify;

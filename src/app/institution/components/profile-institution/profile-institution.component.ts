@@ -7,6 +7,7 @@ import { UploadedMedia } from '../../../shared/models/uploaded-media';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { OwnInstitutionStateService } from '../../../core/services/own-institution-state.service';
 import { ImageOptimizationService } from '../../../shared/services/image-optimization.service';
+import { MAX_LENGTH_NAME_FILE, MediaCategory, validateMediaFile } from '../../../shared/utils/media-file-validation';
 
 @Component({
   selector: 'app-profile-institution',
@@ -20,7 +21,7 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   private readonly imageOptimizationService = inject(ImageOptimizationService);
 
   public readonly MAX_NAME_LENGTH = 150;
-  public readonly MAX_DESCRIPTION_LENGTH = 300;
+  public readonly MAX_DESCRIPTION_LENGTH = 1000;
   public readonly MAX_LOCATION_LENGTH = 300;
   public readonly MAX_EMAIL_LENGTH = 80;
   public readonly MAX_PHONE_LENGTH = 20;
@@ -33,7 +34,6 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   imageLogo: string = '';
   currentLogoUuid: string = '';
   currentBackgroundUuid: string = '';
-  currentSlug: string | null = '';
 
   @ViewChild('fileInputCover') fileInputCover!: ElementRef;
   @ViewChild('fileInputLogo') fileInputLogo!: ElementRef;
@@ -42,7 +42,6 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   formInstitution!: FormGroup;
 
   ngOnInit(): void {
-    this.currentSlug = this.ownInstitutionStateService.getOwnInstitutionSlugSnapshot();
     this.initForm();
 
     this.ownInstitutionStateService.ownInstitution$
@@ -147,14 +146,20 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
 
   changeInputMediaCover(event: Event){
     if (event.target instanceof HTMLInputElement && event.target.files){
-      this.imageFileCoverToCreate = event.target.files[0];
-
+      const file = event.target.files[0];
       // Validaciones
-      if(!this.isValidFileType(this.imageFileCoverToCreate)){
-        this.toast.showError('Por favor, seleccione una imagen válida');
+      const result = validateMediaFile(file, {
+        allowedCategories: [MediaCategory.IMAGE], // ['image/']
+        maxLengthFileName: MAX_LENGTH_NAME_FILE,
+      });
+
+      if (!result.isValid) {
+        this.toast.showError(result.errorMessage!);
         this.resetFileInput(this.fileInputCover);
         return;
       }
+
+      this.imageFileCoverToCreate = file;
 
       // Preview local
       const reader = new FileReader();
@@ -168,13 +173,20 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
 
   changeInputMediaLogo(event: Event){
     if (event.target instanceof HTMLInputElement && event.target.files){
-      this.imageFileLogoToCreate = event.target.files[0];
+      const file = event.target.files[0];
       // Validaciones
-      if(!this.isValidFileType(this.imageFileLogoToCreate)){
-        this.toast.showError('Por favor, seleccione una imagen válida');
+      const result = validateMediaFile(file, {
+        allowedCategories: [MediaCategory.IMAGE], // ['image/']
+        maxLengthFileName: MAX_LENGTH_NAME_FILE,
+      });
+
+      if (!result.isValid) {
+        this.toast.showError(result.errorMessage!);
         this.resetFileInput(this.fileInputLogo);
         return;
       }
+
+      this.imageFileLogoToCreate = file;
 
       // Preview local
       const reader = new FileReader();
@@ -213,10 +225,6 @@ export class ProfileInstitutionComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  private isValidFileType(file: File): boolean {
-    return file.type.startsWith('image/');
   }
 
   private phoneValidator(): ValidatorFn {

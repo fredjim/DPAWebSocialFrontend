@@ -1,5 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, WritableSignal } from '@angular/core';
 import { Media } from '../../../../shared/models/media';
+import { MAX_LENGTH_NAME_FILE, MediaValidationErrorType, validateMediaFiles } from '../../../../shared/utils/media-file-validation';
 
 @Component({
   selector: 'app-document-editor',
@@ -16,6 +17,7 @@ export class DocumentEditorComponent implements OnInit {
   @Output() closeAreaDocEvent = new EventEmitter<boolean>(); 
   @Output() loadNewFileDoc = new EventEmitter<File[]>(); 
   @Output() loadOldDocsRemoved = new EventEmitter<Media[]>(); 
+  @Output() toastRefEvent = new EventEmitter<string>();
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   public readonly SIZE = 100;
@@ -82,25 +84,20 @@ export class DocumentEditorComponent implements OnInit {
   }
 
   private handleFiles(newFiles: File[]) {
-    let hasError = false;
-
-    newFiles.forEach(file => {
-      // Validar tipo archivo pdf
-      if(!this.isValidFileType(file.type)){
-        alert(`Por favor, seleccione un documento tipo PDF. Archivo inválido: ${file.name}`);
-        hasError = true;
-        return;
-      }
-
-      // Validar tamaño de archivo
-      if(!this.isValidFileSize(file.size)){
-        alert(`El archivo ${file.name} es demasiado grande. Máximo permitido: ${this.SIZE}MB.`);
-        hasError = true;
-        return;
-      }
+    const result = validateMediaFiles(newFiles, {
+      allowedMimeTypes: ['pdf', 'application/pdf'],
+      maxLengthFileName: MAX_LENGTH_NAME_FILE,
+      maxFileSizeBytes: this.MAX_FILE_SIZE,
+      messages: {
+        [MediaValidationErrorType.INVALID_TYPE]: (file) =>
+          `Por favor, seleccione un documento tipo PDF. Archivo inválido: ${file.name}`,
+        [MediaValidationErrorType.FILE_TOO_LARGE]: (file) =>
+          `El archivo ${file.name} es demasiado grande. Máximo permitido: ${this.SIZE}MB.`,
+      },
     });
 
-    if(hasError) {
+    if (!result.isValid) {
+      this.toastRefEvent.emit(result.errorMessage);
       return;
     }
 
@@ -132,14 +129,6 @@ export class DocumentEditorComponent implements OnInit {
     if (this.fileNewDocs.length === 0 && this.fileMediaDocs.length === 0) {
       this.showPreviewDoc = false;
     }
-  }
-
-  private isValidFileType(type: string): boolean {
-    return type.includes('pdf');
-  }
-
-  private isValidFileSize(size: number): boolean {
-    return size <= this.MAX_FILE_SIZE;
   }
 
   getTypeFile(type: string){

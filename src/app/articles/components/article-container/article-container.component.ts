@@ -4,14 +4,12 @@ import { NavItemService } from '../../../layout/services/nav-item.service';
 import { SectionService } from '../../../layout/services/section.service';
 import { ArticleService } from '../../services/article.service';
 import { Section } from '../../../shared/models/section';
-import { AuthService } from '../../../authentication/services/auth.service';
 import { UserStateService } from '../../../core/services/user-state.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Article } from '../../models/article';
 import { UserDetail } from '../../../shared/models/user-detail';
 import { SectionStateService } from '../../../layout/services/sections-state.service';
 import { Subscription, switchMap } from 'rxjs';
-import { TenantService } from '../../../core/services/tenant.service';
 import { Link } from '../../models/link';
 import { MediaArticle } from '../../models/media-article';
 import { NavItem } from '../../../shared/models/nav-item';
@@ -29,14 +27,11 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   private readonly navItemService = inject(NavItemService);
   private readonly sectionService = inject(SectionService);
   private readonly articleService = inject(ArticleService);
-  private readonly authService = inject(AuthService);
   private readonly userStateService = inject(UserStateService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly sectionStateService = inject(SectionStateService);
-  private readonly tenantService = inject(TenantService);
   private sectionUpdateSubscription?: Subscription;
   private readonly subscriptions = new Subscription();
-  private currentSlug = '';
   
   currentSection!: Section;
   articles: Article[] = []; 
@@ -72,7 +67,6 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
   private maxPanY = 0;
 
   ngOnInit() {
-    this.currentSlug = this.tenantService.getSlug();
     this.subscriptions.add(
       this.userStateService.currentUser$.subscribe(user => {
         if (!user) return;
@@ -97,7 +91,7 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
         if (navItemFinded) {
           this.currentNavItem = navItemFinded;
         } else {
-          this.router.navigate([`/${this.currentSlug}`]);
+          this.router.navigate(['/posts']);
         }
       })
     );
@@ -154,7 +148,59 @@ export class ArticleContainerComponent implements OnInit, OnDestroy {
 
   public safeText(textToSanitizer: string): SafeHtml {
     const normalizedHtml = this.normalizeLineBreaks(textToSanitizer);
-    return this.sanitizer.bypassSecurityTrustHtml(normalizedHtml);
+    const articleDocument = new DOMParser().parseFromString(normalizedHtml, 'text/html');
+
+    articleDocument.querySelectorAll<HTMLAnchorElement>('a[href]').forEach(link => {
+      const videoId = this.getYouTubeVideoId(link.href);
+      if (!videoId) return;
+
+      const preview = articleDocument.createElement('div');
+      preview.className = 'article-video-preview';
+
+      const iframe = articleDocument.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}`;
+      iframe.title = link.textContent?.trim() || 'Video de YouTube';
+      iframe.loading = 'lazy';
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+      iframe.setAttribute('allowfullscreen', 'true');
+
+      const videoLink = articleDocument.createElement('a');
+      videoLink.href = `https://www.youtube.com/watch?v=${videoId}`;
+      videoLink.target = '_blank';
+      videoLink.rel = 'noopener noreferrer';
+      videoLink.textContent = 'Abrir video en YouTube';
+
+      preview.append(iframe, videoLink);
+      link.replaceWith(preview);
+    });
+
+    return this.sanitizer.bypassSecurityTrustHtml(articleDocument.body.innerHTML);
+  }
+
+  private getYouTubeVideoId(url: string): string | null {
+    try {
+      const parsedUrl = new URL(url);
+      const hostname = parsedUrl.hostname.toLowerCase().replace(/^www\./, '');
+
+      if (hostname === 'youtu.be') {
+        return parsedUrl.pathname.slice(1).split('/')[0] || null;
+      }
+
+      if (hostname !== 'youtube.com' && hostname !== 'm.youtube.com') return null;
+
+      if (parsedUrl.pathname === '/watch') {
+        return parsedUrl.searchParams.get('v');
+      }
+
+      const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
+      if (pathParts[0] === 'shorts' || pathParts[0] === 'embed') {
+        return pathParts[1] || null;
+      }
+
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   private normalizeLineBreaks(html: string): string {

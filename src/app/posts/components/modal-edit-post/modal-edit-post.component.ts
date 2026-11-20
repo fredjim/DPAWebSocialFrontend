@@ -293,4 +293,8 @@ export class ModalEditPostComponent implements OnInit, OnDestroy {
     this.toastRef.showError(errorMsg, 'Error');
     console.log(errorMsg, error)
   }
+
+  showMessageErrorToast(message: string): void{
+    this.toastRef.showError(message);
+  }
 }
