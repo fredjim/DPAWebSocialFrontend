@@ -3,6 +3,7 @@
 	display: block;
 	width: 100%;
 	text-align: center;
+	background-color: var(--gray-contrast);
 
 	.hero-images {
 		position: relative;
@@ -19,6 +20,8 @@
 				-o-object-fit: cover;
 				object-position: top;
 				-o-object-position: top;
+				max-width: 1450px;
+  				border-radius: 4px;
 			}
 
 			.hero-photo-placeholder {

@@ -2,13 +2,13 @@ nav {
 
 	ul {
 		padding: 0;
-		list-style: disclosure-closed;
 		margin-right: 10px;
 		color: var(--blue-color);
 
 		li {
 			line-height: 1.5rem;
 			margin-bottom: 1rem;
+			padding-right: 5px;
 
 			a {
 				text-decoration: none;
@@ -16,6 +16,7 @@ nav {
 
 				&:hover {
 					text-decoration: underline;
+					color: var(--red-color);
 				}
 			}
 
@@ -24,11 +25,16 @@ nav {
 			}
 		}
 
+		li:has(> a.active) {
+			color: var(--red-color);
+		}
+
 		div.edit-section-pencil {
 			display: flex;
 			justify-content: space-between;
 			align-items: baseline;
 			color: var(--blue-color);
+			margin-right: 1rem;
 
 			div.edit-info {
 				cursor: pointer;
@@ -43,6 +49,14 @@ nav {
 	.btn-new-section {
 		margin-right: 10px;
 	}
+}
+
+.add-bullets {
+	list-style: disclosure-closed;
+}
+
+.remove-bullets {
+	list-style: none;
 }
 
 @media screen and (max-width: 768px) {

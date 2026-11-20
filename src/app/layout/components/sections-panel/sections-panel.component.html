@@ -1,5 +1,5 @@
 <nav>
-	<ul>
+	<ul [ngClass]="{'add-bullets': isMobile, 'remove-bullets': !isMobile}">
 		@if(currentUser && currentUser.role === 'ADMIN'){
 			@for(section of sections; track section.uuid; let i = $index){
 				@if(uuidSectionToEdit === section.uuid){
