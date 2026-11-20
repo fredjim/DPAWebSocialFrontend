@@ -2,7 +2,6 @@ nav {
 
 	ul {
 		padding: 0;
-		list-style: disclosure-closed;
 		margin-right: 10px;
 		color: var(--blue-color);
 
@@ -26,6 +25,10 @@ nav {
 			}
 		}
 
+		li:has(> a.active) {
+			color: var(--red-color);
+		}
+
 		div.edit-section-pencil {
 			display: flex;
 			justify-content: space-between;
@@ -46,6 +49,14 @@ nav {
 	.btn-new-section {
 		margin-right: 10px;
 	}
+}
+
+.add-bullets {
+	list-style: disclosure-closed;
+}
+
+.remove-bullets {
+	list-style: none;
 }
 
 @media screen and (max-width: 768px) {
